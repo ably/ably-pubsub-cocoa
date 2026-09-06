@@ -16,13 +16,13 @@
 		8405EE8827F0B06C00C9E461 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8405EE8727F0B06C00C9E461 /* Assets.xcassets */; };
 		8405EE8B27F0B06C00C9E461 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8405EE8A27F0B06C00C9E461 /* Preview Assets.xcassets */; };
 		842F124A27F0B29D0029692E /* AblyHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842F124927F0B29D0029692E /* AblyHelper.swift */; };
-		848694D127F8958F00B41A5D /* Ably in Frameworks */ = {isa = PBXBuildFile; productRef = 848694D027F8958F00B41A5D /* Ably */; };
+		848694D127F8958F00B41A5D /* Ably in Frameworks */ = {isa = PBXBuildFile; productRef = 848694D027F8958F00B41A5D /* AblyPubSubCore */; };
 		84C233C92A2D560C007DA23B /* LocationPushService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C233C82A2D560C007DA23B /* LocationPushService.swift */; };
 		84E3D1942A6D886E0081E898 /* LocationPushEventsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 219F93792A4E0E44007DE767 /* LocationPushEventsView.swift */; };
 		84E3D1952A6D886E0081E898 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8405EE8527F0B06800C9E461 /* ContentView.swift */; };
 		84E3D1962A6D886E0081E898 /* AblyHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842F124927F0B29D0029692E /* AblyHelper.swift */; };
 		84E3D1972A6D886E0081E898 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8405EE8327F0B06800C9E461 /* App.swift */; };
-		84E3D1992A6D886E0081E898 /* Ably in Frameworks */ = {isa = PBXBuildFile; productRef = 84E3D1922A6D886E0081E898 /* Ably */; };
+		84E3D1992A6D886E0081E898 /* Ably in Frameworks */ = {isa = PBXBuildFile; productRef = 84E3D1922A6D886E0081E898 /* AblyPubSubCore */; };
 		84E3D19B2A6D886E0081E898 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8405EE8A27F0B06C00C9E461 /* Preview Assets.xcassets */; };
 		84E3D19C2A6D886E0081E898 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8405EE8727F0B06C00C9E461 /* Assets.xcassets */; };
 		84E3D19E2A6D886E0081E898 /* AblyLocationPush.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 84C233C62A2D560C007DA23B /* AblyLocationPush.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -199,7 +199,7 @@
 			);
 			name = AblyPushExample;
 			packageProductDependencies = (
-				848694D027F8958F00B41A5D /* Ably */,
+				848694D027F8958F00B41A5D /* AblyPubSubCore */,
 			);
 			productName = AblyPushExample;
 			productReference = 8405EE8027F0B06800C9E461 /* Ably Push.app */;
@@ -238,7 +238,7 @@
 			);
 			name = AblyPushExampleLP;
 			packageProductDependencies = (
-				84E3D1922A6D886E0081E898 /* Ably */,
+				84E3D1922A6D886E0081E898 /* AblyPubSubCore */,
 			);
 			productName = AblyPushExample;
 			productReference = 84E3D1A22A6D886E0081E898 /* AblyPushExampleLP.app */;
@@ -711,13 +711,13 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		848694D027F8958F00B41A5D /* Ably */ = {
+		848694D027F8958F00B41A5D /* AblyPubSubCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = Ably;
+			productName = AblyPubSubCore;
 		};
-		84E3D1922A6D886E0081E898 /* Ably */ = {
+		84E3D1922A6D886E0081E898 /* AblyPubSubCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = Ably;
+			productName = AblyPubSubCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

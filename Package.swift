@@ -3,15 +3,19 @@
 import PackageDescription
 
 let package = Package(
-    name: "ably-cocoa",
+    name: "ably-pubsub-cocoa",
     platforms: [
         .macOS(.v10_11),
         .iOS(.v9),
         .tvOS(.v10)
     ],
     products: [
+        // The shared implementation of the SDK, for use by Ably's own
+        // packages. A client built from it does not declare that it runs on an
+        // end user's device, so Ably classifies its traffic by default rules;
+        // applications depend on AblyPubSubDevice, which does declare it.
         .library(
-            name: "Ably",
+            name: "AblyPubSubCore",
             targets: ["Ably"]
         ),
         .library(
@@ -80,6 +84,8 @@ let package = Package(
             name: "_AblyPluginSupportPrivate",
             path: "_AblyPluginSupportPrivate"
         ),
+        // The core SDK. Vended as the AblyPubSubCore product; its module is
+        // named `Ably`.
         .target(
             name: "Ably",
             dependencies: [

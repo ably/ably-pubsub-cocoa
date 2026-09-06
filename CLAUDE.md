@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ably-cocoa is the Ably pub/sub SDK for iOS, macOS, and tvOS. It is written in Objective-C with a public Objective-C API that is also consumed from Swift. It implements the [Ably client library specification](https://github.com/ably/specification).
 
+**ably-cocoa is device-side only**: it serves apps running on an end user's device. Per [PDR-091](https://ably.atlassian.net/wiki/spaces/product/pages/5220106242), such a client declares that to Ably, which is what determines how its traffic counts toward an account's monthly active users. The decision records cover all nine Pub/Sub SDKs and describe a device/server pair, but the server half belongs to the server-capable SDKs; do not add a server package, a server factory, or the `ably-pubsub-server` agent identifier here, and do not document this SDK as a choice between two sides. Server-side Swift is tracked separately as `ably-swift`.
+
+The SPM products are **`AblyPubSubCore`** (the core SDK, an internal implementation product for Ably's own packages rather than for direct use by applications) and `AblyLiveObjects`. The core's **module is `Ably` and its class prefix is `ART`**, independently of the product name — do not rename ObjC symbols, headers or the module.
+
 ## Build and Test
 
 ```bash

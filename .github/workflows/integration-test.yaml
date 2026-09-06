@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - main
+      - 'integration/**'
 
 # IMPORTANT NOTES:
 # - The Fastlane lane name is duplicated in more than one place within this workflow.

@@ -18,6 +18,12 @@ let package = Package(
             name: "AblyPubSubCore",
             targets: ["Ably"]
         ),
+        // The entry point for apps: creates clients that declare they are
+        // running on an end user's device.
+        .library(
+            name: "AblyPubSubDevice",
+            targets: ["AblyPubSubDevice"]
+        ),
         .library(
             name: "AblyLiveObjects",
             targets: ["AblyLiveObjects"]
@@ -84,6 +90,16 @@ let package = Package(
             name: "_AblyPluginSupportPrivate",
             path: "_AblyPluginSupportPrivate"
         ),
+        // Creates clients that declare they are running on an end user's
+        // device, by stamping the agent entry Ably classifies on.
+        .target(
+            name: "AblyPubSubDevice",
+            dependencies: [
+                .target(name: "Ably"),
+            ],
+            path: "PubSubDevice",
+            publicHeadersPath: "include"
+        ),
         // The core SDK. Vended as the AblyPubSubCore product; its module is
         // named `Ably`.
         .target(
@@ -120,6 +136,7 @@ let package = Package(
             name: "AblyTests",
             dependencies: [
                 .byName(name: "Ably"),
+                .target(name: "AblyPubSubDevice"),
                 .byName(name: "AblyTesting"),
                 .byName(name: "AblyTestingObjC"),
                 .product(name: "Nimble", package: "nimble"),
@@ -167,6 +184,7 @@ let package = Package(
             name: "AblyTestsObjC",
             dependencies: [
                 .byName(name: "Ably"),
+                .target(name: "AblyPubSubDevice"),
                 .byName(name: "AblyTesting"),
                 .byName(name: "AblyTestingObjC"),
             ],

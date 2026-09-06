@@ -19,7 +19,8 @@ let package = Package(
             dependencies: [
                 // `package:` is the dependency's identity, which for a path
                 // dependency is the directory name, not the manifest's `name`.
-                .product(name: "AblyPubSubCore", package: "ably-cocoa")
+                .product(name: "AblyPubSubCore", package: "ably-cocoa"),
+                .product(name: "AblyPubSubDevice", package: "ably-cocoa")
             ],
             swiftSettings: [
                 .unsafeFlags(["-warnings-as-errors"])

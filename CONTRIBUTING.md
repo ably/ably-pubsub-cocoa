@@ -30,6 +30,8 @@ Changes made to dependencies in the [Cartfile](Cartfile) need to be reflected in
 
 ## Adding new Objective-C files to the SDK
 
+The steps below are for the core SDK — the `Ably` target, whose sources live in `Source/`. The `AblyPubSubDevice` target (`PubSubDevice/`) is laid out differently: its public headers go in `PubSubDevice/include/AblyPubSubDevice/` and its implementations directly in `PubSubDevice/`, there is no umbrella header to add an `#import` to, and it is absent from `Ably.xcodeproj`. SwiftPM globs the directory and generates the module map, so a new file there needs no other change.
+
 ### Public header (`.h`) files
 
 These are the header files that form the public interface of the SDK.
@@ -127,19 +129,19 @@ If you add another `xcodebuild`-based path that compiles a test target linking `
 
 ### Distribution
 
-`AblyLiveObjects` is available **via Swift Package Manager only**. CocoaPods and Carthage consumers receive the core SDK alone, so a release tag does not deliver the same set of products to every channel:
+`AblyPubSubDevice` and `AblyLiveObjects` are available **via Swift Package Manager only**. CocoaPods and Carthage consumers receive the core SDK alone, so a release tag does not deliver the same set of products to every channel:
 
-| Channel | `AblyPubSubCore` | `AblyLiveObjects` |
-| --- | --- | --- |
-| Swift Package Manager | yes | yes |
-| CocoaPods | yes (as the `Ably` pod) | no |
-| Carthage | yes | no |
+| Channel | `AblyPubSubCore` | `AblyPubSubDevice` | `AblyLiveObjects` |
+| --- | --- | --- | --- |
+| Swift Package Manager | yes | yes | yes |
+| CocoaPods | yes (as the `Ably` pod) | no | no |
+| Carthage | yes | no | no |
 
 > The `AblyPubSubCore` product's module is named `Ably` and its classes carry the `ART` prefix, so
 > consumers reach the core as `import Ably` / `#import <Ably/…>` whichever channel they install it
 > from — which is why the CocoaPods pod and the Carthage framework are both named `Ably`.
 
-This is a deliberate decision rather than an omission. Four separate things would each have to change to lift it:
+The two are SPM-only for different reasons. Nothing about `AblyPubSubDevice` resists the other channels: it is a plain Objective-C target over the core, with the same platform floor and no plugin machinery, so shipping it as a pod would mean adding a podspec and Carthage targets rather than removing an obstacle. `AblyLiveObjects` is the constrained one, and deliberately so rather than by omission — four separate things would each have to change to lift it:
 
 - [`Ably.podspec`](Ably.podspec)'s `source_files` covers `Source/` only, so neither `LiveObjects/` nor `_AblyPluginSupportPrivate/` ships in the pod; and `Ably.xcodeproj`, which Carthage builds, contains no LiveObjects or plugin-support targets.
 - `ABLY_SUPPORTS_PLUGINS` is defined only in `Package.swift`. Without it the plugin hook points — `ARTClientOptions.plugins` and the plumbing in `ARTRealtimeChannel.m`, `ARTRealtime.m` and `ARTJsonLikeEncoder.m` — are compiled out. It is a compile-time define on the core target, so enabling it would enable it for every CocoaPods and Carthage consumer, in a configuration that has never been built or tested.
@@ -209,4 +211,4 @@ For each release, the following needs to be done:
 * Checkout `main` locally, pulling in changes using `git checkout main && git pull`. Make sure the new tag you need was created on publish
 * Release an update for CocoaPods using `pod trunk push Ably.podspec --allow-warnings`. Details on this command, as well as instructions for adding other contributors as maintainers, are at [Getting setup with Trunk](https://guides.cocoapods.org/making/getting-setup-with-trunk.html) in the [CocoaPods Guides](https://guides.cocoapods.org/). This publishes the core SDK only — there is no LiveObjects pod
 * Test the integration of the library in a Xcode project using Carthage and CocoaPods using the [installation guide](https://github.com/ably/ably-cocoa#installation-guide)
-* Test that Swift Package Manager resolves the new tag, selecting both the `AblyPubSubCore` and `AblyLiveObjects` products
+* Test that Swift Package Manager resolves the new tag, selecting the `AblyPubSubCore`, `AblyPubSubDevice` and `AblyLiveObjects` products

@@ -15,7 +15,7 @@ extern NSString *const ARTClientInformationAgentNotVersioned;
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
- * Returns the default key-value entries that the Ably client library uses to identify itself, and the environment in which it's running, to the Ably service. Its keys are the names of the software components, and its values are their optional versions. The full list of keys that this method might return can be found [here](https://github.com/ably/ably-common/tree/main/protocol#agents). For example, users of the `ably-cocoa` client library can find out the library version by fetching the value for the `"ably-cocoa"` key from the return value of this method.
+ * Returns the default key-value entries that the Ably client library uses to identify itself, and the environment in which it's running, to the Ably service. Its keys are the names of the software components, and its values are their optional versions. The full list of keys that this method might return can be found [here](https://github.com/ably/ably-common/tree/main/protocol#agents). For example, users of this client library can find out the library version by fetching the value for the `"ably-pubsub-cocoa"` key from the return value of this method.
  */
 @property (class, readonly) NSDictionary<NSString *, NSString *> *agents;
 

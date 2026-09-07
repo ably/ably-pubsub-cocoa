@@ -128,7 +128,7 @@ class PubSubDeviceTests: XCTestCase {
                         done()
                         return
                     }
-                    expect(query).to(haveParam("agent", hasPrefix: "ably-cocoa/"))
+                    expect(query).to(haveParam("agent", hasPrefix: "ably-pubsub-cocoa/"))
                     XCTAssertTrue(query.contains(deviceAgentName))
                     XCTAssertFalse(query.contains("\(deviceAgentName)%2F"))
                     done()
@@ -173,5 +173,32 @@ class PubSubDeviceTests: XCTestCase {
         defer { client.dispose(); client.close() }
 
         XCTAssertNil(client.internal.options.agents?[deviceAgentName])
+
+        let identifier = ARTClientInformation.agentIdentifier(withAdditionalAgents: client.internal.options.agents)
+        XCTAssertFalse(identifier.contains(deviceAgentName))
+    }
+
+    // MARK: - The whole identifier
+
+    func test__011__createClient__the_full_agent_identifier() throws {
+        let test = Test()
+        let options = try AblyTests.commonAppSetup(for: test)
+        options.autoConnect = false
+
+        let client = PubSubDevice.createClient(options: options)
+        defer { client.dispose(); client.close() }
+
+        // The SDK entry carries the version; the device entry is a bare flag
+        // beside it. Entries are emitted in sorted order.
+        let expected = [
+            "ably-pubsub-cocoa/2.0.0",
+            deviceAgentName,
+            ARTDefault.platformAgent(),
+        ].sorted().joined(separator: " ")
+
+        XCTAssertEqual(
+            ARTClientInformation.agentIdentifier(withAdditionalAgents: client.internal.options.agents),
+            expected
+        )
     }
 }

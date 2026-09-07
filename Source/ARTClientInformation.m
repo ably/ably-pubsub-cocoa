@@ -7,7 +7,7 @@
 
 NSString *const ARTClientInformationAgentNotVersioned = @"ARTClientInformationAgentNotVersioned";
 NSString *const ARTClientInformation_libraryVersion = @"2.0.0";
-static NSString *const _libraryName = @"ably-cocoa";
+static NSString *const _libraryName = @"ably-pubsub-cocoa";
 
 // NSOperatingSystemVersion has NSInteger as version components for some reason, so mitigate it here.
 static inline UInt32 conformVersionComponent(const NSInteger component) {

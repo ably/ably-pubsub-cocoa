@@ -171,7 +171,7 @@ jobs:
   # Test/UTS/unit/objects). Running them here would duplicate CI that already
   # exists:
   #
-  # - EXECUTION: integration-test.yaml's Fastlane lanes run the whole `UTS`
+  # - EXECUTION: uts.yaml's Fastlane lanes run the whole `UTS`
   #   target on iOS, tvOS AND macOS via Test/Ably.xctestplan (which lists the
   #   UTS target un-skipped) — including the sandbox-network integration tier
   #   and, on macOS, the proxy tier.
@@ -229,7 +229,7 @@ jobs:
   # scheme via BuildTool, once per platform. BuildTool raises the iOS/tvOS test
   # bundles' deployment target to the plugin floor (14.0) so the test code that
   # uses plugin types compiles — the same problem fastlane/Fastfile solves for
-  # the UTS target in integration-test.yaml.
+  # the UTS target in uts.yaml.
   build-and-test-xcode:
     name: Xcode, ${{matrix.platform}} (Xcode ${{ matrix.tooling.xcodeVersion }})
     runs-on: macos-15

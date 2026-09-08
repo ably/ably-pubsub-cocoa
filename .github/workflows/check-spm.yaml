@@ -3,7 +3,7 @@
 # It only COMPILES the root package (warnings-as-errors); it runs NO tests.
 # The same build also happens in liveobjects.yaml's build-and-test-spm job —
 # kept here as the core SDK's own required gate, independent of plugin CI.
-# UTS/AblyTests execute in integration-test.yaml; AblyLiveObjectsTests in
+# UTS executes in uts.yaml, AblyTests in integration-test.yaml; AblyLiveObjectsTests in
 # liveobjects.yaml.
 
 name: "Check SPM build"

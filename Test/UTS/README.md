@@ -587,7 +587,7 @@ UTS_PROXY_LOCAL_PATH=/path/to/uts-proxy swift test --filter UTS.AuthReauthTests
 
 **Where CI runs them:** there is currently **no UTS-specific CI job** — the UTS target runs as part
 of the full test suite (the `ably-cocoa` scheme driven by the fastlane lanes in
-`.github/workflows/integration-test.yaml`, which already has sandbox network access). A dedicated
+`.github/workflows/uts.yaml`, which already has sandbox network access). A dedicated
 fast PR-gate step running just the unit suites (e.g. in `check-spm.yaml`, mirroring ably-java's
 `runUtsUnitTests` gate in its `check.yml`) is a cheap improvement worth making — the
 unit/integration split now runs on suite selection rather than env vars, so the lanes only need

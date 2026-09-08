@@ -19,16 +19,15 @@ jobs:
     runs-on: macos-15
 
     # These Fastlane lanes build the `ably-cocoa` scheme against
-    # Test/Ably.xctestplan, which runs the AblyTests, AblyTestsObjC and UTS
-    # targets. This is the ONLY place CI executes the `UTS` target's tests
-    # (the Universal Test Suite at Test/UTS, derived from the
-    # ably/specification `uts/` specs) — including the LiveObjects `objects`
-    # unit tier at Test/UTS/unit/objects, the sandbox-network integration
-    # tier, and (macOS only) the proxy tier. liveobjects.yaml deliberately
-    # has no UTS job (see the note in that file); its SPM job still compiles
-    # the UTS target under -warnings-as-errors. The lanes raise the iOS/tvOS
-    # test deployment targets in fastlane/Fastfile so that UTS code linking
-    # AblyLiveObjects (iOS 14 / tvOS 14 floor) compiles.
+    # Test/Ably.xctestplan, passing `suite:sdk` so that the AblyTests and
+    # AblyTestsObjC targets run here and the UTS target does not. The UTS runs
+    # in uts.yaml instead: it is mostly a unit suite, so grouping it under
+    # "Integration Test" misnamed it, and splitting the two means a UTS failure
+    # is distinguishable at a glance and either can be re-run without the
+    # other's sandbox time. The lanes raise the iOS/tvOS test deployment
+    # targets in fastlane/Fastfile so that UTS code linking AblyLiveObjects
+    # (iOS 14 / tvOS 14 floor) compiles — that applies to the whole test build,
+    # so it is needed here too.
     strategy:
       fail-fast: false
       matrix:
@@ -93,7 +92,7 @@ jobs:
           bundle install
 
       - name: Run Tests
-        run: bundle exec fastlane ${{ matrix.lane }}
+        run: bundle exec fastlane ${{ matrix.lane }} suite:sdk
 
       - name: Check Static Analyzer Output
         id: analyzer-output

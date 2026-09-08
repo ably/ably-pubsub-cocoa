@@ -1,0 +1,119 @@
+name: "UTS"
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+      - 'integration/**'
+
+# IMPORTANT NOTES:
+# - The Fastlane lane name is duplicated in more than one place within this workflow.
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: macos-15
+
+    # Runs the Universal Test Suite (Test/UTS, derived from the
+    # ably/specification `uts/` specs) and nothing else, via `suite:uts` —
+    # fastlane turns that into -only-testing:UTS. This is the only place CI
+    # executes it, including the LiveObjects `objects` unit tier at
+    # Test/UTS/unit/objects, the sandbox-network integration tier, and
+    # (macOS only) the proxy tier.
+    #
+    # It has its own workflow rather than a leg of integration-test.yaml
+    # because the UTS is primarily a unit suite, so "Integration Test" was the
+    # wrong name for it, and because a separate workflow can be dispatched and
+    # re-run on its own. liveobjects.yaml deliberately has no UTS job (see the
+    # note in that file); its SPM job still compiles the UTS target under
+    # -warnings-as-errors.
+    #
+    # The lanes raise the iOS/tvOS test deployment targets in fastlane/Fastfile
+    # so that UTS code linking AblyLiveObjects (iOS 14 / tvOS 14 floor)
+    # compiles.
+    #
+    # Results are not uploaded to test-observability, and so there is no
+    # xcparse checkout here either (the upload script needs it to extract crash
+    # reports). That upload exists for the SDK's own suite, whose value is in
+    # analysing which tests fail intermittently over time. This suite is new,
+    # like the LiveObjects one, which does not upload either.
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+
+          - platform: iOS
+            lane: test_iOS26_2
+
+          - platform: tvOS
+            lane: test_tvOS26_2
+
+          - platform: macOS
+            lane: test_macOS
+
+    env:
+      LC_CTYPE: en_US.UTF-8
+      LANG: en_US.UTF-8
+      ABLY_ENV: sandbox
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+
+      - name: Select Xcode (16.4)
+        run: |
+          sudo xcode-select -s /Applications/Xcode_16.4.app
+          echo "Selected Xcode version:"
+          xcodebuild -version
+
+      - name: Environment Info
+        run: ./Scripts/log-environment-information.sh
+
+      - name: Reset Simulators
+        run: xcrun simctl erase all
+
+      - name: Install Dependencies
+        run: |
+          brew install xcbeautify
+          make submodules
+          bundle install
+
+      - name: Run Tests
+        run: bundle exec fastlane ${{ matrix.lane }} suite:uts
+
+      - name: Check Static Analyzer Output
+        id: analyzer-output
+        run: |
+          if [[ -z $(find ./derived_data -name "report-*.html") ]]; then
+            echo "Static Analyzer found no issues."
+          else
+            echo "Static Analyzer found some issues. HTML report will be available in Artifacts section. Failing build."
+            exit 1
+          fi
+      
+      - name: Upload Static Analyzer Reports
+        if: ${{ failure() && steps.analyzer-output.outcome == 'failure' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: static-analyzer-reports-${{ matrix.lane }}
+          path: ./derived_data/**/report-*.html
+      
+      - name: Upload Xcodebuild Logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: xcodebuild-logs-${{ matrix.lane }}
+          path: ~/Library/Developer/Xcode/DerivedData/*/Logs
+
+      - name: Upload Test Output
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: test-output-${{ matrix.lane }}
+          path: fastlane/test_output

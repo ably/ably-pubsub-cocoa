@@ -1,0 +1,31 @@
+{
+  "configurations": [
+    {
+      "id": "3D7B21F5-8E64-4A19-9C02-5B8E7A41F6D2",
+      "name": "Device side",
+      "options": {
+        "environmentVariableEntries": [
+          {
+            "key": "UTS_SIDE",
+            "value": "device"
+          }
+        ]
+      }
+    }
+  ],
+  "defaultOptions": {
+    "codeCoverage": false,
+    "language": "en",
+    "region": "US"
+  },
+  "testTargets": [
+    {
+      "target": {
+        "containerPath": "container:",
+        "identifier": "UTS",
+        "name": "UTS"
+      }
+    }
+  ],
+  "version": 1
+}

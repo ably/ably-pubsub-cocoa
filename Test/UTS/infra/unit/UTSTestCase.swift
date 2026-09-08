@@ -86,7 +86,7 @@ class UTSTestCase {
 
         configure(options)
 
-        let client = ARTRealtime(options: options)
+        let client = makeRealtimeForSide(options: options)
         clients.append(client)
         return client
     }

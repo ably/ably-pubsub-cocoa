@@ -583,7 +583,24 @@ swift test --filter UTS.AuthReauthTests
 # Run the proxy tier against a locally built uts-proxy instead of a GitHub release
 # (a config override, not a gate):
 UTS_PROXY_LOCAL_PATH=/path/to/uts-proxy swift test --filter UTS.AuthReauthTests
+
+# Build realtime clients through AblyPubSubDevice's factory rather than the constructor
+# (a config override, not a gate; unset means the constructor):
+UTS_SIDE=device swift test --filter UTS.ConnectionRecoveryTests
 ```
+
+`UTS_SIDE` picks which entry point the suite reaches the SDK through: `core` (the default) uses
+`ARTRealtime(options:)`, `device` uses `PubSubDevice.createClient(options:)`. The specs are the same
+either way. The factory has tests of its own, but they check only that it stamps the declaring agent
+and leaves the caller's options untouched; they barely use the client it returns. Running the specs
+through it is what puts that client to work, and so shows the factory to be a faithful pass-through
+and not merely a correct stamp. Every realtime client in
+every tier is built by `makeRealtimeForSide` in [`infra/Side.swift`](infra/Side.swift), so there is
+one seam to keep honest; `SideSeamTests` asserts the routing directly, because a broken seam would
+otherwise leave the suite quietly repeating the core run and reporting it as coverage. REST clients
+are deliberately not routed through it — the device package exposes no HTTP door, so `ARTRest` is
+the only way to build a stateless client in either mode. An unrecognised value aborts the run
+rather than falling back to `core`.
 
 **Where CI runs them:** there is currently **no UTS-specific CI job** — the UTS target runs as part
 of the full test suite (the `ably-cocoa` scheme driven by the fastlane lanes in

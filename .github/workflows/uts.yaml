@@ -36,6 +36,20 @@ jobs:
     # so that UTS code linking AblyLiveObjects (iOS 14 / tvOS 14 floor)
     # compiles.
     #
+    # The `side` dimension runs the suite twice per platform, once per entry
+    # point. The `core` leg uses the default Ably test plan, and builds clients
+    # with ARTRealtime(options:). The `device` leg uses the UTSDevice plan,
+    # whose configuration sets UTS_SIDE=device, and builds them with
+    # PubSubDevice.createClient(options:) instead.
+    #
+    # The specs are the same either way, so both legs should report the same
+    # results.
+    #
+    # A test plan is how the variable reaches an xcodebuild run: neither a plain
+    # export nor a TEST_RUNNER_-prefixed build setting reaches an SPM test
+    # bundle. Under `swift test` no plan is involved, because the test binary
+    # inherits the environment — see Test/UTS/README.md.
+    #
     # Results are not uploaded to test-observability, and so there is no
     # xcparse checkout here either (the upload script needs it to extract crash
     # reports). That upload exists for the SDK's own suite, whose value is in
@@ -48,12 +62,33 @@ jobs:
 
           - platform: iOS
             lane: test_iOS26_2
+            side: core
+            test_plan: Ably
+
+          - platform: iOS
+            lane: test_iOS26_2
+            side: device
+            test_plan: UTSDevice
 
           - platform: tvOS
             lane: test_tvOS26_2
+            side: core
+            test_plan: Ably
+
+          - platform: tvOS
+            lane: test_tvOS26_2
+            side: device
+            test_plan: UTSDevice
 
           - platform: macOS
             lane: test_macOS
+            side: core
+            test_plan: Ably
+
+          - platform: macOS
+            lane: test_macOS
+            side: device
+            test_plan: UTSDevice
 
     env:
       LC_CTYPE: en_US.UTF-8
@@ -85,7 +120,7 @@ jobs:
           bundle install
 
       - name: Run Tests
-        run: bundle exec fastlane ${{ matrix.lane }} suite:uts
+        run: bundle exec fastlane ${{ matrix.lane }} suite:uts test_plan:${{ matrix.test_plan }}
 
       - name: Check Static Analyzer Output
         id: analyzer-output
@@ -101,19 +136,19 @@ jobs:
         if: ${{ failure() && steps.analyzer-output.outcome == 'failure' }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: static-analyzer-reports-${{ matrix.lane }}
+          name: static-analyzer-reports-${{ matrix.lane }}-${{ matrix.side }}
           path: ./derived_data/**/report-*.html
       
       - name: Upload Xcodebuild Logs
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: xcodebuild-logs-${{ matrix.lane }}
+          name: xcodebuild-logs-${{ matrix.lane }}-${{ matrix.side }}
           path: ~/Library/Developer/Xcode/DerivedData/*/Logs
 
       - name: Upload Test Output
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: test-output-${{ matrix.lane }}
+          name: test-output-${{ matrix.lane }}-${{ matrix.side }}
           path: fastlane/test_output

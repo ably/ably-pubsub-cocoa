@@ -33,7 +33,7 @@ class IntegrationTestCase {
     /// Builds a real (unmocked) `ARTRealtime` from `options`, runs `body`, then always closes the
     /// client and waits for CLOSED.
     func withRealtimeClient(_ options: ARTClientOptions, _ body: (ARTRealtime) async throws -> Void) async throws {
-        let client = ARTRealtime(options: options)
+        let client = makeRealtimeForSide(options: options)
         try await runThenCleanUp(client, body: body) { client in
             // Per the specs' common cleanup: only close from a state that can reach CLOSED.
             // close() never transitions out of FAILED (terminal) or INITIALIZED (never

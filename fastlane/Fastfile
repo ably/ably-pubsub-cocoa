@@ -8,7 +8,12 @@ class LaneConfig < Struct.new(:name, :devices)
   #   nil / "all" — every target in Test/Ably.xctestplan
   #   "sdk"       — AblyTests and AblyTestsObjC
   #   "uts"       — the UTS target alone
-  def args_for_run_tests(suite: nil)
+  # `test_plan` selects an Xcode test plan by name. The default plan (Ably) runs the
+  # targets against today's constructors; UTSDevice runs the UTS target with
+  # UTS_SIDE=device, so the suite reaches the SDK through AblyPubSubDevice's factory
+  # instead. Plans are declared in
+  # .swiftpm/xcode/xcshareddata/xcschemes/ably-cocoa.xcscheme.
+  def args_for_run_tests(suite: nil, test_plan: nil)
     ably_env = ENV['ABLY_ENV']
 
     unless ably_env && !ably_env.empty?
@@ -37,6 +42,8 @@ class LaneConfig < Struct.new(:name, :devices)
       xcargs: { ABLY_ENV: ably_env, CLANG_ANALYZER_OUTPUT: 'plist-html', IPHONEOS_DEPLOYMENT_TARGET: '14.0', TVOS_DEPLOYMENT_TARGET: '14.0' },
       output_directory: "fastlane/test_output/sdk/#{name}"
     }
+
+    args[:testplan] = test_plan if test_plan && !test_plan.empty?
 
     case suite
     when 'uts'
@@ -73,7 +80,7 @@ platform :ios do
 
   LANE_CONFIGS.each do |lane_config|
     lane(lane_config.name) do |options|
-      run_tests(**lane_config.args_for_run_tests(suite: options[:suite]))
+      run_tests(**lane_config.args_for_run_tests(suite: options[:suite], test_plan: options[:test_plan]))
     end
   end
 

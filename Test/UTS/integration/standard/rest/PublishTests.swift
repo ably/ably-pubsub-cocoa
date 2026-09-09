@@ -188,14 +188,17 @@ extension PublishTests {
                               name: String,
                               data: String,
                               sourceLocation: SourceLocation = #_sourceLocation) async -> ARTErrorInfo? {
-        await withCheckedContinuation { (continuation: CheckedContinuation<ARTErrorInfo?, Never>) in
+        let error: ARTErrorInfo? = await withCheckedContinuation { continuation in
             channel.publish(name, data: data, callback: { error in
-                if error == nil {
-                    Issue.record("publish(\(name)) unexpectedly succeeded", sourceLocation: sourceLocation)
-                }
                 continuation.resume(returning: error)
             })
         }
+
+        if error == nil {
+            Issue.record("publish(\(name)) unexpectedly succeeded", sourceLocation: sourceLocation)
+        }
+
+        return error
     }
 
     /// Awaits `publish(messages:)` expecting it to fail, returning the error — or nil, after
@@ -203,14 +206,17 @@ extension PublishTests {
     private func publishError(_ channel: ARTRestChannel,
                               messages: [ARTMessage],
                               sourceLocation: SourceLocation = #_sourceLocation) async -> ARTErrorInfo? {
-        await withCheckedContinuation { (continuation: CheckedContinuation<ARTErrorInfo?, Never>) in
+        let error: ARTErrorInfo? = await withCheckedContinuation { continuation in
             channel.publish(messages, callback: { error in
-                if error == nil {
-                    Issue.record("publish(messages) unexpectedly succeeded", sourceLocation: sourceLocation)
-                }
                 continuation.resume(returning: error)
             })
         }
+
+        if error == nil {
+            Issue.record("publish(messages) unexpectedly succeeded", sourceLocation: sourceLocation)
+        }
+
+        return error
     }
 
     /// Awaits the publish acknowledgement and returns the `ARTPublishResult` (the spec's
@@ -219,14 +225,17 @@ extension PublishTests {
                                name: String,
                                data: String,
                                sourceLocation: SourceLocation = #_sourceLocation) async -> ARTPublishResult? {
-        await withCheckedContinuation { (continuation: CheckedContinuation<ARTPublishResult?, Never>) in
+        let (result, failure): (ARTPublishResult?, String?) = await withCheckedContinuation { continuation in
             channel.publish(name, data: data, resultCallback: { result, error in
-                if let error {
-                    Issue.record("publish(\(name)) failed: \(error)", sourceLocation: sourceLocation)
-                }
-                continuation.resume(returning: result)
+                continuation.resume(returning: (result, error.map { "\($0)" }))
             })
         }
+
+        if let failure {
+            Issue.record("publish(\(name)) failed: \(failure)", sourceLocation: sourceLocation)
+        }
+
+        return result
     }
 
     /// Awaits the publish acknowledgement for an array of messages and returns the
@@ -235,14 +244,17 @@ extension PublishTests {
     private func publishResult(_ channel: ARTRestChannel,
                                messages: [ARTMessage],
                                sourceLocation: SourceLocation = #_sourceLocation) async -> ARTPublishResult? {
-        await withCheckedContinuation { (continuation: CheckedContinuation<ARTPublishResult?, Never>) in
+        let (result, failure): (ARTPublishResult?, String?) = await withCheckedContinuation { continuation in
             channel.publish(messages, resultCallback: { result, error in
-                if let error {
-                    Issue.record("publish(messages) failed: \(error)", sourceLocation: sourceLocation)
-                }
-                continuation.resume(returning: result)
+                continuation.resume(returning: (result, error.map { "\($0)" }))
             })
         }
+
+        if let failure {
+            Issue.record("publish(messages) failed: \(failure)", sourceLocation: sourceLocation)
+        }
+
+        return result
     }
 
     /// Awaits the publish acknowledgement of a single pre-built message (the spec's
@@ -250,13 +262,14 @@ extension PublishTests {
     private func awaitPublish(_ channel: ARTRestChannel,
                               message: ARTMessage,
                               sourceLocation: SourceLocation = #_sourceLocation) async {
-        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+        let failure: String? = await withCheckedContinuation { continuation in
             channel.publish([message], callback: { error in
-                if let error {
-                    Issue.record("publish(\(message.id ?? "?")) failed: \(error)", sourceLocation: sourceLocation)
-                }
-                continuation.resume()
+                continuation.resume(returning: error.map { "\($0)" })
             })
+        }
+
+        if let failure {
+            Issue.record("publish(\(message.id ?? "?")) failed: \(failure)", sourceLocation: sourceLocation)
         }
     }
 
@@ -264,14 +277,17 @@ extension PublishTests {
     /// error.
     private func historyItems(of channel: ARTRestChannel,
                               sourceLocation: SourceLocation = #_sourceLocation) async -> [ARTMessage] {
-        await withCheckedContinuation { (continuation: CheckedContinuation<[ARTMessage], Never>) in
+        let (items, failure): ([ARTMessage], String?) = await withCheckedContinuation { continuation in
             channel.history { result, error in
-                if let error {
-                    Issue.record("history() failed: \(error)", sourceLocation: sourceLocation)
-                }
-                continuation.resume(returning: result?.items ?? [])
+                continuation.resume(returning: (result?.items ?? [], error.map { "\($0)" }))
             }
         }
+
+        if let failure {
+            Issue.record("history() failed: \(failure)", sourceLocation: sourceLocation)
+        }
+
+        return items
     }
 
     /// Fetches the channel's history (default query) and returns its items, propagating any
@@ -296,13 +312,16 @@ extension PublishTests {
     private func requestToken(_ client: ARTRest,
                               tokenParams: ARTTokenParams,
                               sourceLocation: SourceLocation = #_sourceLocation) async -> String? {
-        await withCheckedContinuation { (continuation: CheckedContinuation<String?, Never>) in
+        let (token, failure): (String?, String?) = await withCheckedContinuation { continuation in
             client.auth.requestToken(tokenParams, with: nil) { tokenDetails, error in
-                if let error {
-                    Issue.record("requestToken failed: \(error)", sourceLocation: sourceLocation)
-                }
-                continuation.resume(returning: tokenDetails?.token)
+                continuation.resume(returning: (tokenDetails?.token, error.map { "\($0)" }))
             }
         }
+
+        if let failure {
+            Issue.record("requestToken failed: \(failure)", sourceLocation: sourceLocation)
+        }
+
+        return token
     }
 }

@@ -236,13 +236,14 @@ extension HistoryTests {
                               name: String,
                               data: Any,
                               sourceLocation: SourceLocation = #_sourceLocation) async {
-        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+        let failure: String? = await withCheckedContinuation { continuation in
             channel.publish(name, data: data, callback: { error in
-                if let error {
-                    Issue.record("publish(\(name)) failed: \(error)", sourceLocation: sourceLocation)
-                }
-                continuation.resume()
+                continuation.resume(returning: error.map { "\($0)" })
             })
+        }
+
+        if let failure {
+            Issue.record("publish(\(name)) failed: \(failure)", sourceLocation: sourceLocation)
         }
     }
 
@@ -252,19 +253,21 @@ extension HistoryTests {
     private func historyItems(of channel: ARTRestChannel,
                               query: ARTDataQuery? = nil,
                               sourceLocation: SourceLocation = #_sourceLocation) async -> [ARTMessage] {
-        await withCheckedContinuation { (continuation: CheckedContinuation<[ARTMessage], Never>) in
+        let (items, failure): ([ARTMessage], String?) = await withCheckedContinuation { continuation in
             do {
                 try channel.history(query, callback: { result, error in
-                    if let error {
-                        Issue.record("history() failed: \(error)", sourceLocation: sourceLocation)
-                    }
-                    continuation.resume(returning: result?.items ?? [])
+                    continuation.resume(returning: (result?.items ?? [], error.map { "history() failed: \($0)" }))
                 })
             } catch {
-                Issue.record("history(query) rejected the query: \(error)", sourceLocation: sourceLocation)
-                continuation.resume(returning: [])
+                continuation.resume(returning: ([], "history(query) rejected the query: \(error)"))
             }
         }
+
+        if let failure {
+            Issue.record("\(failure)", sourceLocation: sourceLocation)
+        }
+
+        return items
     }
 
     /// Fetches the channel's history (default query) and returns its items, propagating any
@@ -289,16 +292,20 @@ extension HistoryTests {
     private func historyPage(of channel: ARTRestChannel,
                              sourceLocation: SourceLocation = #_sourceLocation) async
         -> (items: [ARTMessage], hasNext: Bool, isLast: Bool) {
-        await withCheckedContinuation { (continuation: CheckedContinuation<(items: [ARTMessage], hasNext: Bool, isLast: Bool), Never>) in
+        let (page, failure): ((items: [ARTMessage], hasNext: Bool, isLast: Bool), String?) = await withCheckedContinuation { continuation in
             channel.history { result, error in
-                if let error {
-                    Issue.record("history() failed: \(error)", sourceLocation: sourceLocation)
-                }
-                continuation.resume(returning: (items: result?.items ?? [],
-                                                hasNext: result?.hasNext ?? false,
-                                                isLast: result?.isLast ?? true))
+                continuation.resume(returning: ((items: result?.items ?? [],
+                                                 hasNext: result?.hasNext ?? false,
+                                                 isLast: result?.isLast ?? true),
+                                                error.map { "\($0)" }))
             }
         }
+
+        if let failure {
+            Issue.record("history() failed: \(failure)", sourceLocation: sourceLocation)
+        }
+
+        return page
     }
 
     /// Builds a `Date` from a Unix-epoch millisecond timestamp (the spec's ms arithmetic on

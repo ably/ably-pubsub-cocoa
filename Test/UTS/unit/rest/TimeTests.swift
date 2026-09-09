@@ -179,31 +179,35 @@ final class TimeTests: UTSTestCase {
 extension TimeTests {
     /// Bridges the completion-handler `time:` API (UTS `AWAIT client.time()`, success path).
     func awaitTime(_ rest: ARTRest, sourceLocation: SourceLocation = #_sourceLocation) async throws -> Date {
-        let date: Date? = await withCheckedContinuation { continuation in
+        let (date, failure): (Date?, String?) = await withCheckedContinuation { continuation in
             rest.time { date, error in
-                if let error {
-                    Issue.record("time() failed unexpectedly: \(error)", sourceLocation: sourceLocation)
-                    continuation.resume(returning: nil)
-                    return
-                }
-                continuation.resume(returning: date)
+                continuation.resume(returning: (date, error.map { "\($0)" }))
             }
         }
+
+        if let failure {
+            Issue.record("time() failed unexpectedly: \(failure)", sourceLocation: sourceLocation)
+        }
+
         return try #require(date, "time() returned no date", sourceLocation: sourceLocation)
     }
 
     /// Bridges the completion-handler `time:` API (UTS `AWAIT client.time() FAILS WITH error`).
     func awaitTimeError(_ rest: ARTRest, sourceLocation: SourceLocation = #_sourceLocation) async throws -> ARTErrorInfo {
-        let error: ARTErrorInfo? = await withCheckedContinuation { continuation in
+        let (error, unexpectedDate): (ARTErrorInfo?, String?) = await withCheckedContinuation { continuation in
             rest.time { date, error in
                 if let error {
-                    continuation.resume(returning: error as? ARTErrorInfo ?? ARTErrorInfo.create(from: error))
-                    return
+                    continuation.resume(returning: (error as? ARTErrorInfo ?? ARTErrorInfo.create(from: error), nil))
+                } else {
+                    continuation.resume(returning: (nil, String(describing: date)))
                 }
-                Issue.record("time() succeeded unexpectedly with date \(String(describing: date))", sourceLocation: sourceLocation)
-                continuation.resume(returning: nil)
             }
         }
+
+        if let unexpectedDate {
+            Issue.record("time() succeeded unexpectedly with date \(unexpectedDate)", sourceLocation: sourceLocation)
+        }
+
         return try #require(error, "time() returned no error", sourceLocation: sourceLocation)
     }
 }

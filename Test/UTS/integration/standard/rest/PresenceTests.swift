@@ -560,14 +560,17 @@ extension PresenceTests {
     /// `try #require`).
     private func presenceGet(_ presence: ARTRestPresence,
                              sourceLocation: SourceLocation = #_sourceLocation) async -> ARTPaginatedResult<ARTPresenceMessage>? {
-        await withCheckedContinuation { (continuation: CheckedContinuation<ARTPaginatedResult<ARTPresenceMessage>?, Never>) in
+        let (result, failure): (ARTPaginatedResult<ARTPresenceMessage>?, String?) = await withCheckedContinuation { continuation in
             presence.get { result, error in
-                if let error {
-                    Issue.record("presence.get() failed: \(error)", sourceLocation: sourceLocation)
-                }
-                continuation.resume(returning: result)
+                continuation.resume(returning: (result, error.map { "\($0)" }))
             }
         }
+
+        if let failure {
+            Issue.record("presence.get() failed: \(failure)", sourceLocation: sourceLocation)
+        }
+
+        return result
     }
 
     /// Awaits `presence.get(query)` (the spec's `AWAIT channel.presence.get(limit:/clientId:)`),
@@ -575,19 +578,21 @@ extension PresenceTests {
     private func presenceGet(_ presence: ARTRestPresence,
                              query: ARTPresenceQuery,
                              sourceLocation: SourceLocation = #_sourceLocation) async -> ARTPaginatedResult<ARTPresenceMessage>? {
-        await withCheckedContinuation { (continuation: CheckedContinuation<ARTPaginatedResult<ARTPresenceMessage>?, Never>) in
+        let (result, failure): (ARTPaginatedResult<ARTPresenceMessage>?, String?) = await withCheckedContinuation { continuation in
             do {
                 try presence.get(query) { result, error in
-                    if let error {
-                        Issue.record("presence.get(query) failed: \(error)", sourceLocation: sourceLocation)
-                    }
-                    continuation.resume(returning: result)
+                    continuation.resume(returning: (result, error.map { "presence.get(query) failed: \($0)" }))
                 }
             } catch {
-                Issue.record("presence.get(query) threw: \(error)", sourceLocation: sourceLocation)
-                continuation.resume(returning: nil)
+                continuation.resume(returning: (nil, "presence.get(query) threw: \(error)"))
             }
         }
+
+        if let failure {
+            Issue.record("\(failure)", sourceLocation: sourceLocation)
+        }
+
+        return result
     }
 
     /// Awaits `presence.get()` expecting it to fail (the spec's `AWAIT presence.get() FAILS WITH
@@ -595,28 +600,34 @@ extension PresenceTests {
     /// succeeded (tests unwrap with `try #require`).
     private func presenceGetError(_ presence: ARTRestPresence,
                                   sourceLocation: SourceLocation = #_sourceLocation) async -> ARTErrorInfo? {
-        await withCheckedContinuation { (continuation: CheckedContinuation<ARTErrorInfo?, Never>) in
+        let error: ARTErrorInfo? = await withCheckedContinuation { continuation in
             presence.get { _, error in
-                if error == nil {
-                    Issue.record("presence.get() unexpectedly succeeded", sourceLocation: sourceLocation)
-                }
                 continuation.resume(returning: error)
             }
         }
+
+        if error == nil {
+            Issue.record("presence.get() unexpectedly succeeded", sourceLocation: sourceLocation)
+        }
+
+        return error
     }
 
     /// Awaits `presence.history()` (the spec's `result = AWAIT rest_channel.presence.history()`),
     /// returning the paginated result — or nil, after recording an issue, on failure.
     private func presenceHistory(_ presence: ARTRestPresence,
                                  sourceLocation: SourceLocation = #_sourceLocation) async -> ARTPaginatedResult<ARTPresenceMessage>? {
-        await withCheckedContinuation { (continuation: CheckedContinuation<ARTPaginatedResult<ARTPresenceMessage>?, Never>) in
+        let (result, failure): (ARTPaginatedResult<ARTPresenceMessage>?, String?) = await withCheckedContinuation { continuation in
             presence.history { result, error in
-                if let error {
-                    Issue.record("presence.history() failed: \(error)", sourceLocation: sourceLocation)
-                }
-                continuation.resume(returning: result)
+                continuation.resume(returning: (result, error.map { "\($0)" }))
             }
         }
+
+        if let failure {
+            Issue.record("presence.history() failed: \(failure)", sourceLocation: sourceLocation)
+        }
+
+        return result
     }
 
     /// Fetches presence history (default query), propagating any `presence.history()` error so it
@@ -641,33 +652,38 @@ extension PresenceTests {
     private func presenceHistory(_ presence: ARTRestPresence,
                                  query: ARTDataQuery,
                                  sourceLocation: SourceLocation = #_sourceLocation) async -> ARTPaginatedResult<ARTPresenceMessage>? {
-        await withCheckedContinuation { (continuation: CheckedContinuation<ARTPaginatedResult<ARTPresenceMessage>?, Never>) in
+        let (result, failure): (ARTPaginatedResult<ARTPresenceMessage>?, String?) = await withCheckedContinuation { continuation in
             do {
                 try presence.history(query) { result, error in
-                    if let error {
-                        Issue.record("presence.history(query) failed: \(error)", sourceLocation: sourceLocation)
-                    }
-                    continuation.resume(returning: result)
+                    continuation.resume(returning: (result, error.map { "presence.history(query) failed: \($0)" }))
                 }
             } catch {
-                Issue.record("presence.history(query) threw: \(error)", sourceLocation: sourceLocation)
-                continuation.resume(returning: nil)
+                continuation.resume(returning: (nil, "presence.history(query) threw: \(error)"))
             }
         }
+
+        if let failure {
+            Issue.record("\(failure)", sourceLocation: sourceLocation)
+        }
+
+        return result
     }
 
     /// Awaits `page.next()` (the spec's `page2 = AWAIT page1.next()`), returning the next page —
     /// or nil, after recording an issue, on failure.
     private func nextPage(of page: ARTPaginatedResult<ARTPresenceMessage>,
                           sourceLocation: SourceLocation = #_sourceLocation) async -> ARTPaginatedResult<ARTPresenceMessage>? {
-        await withCheckedContinuation { (continuation: CheckedContinuation<ARTPaginatedResult<ARTPresenceMessage>?, Never>) in
+        let (result, failure): (ARTPaginatedResult<ARTPresenceMessage>?, String?) = await withCheckedContinuation { continuation in
             page.next { result, error in
-                if let error {
-                    Issue.record("next() failed: \(error)", sourceLocation: sourceLocation)
-                }
-                continuation.resume(returning: result)
+                continuation.resume(returning: (result, error.map { "\($0)" }))
             }
         }
+
+        if let failure {
+            Issue.record("next() failed: \(failure)", sourceLocation: sourceLocation)
+        }
+
+        return result
     }
 
     /// Awaits a realtime presence operation's acknowledgement (the spec's
@@ -675,13 +691,14 @@ extension PresenceTests {
     private func awaitPresenceOp(_ label: String,
                                  sourceLocation: SourceLocation = #_sourceLocation,
                                  _ operation: (@escaping ARTCallback) -> Void) async {
-        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+        let failure: String? = await withCheckedContinuation { continuation in
             operation { error in
-                if let error {
-                    Issue.record("\(label) failed: \(error)", sourceLocation: sourceLocation)
-                }
-                continuation.resume()
+                continuation.resume(returning: error.map { "\($0)" })
             }
+        }
+
+        if let failure {
+            Issue.record("\(label) failed: \(failure)", sourceLocation: sourceLocation)
         }
     }
 }

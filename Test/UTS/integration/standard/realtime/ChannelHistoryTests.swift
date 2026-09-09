@@ -94,13 +94,14 @@ extension ChannelHistoryTests {
                               name: String,
                               data: String,
                               sourceLocation: SourceLocation = #_sourceLocation) async {
-        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+        let failure: String? = await withCheckedContinuation { continuation in
             channel.publish(name, data: data) { error in
-                if let error {
-                    Issue.record("publish(\(name)) failed: \(error)", sourceLocation: sourceLocation)
-                }
-                continuation.resume()
+                continuation.resume(returning: error.map { "\($0)" })
             }
+        }
+
+        if let failure {
+            Issue.record("publish(\(name)) failed: \(failure)", sourceLocation: sourceLocation)
         }
     }
 

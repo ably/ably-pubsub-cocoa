@@ -158,13 +158,14 @@ extension ObjectsSyncTests {
     /// an issue on error.
     private func awaitDetach(_ channel: ARTRealtimeChannel,
                              sourceLocation: SourceLocation = #_sourceLocation) async {
-        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+        let failure: String? = await withCheckedContinuation { continuation in
             channel.detach { error in
-                if let error {
-                    Issue.record("detach() failed: \(error)", sourceLocation: sourceLocation)
-                }
-                continuation.resume()
+                continuation.resume(returning: error.map { "\($0)" })
             }
+        }
+
+        if let failure {
+            Issue.record("detach() failed: \(failure)", sourceLocation: sourceLocation)
         }
     }
 
@@ -172,13 +173,14 @@ extension ObjectsSyncTests {
     /// an issue on error.
     private func awaitAttach(_ channel: ARTRealtimeChannel,
                              sourceLocation: SourceLocation = #_sourceLocation) async {
-        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+        let failure: String? = await withCheckedContinuation { continuation in
             channel.attach { error in
-                if let error {
-                    Issue.record("attach() failed: \(error)", sourceLocation: sourceLocation)
-                }
-                continuation.resume()
+                continuation.resume(returning: error.map { "\($0)" })
             }
+        }
+
+        if let failure {
+            Issue.record("attach() failed: \(failure)", sourceLocation: sourceLocation)
         }
     }
 }

@@ -17,6 +17,11 @@ class LaneConfig < Struct.new(:name, :devices)
       # Absorbs single-occurrence environmental timeouts on the CI runners; a genuine
       # regression still fails CI because it fails every attempt.
       number_of_retries: 2,
+      # Judge the lane on the final state of each test, not on attempts a retry
+      # went on to pass. Without this, scan's default, xcodebuild reports
+      # "Test Succeeded" and scan fails the lane anyway on the superseded
+      # attempts, so number_of_retries above absorbs nothing.
+      output_remove_retry_attempts: true,
       # Raise the test build's deployment target so the UTS test target — which links
       # AblyLiveObjects (requires iOS 14 / tvOS 14) — compiles. This affects the test build only,
       # not the shipped artifacts; the package's declared platform floor stays low. Mirrors

@@ -44,13 +44,6 @@ jobs:
           bundle install
           make update_carthage_dependencies_ios
 
-      - name: Run Examples Tests
-        working-directory: ./Examples/Tests
-        run: |
-          pod repo update
-          pod install
-          bundle exec fastlane scan -s Tests --output-directory "fastlane/test_output/examples/test_iOS26_2"
-
       - name: Carthage Installation
         working-directory: ./Examples/AblyCarthage
         run:  |

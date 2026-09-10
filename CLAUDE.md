@@ -92,4 +92,4 @@ When adding new Objective-C files:
 
 ## Distribution
 
-The SDK is distributed via CocoaPods, Carthage, and Swift Package Manager. Changes to dependencies must be kept in sync across `Cartfile`, `Ably.podspec`, and `Package.swift`.
+The SDK is distributed via Swift Package Manager and Carthage; 2.x ships no CocoaPods pod. Changes to dependencies must be kept in sync across `Cartfile` and `Package.swift`.

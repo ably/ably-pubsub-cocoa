@@ -26,7 +26,7 @@ If you make changes to the [Cartfile](Cartfile) then you will need to run `make 
 from the command line and then do a clean rebuild in Xcode.
 
 Changes made to dependencies in the [Cartfile](Cartfile) need to be reflected in
-[Ably.podspec](Ably.podspec) and vice-versa.
+[Package.swift](Package.swift) and vice-versa.
 
 ## Adding new Objective-C files to the SDK
 
@@ -136,28 +136,29 @@ If you add another `xcodebuild`-based path that compiles a test target linking `
 
 ### Distribution
 
-`AblyPubSubDevice` and `AblyLiveObjects` are available **via Swift Package Manager only**. CocoaPods and Carthage consumers receive the core SDK alone, so a release tag does not deliver the same set of products to every channel:
+2.x ships no CocoaPods pod. The `Ably` pod's last release is on the maintenance-only 1.x line.
+
+`AblyPubSubDevice` and `AblyLiveObjects` are available **via Swift Package Manager only**, so Carthage consumers receive the core SDK alone. A release tag does not deliver the same set of products to every channel:
 
 | Channel | `AblyPubSubCore` | `AblyPubSubDevice` | `AblyLiveObjects` |
 | --- | --- | --- | --- |
 | Swift Package Manager | yes | yes | yes |
-| CocoaPods | yes (as the `Ably` pod) | no | no |
 | Carthage | yes | no | no |
 
 > The `AblyPubSubCore` product's module is named `Ably` and its classes carry the `ART` prefix, so
 > consumers reach the core as `import Ably` / `#import <Ably/…>` whichever channel they install it
-> from — which is why the CocoaPods pod and the Carthage framework are both named `Ably`.
+> from — which is why the Carthage framework is named `Ably`.
 
-The two are SPM-only for different reasons. Nothing about `AblyPubSubDevice` resists the other channels: it is a plain Objective-C target over the core, with the same platform floor and no plugin machinery, so shipping it as a pod would mean adding a podspec and Carthage targets rather than removing an obstacle. `AblyLiveObjects` is the constrained one, and deliberately so rather than by omission — four separate things would each have to change to lift it:
+The two are SPM-only for different reasons. Nothing about `AblyPubSubDevice` resists the other channels: it is a plain Objective-C target over the core, with the same platform floor and no plugin machinery, so shipping it through Carthage would mean adding targets to `Ably.xcodeproj` rather than removing an obstacle. `AblyLiveObjects` is the constrained one, and deliberately so rather than by omission — four separate things would each have to change to lift it:
 
-- [`Ably.podspec`](Ably.podspec)'s `source_files` covers `Source/` only, so neither `LiveObjects/` nor `_AblyPluginSupportPrivate/` ships in the pod; and `Ably.xcodeproj`, which Carthage builds, contains no LiveObjects or plugin-support targets.
-- `ABLY_SUPPORTS_PLUGINS` is defined only in `Package.swift`. Without it the plugin hook points — `ARTClientOptions.plugins` and the plumbing in `ARTRealtimeChannel.m`, `ARTRealtime.m` and `ARTJsonLikeEncoder.m` — are compiled out. It is a compile-time define on the core target, so enabling it would enable it for every CocoaPods and Carthage consumer, in a configuration that has never been built or tested.
-- `_AblyPluginSupportPrivate` is a target but not a product, so SPM structurally prevents an external consumer from depending on it. Neither CocoaPods nor Carthage has an equivalent to that distinction: any module the plugin can import is a module the consumer can import. Private spec repositories don't help — they restrict who may fetch an artifact, not what is importable once fetched, and a public `Ably` pod cannot depend on a privately hosted one without breaking `pod install` for everyone.
-- The podspec declares iOS/tvOS 10, macOS 10.12 and Swift 5.0, whereas LiveObjects needs the floors above and the Swift 6 language mode.
+- `Ably.xcodeproj`, which Carthage builds, contains no LiveObjects or plugin-support targets.
+- `ABLY_SUPPORTS_PLUGINS` is defined only in `Package.swift`. Without it the plugin hook points — `ARTClientOptions.plugins` and the plumbing in `ARTRealtimeChannel.m`, `ARTRealtime.m` and `ARTJsonLikeEncoder.m` — are compiled out. It is a compile-time define on the core target, so enabling it would enable it for every Carthage consumer, in a configuration that has never been built or tested.
+- `_AblyPluginSupportPrivate` is a target but not a product, so SPM structurally prevents an external consumer from depending on it. Carthage has no equivalent to that distinction: any module the plugin can import is a module the consumer can import.
+- `Ably.xcodeproj` targets iOS/tvOS 10 and macOS 10.12, whereas LiveObjects needs the floors above and the Swift 6 language mode.
 
 Note that OS version requirements are *not* among these reasons: per-declaration `@available` lets one package host components with different floors, which is why the plugin no longer needs a repository of its own (see [`Docs/plugins.md`](Docs/plugins.md) on how this supersedes ADR-128).
 
-Revisit this if a customer on CocoaPods asks for LiveObjects. CocoaPods would be the only candidate — its file lists are globs, whereas `Ably.xcodeproj` enumerates every file individually and is maintained by hand, which would make Carthage support a permanent per-file cost.
+Carthage support would be a permanent per-file cost: `Ably.xcodeproj` enumerates every file individually and is maintained by hand.
 
 ## Coding standards
 
@@ -195,7 +196,7 @@ The repository has a single version number, applied to everything it publishes. 
 
 Because a shared version number implies more than it delivers, one thing is worth stating explicitly in release notes:
 
-* **A tag does not mean the same thing on every channel.** CocoaPods and Carthage consumers receive only the core SDK (the `AblyPubSubCore` product, shipped as the `Ably` pod / `Ably.xcframework`); see [Distribution](#distribution). A release whose only change is to LiveObjects is a no-op for them, and the changelog entry should say so.
+* **A tag does not mean the same thing on every channel.** Carthage consumers receive only the core SDK, as `Ably.xcframework` built from the `AblyPubSubCore` product; see [Distribution](#distribution). A release whose only change is to LiveObjects is a no-op for them, and the changelog entry should say so.
 
 ### Steps
 
@@ -214,8 +215,7 @@ For each release, the following needs to be done:
 * After merging the PR, wait for all CI jobs for `main` to pass
 * Publish your drafted release:
     * refer to previous releases for release notes format
-    * attach to the release the prebuilt framework file (`Ably.framework.zip`) generated by Carthage – you can find this file in the `carthage-built-framework` artifact uploaded by the `check-pod` CI workflow
+    * attach to the release the prebuilt framework file (`Ably.framework.zip`) generated by Carthage – you can find this file in the `carthage-built-framework` artifact uploaded by the `check-carthage` CI workflow
 * Checkout `main` locally, pulling in changes using `git checkout main && git pull`. Make sure the new tag you need was created on publish
-* Release an update for CocoaPods using `pod trunk push Ably.podspec --allow-warnings`. Details on this command, as well as instructions for adding other contributors as maintainers, are at [Getting setup with Trunk](https://guides.cocoapods.org/making/getting-setup-with-trunk.html) in the [CocoaPods Guides](https://guides.cocoapods.org/). This publishes the core SDK only — there is no LiveObjects pod
-* Test the integration of the library in a Xcode project using Carthage and CocoaPods using the [installation guide](https://github.com/ably/ably-cocoa#installation-guide)
+* Test the integration of the library in a Xcode project using Carthage, following the [installation guide](https://github.com/ably/ably-cocoa#installation-guide)
 * Test that Swift Package Manager resolves the new tag, selecting the `AblyPubSubCore`, `AblyPubSubDevice` and `AblyLiveObjects` products

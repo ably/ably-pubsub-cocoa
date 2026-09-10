@@ -43,7 +43,13 @@ The following platforms are supported:
 
 ## Installation
 
-You can install Ably for iOS and macOS through [Swift package manager](#swift-package-manager), [CocoaPods](#cocoapods), [Carthage](#carthage) or [install manually](#manual-install).
+You can install Ably for iOS and macOS through [Swift package manager](#swift-package-manager), [Carthage](#carthage) or [install manually](#manual-install).
+
+> [!IMPORTANT]
+> **CocoaPods is not supported from 2.0.** The `Ably` pod's last release is on the 1.x line, which
+> receives security and critical fixes only. To take 2.0 or later, move to Swift Package Manager.
+
+
 
 To use the [Ably LiveObjects plugin](#liveobjects), see its installation notes below — it is
 available via Swift Package Manager only.
@@ -68,32 +74,6 @@ To install the `ably-cocoa` package in another Swift package, add the following 
 
 See Apple's [adding package dependencies to your app](https://developer.apple.com/documentation/swift_packages/adding_package_dependencies_to_your_app) guide for more detail.
 </details>
-
-### CocoaPods
-
-The Ably Pub/Sub SDK includes installation support for [CocoaPods](https://cocoapods.org/).
-
-<details>
-<summary>CocoaPods installation details.</summary>
-
-If you intend to use Swift, using `use_frameworks!` in your Podfile is recommended (this will create a Framework that can be used in Swift natively).
-
-Add this line to your application's Podfile:
-
-```ruby
-# For Xcode 7.3 and newer
-pod 'Ably', '>= 1.2'
-```
-
-And then install the dependency:
-
-```bash
-$ pod install
-```
-
-</details>
-
-
 
 ### Carthage
 
@@ -198,7 +178,7 @@ contains the Ably LiveObjects plugin, which enables LiveObjects on top of the co
 
 ### Install LiveObjects
 
-The plugin is available via **Swift Package Manager only** (there is no CocoaPods or Carthage
+The plugin is available via **Swift Package Manager only** (there is no Carthage
 distribution). There is no separate package or version to install: the plugin ships as a product
 of this package and is versioned and released as part of ably-cocoa.
 

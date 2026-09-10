@@ -41,7 +41,6 @@ fastlane/test_output
 fastlane/README.md
 derived_data/
 
-Examples/Tests/Podfile.lock
 
 ## AppCode
 .build

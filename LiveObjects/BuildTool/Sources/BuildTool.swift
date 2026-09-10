@@ -3,36 +3,6 @@ import AsyncAlgorithms
 import Foundation
 import Table
 
-/// Build settings passed to `xcodebuild` invocations that compile the test target.
-///
-/// These raise the deployment target of the build to the OS versions that the
-/// test code actually requires. Without this, Xcode builds the test target at
-/// (nearly) the old deployment target declared by the ably-cocoa package's
-/// platforms, and the test code fails availability checking. Unlike the
-/// library sources — which declare their platform requirements with
-/// `@available` annotations — the test sources cannot carry such annotations,
-/// because the swift-testing macros do not support being applied to
-/// declarations with availability.
-///
-/// The values are the standalone plugin repo's package platform floor for
-/// iOS and tvOS — the deployment target that the test code was written
-/// against (the plugin's xcodebuild test builds compiled at exactly that
-/// floor). Test code that needs newer OS versions than this declares it with
-/// an @available annotation on the affected declarations, e.g.
-/// `Subscriber.swift` and the tests that use it (parameter packs in generic
-/// types need iOS 17 / tvOS 17).
-///
-/// There is deliberately no macOS override: xcodebuild raises macOS
-/// test-bundle builds well above this package's platform floor of its own
-/// accord (the test host has to run on the build machine), and the plugin
-/// repo's test code relied on this too (its macOS floor was 11, and e.g.
-/// Subscriber.swift's use of parameter packs — which need macOS 14 — is
-/// unguarded on macOS).
-let testDeploymentTargetOverrides = [
-    "IPHONEOS_DEPLOYMENT_TARGET": "14.0",
-    "TVOS_DEPLOYMENT_TARGET": "14.0",
-]
-
 @main
 @available(macOS 14, *)
 struct BuildTool: AsyncParsableCommand {
@@ -81,7 +51,7 @@ struct BuildLibraryForTesting: AsyncParsableCommand {
         let destinationSpecifier = try await platform.resolve()
         let scheme = "AblyLiveObjects"
 
-        try await XcodeRunner.runXcodebuild(action: "build-for-testing", scheme: scheme, destination: destinationSpecifier, buildSettingOverrides: testDeploymentTargetOverrides)
+        try await XcodeRunner.runXcodebuild(action: "build-for-testing", scheme: scheme, destination: destinationSpecifier)
     }
 }
 
@@ -103,7 +73,7 @@ struct TestLibrary: AsyncParsableCommand {
         let scheme = "AblyLiveObjects"
 
         let action = withoutBuilding ? "test-without-building" : "test"
-        try await XcodeRunner.runXcodebuild(action: action, scheme: scheme, destination: destinationSpecifier, testPlan: onlyUnitTests ? "UnitTests" : nil, buildSettingOverrides: testDeploymentTargetOverrides)
+        try await XcodeRunner.runXcodebuild(action: action, scheme: scheme, destination: destinationSpecifier, testPlan: onlyUnitTests ? "UnitTests" : nil)
     }
 }
 
@@ -128,7 +98,6 @@ struct GenerateCodeCoverage: AsyncParsableCommand {
             destination: destinationSpecifier,
             testPlan: "UnitTests",
             resultBundlePath: resultBundlePath,
-            buildSettingOverrides: testDeploymentTargetOverrides,
         )
     }
 }

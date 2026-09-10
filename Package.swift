@@ -5,9 +5,9 @@ import PackageDescription
 let package = Package(
     name: "ably-pubsub-cocoa",
     platforms: [
-        .macOS(.v10_11),
-        .iOS(.v9),
-        .tvOS(.v10)
+        .macOS(.v11),
+        .iOS(.v14),
+        .tvOS(.v14)
     ],
     products: [
         // The shared implementation of the SDK, for use by Ably's own
@@ -36,9 +36,8 @@ let package = Package(
     ],
     targets: [
         // The LiveObjects plugin. Formerly the separate
-        // ably-liveobjects-swift-plugin repository. Unlike the rest of the
-        // package it requires macOS 11 / iOS 14 / tvOS 14, which it declares
-        // through @available annotations on all of its top-level declarations
+        // ably-liveobjects-swift-plugin repository. Its top-level declarations
+        // carry @available annotations naming the package's platform floor
         // (see Scripts/annotate-liveobjects-availability.py).
         .target(
             name: "AblyLiveObjects",

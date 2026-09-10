@@ -24,10 +24,7 @@ jobs:
     # in uts.yaml instead: it is mostly a unit suite, so grouping it under
     # "Integration Test" misnamed it, and splitting the two means a UTS failure
     # is distinguishable at a glance and either can be re-run without the
-    # other's sandbox time. The lanes raise the iOS/tvOS test deployment
-    # targets in fastlane/Fastfile so that UTS code linking AblyLiveObjects
-    # (iOS 14 / tvOS 14 floor) compiles — that applies to the whole test build,
-    # so it is needed here too.
+    # other's sandbox time.
     strategy:
       fail-fast: false
       matrix:

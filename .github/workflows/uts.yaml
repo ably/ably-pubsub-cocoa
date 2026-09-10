@@ -32,10 +32,6 @@ jobs:
     # note in that file); its SPM job still compiles the UTS target under
     # -warnings-as-errors.
     #
-    # The lanes raise the iOS/tvOS test deployment targets in fastlane/Fastfile
-    # so that UTS code linking AblyLiveObjects (iOS 14 / tvOS 14 floor)
-    # compiles.
-    #
     # The `side` dimension runs the suite twice per platform, once per entry
     # point. The `core` leg uses the default Ably test plan, and builds clients
     # with ARTRealtime(options:). The `device` leg uses the UTSDevice plan,

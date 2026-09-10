@@ -32,9 +32,9 @@ The following platforms are supported:
 
 | Platform | Support |
 |----------|---------|
-| iOS| >= 10 |
-| macOS| >= 10.12 |
-| tvOS | >= 10 |
+| iOS| >= 14 |
+| macOS| >= 11 |
+| tvOS | >= 14 |
 
 > [!IMPORTANT]
 > Ably Cocoa SDK versions below 1.2.23 will be [deprecated](https://ably.com/docs/platform/deprecate/protocol-v1) from November 1, 2025.

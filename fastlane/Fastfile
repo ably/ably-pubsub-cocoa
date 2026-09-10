@@ -34,12 +34,7 @@ class LaneConfig < Struct.new(:name, :devices)
       # "Test Succeeded" and scan fails the lane anyway on the superseded
       # attempts, so number_of_retries above absorbs nothing.
       output_remove_retry_attempts: true,
-      # Raise the test build's deployment target so the UTS test target — which links
-      # AblyLiveObjects (requires iOS 14 / tvOS 14) — compiles. This affects the test build only,
-      # not the shipped artifacts; the package's declared platform floor stays low. Mirrors
-      # LiveObjects/BuildTool's `testDeploymentTargetOverrides`. macOS needs no override (its
-      # default test-build floor already satisfies AblyLiveObjects).
-      xcargs: { ABLY_ENV: ably_env, CLANG_ANALYZER_OUTPUT: 'plist-html', IPHONEOS_DEPLOYMENT_TARGET: '14.0', TVOS_DEPLOYMENT_TARGET: '14.0' },
+      xcargs: { ABLY_ENV: ably_env, CLANG_ANALYZER_OUTPUT: 'plist-html' },
       output_directory: "fastlane/test_output/sdk/#{name}"
     }
 

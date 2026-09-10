@@ -49,11 +49,7 @@ enum JSONUtility {
     }
 
     static func serialize(_ object: Any) throws -> Data {
-        if #available(iOS 11.0, *) {
-            return try JSONSerialization.data(withJSONObject: object, options: .sortedKeys)
-        } else {
-            return try JSONSerialization.data(withJSONObject: object)
-        }
+        try JSONSerialization.data(withJSONObject: object, options: .sortedKeys)
     }
 
     static func toJSONString( _ object: Any, encoding: String.Encoding = .utf8) throws -> String {

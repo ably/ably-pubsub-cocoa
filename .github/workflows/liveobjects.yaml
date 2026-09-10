@@ -226,10 +226,7 @@ jobs:
         run: swift build -Xswiftc -warnings-as-errors --configuration release --target AblyLiveObjects
 
   # Builds and runs AblyLiveObjectsTests through the AblyLiveObjects Xcode
-  # scheme via BuildTool, once per platform. BuildTool raises the iOS/tvOS test
-  # bundles' deployment target to the plugin floor (14.0) so the test code that
-  # uses plugin types compiles — the same problem fastlane/Fastfile solves for
-  # the UTS target in uts.yaml.
+  # scheme via BuildTool, once per platform.
   build-and-test-xcode:
     name: Xcode, ${{matrix.platform}} (Xcode ${{ matrix.tooling.xcodeVersion }})
     runs-on: macos-15

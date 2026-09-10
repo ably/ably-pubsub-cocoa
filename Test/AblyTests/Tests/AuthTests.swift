@@ -1040,14 +1040,8 @@ class AuthTests: XCTestCase {
         let tokenParams = ARTTokenParams()
         tokenParams.capability = "{\"*\":[\"*\"]}"
 
-        if #available(iOS 10.0, *) {
-            let dateFormatter = ISO8601DateFormatter()
-            tokenParams.timestamp = dateFormatter.date(from: "2016-10-08T22:31:00Z")
-        } else {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy/MM/dd HH:mm zzz"
-            tokenParams.timestamp = dateFormatter.date(from: "2016/10/08 22:31 GMT")
-        }
+        let dateFormatter = ISO8601DateFormatter()
+        tokenParams.timestamp = dateFormatter.date(from: "2016-10-08T22:31:00Z")
 
         let options = ARTClientOptions()
         options.authUrl = URL(string: "https://ably-test-suite.io")

@@ -43,11 +43,12 @@ The following platforms are supported:
 
 ## Installation
 
-You can install Ably for iOS and macOS through [Swift package manager](#swift-package-manager), [Carthage](#carthage) or [install manually](#manual-install).
+You can install Ably for iOS and macOS through [Swift package manager](#swift-package-manager) or [install manually](#manual-install).
 
 > [!IMPORTANT]
-> **CocoaPods is not supported from 2.0.** The `Ably` pod's last release is on the 1.x line, which
-> receives security and critical fixes only. To take 2.0 or later, move to Swift Package Manager.
+> **CocoaPods and Carthage are not supported from 2.0.** Their last releases — the `Ably` pod and the
+> Carthage `Ably.xcframework` — are on the 1.x line, which receives security and critical fixes only.
+> To take 2.0 or later, move to Swift Package Manager.
 
 
 
@@ -73,46 +74,6 @@ To install the `ably-cocoa` package in another Swift package, add the following 
 ```
 
 See Apple's [adding package dependencies to your app](https://developer.apple.com/documentation/swift_packages/adding_package_dependencies_to_your_app) guide for more detail.
-</details>
-
-### Carthage
-
-The Ably Pub/Sub SDK includes installation support for [Carthage](https://github.com/Carthage/Carthage/).
-
-<details>
-<summary>Carthage installation details.</summary>
-
-Add the following line to your application's Cartfile:
-
-```ruby
-# For Xcode 7.3 and newer
-github "ably/ably-cocoa" >= 1.2
-```
-
-And then run one of the following commands required for your platform:
-
-| Platform | Command |
-|----------|---------|
-| iOS | `carthage update --use-xcframeworks --platform iOS --no-use-binaries` |
-| macOS | `carthage update --use-xcframeworks --platform macOS --no-use-binaries`|
-| tvOS | `carthage update --use-xcframeworks --platform tvOS --no-use-binaries` |
-
-After building the framework (located in `[PROJECT_ROOT]/Carthage/Build`), drag the following files into the **Frameworks**, **Libraries**, and **Embedded content** section of your Xcode target's **General** tab:
-
-* `Ably.xcframework`
-* `AblyDeltaCodec.xcframework`
-* `msgpack.xcframework`
-* For applications, select **Embed & Sign**
-* For other targets, select **Do Not Embed**
-
-If you encounter an error similar to the following, you've likely missed adding one or more required dependencies:
-
-```
-dyld: Library not loaded: @rpath/AblyDeltaCodec.framework/AblyDeltaCodec
-```
-
-For further information review the Carthage [adding frameworks to an application](https://github.com/Carthage/Carthage#adding-frameworks-to-an-application) guide.
-
 </details>
 
 ### Manual install
@@ -178,8 +139,7 @@ contains the Ably LiveObjects plugin, which enables LiveObjects on top of the co
 
 ### Install LiveObjects
 
-The plugin is available via **Swift Package Manager only** (there is no Carthage
-distribution). There is no separate package or version to install: the plugin ships as a product
+The plugin is available via **Swift Package Manager**. There is no separate package or version to install: the plugin ships as a product
 of this package and is versioned and released as part of ably-cocoa.
 
 To install it in your Xcode project, add the `ably-cocoa` package [as above](#swift-package-manager)

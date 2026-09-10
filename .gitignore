@@ -25,12 +25,9 @@ Pods/
 
 ## Carthage
 #
-# Add this line if you want to avoid checking in source code from Carthage dependencies.
-Carthage/Checkouts
-Carthage/Build
-
-# Output from `carthage build`
-Ably.framework.zip
+# 2.x has no Carthage support, but a checkout from the 1.x tooling may still be
+# lying around locally; keep ignoring it so it is neither committed nor linted.
+Carthage/
 
 ## Scan
 test_output/

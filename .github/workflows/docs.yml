@@ -37,7 +37,6 @@ jobs:
         run: |
           make submodules
           bundle install
-          make update_carthage_dependencies_macos
 
       - name: Build Jazzy Documentation
         run: |

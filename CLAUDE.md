@@ -92,4 +92,4 @@ When adding new Objective-C files:
 
 ## Distribution
 
-The SDK is distributed via Swift Package Manager and Carthage; 2.x ships no CocoaPods pod. Changes to dependencies must be kept in sync across `Cartfile` and `Package.swift`.
+2.x is distributed via Swift Package Manager only; it ships neither a CocoaPods pod nor a Carthage framework, both of which stay on the maintenance-only 1.x line. Dependencies are declared in `Package.swift`.

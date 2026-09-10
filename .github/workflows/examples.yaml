@@ -42,16 +42,7 @@ jobs:
         run: |
           make submodules
           bundle install
-          make update_carthage_dependencies_ios
 
-      - name: Carthage Installation
-        working-directory: ./Examples/AblyCarthage
-        run:  |
-          echo 'Installing Carthage dependencies...'
-          carthage update --use-xcframeworks --platform iOS --no-use-binaries
-          echo 'Building AblyCarthage example...'
-          xcodebuild build -scheme "AblyCarthage" -destination "platform=iOS Simulator,name=iPhone 16" -configuration "Debug"
-      
       - name: SPM Installation
         working-directory: ./
         run:  |

@@ -5,7 +5,6 @@ import Ably
 /// `PathObject` sub-classes of RTTS6c are collapsed into a single type fronting a ``Primitive`` enum.
 ///
 /// Spec: `RTTS6c`, `RTTS6h`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal final class DefaultPrimitivePathObject: DefaultPathObject, PrimitivePathObject, @unchecked Sendable {
     internal func value() throws(ARTErrorInfo) -> Primitive? {
         try ChannelConfigGuards.throwIfInvalidAccessApiConfiguration(coreSDK: coreSDK, internalQueue: internalQueue)

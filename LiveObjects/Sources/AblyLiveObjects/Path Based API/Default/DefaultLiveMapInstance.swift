@@ -3,7 +3,6 @@ import Foundation
 
 /// Default implementation of ``LiveMapInstance``, bound to a specific
 /// ``InternalDefaultLiveMap`` (RTINS2a). Spec: `RTINS1`, `RTTS10a`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal final class DefaultLiveMapInstance: LiveMapInstance {
     private let node: InternalDefaultLiveMap
     private let coreSDK: CoreSDK
@@ -168,7 +167,6 @@ internal final class DefaultLiveMapInstance: LiveMapInstance {
 
 // MARK: - Instance construction seam (`PathObject.instance()`)
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension Instance {
     /// Builds the identity-addressed ``Instance`` wrapping a resolved map-entry value (RTINS2a).
     /// This is the seam the path layer's `PathObject.instance()` calls once it has

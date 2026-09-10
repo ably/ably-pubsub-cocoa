@@ -1,5 +1,4 @@
 /// The type that the spec uses to represent the client's state of syncing its local Objects data with the server, per RTO17a.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal enum ObjectsSyncState {
     case initialized
     case syncing

@@ -7,7 +7,6 @@ import Foundation
 ///
 /// A primitive has no backing internal node, so the RTO25b access-precondition check is run by
 /// hopping onto the shared `internalQueue`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal final class DefaultPrimitiveInstance: PrimitiveInstance {
     private let primitive: Primitive
     private let valueType: ValueType

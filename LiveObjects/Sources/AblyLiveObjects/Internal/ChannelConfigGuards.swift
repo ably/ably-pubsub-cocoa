@@ -6,7 +6,6 @@ import Ably
 /// RTO23a/RTO25/RTO26. The guards reuse the core SDK's own `nosync_` precondition accessors
 /// (channel state, object modes, `echoMessages`, connection state), so they raise the same errors
 /// the internal engine's node accessors already produce rather than inventing new checks.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal enum ChannelConfigGuards {
     /// Validates the access (read/subscribe) API preconditions: the channel must be attachable (not
     /// DETACHED/FAILED) and configured with the `object_subscribe` mode. Spec: RTO25.

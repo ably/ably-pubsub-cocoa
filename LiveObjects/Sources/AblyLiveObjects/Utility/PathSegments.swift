@@ -10,7 +10,6 @@ import Foundation
 ///
 /// This mirrors ably-js's path-escaping (`_escapePath` / `at`) exactly, so the rendered path string
 /// agrees byte-for-byte across SDKs.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal enum PathSegments {
     /// RTPO6b — split `path` on unescaped dots; `\.` yields a literal dot; any other `\x` keeps the
     /// backslash; a trailing lone `\` is kept. `""` parses to one empty segment. Manual scanner (no

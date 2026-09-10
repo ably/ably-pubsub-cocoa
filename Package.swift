@@ -36,9 +36,7 @@ let package = Package(
     ],
     targets: [
         // The LiveObjects plugin. Formerly the separate
-        // ably-liveobjects-swift-plugin repository. Its top-level declarations
-        // carry @available annotations naming the package's platform floor
-        // (see Scripts/annotate-liveobjects-availability.py).
+        // ably-liveobjects-swift-plugin repository.
         .target(
             name: "AblyLiveObjects",
             dependencies: [

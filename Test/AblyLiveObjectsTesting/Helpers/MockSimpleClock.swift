@@ -2,7 +2,6 @@
 import Foundation
 
 /// A mock implementation of SimpleClock for testing purposes.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 final class MockSimpleClock: SimpleClock {
     private let mutex = NSLock()
 

@@ -1,7 +1,6 @@
 internal import _AblyPluginSupportPrivate
 import Ably
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ARTClientOptions {
     private class Box<T> {
         internal let boxed: T

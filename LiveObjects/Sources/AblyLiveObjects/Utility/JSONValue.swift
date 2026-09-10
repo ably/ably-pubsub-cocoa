@@ -25,7 +25,6 @@ import Foundation
 ///  ```
 ///
 /// > Note: To write a `JSONValue` that corresponds to the `null` JSON value, you must explicitly write `.null`. `JSONValue` deliberately does not implement the `ExpressibleByNilLiteral` protocol in order to avoid confusion between a value of type `JSONValue?` and a `JSONValue` with case `.null`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public indirect enum JSONValue: Sendable, Equatable {
     case object([String: JSONValue])
     case array([JSONValue])
@@ -91,42 +90,36 @@ public indirect enum JSONValue: Sendable, Equatable {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension JSONValue: ExpressibleByDictionaryLiteral {
     public init(dictionaryLiteral elements: (String, JSONValue)...) {
         self = .object(.init(uniqueKeysWithValues: elements))
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension JSONValue: ExpressibleByArrayLiteral {
     public init(arrayLiteral elements: JSONValue...) {
         self = .array(elements)
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension JSONValue: ExpressibleByStringLiteral {
     public init(stringLiteral value: String) {
         self = .string(value)
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension JSONValue: ExpressibleByIntegerLiteral {
     public init(integerLiteral value: Int) {
         self = .number(Double(value))
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension JSONValue: ExpressibleByFloatLiteral {
     public init(floatLiteral value: Double) {
         self = .number(value)
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension JSONValue: ExpressibleByBooleanLiteral {
     public init(booleanLiteral value: Bool) {
         self = .bool(value)
@@ -135,7 +128,6 @@ extension JSONValue: ExpressibleByBooleanLiteral {
 
 // MARK: - Bridging with JSONSerialization
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension JSONValue {
     /// Creates a `JSONValue` from the output of Foundation's `JSONSerialization`.
     ///
@@ -173,7 +165,6 @@ internal extension JSONValue {
 /// > natural name for this type. It is spelled out instead: `JSON` is broad enough to be mistaken for
 /// > `JSONValue`, and current JSON (RFC 8259, and the json.org grammar linked above) allows any value at
 /// > the top level, so the short name would no longer say what the restriction is.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal enum JSONObjectOrArray: Equatable {
     case object([String: JSONValue])
     case array([JSONValue])
@@ -223,21 +214,18 @@ internal enum JSONObjectOrArray: Equatable {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension JSONObjectOrArray: ExpressibleByDictionaryLiteral {
     internal init(dictionaryLiteral elements: (String, JSONValue)...) {
         self = .object(.init(uniqueKeysWithValues: elements))
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension JSONObjectOrArray: ExpressibleByArrayLiteral {
     internal init(arrayLiteral elements: JSONValue...) {
         self = .array(elements)
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension [String: JSONValue] {
     /// Converts a dictionary that has string keys and `JSONValue` values into an input for Foundation's `JSONSerialization`.
     var toJSONSerializationInput: [String: Any] {
@@ -245,7 +233,6 @@ internal extension [String: JSONValue] {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension [JSONValue] {
     /// Converts an array that has `JSONValue` values into an input for Foundation's `JSONSerialization`.
     var toJSONSerializationInput: [Any] {
@@ -255,7 +242,6 @@ internal extension [JSONValue] {
 
 // MARK: - Conversion to/from ExtendedJSONValue
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension JSONValue {
     init(extendedJSONValue: ExtendedJSONValue<Double, Never>) {
         switch extendedJSONValue {
@@ -294,7 +280,6 @@ internal extension JSONValue {
 
 // MARK: Serializing to and deserializing from a JSON string
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension JSONObjectOrArray {
     enum DecodingError: Swift.Error {
         case incompatibleJSONValue(JSONValue)
@@ -341,7 +326,6 @@ internal extension JSONObjectOrArray {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension JSONValue: CustomStringConvertible {
     /// Compact JSON text, with object keys sorted for deterministic output.
     ///
@@ -385,7 +369,6 @@ extension JSONValue: CustomStringConvertible {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension JSONValue: CustomDebugStringConvertible {
     /// Compact JSON text, with object keys sorted for deterministic output; the same as ``description``,
     /// so that `String(reflecting:)` and LLDB's `po` also show the value rather than the enum's structure.
@@ -394,7 +377,6 @@ extension JSONValue: CustomDebugStringConvertible {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 private extension JSONValue {
     /// The JSON text for a string, including the surrounding quotation marks.
     ///
@@ -494,7 +476,6 @@ private extension JSONValue {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension JSONObjectOrArray: CustomStringConvertible {
     /// Compact JSON text, with object keys sorted for deterministic output.
     ///
@@ -511,7 +492,6 @@ extension JSONObjectOrArray: CustomStringConvertible {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension JSONObjectOrArray: CustomDebugStringConvertible {
     /// Compact JSON text, with object keys sorted for deterministic output; the same as ``description``,
     /// so that `String(reflecting:)` and LLDB's `po` also show the value rather than the enum's structure.

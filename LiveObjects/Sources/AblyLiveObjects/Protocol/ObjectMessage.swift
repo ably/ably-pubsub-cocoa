@@ -15,7 +15,6 @@ import Foundation
 /// > Note: The spec-suggested name for this namespace was `Protocol`, but that clashes with the
 /// > Objective-C `Protocol` type imported via Foundation (ambiguous for importers such as the test
 /// > target), so `ProtocolTypes` is used instead.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal enum ProtocolTypes {
     /// An `ObjectMessage` received in the `state` property of an `OBJECT` or `OBJECT_SYNC` `ProtocolMessage`.
     internal struct InboundObjectMessage: Equatable {
@@ -123,7 +122,6 @@ internal enum ProtocolTypes {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.InboundObjectMessage {
     /// Initializes an `InboundObjectMessage` from an `InboundWireObjectMessage`, applying the data decoding rules of OD5.
     ///
@@ -151,7 +149,6 @@ internal extension ProtocolTypes.InboundObjectMessage {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.OutboundObjectMessage {
     /// Converts this `OutboundObjectMessage` to an `OutboundWireObjectMessage`, applying the data encoding rules of OD4.
     ///
@@ -173,7 +170,6 @@ internal extension ProtocolTypes.OutboundObjectMessage {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.ObjectOperation {
     /// Initializes an `ObjectOperation` from a `WireObjectOperation`, applying the data decoding rules of OD5.
     ///
@@ -224,7 +220,6 @@ internal extension ProtocolTypes.ObjectOperation {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.ObjectData {
     /// Initializes an `ObjectData` from a `WireObjectData`, applying the data decoding rules of OD5.
     ///
@@ -329,7 +324,6 @@ internal extension ProtocolTypes.ObjectData {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.MapSet {
     init(
         wireMapSet: WireMapSet,
@@ -349,7 +343,6 @@ internal extension ProtocolTypes.MapSet {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.MapCreate {
     init(
         wireMapCreate: WireMapCreate,
@@ -369,7 +362,6 @@ internal extension ProtocolTypes.MapCreate {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.MapCreateWithObjectId {
     init(wireMapCreateWithObjectId: WireMapCreateWithObjectId) {
         nonce = wireMapCreateWithObjectId.nonce
@@ -381,7 +373,6 @@ internal extension ProtocolTypes.MapCreateWithObjectId {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.CounterCreateWithObjectId {
     init(wireCounterCreateWithObjectId: WireCounterCreateWithObjectId) {
         nonce = wireCounterCreateWithObjectId.nonce
@@ -393,7 +384,6 @@ internal extension ProtocolTypes.CounterCreateWithObjectId {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.ObjectsMapEntry {
     /// Initializes an `ObjectsMapEntry` from a `WireObjectsMapEntry`, applying the data decoding rules of OD5.
     ///
@@ -427,7 +417,6 @@ internal extension ProtocolTypes.ObjectsMapEntry {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.ObjectsMap {
     /// Initializes an `ObjectsMap` from a `WireObjectsMap`, applying the data decoding rules of OD5.
     ///
@@ -458,7 +447,6 @@ internal extension ProtocolTypes.ObjectsMap {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.ObjectState {
     /// Initializes an `ObjectState` from a `WireObjectState`, applying the data decoding rules of OD5.
     ///
@@ -499,7 +487,6 @@ internal extension ProtocolTypes.ObjectState {
 
 // MARK: - PAOM3: wire (protocol) -> public conversion
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.InboundObjectMessage {
     /// Builds the user-facing ``ObjectMessage`` (PAOM) from this inbound message, per PAOM3.
     ///
@@ -530,7 +517,6 @@ internal extension ProtocolTypes.InboundObjectMessage {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.ObjectOperation {
     /// Converts this operation to the public ``ObjectOperation`` (PAOOP), resolving the outbound-only
     /// `*CreateWithObjectId` variants back to their derived create payloads (PAOOP3b/PAOOP3c).
@@ -580,7 +566,6 @@ internal extension ProtocolTypes.ObjectOperation {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.MapCreate {
     func toPublicMapCreate() -> MapCreate {
         // The public `ObjectsMapSemantics` has only `.lww` (unknown semantics are dropped, a recorded
@@ -592,7 +577,6 @@ internal extension ProtocolTypes.MapCreate {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.ObjectsMapEntry {
     func toPublicObjectsMapEntry() -> ObjectsMapEntry {
         .init(
@@ -604,7 +588,6 @@ internal extension ProtocolTypes.ObjectsMapEntry {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.ObjectData {
     /// Converts internal (decoded) object data to the public ``ObjectData`` (OD2). The public shape
     /// exposes decoded binary directly and has no `encoding`; `number` is a `Double` and `json` is the
@@ -644,7 +627,6 @@ internal extension ProtocolTypes.ObjectData {
 //     already agree on this.
 // For ASCII these coincide; they differ only for non-ASCII text.
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.OutboundObjectMessage {
     /// The size of this `ObjectMessage` in bytes, calculated per OM3. Used by RTO15d to enforce `maxMessageSize`.
     var size: Int {
@@ -660,7 +642,6 @@ internal extension ProtocolTypes.OutboundObjectMessage {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.ObjectOperation {
     /// The size of this `ObjectOperation` in bytes, calculated per OOP4.
     var size: Int {
@@ -676,7 +657,6 @@ internal extension ProtocolTypes.ObjectOperation {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.ObjectState {
     /// The size of this `ObjectState` in bytes, calculated per OST3.
     var size: Int {
@@ -688,7 +668,6 @@ internal extension ProtocolTypes.ObjectState {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.MapCreate {
     /// The size of this `MapCreate` in bytes, calculated per MCR3.
     var size: Int {
@@ -698,7 +677,6 @@ internal extension ProtocolTypes.MapCreate {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.MapSet {
     /// The size of this `MapSet` in bytes, calculated per MST3.
     var size: Int {
@@ -707,7 +685,6 @@ internal extension ProtocolTypes.MapSet {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.ObjectsMap {
     /// The size of this `ObjectsMap` in bytes, calculated per OMP4.
     var size: Int {
@@ -717,7 +694,6 @@ internal extension ProtocolTypes.ObjectsMap {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.ObjectsMapEntry {
     /// The size of this `ObjectsMapEntry` in bytes, calculated per OME3.
     var size: Int {
@@ -726,7 +702,6 @@ internal extension ProtocolTypes.ObjectsMapEntry {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ProtocolTypes.ObjectData {
     /// The size of this `ObjectData` in bytes, calculated per OD3.
     var size: Int {
@@ -753,7 +728,6 @@ internal extension ProtocolTypes.ObjectData {
 // The following four types are shared between the wire and non-wire models, so their size
 // calculations live here alongside the rest of the OM3 algorithm.
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension WireMapRemove {
     /// The size of this `MapRemove` in bytes, calculated per MRM3.
     var size: Int {
@@ -762,7 +736,6 @@ internal extension WireMapRemove {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension WireCounterCreate {
     /// The size of this `CounterCreate` in bytes, calculated per CCR3.
     var size: Int {
@@ -771,7 +744,6 @@ internal extension WireCounterCreate {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension WireCounterInc {
     /// The size of this `CounterInc` in bytes, calculated per CIN3.
     var size: Int {
@@ -779,7 +751,6 @@ internal extension WireCounterInc {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension WireObjectsCounter {
     /// The size of this `ObjectsCounter` in bytes, calculated per OCN3.
     var size: Int {
@@ -790,7 +761,6 @@ internal extension WireObjectsCounter {
 
 // MARK: - CustomDebugStringConvertible
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension ProtocolTypes.InboundObjectMessage: CustomDebugStringConvertible {
     internal var debugDescription: String {
         var parts: [String] = []
@@ -810,7 +780,6 @@ extension ProtocolTypes.InboundObjectMessage: CustomDebugStringConvertible {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension ProtocolTypes.OutboundObjectMessage: CustomDebugStringConvertible {
     internal var debugDescription: String {
         var parts: [String] = []
@@ -830,7 +799,6 @@ extension ProtocolTypes.OutboundObjectMessage: CustomDebugStringConvertible {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension ProtocolTypes.ObjectOperation: CustomDebugStringConvertible {
     internal var debugDescription: String {
         var parts: [String] = []
@@ -851,7 +819,6 @@ extension ProtocolTypes.ObjectOperation: CustomDebugStringConvertible {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension ProtocolTypes.ObjectState: CustomDebugStringConvertible {
     internal var debugDescription: String {
         var parts: [String] = []
@@ -867,7 +834,6 @@ extension ProtocolTypes.ObjectState: CustomDebugStringConvertible {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension ProtocolTypes.ObjectsMap: CustomDebugStringConvertible {
     internal var debugDescription: String {
         var parts: [String] = []
@@ -887,7 +853,6 @@ extension ProtocolTypes.ObjectsMap: CustomDebugStringConvertible {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension ProtocolTypes.ObjectsMapEntry: CustomDebugStringConvertible {
     internal var debugDescription: String {
         var parts: [String] = []
@@ -901,7 +866,6 @@ extension ProtocolTypes.ObjectsMapEntry: CustomDebugStringConvertible {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension ProtocolTypes.ObjectData: CustomDebugStringConvertible {
     internal var debugDescription: String {
         var parts: [String] = []
@@ -917,7 +881,6 @@ extension ProtocolTypes.ObjectData: CustomDebugStringConvertible {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension ProtocolTypes.MapSet: CustomDebugStringConvertible {
     internal var debugDescription: String {
         var parts: [String] = []
@@ -929,7 +892,6 @@ extension ProtocolTypes.MapSet: CustomDebugStringConvertible {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension ProtocolTypes.MapCreate: CustomDebugStringConvertible {
     internal var debugDescription: String {
         var parts: [String] = []
@@ -948,7 +910,6 @@ extension ProtocolTypes.MapCreate: CustomDebugStringConvertible {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension ProtocolTypes.MapCreateWithObjectId: CustomDebugStringConvertible {
     internal var debugDescription: String {
         var parts: [String] = []
@@ -961,7 +922,6 @@ extension ProtocolTypes.MapCreateWithObjectId: CustomDebugStringConvertible {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension ProtocolTypes.CounterCreateWithObjectId: CustomDebugStringConvertible {
     internal var debugDescription: String {
         var parts: [String] = []

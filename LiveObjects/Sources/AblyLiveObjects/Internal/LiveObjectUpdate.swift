@@ -1,4 +1,3 @@
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal enum LiveObjectUpdate<Update: Sendable>: Sendable {
     case noop // RTLO4b4
     case update(Update) // RTLO4b4a
@@ -24,12 +23,10 @@ internal enum LiveObjectUpdate<Update: Sendable>: Sendable {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension LiveObjectUpdate: Equatable where Update: Equatable {}
 
 // MARK: - Message/tombstone enrichment
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension LiveObjectUpdate where Update: LiveObjectUpdatePayload {
     /// The internal source object message carried by an `update` payload (`nil` for `noop` or
     /// sync-originated updates). The public message is projected per PAOM3 at delivery. Spec: RTLO4b4d.

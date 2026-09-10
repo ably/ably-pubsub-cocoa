@@ -10,7 +10,6 @@ import Foundation
 ///
 /// > Note: the spec name for this type is `ValueType` (`RTTS2`). A rename to `TypeOfValue` has been
 /// > suggested on specification #491 but is not yet decided; this SDK follows the current spec name.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public enum ValueType: Sendable, Equatable {
     case string
     case number
@@ -38,7 +37,6 @@ public enum ValueType: Sendable, Equatable {
 /// > single ``PrimitivePathObject``/``PrimitiveInstance`` that resolves to this `Primitive` enum,
 /// > which callers pattern-match. This is a Swift-idiomatic consolidation agreed for this SDK; it
 /// > means `value` returns whatever primitive resolved rather than being pre-filtered to one type.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public enum Primitive: Sendable, Equatable {
     case string(String)
     case number(Double)
@@ -52,7 +50,6 @@ public enum Primitive: Sendable, Equatable {
 
 /// These back the same-named accessors on ``PrimitivePathObject`` and ``PrimitiveInstance``, which is
 /// how callers outside the SDK reach them; on a `Primitive` in hand, `switch` over the cases.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension Primitive {
     /// If this `Primitive` has case `string`, this returns the associated value. Else, it returns `nil`.
     var stringValue: String? {
@@ -111,7 +108,6 @@ internal extension Primitive {
 /// This is **not** a live, synchronized counter; it is a lightweight, local description of the
 /// counter to create. The live counter is created on the Ably system when this value is set into the
 /// graph. Spec: `RTLCV`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public struct LiveCounter: Sendable, Equatable {
     /// The initial count for the counter. Spec: `RTLCV2a`.
     internal let count: Double
@@ -143,7 +139,6 @@ public struct LiveCounter: Sendable, Equatable {
 /// This is **not** a live, synchronized map; it is a lightweight, local description of the map to
 /// create. The live map is created on the Ably system when this value is set into the graph.
 /// Spec: `RTLMV`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public struct LiveMap: Sendable, Equatable {
     /// The initial entries for the map. Spec: `RTLMV2a`.
     internal let entries: [String: LiveMapValue]?
@@ -191,7 +186,6 @@ public struct LiveMap: Sendable, Equatable {
 /// Spec: `RTTS11` — the typed public write-value type carrying the map set-value union
 /// (`Boolean | Binary | Number | String | JsonArray | JsonObject | LiveCounter | LiveMap`) accepted by
 /// `set`. `RTTS11a` names Swift's idiomatic realisation: an enum with literal conformances (below).
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public enum LiveMapValue: Sendable, Equatable {
     /// A primitive value (string, number, boolean, binary data, JSON array, or JSON object).
     case primitive(Primitive)
@@ -227,42 +221,36 @@ public enum LiveMapValue: Sendable, Equatable {
 
 // MARK: - ExpressibleBy*Literal conformances
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension LiveMapValue: ExpressibleByDictionaryLiteral {
     public init(dictionaryLiteral elements: (String, JSONValue)...) {
         self = .primitive(.jsonObject(.init(uniqueKeysWithValues: elements)))
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension LiveMapValue: ExpressibleByArrayLiteral {
     public init(arrayLiteral elements: JSONValue...) {
         self = .primitive(.jsonArray(elements))
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension LiveMapValue: ExpressibleByStringLiteral {
     public init(stringLiteral value: String) {
         self = .primitive(.string(value))
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension LiveMapValue: ExpressibleByIntegerLiteral {
     public init(integerLiteral value: Int) {
         self = .primitive(.number(Double(value)))
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension LiveMapValue: ExpressibleByFloatLiteral {
     public init(floatLiteral value: Double) {
         self = .primitive(.number(value))
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension LiveMapValue: ExpressibleByBooleanLiteral {
     public init(booleanLiteral value: Bool) {
         self = .primitive(.bool(value))

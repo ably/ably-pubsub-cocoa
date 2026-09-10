@@ -4,7 +4,6 @@ import Ably
 /// The API that the internal components of the SDK (that is, `DefaultLiveObjects` and down) use to interact with our core SDK (i.e. ably-cocoa).
 ///
 /// This provides us with a mockable interface to ably-cocoa, and it also allows internal components and their tests not to need to worry about some of the boring details of how we bridge Swift types to `_AblyPluginSupportPrivate`'s Objective-C API (i.e. boxing).
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal protocol CoreSDK: AnyObject, Sendable {
     /// Implements the internal `#publish` method of RTO15.
     func nosync_publish(objectMessages: [ProtocolTypes.OutboundObjectMessage], callback: @escaping @Sendable (Result<PublishResult, ARTErrorInfo>) -> Void)
@@ -50,7 +49,6 @@ internal protocol CoreSDK: AnyObject, Sendable {
     func nosync_attach(callback: @escaping @Sendable (ARTErrorInfo?) -> Void)
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal final class DefaultCoreSDK: CoreSDK {
     /// Used to synchronize access to internal mutable state.
     private let mutex = NSLock()
@@ -192,7 +190,6 @@ internal final class DefaultCoreSDK: CoreSDK {
 /// the public path/instance-API guard layer that performs its own internal-queue hop and also
 /// checks channel modes / `echoMessages`. The two layers are deliberately distinct, so the guards
 /// are not shared between them (`ChannelConfigGuards` keeps its own on-queue channel-state check).
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension CoreSDK {
     /// RTO25b — the *access API* channel-state precondition for read operations (map get/size/entries,
     /// counter value, subscribe): throws an `ARTErrorInfo` with code 90001 and statusCode 400 when the

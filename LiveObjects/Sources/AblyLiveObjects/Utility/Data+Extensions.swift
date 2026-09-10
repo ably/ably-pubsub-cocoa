@@ -2,12 +2,10 @@ import Ably
 import Foundation
 
 /// Errors that can occur during decoding operations.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal enum DecodingError: Error, Equatable {
     case invalidBase64String(String)
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension Data {
     /// Initialize Data from a Base64-encoded string, throwing an error if decoding fails.
     /// - Parameter base64String: The Base64-encoded string to decode

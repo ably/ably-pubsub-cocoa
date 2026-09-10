@@ -1,7 +1,6 @@
 import Ably
 @testable import AblyLiveObjects
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension InternalDefaultRealtimeObjects {
     var testsOnly_objectsPool: ObjectsPool {
         mutableStateMutex.withSync { mutableState in

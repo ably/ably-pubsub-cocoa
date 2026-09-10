@@ -32,7 +32,6 @@ import Foundation
 // Serials compare as strings (RTLM9e) and ad-hoc values silently sort wrong — always call these;
 // never inline a `"t:N"` serial or siteCode literal.
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 enum StandardTestPool {
     /// The harness ConnectionDetails siteCode (spec `SITE_CODE`).
     static let siteCode = "test-site"
@@ -55,7 +54,6 @@ enum StandardTestPool {
 
 // MARK: - SyncObjectsPool construction
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension SyncObjectsPool {
     /// Test-only convenience to create a `SyncObjectsPool` from an array of `(state, serialTimestamp)` pairs,
     /// wrapping each in an `InboundObjectMessage` and calling `accumulate`.
@@ -77,7 +75,6 @@ extension SyncObjectsPool {
 
 // MARK: - Spec-pool operation-message builders
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension TestFactories {
     /// Creates an InboundObjectMessage with an OBJECT_DELETE operation.
     ///

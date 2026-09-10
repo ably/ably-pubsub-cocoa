@@ -23,7 +23,6 @@ import Ably
 /// > Note: This enum shape is a Swift-specific decision (chosen over the language-agnostic
 /// > base-type + `as*`-cast model of spec `RTTS9`, so that discrimination is compile-time-exhaustive
 /// > and there is no undefined mismatch path). Spec: `RTINS1`, `RTTS9`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public enum Instance: Sendable {
     case liveMap(any LiveMapInstance)
     case liveCounter(any LiveCounterInstance)
@@ -61,7 +60,6 @@ public enum Instance: Sendable {
 
 /// An ``Instance`` payload exposing the members applicable when the wrapped value is a map.
 /// Spec: `RTTS10`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public protocol LiveMapInstance: Sendable {
     /// The `objectId` of the wrapped map. Spec: `RTINS3`.
     var id: String { get }
@@ -112,7 +110,6 @@ public protocol LiveMapInstance: Sendable {
 
 /// An ``Instance`` payload exposing the members applicable when the wrapped value is a counter.
 /// Spec: `RTTS10`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public protocol LiveCounterInstance: Sendable {
     /// The `objectId` of the wrapped counter. Spec: `RTINS3`.
     var id: String { get }
@@ -138,7 +135,6 @@ public protocol LiveCounterInstance: Sendable {
     func compactJson() throws(ARTErrorInfo) -> JSONValue
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public extension LiveCounterInstance {
     /// Sends an operation to increment the wrapped counter by 1. Spec: `RTINS14`.
     func increment() async throws(ARTErrorInfo) {
@@ -155,7 +151,6 @@ public extension LiveCounterInstance {
 
 /// An ``Instance`` payload exposing the members applicable when the wrapped value is a primitive.
 /// Spec: `RTTS10`. (See ``Primitive`` for the note on collapsing the six spec primitive sub-types.)
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public protocol PrimitiveInstance: Sendable {
     /// The wrapped primitive value. Spec: `RTTS10c`, `RTINS4`.
     ///
@@ -175,7 +170,6 @@ public protocol PrimitiveInstance: Sendable {
 ///
 /// Each of these reads ``PrimitiveInstance/value`` and then the correspondingly-named getter on the
 /// resulting ``Primitive``, so `nil` means that the wrapped primitive is of a different case.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public extension PrimitiveInstance {
     /// If the wrapped primitive has case `string`, this returns the associated value. Else, it returns `nil`.
     var stringValue: String? {
@@ -223,7 +217,6 @@ public extension PrimitiveInstance {
 // MARK: - AsyncSequence subscription variants
 
 /// `AsyncStream`-based subscription for map instances.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public extension LiveMapInstance {
     /// Returns an `AsyncSequence` that emits an ``InstanceSubscriptionEvent`` each time the wrapped
     /// map is updated. The underlying subscription is removed when the stream is terminated.
@@ -241,7 +234,6 @@ public extension LiveMapInstance {
 }
 
 /// `AsyncStream`-based subscription for counter instances.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public extension LiveCounterInstance {
     /// Returns an `AsyncSequence` that emits an ``InstanceSubscriptionEvent`` each time the wrapped
     /// counter is updated. The underlying subscription is removed when the stream is terminated.

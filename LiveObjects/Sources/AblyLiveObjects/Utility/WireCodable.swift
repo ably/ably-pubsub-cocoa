@@ -1,38 +1,31 @@
 import Ably
 import Foundation
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal protocol WireEncodable {
     var toWireValue: WireValue { get }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal protocol WireDecodable {
     init(wireValue: WireValue) throws(ARTErrorInfo)
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal typealias WireCodable = WireDecodable & WireEncodable
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal protocol WireObjectEncodable: WireEncodable {
     var toWireObject: [String: WireValue] { get }
 }
 
 // Default implementation of `WireEncodable` conformance for `WireObjectEncodable`
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension WireObjectEncodable {
     var toWireValue: WireValue {
         .object(toWireObject)
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal protocol WireObjectDecodable: WireDecodable {
     init(wireObject: [String: WireValue]) throws(ARTErrorInfo)
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal enum WireValueDecodingError: Error {
     case valueIsNotObject
     case noValueForKey(String)
@@ -41,7 +34,6 @@ internal enum WireValueDecodingError: Error {
 }
 
 // Default implementation of `WireDecodable` conformance for `WireObjectDecodable`
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension WireObjectDecodable {
     init(wireValue: WireValue) throws(ARTErrorInfo) {
         guard case let .object(wireObject) = wireValue else {
@@ -52,13 +44,11 @@ internal extension WireObjectDecodable {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal typealias WireObjectCodable = WireObjectDecodable & WireObjectEncodable
 
 // MARK: - Extracting primitive values from a dictionary
 
 /// This extension adds some helper methods for extracting values from a dictionary of `WireValue` values; you may find them helpful when implementing `WireCodable`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension [String: WireValue] {
     /// If this dictionary contains a value for `key`, and this value has case `object`, this returns the associated value.
     ///
@@ -279,7 +269,6 @@ internal extension [String: WireValue] {
 
 // MARK: - Extracting dates from a dictionary
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension [String: WireValue] {
     /// If this dictionary contains a value for `key`, and this value has case `number`, this returns a date created by interpreting this value as the number of milliseconds since the Unix epoch (which is the format used by Ably).
     ///
@@ -309,7 +298,6 @@ internal extension [String: WireValue] {
 
 // MARK: - Extracting RawRepresentable values from a dictionary
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension [String: WireValue] {
     /// If this dictionary contains a value for `key`, and this value has case `string`, this creates an instance of `T` using its `init(rawValue:)` initializer.
     ///
@@ -347,7 +335,6 @@ internal extension [String: WireValue] {
 
 // MARK: - Extracting WireEnum values from a dictionary
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension [String: WireValue] {
     /// If this dictionary contains a value for `key`, and this value has case `number`, this creates a `WireEnum` instance using its `init(rawValue:)` initializer.
     ///
@@ -372,7 +359,6 @@ internal extension [String: WireValue] {
 
 // MARK: - Extracting WireDecodable values from a dictionary
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension [String: WireValue] {
     /// If this dictionary contains a value for `key`, this attempts to decode it into an instance of `T` using its `init(wireValue:)` initializer.
     ///

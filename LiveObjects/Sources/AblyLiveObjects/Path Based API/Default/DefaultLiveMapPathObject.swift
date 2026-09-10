@@ -4,7 +4,6 @@ import Ably
 /// navigation and read/write operations on top of ``DefaultPathObject``.
 ///
 /// Spec: `RTTS6a`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal final class DefaultLiveMapPathObject: DefaultPathObject, LiveMapPathObject, @unchecked Sendable {
     // MARK: - Navigation (RTPO5, RTPO6)
 

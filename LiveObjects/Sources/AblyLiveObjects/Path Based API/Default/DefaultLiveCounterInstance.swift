@@ -3,7 +3,6 @@ import Foundation
 
 /// Default implementation of ``LiveCounterInstance``, bound to a specific
 /// ``InternalDefaultLiveCounter`` (RTINS2a). Spec: `RTINS1`, `RTTS10b`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal final class DefaultLiveCounterInstance: LiveCounterInstance {
     private let node: InternalDefaultLiveCounter
     private let coreSDK: CoreSDK

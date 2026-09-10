@@ -21,7 +21,6 @@ import Foundation
 /// `@unchecked Sendable`: a non-`final` base class cannot get a checked `Sendable` conformance, but
 /// every stored property here is an immutable `let` of a `Sendable` type, and the typed subclasses
 /// add no stored state — so the conformance is sound.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal class DefaultPathObject: PathObject, @unchecked Sendable {
     /// The channel's realtime-objects engine. Supplies the objects pool for resolution and backs the
     /// node accessors' pool-delegate parameter and the write path.

@@ -1,7 +1,6 @@
 @testable import AblyLiveObjects
 import Foundation
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension InternalDefaultLiveCounter {
     var testsOnly_siteTimeserials: [String: String] {
         mutableStateMutex.withSync { mutableState in

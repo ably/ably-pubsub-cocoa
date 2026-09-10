@@ -27,7 +27,6 @@ import Ably
 /// > `PathObject` and can be trivially cached.
 ///
 /// Spec: `RTPO1`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public protocol PathObject: Sendable {
     /// A dot-delimited string representation of the stored path segments. Dot characters
     /// occurring within individual segments are escaped with a backslash. An empty path (the root)
@@ -73,7 +72,6 @@ public protocol PathObject: Sendable {
     func asPrimitive() -> any PrimitivePathObject
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public extension PathObject {
     /// Registers a listener that is called when the object at this path is updated, using default
     /// options. Spec: `RTPO19`.
@@ -84,7 +82,6 @@ public extension PathObject {
 }
 
 /// `AsyncStream`-based subscription.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public extension PathObject {
     /// Returns an `AsyncSequence` that emits a ``PathObjectSubscriptionEvent`` each time the object at
     /// this path is updated. The underlying subscription is removed when the stream is terminated.
@@ -105,7 +102,6 @@ public extension PathObject {
 
 /// A ``PathObject`` view exposing the methods applicable when the value at the path is expected to be
 /// a map. Spec: `RTTS6`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public protocol LiveMapPathObject: PathObject {
     /// Returns a new ``PathObject`` with `key` appended to this object's path. Purely navigational;
     /// does not resolve the path. Spec: `RTPO5`.
@@ -142,7 +138,6 @@ public protocol LiveMapPathObject: PathObject {
 
 /// A ``PathObject`` view exposing the methods applicable when the value at the path is expected to be
 /// a counter. Spec: `RTTS6`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public protocol LiveCounterPathObject: PathObject {
     /// Resolves the path and, if it resolves to a counter, returns its current value (per `RTPO7c`).
     /// Returns `nil` otherwise, including when resolution fails or the value is not a counter.
@@ -160,7 +155,6 @@ public protocol LiveCounterPathObject: PathObject {
     func decrement(amount: Double) async throws(ARTErrorInfo)
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public extension LiveCounterPathObject {
     /// Sends an operation to increment the counter at this path by 1. Spec: `RTPO17`.
     func increment() async throws(ARTErrorInfo) {
@@ -178,7 +172,6 @@ public extension LiveCounterPathObject {
 /// A ``PathObject`` view exposing the methods applicable when the value at the path is expected to be
 /// a primitive. Spec: `RTTS6`. (See ``Primitive`` for the note on collapsing the six spec primitive
 /// sub-types.)
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public protocol PrimitivePathObject: PathObject {
     /// Resolves the path and, if it resolves to a primitive, returns it (per `RTPO7d`). Returns `nil`
     /// if the resolved value is a `LiveObject` (`RTPO7e`) or resolution fails (`RTPO7f`). Spec:
@@ -194,7 +187,6 @@ public protocol PrimitivePathObject: PathObject {
 ///
 /// These are methods, not properties, for the same reason as the rest of ``PathObject``'s
 /// path-resolving accessors: each resolves the path at call time and is therefore O(path length).
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public extension PrimitivePathObject {
     /// If the value at this path is a `string` primitive, this returns the associated value. Else, it returns `nil`.
     func stringValue() throws(ARTErrorInfo) -> String? {

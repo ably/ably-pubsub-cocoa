@@ -6,7 +6,6 @@ import Ably
 /// on top of ``DefaultPathObject``.
 ///
 /// Spec: `RTTS6b`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal final class DefaultLiveCounterPathObject: DefaultPathObject, LiveCounterPathObject, @unchecked Sendable {
     // MARK: - Read (RTTS6b)
 

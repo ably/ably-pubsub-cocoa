@@ -15,7 +15,6 @@ import Foundation
 
 /// The user-facing representation of an inbound object message that carried an operation.
 /// Spec: `PAOM`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public struct ObjectMessage: Sendable, Equatable {
     /// The `id` of the source object message. Spec: `PAOM2a`.
     public var id: String?
@@ -71,7 +70,6 @@ public struct ObjectMessage: Sendable, Equatable {
 /// Unlike the wire `ObjectOperation`, it does not carry the `mapCreateWithObjectId` /
 /// `counterCreateWithObjectId` variants; those outbound-only forms are resolved back to their
 /// derived ``MapCreate`` / ``CounterCreate`` forms. Spec: `PAOOP`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public struct ObjectOperation: Sendable, Equatable {
     /// The action of the operation. Spec: `PAOOP2a`.
     public var action: ObjectOperationAction
@@ -118,7 +116,6 @@ public struct ObjectOperation: Sendable, Equatable {
 // MARK: - ObjectOperationAction (OOP2)
 
 /// The set of actions that an ``ObjectOperation`` can represent. Spec: `OOP2`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public enum ObjectOperationAction: Sendable, Equatable {
     case mapCreate
     case mapSet
@@ -132,7 +129,6 @@ public enum ObjectOperationAction: Sendable, Equatable {
 // MARK: - Operation payloads
 
 /// The map-create operation payload. Spec: `MCR`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public struct MapCreate: Sendable, Equatable {
     /// The conflict-resolution semantics for the map. Spec: `MCR2a`.
     public var semantics: ObjectsMapSemantics
@@ -146,7 +142,6 @@ public struct MapCreate: Sendable, Equatable {
 }
 
 /// The map-set operation payload. Spec: `MST`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public struct MapSet: Sendable, Equatable {
     /// The key being set. Spec: `MST2a`.
     public var key: String
@@ -160,7 +155,6 @@ public struct MapSet: Sendable, Equatable {
 }
 
 /// The map-remove operation payload. Spec: `MRM`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public struct MapRemove: Sendable, Equatable {
     /// The key being removed. Spec: `MRM2a`.
     public var key: String
@@ -171,7 +165,6 @@ public struct MapRemove: Sendable, Equatable {
 }
 
 /// The counter-create operation payload. Spec: `CCR`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public struct CounterCreate: Sendable, Equatable {
     /// The initial count. Spec: `CCR2a`.
     public var count: Double
@@ -182,7 +175,6 @@ public struct CounterCreate: Sendable, Equatable {
 }
 
 /// The counter-increment operation payload. Spec: `CIN`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public struct CounterInc: Sendable, Equatable {
     /// The amount to increment by. Spec: `CIN2a`.
     public var number: Double
@@ -193,13 +185,11 @@ public struct CounterInc: Sendable, Equatable {
 }
 
 /// The object-delete operation payload. Spec: `ODE`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public struct ObjectDelete: Sendable, Equatable {
     public init() {}
 }
 
 /// The map-clear operation payload. Spec: `MCL`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public struct MapClear: Sendable, Equatable {
     public init() {}
 }
@@ -207,14 +197,12 @@ public struct MapClear: Sendable, Equatable {
 // MARK: - Supporting wire types
 
 /// The conflict-resolution semantics for a map. Spec: `OMP2`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public enum ObjectsMapSemantics: Sendable, Equatable {
     /// Last-write-wins. Spec: `OMP2`.
     case lww
 }
 
 /// A single entry within a ``MapCreate`` payload. Spec: `OME`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public struct ObjectsMapEntry: Sendable, Equatable {
     /// Whether this entry is tombstoned (removed). Spec: `OME2a`.
     public var tombstone: Bool?
@@ -239,7 +227,6 @@ public struct ObjectsMapEntry: Sendable, Equatable {
 }
 
 /// The data value carried by a map entry or map-set operation. Spec: `OD`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public struct ObjectData: Sendable, Equatable {
     /// The object ID, if this data references a `LiveObject`. Spec: `OD2a`.
     public var objectId: String?

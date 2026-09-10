@@ -35,7 +35,6 @@ import ObjectiveC.NSObject
 /// let root = try await channel.object.get()
 /// // …and so on
 /// ```
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 @objc
 public class Plugin: NSObject {
     /// The `_AblyPluginSupportPrivate.PluginAPIProtocol` that the LiveObjects plugin should use by default (i.e. when one hasn't been injected for test purposes).

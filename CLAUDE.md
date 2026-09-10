@@ -64,7 +64,7 @@ Plugins are passed via `ARTClientOptions.plugins`. Plugin support is gated behin
 
 ## LiveObjects
 
-The LiveObjects plugin (the `AblyLiveObjects` product, in Swift) lives in `LiveObjects/`, which has its own CLAUDE.md with build/test/lint instructions; consult it when working on LiveObjects code. Its targets are declared in this repo's root `Package.swift`, and every top-level declaration in its sources must carry an `@available` annotation (enforced by `Scripts/annotate-liveobjects-availability.py`; see that script for details).
+The LiveObjects plugin (the `AblyLiveObjects` product, in Swift) lives in `LiveObjects/`, which has its own CLAUDE.md with build/test/lint instructions; consult it when working on LiveObjects code. Its targets are declared in this repo's root `Package.swift`.
 
 ## Test Structure
 

@@ -1,6 +1,5 @@
 import Foundation
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension NSNumber {
     /// The `Double` closest to this number's value, which `doubleValue` does not always give.
     ///

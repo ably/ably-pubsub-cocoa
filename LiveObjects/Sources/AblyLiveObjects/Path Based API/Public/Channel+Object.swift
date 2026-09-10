@@ -1,7 +1,6 @@
 internal import _AblyPluginSupportPrivate
 import Ably
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public extension ARTRealtimeChannel {
     /// The ``RealtimeObject`` for this channel — the entry point into the LiveObjects API.
     ///

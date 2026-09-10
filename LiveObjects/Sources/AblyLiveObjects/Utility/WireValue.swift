@@ -4,7 +4,6 @@ import Foundation
 /// A wire value that can be represents the kinds of data that we expect to find inside a deserialized wire object received from `_AblyPluginSupportPrivate`, or which we may put inside a serialized wire object that we send to `_AblyPluginSupportPrivate`.
 ///
 /// Its cases are a superset of those of ``JSONValue``, adding a further `data` case for binary data (we expect to be able to send and receive binary data in the case where ably-cocoa is using the MessagePack format). Also, its `number` case is `NSNumber` instead of `Double`, to allow us to communicate to ably-cocoa's MessagePack encoder that it should encode certain values (e.g. enums) as integers, not doubles.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal indirect enum WireValue: Sendable, Equatable {
     case object([String: WireValue])
     case array([WireValue])
@@ -80,42 +79,36 @@ internal indirect enum WireValue: Sendable, Equatable {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension WireValue: ExpressibleByDictionaryLiteral {
     internal init(dictionaryLiteral elements: (String, WireValue)...) {
         self = .object(.init(uniqueKeysWithValues: elements))
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension WireValue: ExpressibleByArrayLiteral {
     internal init(arrayLiteral elements: WireValue...) {
         self = .array(elements)
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension WireValue: ExpressibleByStringLiteral {
     internal init(stringLiteral value: String) {
         self = .string(value)
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension WireValue: ExpressibleByIntegerLiteral {
     internal init(integerLiteral value: Int) {
         self = .number(value as NSNumber)
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension WireValue: ExpressibleByFloatLiteral {
     internal init(floatLiteral value: Double) {
         self = .number(value as NSNumber)
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension WireValue: ExpressibleByBooleanLiteral {
     internal init(booleanLiteral value: Bool) {
         self = .bool(value)
@@ -124,7 +117,6 @@ extension WireValue: ExpressibleByBooleanLiteral {
 
 // MARK: - Bridging with ably-cocoa
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension WireValue {
     /// Creates a `WireValue` from an `_AblyPluginSupportPrivate` deserialized wire object.
     ///
@@ -166,7 +158,6 @@ internal extension WireValue {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension [String: WireValue] {
     /// Creates an `_AblyPluginSupportPrivate` deserialized wire object from a dictionary that has string keys and `WireValue` values.
     ///
@@ -178,7 +169,6 @@ internal extension [String: WireValue] {
 
 // MARK: - Conversion to/from ExtendedJSONValue
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension WireValue {
     enum ExtraValue {
         case data(Data)
@@ -228,7 +218,6 @@ internal extension WireValue {
 
 // MARK: - Conversion to/from JSONValue
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension WireValue {
     /// Converts a `JSONValue` to its corresponding `WireValue`.
     init(jsonValue: JSONValue) {

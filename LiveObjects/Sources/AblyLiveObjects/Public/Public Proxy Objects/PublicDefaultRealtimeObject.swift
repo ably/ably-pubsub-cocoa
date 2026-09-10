@@ -7,7 +7,6 @@ import Ably
 /// expresses the contrast with that internal type, per the documented memory-management policy (the
 /// public proxy holds a strong reference to the internal object, not vice versa); hence it lives
 /// alongside the other proxy objects in `Public/Public Proxy Objects`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal final class PublicDefaultRealtimeObject: RealtimeObject {
     internal let proxied: InternalDefaultRealtimeObjects // internal for AblyLiveObjectsTesting
 

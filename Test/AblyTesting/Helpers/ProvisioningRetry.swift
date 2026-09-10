@@ -8,7 +8,6 @@ import Foundation
 /// downloads) where a single stalled request would otherwise fail every test sharing the result.
 /// Callers are responsible for retry safety — e.g. the non-idempotent sandbox `POST /apps` is safe
 /// because an orphaned app from a timed-out create is auto-deleted after a few minutes of no use.
-@available(macOS 10.15, iOS 13, tvOS 13, *)
 public func withProvisioningRetries<T>(attempts: Int = 5, _ body: () async throws -> T) async throws -> T {
     precondition(attempts >= 1, "attempts must be at least 1")
     for attempt in 0 ..< attempts - 1 {

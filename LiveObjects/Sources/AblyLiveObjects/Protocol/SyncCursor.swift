@@ -2,7 +2,6 @@ import Ably
 import Foundation
 
 /// The `OBJECT_SYNC` sync cursor, as extracted from a `channelSerial` per RTO5a1 and RTO5a4.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal struct SyncCursor {
     internal var sequenceID: String
     /// `nil` in the case where the objects sync sequence is complete (RTO5a4).

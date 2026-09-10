@@ -3,7 +3,6 @@ import _AblyPluginSupportPrivate
 import os
 
 /// An implementation of `Logger` to use when testing internal components of the LiveObjects plugin.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 final class TestLogger: NSObject, AblyLiveObjects.Logger {
     // By default, we don't log in tests to keep the test logs easy to read. You can set this property to `true` to temporarily turn logging on if you want to debug a test.
     static let loggingEnabled = false
@@ -19,7 +18,6 @@ final class TestLogger: NSObject, AblyLiveObjects.Logger {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 private extension _AblyPluginSupportPrivate.LogLevel {
     var toOSLogType: OSLogType {
         // Not much thought has gone into this conversion

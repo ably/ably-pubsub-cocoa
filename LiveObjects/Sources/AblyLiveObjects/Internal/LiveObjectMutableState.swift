@@ -4,7 +4,6 @@ import Ably
 /// This is the equivalent of the `LiveObject` abstract class described in RTLO.
 ///
 /// ``InternalDefaultLiveCounter`` and ``InternalDefaultLiveMap`` include it by composition.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal struct LiveObjectMutableState<Update: Sendable> {
     // RTLO3a
     internal var objectID: String

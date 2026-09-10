@@ -27,7 +27,6 @@ import Foundation
 /// LiveMap/LiveCounter change coordinators verbatim. (Deviation candidate.)
 ///
 /// Spec: `RTO24`, `RTO24a`, `RTPO19`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal final class PathObjectSubscriptionRegister: @unchecked Sendable {
     /// Constructs the ``PathObject`` carried by a path event, for a given segment list. Supplied by the
     /// subscribing ``DefaultPathObject`` so the register need not itself hold the channel object / core
@@ -153,7 +152,6 @@ internal final class PathObjectSubscriptionRegister: @unchecked Sendable {
 /// A ``Subscription`` whose `unsubscribe()` runs a closure. Calling
 /// `unsubscribe()` more than once simply re-runs the closure, whose effect is idempotent. Spec:
 /// `SUB2a`, `SUB2b`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 private final class ClosureSubscription: Subscription {
     private let action: @Sendable () -> Void
 

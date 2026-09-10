@@ -64,45 +64,6 @@ jobs:
         working-directory: .
         run: bash Scripts/check-liveobjects-test-seams.sh
 
-  # Checks that every top-level declaration in the LiveObjects sources
-  # carries an @available annotation. The LiveObjects code requires newer OS
-  # versions than the rest of this package declares in its platforms, and
-  # per-declaration availability is how it declares this (see
-  # Scripts/annotate-liveobjects-availability.py).
-  check-availability-annotations:
-    runs-on: macos-15
-
-    permissions:
-      contents: read
-
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-        with:
-          persist-credentials: false
-          submodules: true
-
-      # This step can be removed once the runners' default version of Xcode is 16.4 or above
-      - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1
-        with:
-          xcode-version: 16.4
-
-      # The compiler check: public declarations must carry availability.
-      # (-require-explicit-availability must be spelled as a frontend flag;
-      # the driver flag of the same name is a no-op.)
-      - name: Check availability of public declarations (compiler)
-        working-directory: .
-        run: swift build --target AblyLiveObjects -Xswiftc -Xfrontend -Xswiftc -require-explicit-availability=error
-
-      # The script check: all top-level declarations (including internal
-      # ones) must carry availability. The annotation script is idempotent,
-      # so a non-empty diff means somebody added a declaration without an
-      # annotation.
-      - name: Check availability of all top-level declarations (script)
-        working-directory: .
-        run: |
-          python3 Scripts/annotate-liveobjects-availability.py
-          git diff --exit-code LiveObjects/Sources
-
   # Emits the platform × Xcode-version matrices (via BuildTool generate-matrices)
   # consumed by the BuildTool-driven jobs below.
   generate-matrices:
@@ -433,7 +394,6 @@ jobs:
 
     needs:
       - lint
-      - check-availability-annotations
       - build-and-test-spm
       - build-release-configuration-spm
       - build-and-test-xcode

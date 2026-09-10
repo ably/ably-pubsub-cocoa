@@ -142,12 +142,7 @@ neither moved nor guarded:
 3. Declare an `extension <Type>` and add the accessor as a `testsOnly_`-prefixed
    member (keep the prefix verbatim — it matches the existing 700+ test call
    sites).
-4. Annotate with the **same** `@available` annotation the neighbouring
-   `AblyLiveObjects` types carry — `@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)`.
-   The compiler enforces this on any extension whose body touches the
-   availability-gated types; apply it as a matter of convention even where the
-   compiler does not force it, so the module stays uniform.
-5. Obey the dumb-accessor rule above. If the backing member you need is
+4. Obey the dumb-accessor rule above. If the backing member you need is
    `private`, raise it to `internal` in `Sources/` with a
    `// internal for AblyLiveObjectsTesting` intent comment. If more
    than a visibility raise is required (stored state, production write hooks),

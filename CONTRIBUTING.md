@@ -126,27 +126,9 @@ Two things about the plugin affect the repository as a whole, and so are documen
 
 ### Supported OS versions
 
-[`Package.swift`](Package.swift) declares **macOS 11, iOS 14, tvOS 14** for the whole package — the versions mandated by [ADR-114](https://ably.atlassian.net/wiki/spaces/ENG/pages/3199500291/ADR-114+Increase+Cocoa+SDK+minimum+supported+version+to+iOS+14) and the [RFC](https://ably.atlassian.net/wiki/spaces/SDKs/pages/2986147844/RFC+Deprecate+iOS+13+support+for+ably-cocoa) behind it. SwiftPM platform requirements are package-wide, and every component of this package needs those versions or older ones.
+[`Package.swift`](Package.swift) declares **macOS 11, iOS 14, tvOS 14** for the whole package — the versions mandated by [ADR-114](https://ably.atlassian.net/wiki/spaces/ENG/pages/3199500291/ADR-114+Increase+Cocoa+SDK+minimum+supported+version+to+iOS+14) and the [RFC](https://ably.atlassian.net/wiki/spaces/SDKs/pages/2986147844/RFC+Deprecate+iOS+13+support+for+ably-cocoa) behind it. SwiftPM platform requirements are package-wide, so one floor applies to every product.
 
-Every top-level declaration in `LiveObjects/Sources/AblyLiveObjects` also carries an annotation naming them:
-
-```swift
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
-```
-
-Don't write these annotations by hand. After adding a declaration, run [`Scripts/annotate-liveobjects-availability.py`](Scripts/annotate-liveobjects-availability.py) from the repo root:
-
-```sh
-python3 Scripts/annotate-liveobjects-availability.py
-```
-
-It annotates every unannotated top-level declaration under `LiveObjects/Sources/AblyLiveObjects` (pass another directory as its sole argument to override that), and is idempotent — running it on an already-annotated tree changes nothing.
-
-CI enforces this two ways: it runs the script and fails on a non-empty diff, which covers all top-level declarations; and it separately builds the target with `-require-explicit-availability=error`, which covers the public ones.
-
-Test code cannot use the same mechanism, because swift-testing's `@Suite` macro rejects types marked `@available`. It does not need to: the package's own floor already satisfies `AblyLiveObjects`, so a test target that links it compiles as it stands.
-
-Test code that needs a newer OS than the package floor must still carry its own `@available` — for example `Subscriber.swift`, whose parameter packs require iOS/tvOS 17, along with every test that uses it.
+Code that needs a newer OS than the package floor carries its own `@available` — for example `Subscriber.swift`, whose parameter packs require iOS/tvOS 17, along with every test that uses it. Note that swift-testing's `@Suite` macro rejects types marked `@available`, so a suite needing a newer OS has to annotate its test functions instead.
 
 ### Distribution
 

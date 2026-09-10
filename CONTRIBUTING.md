@@ -23,7 +23,7 @@ Code can then be modified, built and tested by loading [Ably.xcworkspace](Ably.x
 Dependencies are declared in [Package.swift](Package.swift) and resolved by Swift Package Manager.
 Note that `Ably.xcodeproj` used to take its dependencies from Carthage, so it no longer has a way to
 resolve them; nothing in CI builds its schemes, and the package is the only buildable path. It is
-kept because [Ably.xcworkspace](Ably.xcworkspace) references it and it hosts the soak-test app.
+kept because [Ably.xcworkspace](Ably.xcworkspace) references it.
 
 ## Adding new Objective-C files to the SDK
 
@@ -72,6 +72,7 @@ The `make test_*` commands are used by CI and expect you to have a simulator dev
 | `AblyTestsObjC` | `Test/AblyTestsObjC` | Objective-C tests for the core SDK |
 | `UTS` | `Test/UTS` | Universal Test Suite, derived from the language-neutral specs in the [`specification`](https://github.com/ably/specification) repository — including the ported LiveObjects `objects` unit specs under `unit/objects/`. Its `objects` suites link `AblyLiveObjects`, which is why the Fastlane lanes raise their deployment target — see [Supported OS versions](#supported-os-versions) |
 | `AblyLiveObjectsTests` | `LiveObjects/Tests/AblyLiveObjectsTests` | LiveObjects native unit and integration tests |
+| `AblySoakTests` | `Test/AblySoakTests` | The soak test — see [Soak test](#soak-test) below. Skipped unless `RUN_SOAK_TEST` is set |
 
 To run just one of them, filter by module name — for example `swift test --filter 'AblyLiveObjectsTests\.'`.
 
@@ -91,6 +92,27 @@ In CI:
   The two are separate workflows because the UTS is primarily a *unit* suite, so grouping it under "Integration Test" misnamed it; splitting them also means a UTS failure is distinguishable from an `AblyTests` one without opening a log, and either can be dispatched or re-run without the other's sandbox time. Between them they cover the test plan exactly once. A lane invoked without `suite:` still runs the whole plan, which is what a local `bundle exec fastlane test_macOS` does.
 - [`liveobjects.yaml`](.github/workflows/liveobjects.yaml) runs `AblyLiveObjectsTests` three ways: `swift test --filter 'AblyLiveObjectsTests\.'`, the `AblyLiveObjects` scheme via `LiveObjects/BuildTool`, and the code-coverage job. These are not equivalent — `BuildTool test-library` uses the scheme's default `AllTests` plan, whereas the coverage job passes `-testPlan UnitTests`, which skips anything tagged `.integration`. It does **not** execute the `UTS` target's tests (that's `uts.yaml`'s job, above), though its SPM job still compiles the whole package — `UTS` included — under `-warnings-as-errors`.
 - [`check-spm.yaml`](.github/workflows/check-spm.yaml) only builds; it runs no tests.
+
+No workflow runs the soak test.
+
+### Soak test
+
+`AblySoakTests` opens a hundred realtime connections and drives them for twenty minutes. There is no
+server involved: the target supplies fake HTTP, WebSocket and reachability implementations that
+answer with plausible protocol messages, close abruptly, fail and drop offline at random. The test
+passes if nothing crashes, deadlocks or raises an exception along the way.
+
+Because a run takes twenty minutes, it is skipped unless `RUN_SOAK_TEST` is set in the environment.
+Run it by hand when you have changed connection, channel or presence state handling:
+
+```sh
+RUN_SOAK_TEST=1 swift test --filter 'AblySoakTests\.'
+```
+
+The fakes reproduce the parts of the protocol the SDK reads, so a change to what the SDK expects
+from the server can make them stop being realistic. `Test/AblySoakTests/SoakTestWebSocket.swift`
+stamps each protocol message with a connection id and an id of the form `<connectionId>:<serial>`,
+for instance, because presence members inherit both.
 
 ## Plugins
 

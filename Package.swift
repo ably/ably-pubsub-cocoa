@@ -180,6 +180,21 @@ let package = Package(
                 .swiftLanguageMode(.v6)
             ]
         ),
+        // A soak test: many realtime clients driven against faked HTTP, WebSocket and
+        // reachability implementations for twenty minutes. It is skipped unless
+        // RUN_SOAK_TEST is set in the environment, so `swift test` and CI never spend that
+        // time on it. See Test/AblySoakTests/SoakTest.swift.
+        .testTarget(
+            name: "AblySoakTests",
+            dependencies: [
+                .byName(name: "Ably"),
+            ],
+            path: "Test/AblySoakTests",
+            swiftSettings: [
+                // This test code predates the Swift 6 language mode.
+                .swiftLanguageMode(.v5)
+            ]
+        ),
         // A handful of tests written in Objective-C (they can't be part of AblyTests because SPM doesn't allow mixed-language targets).
         .testTarget(
             name: "AblyTestsObjC",

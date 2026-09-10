@@ -1,11 +1,3 @@
-//
-//  SoakTest.swift
-//  Ably-iOS-SoakTest
-//
-//  Created by Toni Cárdenas on 09/11/2019.
-//  Copyright © 2019 Ably. All rights reserved.
-//
-
 import Foundation
 import XCTest
 import Ably.Private
@@ -14,15 +6,26 @@ let randomSeed: Int = 13
 let concurrentConnections: Int = 100
 let runTime: TimeInterval = 60 * 20
 
+/// Drives `concurrentConnections` realtime clients for `runTime` seconds against faked
+/// transports, and passes if none of them crashes or trips an assertion.
+///
+/// The run takes twenty minutes, so it is skipped unless `RUN_SOAK_TEST` is set in the
+/// environment. Nothing in CI sets it; run the test by hand with
+/// `RUN_SOAK_TEST=1 swift test --filter AblySoakTests`.
 class SoakTest: XCTestCase {
-    override func setUp() {
+    override func setUpWithError() throws {
         continueAfterFailure = false
+
+        try XCTSkipUnless(
+            ProcessInfo.processInfo.environment["RUN_SOAK_TEST"] != nil,
+            "Set RUN_SOAK_TEST to run the soak test."
+        )
     }
 
     func testSoak() {
         ARTHttp.setURLSessionClass(SoakTestURLSession.self)
 
-        var shouldStop = DispatchQueue(label: "io.ably.soakTest.shouldStop").syncValue(false)
+        let shouldStop = DispatchQueue(label: "io.ably.soakTest.shouldStop").syncValue(false)
 
         for i in (0 ..< concurrentConnections) {
             let queue = DispatchQueue(label: "io.ably.soakTest.\(i)")
@@ -46,8 +49,8 @@ class SoakTest: XCTestCase {
                 let realtime = ARTRealtime(options: options)
                 realtime.internal.setReachabilityClass(SoakTestReachability.self)
 
-                realtime.connection.on { state in
-                    print("got connection notification; error: \(String(describing: state?.reason))")
+                realtime.connection.on { stateChange in
+                    print("got connection notification; error: \(String(describing: stateChange.reason))")
                 }
 
                 realtimeOperations(realtime: realtime, queue: queue, shouldStop: shouldStop.get)
@@ -67,8 +70,11 @@ extension DispatchQueue {
     }
 }
 
-struct SyncValue<T> {
-    private var queue: DispatchQueue
+/// A value read and written under a serial queue. Every holder of a `SyncValue`
+/// shares one box, so a write is visible through the `get` references already
+/// handed to other queues.
+final class SyncValue<T> {
+    private let queue: DispatchQueue
     private var value: T
 
     init(queue: DispatchQueue, value: T) {
@@ -84,7 +90,7 @@ struct SyncValue<T> {
         return value!
     }
 
-    mutating func set(_ value: T) {
+    func set(_ value: T) {
         queue.sync {
             self.value = value
         }
@@ -206,7 +212,7 @@ func presenceCycle(channel: ARTRealtimeChannel, queue: DispatchQueue) {
     }
 }
 
-extension ARTRealtimeChannels: Sequence {
+extension ARTRealtimeChannels: @retroactive Sequence {
     public func makeIterator() -> NSFastEnumerationIterator {
         return NSFastEnumerationIterator(self.iterate())
     }

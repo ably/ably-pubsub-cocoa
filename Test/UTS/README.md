@@ -172,8 +172,8 @@ The specs currently derived here:
 - **`import Ably.Private`** — the SDK is Objective-C; its internal API is exposed to tests through
   the `explicit module Private` block in `Source/include/module.modulemap`. This is how the infra
   reaches the injection seams in §5.
-- **SPM-only.** The target is not part of `Ably.xcodeproj`; SPM discovers the sources automatically,
-  so adding a test file requires no project-file changes.
+- **No project file.** SPM discovers the target's sources automatically, so adding a test file
+  requires no change to `Package.swift`.
 
 ### Directory layout
 

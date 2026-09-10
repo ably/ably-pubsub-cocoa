@@ -54,13 +54,13 @@ All SDK source is in `Source/`, written entirely in Objective-C:
 - `Source/PrivateHeaders/Ably/` — Internal headers.
 - `Source/*.m` — Implementations.
 - `Source/SocketRocket/` — Vendored WebSocket implementation.
-- `Source/Ably.modulemap` — Module map defining public/private module interfaces.
+- `Source/include/module.modulemap` — Module map defining the public and private module interfaces.
 
 Key classes follow the `ART` prefix convention: `ARTRealtime`, `ARTRest`, `ARTAuth`, `ARTChannel`, `ARTConnection`, `ARTPresence`, `ARTPush`.
 
 ### Plugin System
 
-Plugins are passed via `ARTClientOptions.plugins`. Plugin support is gated behind `#ifdef ABLY_SUPPORTS_PLUGINS` (enabled only in SPM builds). See `Docs/plugins.md`.
+Plugins are passed via `ARTClientOptions.plugins`. Plugin support is gated behind `#ifdef ABLY_SUPPORTS_PLUGINS`, which `Package.swift` defines for the `Ably` target. See `Docs/plugins.md`.
 
 ## LiveObjects
 
@@ -77,12 +77,12 @@ The LiveObjects plugin (the `AblyLiveObjects` product, in Swift) lives in `LiveO
 
 ## Adding New Files
 
-Do **not** edit `Ably.xcodeproj/project.pbxproj` — ask the user to add files to the Xcode project manually. SPM discovers source files automatically, so `swift build` and `swift test` will work without Xcode project changes.
+SPM discovers source files automatically, so a new file needs no manifest change to be compiled.
 
 When adding new Objective-C files:
 
 - **Public headers** go in `Source/include/Ably/` and must be imported in the appropriate umbrella header (`AblyPublic.h` or `AblyInternal.h`).
-- **Private headers** go in `Source/PrivateHeaders/Ably/` and must be declared in both module map files (`Source/Ably.modulemap` and `Source/include/module.modulemap`).
+- **Private headers** go in `Source/PrivateHeaders/Ably/` and must be declared in the `Private` module in `Source/include/module.modulemap`.
 - **Implementation files** go in `Source/`.
 
 ## Coding Standards

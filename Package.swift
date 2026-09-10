@@ -110,11 +110,6 @@ let package = Package(
                 .target(name: "_AblyPluginSupportPrivate")
             ],
             path: "Source",
-            exclude: [
-                "Info-iOS.plist",
-                "Info-tvOS.plist",
-                "Info-macOS.plist"
-            ],
             resources: [.copy("PrivacyInfo.xcprivacy")],
             publicHeadersPath: "include",
             cSettings: [

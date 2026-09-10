@@ -230,9 +230,8 @@ When a spec needs an internal class/method/field, work down this list:
    listed private header, just `import Ably.Private` and use it.
 2. **Declared only in a `.m` file** (class extension, ivar, private method)? It is invisible to Swift,
    period. To expose it, declare it in a header under `Source/PrivateHeaders/Ably/` and register that
-   header in **both** module maps (`Source/include/module.modulemap` for SPM and `Source/Ably.modulemap`
-   for Xcode) — the repo's CLAUDE.md convention. Only do this for small, test-motivated exposure; mirror
-   how existing `+Private.h` headers are written.
+   header in `Source/include/module.modulemap` — the repo's CLAUDE.md convention. Only do this for
+   small, test-motivated exposure; mirror how existing `+Private.h` headers are written.
 3. **Truly private state with no reasonable seam** (or exposing it would distort the SDK)? Don't hack
    around it — keep the spec's line as a comment, note why no assertion is emitted (see "Comments and
    assertion fidelity"), and record it in `deviations.md` under **Mock Infrastructure Limitations**.

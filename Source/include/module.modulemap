@@ -1,5 +1,3 @@
-// This module map is used by SPM. Xcode uses a separate one (../Ably.modulemap).
-
 module Ably {
     umbrella header "Ably/Ably.h"
 

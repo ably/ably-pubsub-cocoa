@@ -18,12 +18,12 @@ Releases of the Ably SDK built by the sources in this repository are tagged with
 When you first clone the repository then you will need to run `make update` in order to
 bring in the Git submodules.
 
-Code can then be modified, built and tested by loading [Ably.xcworkspace](Ably.xcworkspace) in your Xcode IDE.
+Code can then be modified, built and tested by loading [Ably.xcworkspace](Ably.xcworkspace) in your
+Xcode IDE. The workspace contains the Swift package and nothing else, so its `ably-cocoa` scheme —
+declared in `.swiftpm/xcode/xcshareddata/xcschemes` — builds and tests the same targets `swift build`
+and `swift test` do.
 
 Dependencies are declared in [Package.swift](Package.swift) and resolved by Swift Package Manager.
-Note that `Ably.xcodeproj` used to take its dependencies from Carthage, so it no longer has a way to
-resolve them; nothing in CI builds its schemes, and the package is the only buildable path. It is
-kept because [Ably.xcworkspace](Ably.xcworkspace) references it.
 
 ## Adding new Objective-C files to the SDK
 
@@ -37,20 +37,20 @@ These are the header files that form the public interface of the SDK.
 1. Add `#import` to one of the following umbrella header files:
    - `Source/include/Ably/AblyPublic.h` if the API contained in this header is intended for general use.
    - `Source/include/Ably/AblyInternal.h` if the API contained in this header is intended for use only by Ably-authored SDKs and should not be included in the Jazzy-generated documentation.
-1. Add to the Xcode project `Ably.xcodeproj` — you need to add it as a Public header to all three SDK targets (Ably-iOS, Ably-macOS, Ably-tvOS).
 
 ### Private header (`.h`) files
 
 These are the header files that form the internal interface of the SDK.
 
 1. Put `.h` file in directory `Source/PrivateHeaders/Ably`.
-1. Add `header` declaration to the `Private` module in module map files `Source/Ably.modulemap` and `Source/include/module.modulemap`.
-1. Add to the Xcode project `Ably.xcodeproj` — you need to add it as a Private header to all three SDK targets (Ably-iOS, Ably-macOS, Ably-tvOS).
+1. Add `header` declaration to the `Private` module in the module map `Source/include/module.modulemap`.
 
 ### Implementation (`.m`) files
 
 1. Put `.m` file in directory `Source`.
-1. Add to the Xcode project `Ably.xcodeproj` — you need to add it to all three SDK targets (Ably-iOS, Ably-macOS, Ably-tvOS).
+
+SwiftPM globs the `Ably` target's directory, so none of these steps involves editing
+[Package.swift](Package.swift).
 
 ## Running tests
 

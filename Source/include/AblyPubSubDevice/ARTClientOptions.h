@@ -143,11 +143,6 @@ extern const ARTPluginName ARTPluginNameLiveObjects;
 @property (nullable, nonatomic, copy) NSArray<NSString *> *fallbackHosts;
 
 /**
- * DEPRECATED: this property is deprecated and will be removed in a future version. Enables default fallback hosts to be used.
- */
-@property (nonatomic) BOOL fallbackHostsUseDefault DEPRECATED_MSG_ATTRIBUTE("Future library releases will ignore any supplied value.");
-
-/**
  The queue to which all calls to user-provided callbacks will be dispatched
  asynchronously. It will be used as target queue for an internal, serial queue.
 

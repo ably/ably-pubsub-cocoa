@@ -855,7 +855,6 @@ class RestClientChannelTests: XCTestCase {
     }
 
     // RSL1k4
-    @available(*, deprecated, message: "This test is marked as deprecated so as to not trigger a compiler warning for using the -ARTClientOptions.fallbackHostsUseDefault property. Remove this deprecation when removing the property.")
     func test__025__publish__idempotent_publishing__should_have_only_one_published_message() throws {
         let test = Test()
         let testEnvironment = try TestEnvironment(test: test)
@@ -864,7 +863,7 @@ class RestClientChannelTests: XCTestCase {
 
         client.internal.options.idempotentRestPublishing = true
         client.internal.httpExecutor = testHTTPExecutor
-        client.internal.options.fallbackHostsUseDefault = true
+        client.internal.options.fallbackHosts = ARTDefault.fallbackHosts()
 
         let forceRetryError = ErrorSimulator(
             value: ARTErrorCode.internalError.intValue,

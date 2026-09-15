@@ -54,8 +54,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (readonly, nonatomic) dispatch_queue_t queue;
 
-@property (nullable, readonly) NSString *recoveryKey DEPRECATED_MSG_ATTRIBUTE("Use `createRecoveryKey` method instead.");
-
 - (nullable NSString *)createRecoveryKey;
 
 - (void)connect;

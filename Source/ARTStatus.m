@@ -11,7 +11,6 @@ NSString *const ARTErrorInfoStatusCodeKey = @"ARTErrorInfoStatusCode";
 NSString *const ARTErrorInfoOriginalDomainKey = @"ARTErrorInfoOriginalDomain";
 NSString *const ARTErrorInfoRequestIdKey = @"ARTErrorInfoRequestId";
 
-NSString *const ARTFallbackIncompatibleOptionsException = @"ARTFallbackIncompatibleOptionsException";
 
 NSString *const ARTAblyMessageNoMeansToRenewToken = @"no means to renew the token is provided (either an API key, authCallback or authUrl)";
 

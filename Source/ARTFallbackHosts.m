@@ -10,13 +10,6 @@
         return options.fallbackHosts;
     }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    if (options.fallbackHostsUseDefault) {
-        return [ARTDefault fallbackHosts];
-    }
-#pragma clang diagnostic pop
-
     if (options.hasEnvironmentDifferentThanProduction) {
         return [ARTDefault fallbackHostsWithEnvironment:options.environment];
     }

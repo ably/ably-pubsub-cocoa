@@ -1535,14 +1535,6 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
 - (BOOL)shouldRetryWithFallbackForError:(ARTRealtimeTransportError *)error options:(ARTClientOptions *)options {
     if ((error.type == ARTRealtimeTransportErrorTypeBadResponse && error.badResponseCode >= 500 && error.badResponseCode <= 504) ||
          error.type == ARTRealtimeTransportErrorTypeHostUnreachable || error.type == ARTRealtimeTransportErrorTypeTimeout) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        // RTN17b3
-        if (options.fallbackHostsUseDefault) {
-            return YES;
-        }
-#pragma clang diagnostic pop
-
         // RTN17b1
         if (!(options.hasCustomRealtimeHost || options.hasCustomPort || options.hasCustomTlsPort)) {
             return YES;

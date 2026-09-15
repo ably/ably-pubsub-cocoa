@@ -55,7 +55,6 @@ NSString *ARTDefaultEnvironment = nil;
     _httpMaxRetryDuration = 15.0; //Seconds
     _httpMaxRetryCount = 3;
     _fallbackHosts = nil;
-    _fallbackHostsUseDefault = false;
     _dispatchQueue = dispatch_get_main_queue();
     _internalDispatchQueue = dispatch_queue_create("io.ably.main", DISPATCH_QUEUE_SERIAL);
     _pushFullWait = false;
@@ -138,11 +137,6 @@ NSString *ARTDefaultEnvironment = nil;
     options.fallbackRetryTimeout = self.fallbackRetryTimeout;
     options->_fallbackHosts = self.fallbackHosts; //ignore setter
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    options->_fallbackHostsUseDefault = self.fallbackHostsUseDefault; //ignore setter
-#pragma clang diagnostic pop
-
     options.httpRequestTimeout = self.httpRequestTimeout;
     options.dispatchQueue = self.dispatchQueue;
     options.internalDispatchQueue = self.internalDispatchQueue;
@@ -190,20 +184,6 @@ NSString *ARTDefaultEnvironment = nil;
 
 - (BOOL)hasCustomTlsPort {
     return self.tlsPort && self.tlsPort != [ARTDefault tlsPort];
-}
-
-- (void)setFallbackHosts:(nullable NSArray<NSString *> *)value {
-    if (_fallbackHostsUseDefault) {
-        [ARTException raise:ARTFallbackIncompatibleOptionsException format:@"Could not setup custom fallback hosts because it is currently configured to use default fallback hosts."];
-    }
-    _fallbackHosts = value;
-}
-
-- (void)setFallbackHostsUseDefault:(BOOL)value {
-    if (_fallbackHosts) {
-        [ARTException raise:ARTFallbackIncompatibleOptionsException format:@"Could not configure options to use default fallback hosts because a custom fallback host list is being used."];
-    }
-    _fallbackHostsUseDefault = value;
 }
 
 + (void)setDefaultEnvironment:(NSString *)environment {

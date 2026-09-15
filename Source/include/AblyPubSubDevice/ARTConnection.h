@@ -39,11 +39,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, readonly) ARTErrorInfo *errorReason;
 
 /**
- * This property is deprecated and will be removed in future versions of the library. You should use `createRecoveryKey` method instead.
- */
-@property (nullable, readonly) NSString *recoveryKey DEPRECATED_MSG_ATTRIBUTE("Use `createRecoveryKey` method instead.");
-
-/**
  * The recovery key string can be used by another client to recover this connection's state in the recover client options property. See [connection state recover options](https://ably.com/docs/realtime/connection#connection-state-recover-options) for more information.
  * This will return `nil` if connection is in `CLOSED`, `CLOSING`, `FAILED`, or `SUSPENDED` states, or when it does not have a connection `key` (for example, it has not yet become connected).
  */

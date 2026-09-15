@@ -181,9 +181,6 @@ FOUNDATION_EXPORT NSString *const ARTErrorInfoRequestIdKey;
 FOUNDATION_EXPORT NSString *const ARTAblyErrorDomain;
 
 /// :nodoc:
-FOUNDATION_EXPORT NSString *const ARTFallbackIncompatibleOptionsException;
-
-/// :nodoc:
 FOUNDATION_EXPORT NSString *const ARTAblyMessageNoMeansToRenewToken;
 
 /**

@@ -825,84 +825,6 @@ class RestClientTests: XCTestCase {
 
     // TO3k7
 
-    @available(*, deprecated, message: "This test is marked as deprecated so as to not trigger a compiler warning for using the -ARTClientOptions.fallbackHostsUseDefault property. Remove this deprecation when removing the property.")
-    func test__051__RestClient__Host_Fallback__fallbackHostsUseDefault_option__allows_the_default_fallback_hosts_to_be_used_when__environment__is_not_production() {
-        let options = ARTClientOptions(key: "xxxx:xxxx")
-        options.environment = "not-production"
-        options.fallbackHostsUseDefault = true
-
-        let client = ARTRest(options: options)
-        XCTAssertTrue(client.internal.options.fallbackHostsUseDefault)
-        // Not production
-        XCTAssertNotNil(client.internal.options.environment)
-        XCTAssertNotEqual(client.internal.options.environment, "production")
-
-        let hosts = ARTFallbackHosts.hosts(from: client.internal.options)
-        let fallback = ARTFallback(fallbackHosts: hosts, shuffleArray: ARTFallback_shuffleArray)
-        XCTAssertEqual(fallback.hosts.count, ARTDefault.fallbackHosts().count)
-
-        ARTDefault.fallbackHosts().forEach {
-            expect(fallback.hosts).to(contain($0))
-        }
-    }
-
-    @available(*, deprecated, message: "This test is marked as deprecated so as to not trigger a compiler warning for using the -ARTClientOptions.fallbackHostsUseDefault property. Remove this deprecation when removing the property.")
-    func test__052__RestClient__Host_Fallback__fallbackHostsUseDefault_option__allows_the_default_fallback_hosts_to_be_used_when_a_custom_Realtime_or_REST_host_endpoint_is_being_used() {
-        let options = ARTClientOptions(key: "xxxx:xxxx")
-        options.restHost = "fake1.ably.io"
-        options.realtimeHost = "fake2.ably.io"
-        options.fallbackHostsUseDefault = true
-
-        let client = ARTRest(options: options)
-        XCTAssertTrue(client.internal.options.fallbackHostsUseDefault)
-        // Custom
-        XCTAssertNotEqual(client.internal.options.restHost, ARTDefault.restHost())
-        XCTAssertNotEqual(client.internal.options.realtimeHost, ARTDefault.realtimeHost())
-
-        let hosts = ARTFallbackHosts.hosts(from: client.internal.options)
-        let fallback = ARTFallback(fallbackHosts: hosts, shuffleArray: ARTFallback_shuffleArray)
-        XCTAssertEqual(fallback.hosts.count, ARTDefault.fallbackHosts().count)
-
-        ARTDefault.fallbackHosts().forEach {
-            expect(fallback.hosts).to(contain($0))
-        }
-    }
-
-    @available(*, deprecated, message: "This test is marked as deprecated so as to not trigger a compiler warning for using the -ARTClientOptions.fallbackHostsUseDefault property. Remove this deprecation when removing the property.")
-    func test__053__RestClient__Host_Fallback__fallbackHostsUseDefault_option__should_be_inactive_by_default() {
-        let options = ARTClientOptions(key: "xxxx:xxxx")
-        XCTAssertFalse(options.fallbackHostsUseDefault)
-    }
-
-    @available(*, deprecated, message: "This test is marked as deprecated so as to not trigger a compiler warning for using the -ARTClientOptions.fallbackHostsUseDefault property. Remove this deprecation when removing the property.")
-    func test__054__RestClient__Host_Fallback__fallbackHostsUseDefault_option__should_never_accept_to_configure__fallbackHost__and_set__fallbackHostsUseDefault__to__true_() {
-        let options = ARTClientOptions(key: "xxxx:xxxx")
-        XCTAssertNil(options.fallbackHosts)
-        XCTAssertFalse(options.fallbackHostsUseDefault)
-
-        XCTAssertNil(tryInObjC {
-            options.fallbackHosts = []
-        })
-
-        let exception2 = tryInObjC {
-            options.fallbackHostsUseDefault = true
-        }
-        XCTAssertNotNil(exception2)
-        XCTAssertEqual(exception2!.name.rawValue, ARTFallbackIncompatibleOptionsException)
-
-        options.fallbackHosts = nil
-
-        XCTAssertNil(tryInObjC {
-            options.fallbackHostsUseDefault = true
-        })
-
-        let exception4 = tryInObjC {
-            options.fallbackHosts = ["fake.ably.io"]
-        }
-        XCTAssertNotNil(exception4)
-        XCTAssertEqual(exception4!.name.rawValue, ARTFallbackIncompatibleOptionsException)
-    }
-
     // RSC15b
 
     // RSC15b1
@@ -1043,37 +965,6 @@ class RestClientTests: XCTestCase {
     }
 
     // RSC15b3, RSC15g4
-    @available(*, deprecated, message: "This test is marked as deprecated so as to not trigger a compiler warning for using the -ARTClientOptions.fallbackHostsUseDefault property. Remove this deprecation when removing the property.")
-    func test__060__RestClient__Host_Fallback__Fallback_behavior__should_be_applied_when_ClientOptions_fallbackHosts_is_not_provided_and_deprecated_fallbackHostsUseDefault_is_on() throws {
-        let test = Test()
-        let options = ARTClientOptions(key: "xxxx:xxxx")
-        options.fallbackHostsUseDefault = true
-        let client = ARTRest(options: options)
-        let internalLog = InternalLog(clientOptions: options)
-        let mockHTTP = MockHTTP(logger: internalLog)
-        testHTTPExecutor = TestProxyHTTPExecutor(http: mockHTTP, logger: internalLog)
-        client.internal.httpExecutor = testHTTPExecutor
-        mockHTTP.setNetworkState(network: .hostUnreachable, resetAfter: 2)
-        mockHTTP.setSuccessResponse(
-            data: try JSONSerialization.data(withJSONObject: ["serials": []], options: []),
-            contentType: "application/json"
-        )
-        let channel = client.channels.get(test.uniqueChannelName())
-
-        waitUntil(timeout: testTimeout) { done in
-            channel.publish(nil, data: "") { error in
-                XCTAssertNil(error)
-                done()
-            }
-        }
-
-        XCTAssertEqual(testHTTPExecutor.requests.count, 3)
-        let capturedURLs = testHTTPExecutor.requests.map { $0.url!.absoluteString }
-        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(0), pattern: "//rest.ably.io"))
-        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(1), pattern: "//[a-e].ably-realtime.com"))
-        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(2), pattern: "//[a-e].ably-realtime.com"))
-    }
-
     // RSC15k
     func test__045__RestClient__Host_Fallback__failing_HTTP_requests_with_custom_endpoint_should_result_in_an_error_immediately() {
         let test = Test()
@@ -1211,36 +1102,6 @@ class RestClientTests: XCTestCase {
     }
 
     // RSC15g4
-    @available(*, deprecated, message: "This test is marked as deprecated so as to not trigger a compiler warning for using the -ARTClientOptions.fallbackHostsUseDefault property. Remove this deprecation when removing the property.")
-    func test__046__RestClient__Host_Fallback__applies_when_ClientOptions_fallbackHostsUseDefault_is_true() throws {
-        let test = Test()
-        let options = ARTClientOptions(key: "xxxx:xxxx")
-        options.environment = "test"
-        options.fallbackHostsUseDefault = true
-        let client = ARTRest(options: options)
-        let internalLog = InternalLog(clientOptions: options)
-        let mockHTTP = MockHTTP(logger: internalLog)
-        testHTTPExecutor = TestProxyHTTPExecutor(http: mockHTTP, logger: internalLog)
-        client.internal.httpExecutor = testHTTPExecutor
-        mockHTTP.setNetworkState(network: .hostUnreachable, resetAfter: 1)
-        mockHTTP.setSuccessResponse(
-            data: try JSONSerialization.data(withJSONObject: ["serials": []], options: []),
-            contentType: "application/json"
-        )
-        let channel = client.channels.get(test.uniqueChannelName())
-
-        waitUntil(timeout: testTimeout) { done in
-            channel.publish(nil, data: "nil") { error in
-                XCTAssertNil(error)
-                done()
-            }
-        }
-
-        XCTAssertEqual(testHTTPExecutor.requests.count, 2)
-        let capturedURLs = testHTTPExecutor.requests.map { $0.url!.absoluteString }
-        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(1), pattern: "//[a-e].ably-realtime.com"))
-    }
-
     // RSC15g1
     func test__047__RestClient__Host_Fallback__won_t_apply_fallback_hosts_if_ClientOptions_fallbackHosts_array_is_empty() {
         let test = Test()

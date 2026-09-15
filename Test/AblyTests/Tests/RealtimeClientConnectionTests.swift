@@ -4110,45 +4110,6 @@ class RealtimeClientConnectionTests: XCTestCase {
     }
 
     // RTN17b3
-    @available(*, deprecated, message: "This test is marked as deprecated so as to not trigger a compiler warning for using the -ARTClientOptions.fallbackHostsUseDefault property. Remove this deprecation when removing the property.")
-    func test__089b__Connection__Host_Fallback__applies_when_deprecated_fallbackHostsUseDefault_option_is_set_to_true() {
-        let test = Test()
-        let options = ARTClientOptions(key: "xxxx:xxxx")
-        options.autoConnect = false
-        options.disconnectedRetryTimeout = 1.0
-        options.port = 123 // otherwise regardless `fallbackHostsUseDefault` test passes because of RTN17b1
-        options.fallbackHostsUseDefault = true
-        options.testOptions.realtimeRequestTimeout = 2.0 // this timeout should be longer than `internetIsUp` + `performFakeConnectionError` timeouts
-        let transportFactory = TestProxyTransportFactory()
-        options.testOptions.transportFactory = transportFactory
-        let client = ARTRealtime(options: options)
-        defer { client.dispose(); client.close() }
-        client.channels.get(test.uniqueChannelName())
-
-        transportFactory.fakeNetworkResponse = .hostUnreachable
-
-        var urlConnections = [URL]()
-        transportFactory.networkConnectEvent = { transport, url in
-            if client.internal.transport !== transport {
-                return
-            }
-            urlConnections.append(url)
-        }
-
-        waitUntil(timeout: testTimeout) { done in
-            let partialDone = AblyTests.splitDone(2, done: done)
-            // wss://[a-e].ably-realtime.com: when a timeout occurs
-            client.connection.on(.disconnected) { _ in
-                partialDone()
-            }
-            client.connect()
-        }
-
-        XCTAssertEqual(urlConnections.count, 2)
-        XCTAssertTrue(NSRegularExpression.match(urlConnections.at(0)?.absoluteString, pattern: "//realtime.ably.io"))
-        XCTAssertTrue(NSRegularExpression.match(urlConnections.at(1)?.absoluteString, pattern: "//[a-e].ably-realtime.com"))
-    }
-
     // RTN17f
 
     func test__097__Connection__Host_Fallback__should_use_an_alternative_host_when___hostUnreachable() {

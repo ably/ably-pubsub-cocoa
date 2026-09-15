@@ -27,13 +27,6 @@
     return _internal.key;
 }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-implementations"
-- (NSString *)recoveryKey {
-    return [_internal createRecoveryKey];
-}
-#pragma GCC diagnostic pop
-
 // RTN16g - recovery key as a JSON serialized version of [ARTConnectionRecoveryKey]
 - (NSString *)createRecoveryKey {
     return [_internal createRecoveryKey];
@@ -264,13 +257,6 @@ art_dispatch_sync(_queue, ^{
 - (void)off:(ARTEventListener *)listener {
     [_eventEmitter off:listener];
 }
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-- (NSString *)recoveryKey {
-    return [self createRecoveryKey];
-}
-#pragma clang diagnostic pop
 
 - (NSString *)createRecoveryKey_nosync {
     if (_key == nil || IsInactiveConnectionState(_state)) { // RTN16g2

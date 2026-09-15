@@ -241,10 +241,6 @@ static NSString *statsUnitToString(ARTStatsGranularity unit) {
     return [formatter stringFromDate:time];
 }
 
-- (ARTStatsGranularity)intervalGranularity {
-    return [[self class] granularityFromIntervalId:self.intervalId];
-}
-
 - (NSDate *)intervalTime {
     return [[self class] dateFromIntervalId:self.intervalId];
 }

@@ -392,11 +392,6 @@ typedef NS_ENUM(NSUInteger, ARTStatsGranularity) {
  */
 - (NSDate *)intervalTime;
 
-/**
- * DEPRECATED: this property is deprecated and will be removed in a future version. An alias for `unit` that must be from the unit property of the JSON.
- */
-- (ARTStatsGranularity)intervalGranularity;
-
 /// :nodoc:
 - (NSDate *)dateFromInProgress;
 

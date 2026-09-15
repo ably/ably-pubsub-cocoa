@@ -1,4 +1,4 @@
-import Ably.Private
+import AblyPubSubDevice.Private
 
 class MockErrorChecker: ErrorChecker {
     var isTokenError: Bool!

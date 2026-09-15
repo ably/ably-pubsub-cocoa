@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 import Foundation
 
 /// Registry for ``PathObject`` subscriptions and path-event dispatch. One per ``RealtimeObject``

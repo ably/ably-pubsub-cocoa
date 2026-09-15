@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 import Foundation
 
 /// A JSON value (where "value" has the meaning defined by the [JSON specification](https://www.json.org)).

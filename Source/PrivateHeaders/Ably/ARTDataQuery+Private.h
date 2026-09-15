@@ -1,4 +1,4 @@
-#import <Ably/ARTDataQuery.h>
+#import <AblyPubSubDevice/ARTDataQuery.h>
 #import "ARTRealtimeChannel+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN

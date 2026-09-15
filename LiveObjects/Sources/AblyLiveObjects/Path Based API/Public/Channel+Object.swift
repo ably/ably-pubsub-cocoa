@@ -1,5 +1,5 @@
 internal import _AblyPluginSupportPrivate
-import Ably
+import AblyPubSubDevice
 
 public extension ARTRealtimeChannel {
     /// The ``RealtimeObject`` for this channel — the entry point into the LiveObjects API.

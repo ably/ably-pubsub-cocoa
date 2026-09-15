@@ -1,4 +1,4 @@
-#import <Ably/ARTRestAnnotations.h>
+#import <AblyPubSubDevice/ARTRestAnnotations.h>
 #import "ARTQueuedDealloc.h"
 
 NS_ASSUME_NONNULL_BEGIN

@@ -2,7 +2,7 @@
 #if os(macOS)
 
 import Foundation
-import Ably
+import AblyPubSubDevice
 
 // MARK: - Rule type + factory helpers
 

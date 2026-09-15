@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 import Foundation
 
 /// Default implementation of ``LiveCounterInstance``, bound to a specific

@@ -7,7 +7,7 @@ import ObjectiveC.NSObject
 ///
 /// For example:
 /// ```swift
-/// import Ably
+/// import AblyPubSubDevice
 /// import AblyLiveObjects
 ///
 /// let clientOptions = ARTClientOptions(key: /* <insert your Ably API key here> */)

@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 import Foundation
 
 // The user-facing value types representing an inbound object message that carried an

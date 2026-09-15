@@ -1,10 +1,10 @@
-module Ably {
-    umbrella header "Ably/Ably.h"
+module AblyPubSubDevice {
+    umbrella header "AblyPubSubDevice/AblyPubSubDevice.h"
 
     export *
     module * { export * }
 
-    // Allow access to the private API of the SDK by writing `import Ably.Private`. Intended only for testing.
+    // Allow access to the private API of the SDK by writing `import AblyPubSubDevice.Private`. Intended only for testing.
     explicit module Private {
         header "../PrivateHeaders/Ably/ARTConstants.h"
         header "../PrivateHeaders/Ably/ARTReachability.h"

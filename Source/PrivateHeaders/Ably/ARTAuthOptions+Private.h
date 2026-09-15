@@ -1,4 +1,4 @@
-#import <Ably/ARTAuthOptions.h>
+#import <AblyPubSubDevice/ARTAuthOptions.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-import Ably
+import AblyPubSubDevice
 
 /// REST channel publish (RSL1d, RSL1n, RSL1k5, RSL1l1, RSL1m4)
 /// Derived from ably/specification `uts/rest/integration/publish.md`

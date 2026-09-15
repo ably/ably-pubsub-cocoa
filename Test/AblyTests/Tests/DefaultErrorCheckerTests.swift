@@ -1,5 +1,5 @@
 import XCTest
-import Ably.Private
+import AblyPubSubDevice.Private
 
 final class DefaultErrorCheckerTests: XCTestCase {
     private let checker = DefaultErrorChecker()

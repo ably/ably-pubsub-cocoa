@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-import Ably
+import AblyPubSubDevice
 
 /// Realtime token request (RSA9, RSA9a, RSA9g)
 /// Derived from ably/specification `uts/realtime/integration/auth/token_request_test.md`

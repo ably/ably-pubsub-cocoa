@@ -1,4 +1,4 @@
-#import <Ably/ARTRealtimePresence.h>
+#import <AblyPubSubDevice/ARTRealtimePresence.h>
 #import "ARTRealtimeChannel+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN

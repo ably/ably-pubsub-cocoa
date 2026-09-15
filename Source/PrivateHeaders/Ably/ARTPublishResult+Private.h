@@ -1,4 +1,4 @@
-#import <Ably/ARTPublishResult.h>
+#import <AblyPubSubDevice/ARTPublishResult.h>
 
 #ifdef ABLY_SUPPORTS_PLUGINS
 @import _AblyPluginSupportPrivate;

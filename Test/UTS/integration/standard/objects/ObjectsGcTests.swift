@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-import Ably
+import AblyPubSubDevice
 import AblyLiveObjects
 
 /// Objects GC — tombstone semantics (RTO10, RTLM19, RTLM5d2h, RTLM7)

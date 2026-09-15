@@ -1,8 +1,8 @@
-import Ably
+import AblyPubSubDevice
 import Nimble
 import XCTest
 
-@testable import Ably
+@testable import AblyPubSubDevice
 
 class MessageUpdatesDeletesTests: XCTestCase {
 

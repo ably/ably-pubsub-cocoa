@@ -1,5 +1,5 @@
 internal import _AblyPluginSupportPrivate
-import Ably
+import AblyPubSubDevice
 
 /// Protocol for accessing objects from the ObjectsPool. This is used by a LiveMap when it needs to return an object given an object ID.
 internal protocol LiveMapObjectsPoolDelegate: AnyObject, Sendable {

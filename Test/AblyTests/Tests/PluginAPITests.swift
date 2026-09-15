@@ -1,4 +1,4 @@
-import Ably.Private
+import AblyPubSubDevice.Private
 import XCTest
 import _AblyPluginSupportPrivate
 import Nimble

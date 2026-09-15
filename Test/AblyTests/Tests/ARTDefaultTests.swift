@@ -1,6 +1,6 @@
 import XCTest
 
-import Ably.ARTDefault // System under Test
+import AblyPubSubDevice.ARTDefault // System under Test
 
 class ARTDefaultTests: XCTestCase {
 

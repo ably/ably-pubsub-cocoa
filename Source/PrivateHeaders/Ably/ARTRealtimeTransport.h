@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import <Ably/ARTEventEmitter.h>
+#import <AblyPubSubDevice/ARTEventEmitter.h>
 
 @protocol ARTRealtimeTransport;
 

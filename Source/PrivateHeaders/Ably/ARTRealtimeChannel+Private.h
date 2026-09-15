@@ -5,8 +5,8 @@
 
 #import "ARTChannel.h"
 #import "ARTRestChannel+Private.h"
-#import <Ably/ARTRealtimeChannel.h>
-#import <Ably/ARTEventEmitter.h>
+#import <AblyPubSubDevice/ARTRealtimeChannel.h>
+#import <AblyPubSubDevice/ARTEventEmitter.h>
 #import "ARTMessageSendStatus.h"
 #import "ARTRealtime+Private.h"
 #import "ARTQueuedDealloc.h"

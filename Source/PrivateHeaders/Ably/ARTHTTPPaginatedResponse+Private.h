@@ -1,4 +1,4 @@
-#import <Ably/ARTHTTPPaginatedResponse.h>
+#import <AblyPubSubDevice/ARTHTTPPaginatedResponse.h>
 
 #import "ARTPaginatedResult+Private.h"
 

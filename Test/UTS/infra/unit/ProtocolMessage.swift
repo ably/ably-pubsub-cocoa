@@ -1,6 +1,6 @@
 import Foundation
-import Ably
-import Ably.Private
+import AblyPubSubDevice
+import AblyPubSubDevice.Private
 
 /// A `Sendable` description of a server-to-client protocol message that a test injects via
 /// `MockWebSocket.sendToClient(_:)` / `sendToClientAndClose(_:)`.

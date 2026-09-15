@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 @testable import AblyLiveObjects
 
 extension ARTErrorInfo {

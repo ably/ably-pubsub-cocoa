@@ -84,7 +84,7 @@ def load_internal_ids(internal_header_path):
     if internal_header_path:
         with open(internal_header_path) as f:
             for line in f:
-                m = re.match(r'#import\s+<Ably/(.+\.h)>', line.strip())
+                m = re.match(r'#import\s+<AblyPubSubDevice/(.+\.h)>', line.strip())
                 if m:
                     header_basenames.add(m.group(1))
     return header_basenames
@@ -231,7 +231,7 @@ def render_markdown(swift_symbol_paths, objc_symbol_path, internal_header_path,
     lines = []
     lines.append("# Ably SDK \u2014 Swift Public API Reference\n")
     lines.append("This document describes the public Swift API surface of the "
-                 "`Ably` module (ably-cocoa).\n")
+                 "`AblyPubSubDevice` module (ably-cocoa).\n")
     lines.append("---\n")
 
     # Table of Contents
@@ -430,10 +430,10 @@ def main():
         print("\n==> Extracting Swift symbol graph...")
         run([
             "swift", "symbolgraph-extract",
-            "-module-name", "Ably",
+            "-module-name", "AblyPubSubDevice",
             "-I", "Source/include",
             "-I", build_dir,
-            "-I", f"{build_dir}/Ably.build",
+            "-I", f"{build_dir}/AblyPubSubDevice.build",
             "-sdk", sdk_path,
             "-target", target,
             "-output-dir", str(work),
@@ -448,7 +448,7 @@ def main():
         # Step 3: Extract ObjC symbol graph (for doc comments)
         print("\n==> Extracting ObjC symbol graph...")
         objc_path = work / "objc-symbols.json"
-        header_files = sorted(Path("Source/include/Ably").glob("*.h"))
+        header_files = sorted(Path("Source/include/AblyPubSubDevice").glob("*.h"))
         run([
             "clang", "-extract-api",
             "-x", "objective-c-header",
@@ -464,7 +464,7 @@ def main():
         render_markdown(
             swift_symbol_paths=[str(f) for f in swift_symbol_files],
             objc_symbol_path=str(objc_path),
-            internal_header_path="Source/include/Ably/AblyInternal.h",
+            internal_header_path="Source/include/AblyPubSubDevice/AblyInternal.h",
             output_path=str(output_file),
         )
 

@@ -1,4 +1,4 @@
-#import <Ably/ARTRestChannels.h>
+#import <AblyPubSubDevice/ARTRestChannels.h>
 #import "ARTQueuedDealloc.h"
 #import "ARTRestChannel+Private.h"
 

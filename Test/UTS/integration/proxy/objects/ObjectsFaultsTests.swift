@@ -3,7 +3,7 @@
 
 import Testing
 import Foundation
-import Ably
+import AblyPubSubDevice
 import AblyLiveObjects
 
 /// Objects fault handling (RTO5a2, RTO7, RTO8, RTO17, RTO20e, RTO20e1)

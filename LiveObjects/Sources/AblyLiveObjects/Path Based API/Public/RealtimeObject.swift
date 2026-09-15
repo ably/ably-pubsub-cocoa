@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 
 /// Describes the events emitted by a ``RealtimeObject``. Spec: `RTO18b`.
 public enum ObjectsEvent: Sendable {

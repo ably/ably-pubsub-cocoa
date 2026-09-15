@@ -25,7 +25,7 @@
 //   `CoreSDK` channel state, so the observable subset is that subscribe neither throws nor changes it.
 
 import _AblyPluginSupportPrivate
-import Ably
+import AblyPubSubDevice
 @testable import AblyLiveObjects
 @testable import AblyLiveObjectsTesting
 import Foundation

@@ -1,6 +1,6 @@
 import Foundation
-import Ably
-import Ably.Private
+import AblyPubSubDevice
+import AblyPubSubDevice.Private
 
 /// A reachability implementation that never reports any network changes.
 ///

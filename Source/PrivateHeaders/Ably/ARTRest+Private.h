@@ -1,4 +1,4 @@
-#import <Ably/ARTRest.h>
+#import <AblyPubSubDevice/ARTRest.h>
 #import "ARTHttp.h"
 #import "ARTRestChannels+Private.h"
 #import "ARTPush+Private.h"

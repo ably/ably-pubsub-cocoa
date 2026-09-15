@@ -1,4 +1,4 @@
-#import <Ably/ARTChannels.h>
+#import <AblyPubSubDevice/ARTChannels.h>
 
 @class ARTRestChannel;
 @class ARTChannelOptions;

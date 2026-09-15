@@ -1,4 +1,4 @@
-#import <Ably/ARTDefault.h>
+#import <AblyPubSubDevice/ARTDefault.h>
 
 extern NSString *const ARTDefaultProduction;
 

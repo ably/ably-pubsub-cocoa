@@ -1,4 +1,4 @@
-#import <Ably/ARTWrapperSDKProxyPushChannel.h>
+#import <AblyPubSubDevice/ARTWrapperSDKProxyPushChannel.h>
 
 @class ARTWrapperSDKProxyOptions;
 

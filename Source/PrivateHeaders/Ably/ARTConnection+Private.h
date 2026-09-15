@@ -1,6 +1,6 @@
-#import <Ably/ARTConnection.h>
-#import <Ably/ARTEventEmitter.h>
-#import <Ably/ARTTypes.h>
+#import <AblyPubSubDevice/ARTConnection.h>
+#import <AblyPubSubDevice/ARTEventEmitter.h>
+#import <AblyPubSubDevice/ARTTypes.h>
 #import "ARTQueuedDealloc.h"
 
 NS_ASSUME_NONNULL_BEGIN

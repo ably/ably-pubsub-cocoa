@@ -1,4 +1,4 @@
-#import <Ably/ARTPresence.h>
+#import <AblyPubSubDevice/ARTPresence.h>
 #import "ARTChannel.h"
 
 @interface ARTPresenceQuery ()

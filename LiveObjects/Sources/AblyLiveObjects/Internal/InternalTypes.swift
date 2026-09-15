@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 
 // This file contains supporting types for the internal live-object engine (the callbacks, update
 // descriptors and subscription-handle protocols used by `InternalDefaultLiveMap` /

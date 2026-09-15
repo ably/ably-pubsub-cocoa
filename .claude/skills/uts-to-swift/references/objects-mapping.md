@@ -635,7 +635,7 @@ helpers — only the harness `ObjectsUTSHelpers.swift` currently lives in `Test/
 ### Internal-access ladder (unit tier only)
 
 When a unit spec needs to reach an internal accessor, work down this ladder — it is the objects
-counterpart of SKILL.md Step 4's `import Ably.Private` ladder (which stays the rule for core-SDK
+counterpart of SKILL.md Step 4's `import AblyPubSubDevice.Private` ladder (which stays the rule for core-SDK
 modules; it does **not** apply here):
 
 1. The internal symbols are reachable via `@testable import AblyLiveObjects` plus the
@@ -889,7 +889,7 @@ cited by tag per entry.
 // NOT deviations — describe them in the "what these ports drive" line above, not here.
 
 import _AblyPluginSupportPrivate      // only if you touch plugin-facing types (channel state/modes)
-import Ably                            // only if you touch ARTErrorInfo / core types
+import AblyPubSubDevice                            // only if you touch ARTErrorInfo / core types
 @testable import AblyLiveObjects
 @testable import AblyLiveObjectsTesting  // only if the suite uses testsOnly_ accessors
 import Foundation

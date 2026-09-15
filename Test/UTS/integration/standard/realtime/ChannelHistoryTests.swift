@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-import Ably
+import AblyPubSubDevice
 
 /// RealtimeChannel history (RTL10d)
 /// Derived from ably/specification `uts/realtime/integration/channel_history_test.md`

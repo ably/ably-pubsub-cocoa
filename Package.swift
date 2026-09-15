@@ -10,20 +10,12 @@ let package = Package(
         .tvOS(.v14)
     ],
     products: [
-        // The shared implementation of the SDK, for use by Ably's own
-        // packages. A client built from it does not declare that it runs on an
-        // end user's device, so Ably classifies its traffic by default rules;
-        // applications depend on AblyPubSubDevice, which does declare it.
-        .library(
-            name: "AblyPubSubCore",
-            targets: ["Ably"]
-        ),
-        // The entry point for apps: creates clients that declare they are
-        // running on an end user's device.
+        // The main SDK product.
         .library(
             name: "AblyPubSubDevice",
             targets: ["AblyPubSubDevice"]
         ),
+        // The LiveObjects plugin.
         .library(
             name: "AblyLiveObjects",
             targets: ["AblyLiveObjects"]
@@ -35,12 +27,36 @@ let package = Package(
         .package(url: "https://github.com/quick/nimble", from: "11.2.2")
     ],
     targets: [
-        // The LiveObjects plugin. Formerly the separate
-        // ably-liveobjects-swift-plugin repository.
+        // The main SDK target.
+        .target(
+            name: "AblyPubSubDevice",
+            dependencies: [
+                .product(name: "msgpack", package: "msgpack-objective-C"),
+                .product(name: "AblyDeltaCodec", package: "delta-codec-cocoa"),
+                .target(name: "_AblyPluginSupportPrivate")
+            ],
+            path: "Source",
+            resources: [.copy("PrivacyInfo.xcprivacy")],
+            publicHeadersPath: "include",
+            cSettings: [
+                .define("ABLY_SUPPORTS_PLUGINS"),
+                .headerSearchPath("PrivateHeaders"),
+                .headerSearchPath("PrivateHeaders/Ably"),
+                .headerSearchPath("include/AblyPubSubDevice"),
+                .headerSearchPath("SocketRocket"),
+                .headerSearchPath("SocketRocket/Internal"),
+                .headerSearchPath("SocketRocket/Internal/Security"),
+                .headerSearchPath("SocketRocket/Internal/Proxy"),
+                .headerSearchPath("SocketRocket/Internal/Utilities"),
+                .headerSearchPath("SocketRocket/Internal/RunLoop"),
+                .headerSearchPath("SocketRocket/Internal/Delegate"),
+                .headerSearchPath("SocketRocket/Internal/IOConsumer"),
+            ]
+        ),
         .target(
             name: "AblyLiveObjects",
             dependencies: [
-                .target(name: "Ably"),
+                .target(name: "AblyPubSubDevice"),
                 .target(name: "_AblyPluginSupportPrivate"),
             ],
             path: "LiveObjects/Sources/AblyLiveObjects"
@@ -50,9 +66,8 @@ let package = Package(
             dependencies: [
                 .target(name: "AblyLiveObjects"),
                 .target(name: "AblyLiveObjectsTesting"),
-                .target(name: "Ably"),
+                .target(name: "AblyPubSubDevice"),
                 .target(name: "_AblyPluginSupportPrivate"),
-                // Shared provisioning-retry helper + nonprod sandbox host constant.
                 .byName(name: "AblyTesting"),
             ],
             path: "LiveObjects/Tests/AblyLiveObjectsTests",
@@ -72,7 +87,7 @@ let package = Package(
             name: "AblyLiveObjectsTesting",
             dependencies: [
                 .target(name: "AblyLiveObjects"),
-                .target(name: "Ably"),
+                .target(name: "AblyPubSubDevice"),
                 .target(name: "_AblyPluginSupportPrivate"),
             ],
             path: "Test/AblyLiveObjectsTesting",
@@ -80,55 +95,15 @@ let package = Package(
                 "README.md"
             ]
         ),
-        // Private API of the core SDK, exposed to Ably-authored plugins. Formerly
-        // the separate ably-cocoa-plugin-support repository; deliberately not
-        // vended as a product.
+        // Private API of the SDK, exposed to Ably-authored plugins.
         .target(
             name: "_AblyPluginSupportPrivate",
             path: "_AblyPluginSupportPrivate"
         ),
-        // Creates clients that declare they are running on an end user's
-        // device, by stamping the agent entry Ably classifies on.
-        .target(
-            name: "AblyPubSubDevice",
-            dependencies: [
-                .target(name: "Ably"),
-            ],
-            path: "PubSubDevice",
-            publicHeadersPath: "include"
-        ),
-        // The core SDK. Vended as the AblyPubSubCore product; its module is
-        // named `Ably`.
-        .target(
-            name: "Ably",
-            dependencies: [
-                .product(name: "msgpack", package: "msgpack-objective-C"),
-                .product(name: "AblyDeltaCodec", package: "delta-codec-cocoa"),
-                .target(name: "_AblyPluginSupportPrivate")
-            ],
-            path: "Source",
-            resources: [.copy("PrivacyInfo.xcprivacy")],
-            publicHeadersPath: "include",
-            cSettings: [
-                .define("ABLY_SUPPORTS_PLUGINS"),
-                .headerSearchPath("PrivateHeaders"),
-                .headerSearchPath("PrivateHeaders/Ably"),
-                .headerSearchPath("include/Ably"),
-                .headerSearchPath("SocketRocket"),
-                .headerSearchPath("SocketRocket/Internal"),
-                .headerSearchPath("SocketRocket/Internal/Security"),
-                .headerSearchPath("SocketRocket/Internal/Proxy"),
-                .headerSearchPath("SocketRocket/Internal/Utilities"),
-                .headerSearchPath("SocketRocket/Internal/RunLoop"),
-                .headerSearchPath("SocketRocket/Internal/Delegate"),
-                .headerSearchPath("SocketRocket/Internal/IOConsumer"),
-            ]
-        ),
         .testTarget(
             name: "AblyTests",
             dependencies: [
-                .byName(name: "Ably"),
-                .target(name: "AblyPubSubDevice"),
+                .byName(name: "AblyPubSubDevice"),
                 .byName(name: "AblyTesting"),
                 .byName(name: "AblyTestingObjC"),
                 .product(name: "Nimble", package: "nimble"),
@@ -145,12 +120,11 @@ let package = Package(
         ),
         // Universal Test Suite (UTS)
         // A standalone Swift Testing suite (import Testing / @Suite) derived from the language-neutral
-        // specs in the `ably/specification` repo (uts/). Deliberately does not depend on Nimble or XCTest.
+        // specs in the `ably/specification` repo (uts/).
         .testTarget(
             name: "UTS",
             dependencies: [
-                .byName(name: "Ably"),
-                .target(name: "AblyPubSubDevice"),
+                .byName(name: "AblyPubSubDevice"),
                 .target(name: "_AblyPluginSupportPrivate"),
                 // The `objects` UTS module tests the LiveObjects plugin's public API.
                 .target(name: "AblyLiveObjects"),
@@ -179,7 +153,7 @@ let package = Package(
         .testTarget(
             name: "AblySoakTests",
             dependencies: [
-                .byName(name: "Ably"),
+                .byName(name: "AblyPubSubDevice"),
             ],
             path: "Test/AblySoakTests",
             swiftSettings: [
@@ -191,8 +165,7 @@ let package = Package(
         .testTarget(
             name: "AblyTestsObjC",
             dependencies: [
-                .byName(name: "Ably"),
-                .target(name: "AblyPubSubDevice"),
+                .byName(name: "AblyPubSubDevice"),
                 .byName(name: "AblyTesting"),
                 .byName(name: "AblyTestingObjC"),
             ],
@@ -202,7 +175,7 @@ let package = Package(
         .target(
             name: "AblyTesting",
             dependencies: [
-                .byName(name: "Ably"),
+                .byName(name: "AblyPubSubDevice"),
             ],
             path: "Test/AblyTesting",
             swiftSettings: [

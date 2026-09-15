@@ -4,7 +4,7 @@
 //
 
 #import "ARTChannel.h"
-#import <Ably/ARTRestChannel.h>
+#import <AblyPubSubDevice/ARTRestChannel.h>
 #import "ARTRestPresence+Private.h"
 #import "ARTPushChannel+Private.h"
 #import "ARTQueuedDealloc.h"

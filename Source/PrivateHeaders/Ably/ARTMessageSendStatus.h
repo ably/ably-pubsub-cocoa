@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import <Ably/ARTStatus.h>
+#import <AblyPubSubDevice/ARTStatus.h>
 
 @class ARTPublishResult;
 

@@ -1,4 +1,4 @@
-#import <Ably/ARTPush.h>
+#import <AblyPubSubDevice/ARTPush.h>
 #import "ARTPushAdmin+Private.h"
 #import "ARTQueuedDealloc.h"
 

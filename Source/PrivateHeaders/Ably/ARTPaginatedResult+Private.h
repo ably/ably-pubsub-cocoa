@@ -1,4 +1,4 @@
-#import <Ably/ARTPaginatedResult.h>
+#import <AblyPubSubDevice/ARTPaginatedResult.h>
 
 @class ARTRestInternal;
 @class ARTInternalLog;

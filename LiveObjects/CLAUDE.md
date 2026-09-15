@@ -47,7 +47,7 @@ The _Specification Document_ (or simply "the specification" or "the spec") speci
 - When writing `JSONValue` or `WireValue` types, use the literal syntax enabled by their `ExpressibleBy*Literal` conformances where possible.
 - When writing a JSON string, use Swift raw string literals instead of escaping double quotes.
 - When importing these modules in library (non-test) code:
-  - Ably: `import Ably`
+  - Ably: `import AblyPubSubDevice`
   - `_AblyPluginSupportPrivate`: `internal import _AblyPluginSupportPrivate`
 - When writing an array literal that starts with an initialiser expression, start the initialiser on the line after the opening square bracket:
 

@@ -1,5 +1,5 @@
 internal import _AblyPluginSupportPrivate
-import Ably
+import AblyPubSubDevice
 import Foundation
 
 // This file contains the ObjectMessage types that we use within the codebase. We convert them to and from the corresponding wire types (e.g. `InboundWireObjectMessage`) for sending and receiving over the wire.

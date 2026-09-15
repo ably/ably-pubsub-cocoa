@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 import Foundation
 
 /// Default implementation of ``PathObject``, the untyped node in the path-addressed view of the

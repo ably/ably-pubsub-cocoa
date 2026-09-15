@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-import Ably
+import AblyPubSubDevice
 
 /// REST channel history (RSL2a, RSL2b, RSL2b1, RSL2b2, RSL2b3)
 /// Derived from ably/specification `uts/rest/integration/history.md`

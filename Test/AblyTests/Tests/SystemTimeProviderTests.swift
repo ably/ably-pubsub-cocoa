@@ -1,5 +1,5 @@
 import XCTest
-import Ably.Private
+import AblyPubSubDevice.Private
 
 class SystemTimeProviderTests: XCTestCase {
     func test_continuousClock_isAfter() {

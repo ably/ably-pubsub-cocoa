@@ -1,5 +1,5 @@
 @import Foundation;
-#import <Ably/ARTLog.h>
+#import <AblyPubSubDevice/ARTLog.h>
 
 @protocol ARTVersion2Log;
 @class ARTClientOptions;

@@ -1,6 +1,6 @@
 import _AblyPluginSupportPrivate
-import Ably
 @testable import AblyLiveObjects
+import AblyPubSubDevice
 import Foundation
 import Testing
 

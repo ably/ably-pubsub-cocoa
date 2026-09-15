@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-import Ably
+import AblyPubSubDevice
 
 /// Base class for **direct-sandbox** integration suites (the counterpart of `UTSTestCase` for the
 /// unit tier): `@Suite(.serialized) final class FooTests: IntegrationTestCase`.

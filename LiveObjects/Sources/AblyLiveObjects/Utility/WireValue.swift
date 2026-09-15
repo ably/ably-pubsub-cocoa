@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 import Foundation
 
 /// A wire value that can be represents the kinds of data that we expect to find inside a deserialized wire object received from `_AblyPluginSupportPrivate`, or which we may put inside a serialized wire object that we send to `_AblyPluginSupportPrivate`.

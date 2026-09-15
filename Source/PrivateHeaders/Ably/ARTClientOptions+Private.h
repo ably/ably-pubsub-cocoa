@@ -1,4 +1,4 @@
-#import <Ably/ARTClientOptions.h>
+#import <AblyPubSubDevice/ARTClientOptions.h>
 
 #ifdef ABLY_SUPPORTS_PLUGINS
 @import _AblyPluginSupportPrivate;

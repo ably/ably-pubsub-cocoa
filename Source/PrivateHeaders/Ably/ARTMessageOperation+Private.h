@@ -1,5 +1,5 @@
 @import Foundation;
-#import <Ably/ARTMessageOperation.h>
+#import <AblyPubSubDevice/ARTMessageOperation.h>
 #import "ARTDictionarySerializable.h"
 
 NS_ASSUME_NONNULL_BEGIN

@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-import Ably
+import AblyPubSubDevice
 
 /// REST presence (RSP1, RSP3, RSP3a, RSP4, RSP4b, RSP5)
 /// Derived from ably/specification `uts/rest/integration/presence.md`

@@ -1,7 +1,7 @@
 import Testing
 import Foundation
-import Ably
-import Ably.Private
+import AblyPubSubDevice
+import AblyPubSubDevice.Private
 
 /// Connection Recovery Tests (RTN16d, RTN16f, RTN16f1, RTN16g, RTN16g1, RTN16g2, RTN16i, RTN16j, RTN16k, RTN16l)
 /// Derived from https://github.com/ably/specification/blob/main/uts/realtime/unit/connection/connection_recovery_test.md

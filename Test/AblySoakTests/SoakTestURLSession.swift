@@ -1,5 +1,5 @@
 import Foundation
-import Ably.Private
+import AblyPubSubDevice.Private
 
 class SoakTestURLSession : NSObject, ARTURLSession {
     let queue: DispatchQueue

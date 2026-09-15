@@ -1,4 +1,4 @@
-#import <Ably/ARTDeviceIdentityTokenDetails.h>
+#import <AblyPubSubDevice/ARTDeviceIdentityTokenDetails.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

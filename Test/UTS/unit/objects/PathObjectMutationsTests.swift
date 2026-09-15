@@ -21,7 +21,7 @@
 // unit-tier counterpart — direct seeding + the publishAndApply capture/echo seam stand in for it. That
 // is an infra-driving choice, NOT a deviation. There are no genuine SDK deviations in this suite.
 
-import Ably
+import AblyPubSubDevice
 @testable import AblyLiveObjects
 @testable import AblyLiveObjectsTesting
 import Foundation

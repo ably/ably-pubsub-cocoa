@@ -1,4 +1,4 @@
-#import "Ably.h"
+#import "AblyPubSubDevice.h"
 #import "ARTDefault+Private.h"
 #import "ARTNSArray+ARTFunctional.h"
 #import "ARTClientInformation+Private.h"

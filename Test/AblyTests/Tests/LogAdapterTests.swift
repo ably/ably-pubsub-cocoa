@@ -1,5 +1,5 @@
 import XCTest
-import Ably.Private
+import AblyPubSubDevice.Private
 
 class LogAdapterTests: XCTestCase {
     class MockARTLog: ARTLog {

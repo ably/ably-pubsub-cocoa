@@ -169,7 +169,7 @@ The specs currently derived here:
   `-swift-version 6` compiler flag in `Package.swift` — the compiler itself catches data races in
   the infra and tests. This is why the infra has types like `Captured` (§6.6) instead of plain
   captured arrays.
-- **`import Ably.Private`** — the SDK is Objective-C; its internal API is exposed to tests through
+- **`import AblyPubSubDevice.Private`** — the SDK is Objective-C; its internal API is exposed to tests through
   the `explicit module Private` block in `Source/include/module.modulemap`. This is how the infra
   reaches the injection seams in §5.
 - **No project file.** SPM discovers the target's sources automatically, so adding a test file
@@ -241,7 +241,7 @@ together in `infra/Utils.kt`).
 ## 5. How a Test Reaches the SDK: the hook points
 
 A test can only mock transports because the SDK exposes **pluggable seams** on
-`ARTClientOptions.testOptions` (an `ARTTestClientOptions`, reachable via `import Ably.Private` —
+`ARTClientOptions.testOptions` (an `ARTTestClientOptions`, reachable via `import AblyPubSubDevice.Private` —
 the cocoa analogue of ably-java's `DebugOptions`):
 
 | Seam | Type | Mock installed there |
@@ -266,7 +266,7 @@ So the recipe is:
 Tests never touch `testOptions` directly — `UTSTestCase.makeRealtime()`/`makeRest()` wire all of
 this (§6.1).
 
-**Reaching further internals.** `import Ably.Private` exposes exactly the private headers listed in
+**Reaching further internals.** `import AblyPubSubDevice.Private` exposes exactly the private headers listed in
 the `explicit module Private` block of `Source/include/module.modulemap` — anything declared only
 in a `.m` file (class extensions, ivars, private methods) is invisible to Swift. The SDK being
 Objective-C also means Swift access levels (`internal`/`package`) play no part. When a new test
@@ -426,7 +426,7 @@ though some map onto a different shape:
 | `CONNECTED_MESSAGE` | `ProtocolMessage.connectedMessage` |
 | `parseQueryString` | `parseQueryParams(of:)` in `infra/Utils.swift` |
 | `unit/FakeClock.kt` (`advance`, `pendingTaskCount`, `initialTimeMs`) | `MockTimeProvider` (`advanceTime(byMilliseconds:)`, `pendingScheduledCount`, `init(initialWallClockMilliseconds:)`) |
-| `unit/Utils.kt` (`ConnectionDetails { }` reflective builder) | `ProtocolMessage.connected(…)` builds `ARTConnectionDetails` directly — `import Ably.Private` exposes the initialiser, no reflection needed |
+| `unit/Utils.kt` (`ConnectionDetails { }` reflective builder) | `ProtocolMessage.connected(…)` builds `ARTConnectionDetails` directly — `import AblyPubSubDevice.Private` exposes the initialiser, no reflection needed |
 | `integration/SandboxApp.kt`, `integration/proxy/ProxyManager.kt` / `ProxySession.kt` | Same names, same shape — `infra/integration/` (§11) |
 
 ### 6.10 How the pieces connect (request flow, no network)
@@ -964,7 +964,7 @@ counterpart.
 ## 12. Quick Reference / Cheat-Sheet
 
 **The seams that make unit tests possible** (`ARTClientOptions.testOptions`, via
-`import Ably.Private`): `transportFactory` (WS) · `httpExecutor` (HTTP) · `timeProvider` (time) ·
+`import AblyPubSubDevice.Private`): `transportFactory` (WS) · `httpExecutor` (HTTP) · `timeProvider` (time) ·
 `reachabilityClass` (network monitor) — plus `options.logHandler` (log assertions).
 
 **Build a unit-test client:**
@@ -1079,7 +1079,7 @@ non-compliant → gate the spec-correct assertion behind `RUN_DEVIATIONS` and re
 | Integration/proxy policy, late fault injection, tiers | [`uts/docs/integration-testing.md`](https://github.com/ably/specification/blob/main/uts/docs/integration-testing.md) |
 | Coverage matrix | [`uts/docs/completion-status.md`](https://github.com/ably/specification/blob/main/uts/docs/completion-status.md) |
 | Proxy control API, rule format, action numbers | [`uts/docs/proxy.md`](https://github.com/ably/specification/blob/main/uts/docs/proxy.md) |
-| SDK seams | `Source/PrivateHeaders/Ably/ARTClientOptions+TestConfiguration.h` (`ARTTestClientOptions`), `Source/include/module.modulemap` (`Ably.Private`) |
+| SDK seams | `Source/PrivateHeaders/Ably/ARTClientOptions+TestConfiguration.h` (`ARTTestClientOptions`), `Source/include/module.modulemap` (`AblyPubSubDevice.Private`) |
 | Target wiring | `Package.swift` (the `UTS` test target) |
 | Unit mocks | `Test/UTS/infra/unit/*` |
 | Shared helpers | `Test/UTS/infra/Utils.swift` |

@@ -1,5 +1,5 @@
 import XCTest
-import Ably.Private
+import AblyPubSubDevice.Private
 
 class DefaultInternalLogCoreTests: XCTestCase {
     func test_initWithClientOptions_whenClientOptionsLogLevelIsNotNone() throws {

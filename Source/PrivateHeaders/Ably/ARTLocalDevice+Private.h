@@ -1,4 +1,4 @@
-#import <Ably/ARTRest.h>
+#import <AblyPubSubDevice/ARTRest.h>
 
 @class ARTInternalLog;
 @protocol ARTDeviceStorage;

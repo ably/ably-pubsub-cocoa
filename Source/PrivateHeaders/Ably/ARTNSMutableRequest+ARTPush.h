@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 
-#import <Ably/ARTTypes.h>
+#import <AblyPubSubDevice/ARTTypes.h>
 
 @class ARTLocalDevice;
 @class ARTInternalLog;

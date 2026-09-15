@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-import Ably
+import AblyPubSubDevice
 import AblyLiveObjects
 
 /// Shared wiring and read helpers for the `objects` direct-sandbox integration suites

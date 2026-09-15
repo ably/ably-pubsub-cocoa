@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 import Foundation
 
 /// Default implementation of ``PrimitiveInstance``. Per RTTS6h, the six per-primitive `Instance`

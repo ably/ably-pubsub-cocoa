@@ -1,7 +1,7 @@
 import Testing
 import Foundation
-import Ably
-import Ably.Private
+import AblyPubSubDevice
+import AblyPubSubDevice.Private
 
 /// Time API (RSC16)
 /// Derived from https://github.com/ably/specification/blob/main/uts/rest/unit/time.md

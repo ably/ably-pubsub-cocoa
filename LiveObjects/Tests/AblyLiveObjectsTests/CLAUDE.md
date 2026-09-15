@@ -7,7 +7,7 @@
 - Add comments explaining when some piece of test data is not important for the scenario being tested.
 - Run the tests to check they pass.
 - When importing these modules in test code:
-  - Ably: `import Ably`
+  - Ably: `import AblyPubSubDevice`
   - AblyLiveObjects: `@testable import AblyLiveObjects`
   - `_AblyPluginSupportPrivate`: `import _AblyPluginSupportPrivate` (not `internal import`)
 - When you need to pass a logger to internal components in tests, pass `TestLogger()`.

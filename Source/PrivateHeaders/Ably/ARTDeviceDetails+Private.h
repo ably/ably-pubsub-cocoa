@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import <Ably/ARTPush.h>
+#import <AblyPubSubDevice/ARTPush.h>
 
 @class ARTDevicePushDetails;
 

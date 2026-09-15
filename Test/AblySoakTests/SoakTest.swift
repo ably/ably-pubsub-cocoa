@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-import Ably.Private
+import AblyPubSubDevice.Private
 
 let randomSeed: Int = 13
 let concurrentConnections: Int = 100

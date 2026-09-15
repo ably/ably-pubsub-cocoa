@@ -1,4 +1,4 @@
-import Ably.Private
+import AblyPubSubDevice.Private
 
 class TestProxyTransportFactory: RealtimeTransportFactory {
     // This value will be used by all TestProxyTransportFactory instances created by this factory (including those created before this property is updated).

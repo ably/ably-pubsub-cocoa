@@ -32,7 +32,7 @@
 //   PROTOCOL frame — so they are kept as comments and the ObjectMessage-level assertions are emitted.
 
 import _AblyPluginSupportPrivate
-import Ably
+import AblyPubSubDevice
 @testable import AblyLiveObjects
 @testable import AblyLiveObjectsTesting
 import Foundation

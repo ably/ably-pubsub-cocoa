@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-import Ably
+import AblyPubSubDevice
 import AblyLiveObjects
 
 /// Objects sync (RTO4, RTO5, RTO17)

@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 import CommonCrypto
 import Foundation
 import XCTest
@@ -6,7 +6,7 @@ import Nimble
 import AblyTesting
 import AblyTestingObjC
 
-import Ably.Private
+import AblyPubSubDevice.Private
 
 typealias HookToken = AspectToken
 

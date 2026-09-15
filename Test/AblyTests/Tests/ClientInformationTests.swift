@@ -1,5 +1,5 @@
 import XCTest
-import Ably
+import AblyPubSubDevice
 
 final class ClientInformationTests: XCTestCase {
 

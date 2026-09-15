@@ -1,5 +1,5 @@
 internal import _AblyPluginSupportPrivate
-import Ably
+import AblyPubSubDevice
 import Foundation
 
 /// This provides the implementation behind ``PublicDefaultLiveCounter``, via internal versions of the ``LiveCounter`` API.

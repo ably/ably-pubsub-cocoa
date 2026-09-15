@@ -1,5 +1,5 @@
 internal import _AblyPluginSupportPrivate
-import Ably
+import AblyPubSubDevice
 
 internal extension ARTClientOptions {
     private class Box<T> {

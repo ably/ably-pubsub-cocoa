@@ -1,5 +1,5 @@
 internal import _AblyPluginSupportPrivate
-import Ably
+import AblyPubSubDevice
 
 /// Protocol that abstracts `InternalDefaultRealtimeObjects`, for testability.
 internal protocol InternalRealtimeObjectsProtocol: LiveMapObjectsPoolDelegate {

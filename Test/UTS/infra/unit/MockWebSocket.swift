@@ -1,6 +1,6 @@
 import Foundation
-import Ably
-import Ably.Private
+import AblyPubSubDevice
+import AblyPubSubDevice.Private
 
 /// The UTS `mock_ws` — the object test code interacts with. It outlives any single socket
 /// (the SDK creates a new `MockWebSocket` for every connection attempt), holding the

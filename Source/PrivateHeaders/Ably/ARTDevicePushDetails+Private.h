@@ -1,4 +1,4 @@
-#import <Ably/ARTDevicePushDetails.h>
+#import <AblyPubSubDevice/ARTDevicePushDetails.h>
 
 @class ARTErrorInfo;
 

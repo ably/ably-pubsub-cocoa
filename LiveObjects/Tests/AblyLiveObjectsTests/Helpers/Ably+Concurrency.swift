@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 
 // Helpers for using ably-cocoa with Swift concurrency and typed throws.
 

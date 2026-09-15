@@ -1,5 +1,5 @@
 @import Foundation;
-#import <Ably/ARTAnnotation.h>
+#import <AblyPubSubDevice/ARTAnnotation.h>
 #import "ARTDataEncoder.h"
 
 NS_ASSUME_NONNULL_BEGIN

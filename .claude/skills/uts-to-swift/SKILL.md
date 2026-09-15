@@ -141,7 +141,7 @@ through the steps in order.
 written in a language-agnostic pseudocode that mirrors the *ably-js* API; for modules whose ably-cocoa
 types diverge, the notes map each spec symbol to its ably-cocoa equivalent. Skipping them yields tests
 that read like ably-js and won't compile. A module's notes may also **override parts of the generic flow
-below** — Step 3's infrastructure reading list, Step 4's `import Ably.Private` internal-access ladder,
+below** — Step 3's infrastructure reading list, Step 4's `import AblyPubSubDevice.Private` internal-access ladder,
 Step 4's method-naming rule, and Step 6's deviations-file location; where the notes override, they win.
 (If the notes file is still the "intentionally empty" placeholder, stop and tell the user — see Step A.)
 
@@ -208,17 +208,17 @@ the **Integration tests** section instead. A module whose translation notes over
 
 Apply the translation rules below, then write the file.
 
-### Accessing SDK internals (`import Ably.Private`)
+### Accessing SDK internals (`import AblyPubSubDevice.Private`)
 
 > **A module's translation notes may override this ladder** (Step 1) — a module whose SDK layer isn't
-> the core Objective-C SDK can specify its own internal-access mechanism instead of `import Ably.Private`;
+> the core Objective-C SDK can specify its own internal-access mechanism instead of `import AblyPubSubDevice.Private`;
 > follow the notes where they do. The rest of this section is for the core Objective-C SDK.
 
 The SDK is Objective-C, so Swift access levels (`internal`/`package`/`private`) don't apply to it —
 visibility is controlled by **headers + the module map**:
 
-- `import Ably` → the public API (headers in `Source/include/Ably/`).
-- `import Ably.Private` → the internal API: the private headers listed in the `explicit module Private`
+- `import AblyPubSubDevice` → the public API (headers in `Source/include/AblyPubSubDevice/`).
+- `import AblyPubSubDevice.Private` → the internal API: the private headers listed in the `explicit module Private`
   block of `Source/include/module.modulemap` (files under `Source/PrivateHeaders/Ably/`, e.g.
   `ARTClientOptions+TestConfiguration.h` for `testOptions`, `ART*+Private.h` for class internals). This is
   how the UTS infra reaches the injection seams, and how a test reaches internal fields the spec asserts
@@ -227,7 +227,7 @@ visibility is controlled by **headers + the module map**:
 When a spec needs an internal class/method/field, work down this list:
 
 1. **Check it's already exposed**: `grep -r "<symbol>" Source/PrivateHeaders/Ably/` — if it's declared in a
-   listed private header, just `import Ably.Private` and use it.
+   listed private header, just `import AblyPubSubDevice.Private` and use it.
 2. **Declared only in a `.m` file** (class extension, ivar, private method)? It is invisible to Swift,
    period. To expose it, declare it in a header under `Source/PrivateHeaders/Ably/` and register that
    header in `Source/include/module.modulemap` — the repo's CLAUDE.md convention. Only do this for
@@ -640,8 +640,8 @@ the file templates in the **Integration tests** section instead, not from this o
 ```swift
 import Testing
 import Foundation
-import Ably
-import Ably.Private
+import AblyPubSubDevice
+import AblyPubSubDevice.Private
 
 /// <Feature> (<spec points>)
 /// Derived from <spec URL>
@@ -688,7 +688,7 @@ swift build --build-tests
 ```
 
 Fix any compilation errors and recompile until clean. Common issues:
-- Missing `import Ably.Private` when the test touches internals.
+- Missing `import AblyPubSubDevice.Private` when the test touches internals.
 - Mock method names differing from what you read in Step 3's files — use the exact signatures.
 - Swift 6 `@Sendable` capture errors — a plain `var` captured in a mock handler is a compile error; use
   `Captured<T>` (see "Capturing connection attempts / requests").
@@ -1051,7 +1051,7 @@ file) stay in the per-file extension as usual.
 ```swift
 import Testing
 import Foundation
-import Ably
+import AblyPubSubDevice
 
 /// <Feature> (<spec points>)
 /// Derived from <spec URL>
@@ -1104,8 +1104,8 @@ integration spec** — they hold the exact method signatures. `SandboxApp` and `
   `IntegrationTestCase`): `withProxySession(rules:)` and `proxyClientOptions(for:through:)`.
 
 The `SandboxApp` and `ProxySession` methods are all **`async`** — call them with `try await` inside the
-scoped bodies. Imports are simple: `import Testing`, `import Foundation`, `import Ably` (+
-`import Ably.Private` only if the spec asserts on SDK internals) — the whole UTS target is one module, so
+scoped bodies. Imports are simple: `import Testing`, `import Foundation`, `import AblyPubSubDevice` (+
+`import AblyPubSubDevice.Private` only if the spec asserts on SDK internals) — the whole UTS target is one module, so
 the infra helpers need no imports.
 
 ### Proxy test class docstring
@@ -1263,7 +1263,7 @@ access.
 
 import Testing
 import Foundation
-import Ably
+import AblyPubSubDevice
 
 /// Proxy integration test against Ably Sandbox endpoint.
 ///

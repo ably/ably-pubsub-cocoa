@@ -4,9 +4,9 @@
 @import _AblyPluginSupportPrivate;
 #endif
 
-#import <Ably/ARTMessage.h>
-#import <Ably/ARTPresenceMessage.h>
-#import <Ably/ARTRealtimeChannelOptions.h>
+#import <AblyPubSubDevice/ARTMessage.h>
+#import <AblyPubSubDevice/ARTPresenceMessage.h>
+#import <AblyPubSubDevice/ARTRealtimeChannelOptions.h>
 
 @class ARTConnectionDetails;
 @class ARTAuthDetails;

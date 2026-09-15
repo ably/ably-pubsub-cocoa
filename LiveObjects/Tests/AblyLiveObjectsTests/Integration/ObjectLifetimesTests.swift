@@ -1,6 +1,6 @@
-import Ably.Private
 @testable import AblyLiveObjects
 @testable import AblyLiveObjectsTesting
+import AblyPubSubDevice.Private
 import Testing
 
 @Suite(.tags(.integration), .serialized)

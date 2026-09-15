@@ -1,5 +1,5 @@
 @import Foundation;
-#import <Ably/ARTLog.h>
+#import <AblyPubSubDevice/ARTLog.h>
 
 #ifdef ABLY_SUPPORTS_PLUGINS
 @import _AblyPluginSupportPrivate;

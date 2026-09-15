@@ -1,5 +1,5 @@
 @import Foundation;
-#import <Ably/ARTMessageAnnotations.h>
+#import <AblyPubSubDevice/ARTMessageAnnotations.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -1,5 +1,5 @@
-import Ably
-import Ably.Private
+import AblyPubSubDevice
+import AblyPubSubDevice.Private
 import AblyTestingObjC
 import Foundation
 import Nimble

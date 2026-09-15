@@ -27,16 +27,16 @@ Dependencies are declared in [Package.swift](Package.swift) and resolved by Swif
 
 ## Adding new Objective-C files to the SDK
 
-The steps below are for the core SDK — the `Ably` target, whose sources live in `Source/`. The `AblyPubSubDevice` target (`PubSubDevice/`) is laid out differently: its public headers go in `PubSubDevice/include/AblyPubSubDevice/` and its implementations directly in `PubSubDevice/`, there is no umbrella header to add an `#import` to, and it is absent from `Ably.xcodeproj`. SwiftPM globs the directory and generates the module map, so a new file there needs no other change.
+The steps below are for the `AblyPubSubDevice` target, which is the whole SDK and whose sources live in `Source/`.
 
 ### Public header (`.h`) files
 
 These are the header files that form the public interface of the SDK.
 
-1. Put `.h` file in directory `Source/include/Ably`.
+1. Put `.h` file in directory `Source/include/AblyPubSubDevice`.
 1. Add `#import` to one of the following umbrella header files:
-   - `Source/include/Ably/AblyPublic.h` if the API contained in this header is intended for general use.
-   - `Source/include/Ably/AblyInternal.h` if the API contained in this header is intended for use only by Ably-authored SDKs and should not be included in the Jazzy-generated documentation.
+   - `Source/include/AblyPubSubDevice/AblyPublic.h` if the API contained in this header is intended for general use.
+   - `Source/include/AblyPubSubDevice/AblyInternal.h` if the API contained in this header is intended for use only by Ably-authored SDKs and should not be included in the Jazzy-generated documentation.
 
 ### Private header (`.h`) files
 
@@ -49,7 +49,7 @@ These are the header files that form the internal interface of the SDK.
 
 1. Put `.m` file in directory `Source`.
 
-SwiftPM globs the `Ably` target's directory, so none of these steps involves editing
+SwiftPM globs the `AblyPubSubDevice` target's directory, so none of these steps involves editing
 [Package.swift](Package.swift).
 
 ## Running tests
@@ -68,8 +68,8 @@ The `make test_*` commands are used by CI and expect you to have a simulator dev
 
 | Target | Path | Contents |
 | --- | --- | --- |
-| `AblyTests` | `Test/AblyTests` | Swift tests for the core SDK |
-| `AblyTestsObjC` | `Test/AblyTestsObjC` | Objective-C tests for the core SDK |
+| `AblyTests` | `Test/AblyTests` | Swift tests for the SDK |
+| `AblyTestsObjC` | `Test/AblyTestsObjC` | Objective-C tests for the SDK |
 | `UTS` | `Test/UTS` | Universal Test Suite, derived from the language-neutral specs in the [`specification`](https://github.com/ably/specification) repository — including the ported LiveObjects `objects` unit specs under `unit/objects/`. Its `objects` suites link `AblyLiveObjects` — see [Supported OS versions](#supported-os-versions) |
 | `AblyLiveObjectsTests` | `LiveObjects/Tests/AblyLiveObjectsTests` | LiveObjects native unit and integration tests |
 | `AblySoakTests` | `Test/AblySoakTests` | The soak test — see [Soak test](#soak-test) below. Skipped unless `RUN_SOAK_TEST` is set |
@@ -133,8 +133,7 @@ Code that needs a newer OS than the package floor carries its own `@available` �
 ### Distribution
 
 Swift Package Manager is the only distribution channel for 2.x. A release tag therefore delivers
-every product — `AblyPubSubCore`, `AblyPubSubDevice` and `AblyLiveObjects` — to everyone who
-consumes it, and there is no longer a channel that receives a subset.
+both products — `AblyPubSubDevice` and `AblyLiveObjects`.
 
 This was not always so: 1.x also shipped a CocoaPods pod and a Carthage `Ably.xcframework`, and
 `AblyLiveObjects` was available through neither. Those channels stay on the 1.x line, which is
@@ -195,4 +194,4 @@ For each release, the following needs to be done:
 * Publish your drafted release:
     * refer to previous releases for release notes format
 * Checkout `main` locally, pulling in changes using `git checkout main && git pull`. Make sure the new tag you need was created on publish
-* Test that Swift Package Manager resolves the new tag, selecting the `AblyPubSubCore`, `AblyPubSubDevice` and `AblyLiveObjects` products
+* Test that Swift Package Manager resolves the new tag, selecting the `AblyPubSubDevice` and `AblyLiveObjects` products

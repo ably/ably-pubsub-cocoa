@@ -1,7 +1,7 @@
 @import XCTest;
 @import AblyPubSubDevice;
 // For ARTRealtime.internal, to read back the options the client was built with.
-@import Ably.Private;
+@import AblyPubSubDevice.Private;
 
 @interface ARTPubSubDeviceTests : XCTestCase
 @end

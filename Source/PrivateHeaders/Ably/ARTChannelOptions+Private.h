@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import <Ably/ARTChannelOptions.h>
+#import <AblyPubSubDevice/ARTChannelOptions.h>
 
 @interface ARTChannelOptions ()
 

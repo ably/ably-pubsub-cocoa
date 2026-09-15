@@ -1,7 +1,7 @@
 import Foundation
 import Testing
-import Ably
-import Ably.Private
+import AblyPubSubDevice
+import AblyPubSubDevice.Private
 
 /// Shared helpers used by every tier (the cocoa counterpart of ably-java's `infra/Utils.kt`).
 ///

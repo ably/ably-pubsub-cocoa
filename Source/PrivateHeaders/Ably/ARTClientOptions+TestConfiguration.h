@@ -1,5 +1,5 @@
 @import Foundation;
-#import <Ably/ARTClientOptions.h>
+#import <AblyPubSubDevice/ARTClientOptions.h>
 
 @class ARTTestClientOptions;
 

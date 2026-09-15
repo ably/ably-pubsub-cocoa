@@ -1,5 +1,5 @@
 @import Foundation;
-#import <Ably/ARTMessageVersion.h>
+#import <AblyPubSubDevice/ARTMessageVersion.h>
 
 @class ARTMessageOperation;
 

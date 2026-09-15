@@ -1,5 +1,5 @@
 import Foundation
-import Ably.Private
+import AblyPubSubDevice.Private
 
 class SoakTestReachability : NSObject, ARTReachability {
     let queue: DispatchQueue

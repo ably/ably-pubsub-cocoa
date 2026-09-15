@@ -1,4 +1,4 @@
-import Ably.Private
+import AblyPubSubDevice.Private
 
 @objc(ARTMockInternalLogCore)
 public class MockInternalLogCore: NSObject, InternalLogCore {

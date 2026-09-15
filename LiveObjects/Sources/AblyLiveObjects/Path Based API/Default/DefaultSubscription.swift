@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 
 /// Default implementation of the public ``Subscription`` (SUB). It wraps the internal engine's
 /// ``SubscribeResponse`` handle so that `unsubscribe()` deregisters the listener on the underlying

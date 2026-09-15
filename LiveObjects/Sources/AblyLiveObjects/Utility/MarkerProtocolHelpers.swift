@@ -1,5 +1,5 @@
 internal import _AblyPluginSupportPrivate
-import Ably
+import AblyPubSubDevice
 
 /// Upcasts an instance of an `_AblyPluginSupportPrivate` marker protocol to the concrete type that this marker protocol represents.
 internal func castPluginPublicMarkerProtocolValue<T>(_ pluginMarkerProtocolValue: Any, to _: T.Type) -> T {

@@ -15,9 +15,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "Ably"
-               BuildableName = "Ably"
-               BlueprintName = "Ably"
+               BlueprintIdentifier = "AblyPubSubDevice"
+               BuildableName = "AblyPubSubDevice"
+               BlueprintName = "AblyPubSubDevice"
                ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
@@ -80,9 +80,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "Ably"
-            BuildableName = "Ably"
-            BlueprintName = "Ably"
+            BlueprintIdentifier = "AblyPubSubDevice"
+            BuildableName = "AblyPubSubDevice"
+            BlueprintName = "AblyPubSubDevice"
             ReferencedContainer = "container:">
          </BuildableReference>
       </MacroExpansion>

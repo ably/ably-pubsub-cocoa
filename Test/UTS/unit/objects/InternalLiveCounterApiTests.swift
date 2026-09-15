@@ -23,7 +23,7 @@
 // - RTLC12b/RTLC12c/RTLC12d (write-API preconditions) are replaced by RTO26 and live in
 //   `objects/unit/realtime_object.md`.
 
-import Ably
+import AblyPubSubDevice
 @testable import AblyLiveObjects
 import Foundation
 import Testing

@@ -1,5 +1,5 @@
 import Foundation
-import Ably
+import AblyPubSubDevice
 
 /// An `ARTLog` that records every message the SDK logs, for tests that assert on log output (e.g.
 /// "an error is logged"). Install via `ARTClientOptions.logHandler`.

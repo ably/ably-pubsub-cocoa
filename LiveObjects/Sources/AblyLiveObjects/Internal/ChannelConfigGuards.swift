@@ -1,5 +1,5 @@
 internal import _AblyPluginSupportPrivate
-import Ably
+import AblyPubSubDevice
 
 /// The channel-configuration precondition guards for the path-based public API. Each public
 /// read/write entry point runs the relevant guard before touching the object graph, per

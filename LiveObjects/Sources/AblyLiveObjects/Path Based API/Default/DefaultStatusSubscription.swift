@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 
 /// Default implementation of the public ``StatusSubscription`` (RTO18f). It wraps the internal
 /// engine's ``OnObjectsEventResponse`` handle so that `off()` deregisters the status listener

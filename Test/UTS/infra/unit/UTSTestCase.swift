@@ -1,7 +1,7 @@
 import Foundation
 import Testing
-import Ably
-import Ably.Private
+import AblyPubSubDevice
+import AblyPubSubDevice.Private
 
 /// Base class for UTS-derived unit tests.
 ///

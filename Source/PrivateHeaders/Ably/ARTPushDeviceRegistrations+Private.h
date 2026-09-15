@@ -1,4 +1,4 @@
-#import <Ably/ARTPushDeviceRegistrations.h>
+#import <AblyPubSubDevice/ARTPushDeviceRegistrations.h>
 #import "ARTQueuedDealloc.h"
 
 @class ARTRestInternal;

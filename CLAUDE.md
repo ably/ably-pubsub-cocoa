@@ -8,7 +8,7 @@ ably-cocoa is the Ably pub/sub SDK for iOS, macOS, and tvOS. It is written in Ob
 
 **ably-cocoa is device-side only**: it serves apps running on an end user's device, and such a client declares that to Ably, which is what determines how its traffic counts toward an account's monthly active users. The matching server side belongs to the server-capable SDKs (ably-js, ably-java, ably-go, ably-dotnet, ably-python, ably-ruby, ably-php), so do not add a server package, a server factory, or the `ably-pubsub-server` agent identifier here, and do not document this SDK as a choice between two sides — its reader has one option. Server-side Swift is tracked separately as `ably-swift`.
 
-The SPM products are **`AblyPubSubDevice`** (what applications depend on: `PubSubDevice.createClient(options:)`, which declares the device runtime), **`AblyPubSubCore`** (the core SDK, an internal implementation product for Ably's own packages rather than for direct use by applications) and `AblyLiveObjects`. The core's **module is `Ably` and its class prefix is `ART`**, independently of the product name — do not rename ObjC symbols, headers or the module.
+The SPM products are **`AblyPubSubDevice`** the SDK, which applications reach through `PubSubDevice.createClient(options:)`, and `AblyLiveObjects`. The SDK is one target and one module, both named `AblyPubSubDevice`. There is no separate core module, so `import Ably` does not exist.
 
 ## Build and Test
 
@@ -50,7 +50,7 @@ make lint
 
 All SDK source is in `Source/`, written entirely in Objective-C:
 
-- `Source/include/Ably/` — Public headers. Umbrella headers: `AblyPublic.h` (general use) and `AblyInternal.h` (for Ably-authored SDKs only).
+- `Source/include/AblyPubSubDevice/` — Public headers. Umbrella headers: `AblyPublic.h` (general use) and `AblyInternal.h` (for Ably-authored SDKs only).
 - `Source/PrivateHeaders/Ably/` — Internal headers.
 - `Source/*.m` — Implementations.
 - `Source/SocketRocket/` — Vendored WebSocket implementation.
@@ -60,7 +60,7 @@ Key classes follow the `ART` prefix convention: `ARTRealtime`, `ARTRest`, `ARTAu
 
 ### Plugin System
 
-Plugins are passed via `ARTClientOptions.plugins`. Plugin support is gated behind `#ifdef ABLY_SUPPORTS_PLUGINS`, which `Package.swift` defines for the `Ably` target. See `Docs/plugins.md`.
+Plugins are passed via `ARTClientOptions.plugins`. Plugin support is gated behind `#ifdef ABLY_SUPPORTS_PLUGINS`, which `Package.swift` defines for the `AblyPubSubDevice` target. See `Docs/plugins.md`.
 
 ## LiveObjects
 
@@ -81,7 +81,7 @@ SPM discovers source files automatically, so a new file needs no manifest change
 
 When adding new Objective-C files:
 
-- **Public headers** go in `Source/include/Ably/` and must be imported in the appropriate umbrella header (`AblyPublic.h` or `AblyInternal.h`).
+- **Public headers** go in `Source/include/AblyPubSubDevice/` and must be imported in the appropriate umbrella header (`AblyPublic.h` or `AblyInternal.h`).
 - **Private headers** go in `Source/PrivateHeaders/Ably/` and must be declared in the `Private` module in `Source/include/module.modulemap`.
 - **Implementation files** go in `Source/`.
 

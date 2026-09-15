@@ -1,5 +1,4 @@
     import XCTest
-    import Ably
     import AblyPubSubDevice
 
     final class SPMTests: XCTestCase {

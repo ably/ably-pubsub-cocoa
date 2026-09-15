@@ -145,7 +145,7 @@ Example:
 
 #### Using ably-cocoa internals in tests
 
-Some of our integration tests require access to ably-cocoa internals that are not exposed via `_AblyPluginSupportPrivate`, for example to inject protocol messages. Since, unlike the plugin implementation, the test suite does not require access to a stable private API (as it will never be compiled by end users and we're in control of which version of ably-cocoa gets used for testing the plugin), we just directly import ably-cocoa's internal APIs in the test suite using `import Ably.Private`.
+Some of our integration tests require access to ably-cocoa internals that are not exposed via `_AblyPluginSupportPrivate`, for example to inject protocol messages. Since, unlike the plugin implementation, the test suite does not require access to a stable private API (as it will never be compiled by end users and we're in control of which version of ably-cocoa gets used for testing the plugin), we just directly import ably-cocoa's internal APIs in the test suite using `import AblyPubSubDevice.Private`.
 
 ## Release process
 

@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 
 /// Default implementation of ``LiveMapPathObject``, adding map
 /// navigation and read/write operations on top of ``DefaultPathObject``.

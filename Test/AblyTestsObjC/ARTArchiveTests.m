@@ -1,7 +1,7 @@
 #if TARGET_OS_IOS
 @import XCTest;
-@import Ably;
-@import Ably.Private;
+@import AblyPubSubDevice;
+@import AblyPubSubDevice.Private;
 @import AblyTesting;
 
 @interface _StateMachineDelegate : NSObject <ARTPushRegistererDelegate>

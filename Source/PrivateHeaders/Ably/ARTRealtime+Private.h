@@ -1,6 +1,6 @@
-#import <Ably/ARTRealtime.h>
-#import <Ably/ARTEventEmitter.h>
-#import <Ably/ARTTypes.h>
+#import <AblyPubSubDevice/ARTRealtime.h>
+#import <AblyPubSubDevice/ARTEventEmitter.h>
+#import <AblyPubSubDevice/ARTTypes.h>
 #import "ARTMessageSendStatus.h"
 #import "ARTQueuedMessage.h"
 #import "ARTPendingMessage.h"

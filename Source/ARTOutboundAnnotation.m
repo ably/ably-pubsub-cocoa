@@ -1,4 +1,4 @@
-#import <Ably/ARTOutboundAnnotation.h>
+#import <AblyPubSubDevice/ARTOutboundAnnotation.h>
 
 @implementation ARTOutboundAnnotation
 

@@ -1,5 +1,5 @@
 import XCTest
-@testable import Ably
+@testable import AblyPubSubDevice
 
 class SummaryTypesTests: XCTestCase {
 

@@ -1,8 +1,8 @@
 #import <Foundation/Foundation.h>
 
-#import <Ably/ARTTypes.h>
-#import <Ably/ARTChannelProtocol.h>
-#import <Ably/ARTStringifiable.h>
+#import <AblyPubSubDevice/ARTTypes.h>
+#import <AblyPubSubDevice/ARTChannelProtocol.h>
+#import <AblyPubSubDevice/ARTStringifiable.h>
 
 @class ARTRest;
 @class ARTChannelOptions;

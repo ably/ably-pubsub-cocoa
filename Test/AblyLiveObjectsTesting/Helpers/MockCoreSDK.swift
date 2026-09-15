@@ -1,5 +1,5 @@
 import _AblyPluginSupportPrivate
-import Ably
+import AblyPubSubDevice
 @testable import AblyLiveObjects
 
 final class MockCoreSDK: CoreSDK {

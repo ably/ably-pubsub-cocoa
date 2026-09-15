@@ -1,4 +1,4 @@
-#import <Ably/ARTCrypto.h>
+#import <AblyPubSubDevice/ARTCrypto.h>
 
 @class ARTInternalLog;
 

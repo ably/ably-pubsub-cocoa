@@ -1,6 +1,6 @@
 import XCTest
 import AblyTesting
-import Ably.Private
+import AblyPubSubDevice.Private
 
 class AttachRetryStateTests: XCTestCase {
     func test_addRetryAttempt() {

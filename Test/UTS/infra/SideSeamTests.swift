@@ -1,7 +1,7 @@
 import Foundation
 import Testing
-import Ably
-import Ably.Private
+import AblyPubSubDevice
+import AblyPubSubDevice.Private
 
 /// Self-tests for the harness itself, not derived from any UTS spec.
 ///

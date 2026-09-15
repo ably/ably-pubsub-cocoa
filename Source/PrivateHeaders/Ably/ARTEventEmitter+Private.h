@@ -1,4 +1,4 @@
-#import <Ably/ARTEventEmitter.h>
+#import <AblyPubSubDevice/ARTEventEmitter.h>
 #import "ARTRest+Private.h"
 
 @protocol ARTTimeProvider;

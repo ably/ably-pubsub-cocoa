@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 
 /// The default implementation of the public ``RealtimeObject`` entry point, backing
 /// ``ARTRealtimeChannel/object``.

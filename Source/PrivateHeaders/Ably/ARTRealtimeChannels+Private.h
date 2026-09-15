@@ -3,7 +3,7 @@
 //
 //
 
-#import <Ably/ARTRealtimeChannels.h>
+#import <AblyPubSubDevice/ARTRealtimeChannels.h>
 #import "ARTRealtime+Private.h"
 #import "ARTQueuedDealloc.h"
 

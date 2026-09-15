@@ -1,5 +1,4 @@
 import Foundation
-import Ably
 import AblyPubSubDevice
 
 /// Which entry point the suite builds realtime clients through, selected by the `UTS_SIDE`

@@ -1,5 +1,5 @@
-import Ably.Private
 @testable import AblyLiveObjects
+import AblyPubSubDevice.Private
 import Foundation
 import Testing
 

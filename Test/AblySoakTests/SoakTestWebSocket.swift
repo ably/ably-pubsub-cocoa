@@ -1,5 +1,5 @@
 import Foundation
-import Ably.Private
+import AblyPubSubDevice.Private
 
 class SoakTestWebSocketFactory: WebSocketFactory {
     func createWebSocket(with request: URLRequest, logger: InternalLog?) -> ARTWebSocket {

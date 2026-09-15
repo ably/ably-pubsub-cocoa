@@ -48,7 +48,7 @@ After [installing the plugin](../README.md#liveobjects), pass it to the client v
 `ARTClientOptions`, and fetch channels with the LiveObjects channel modes:
 
 ```swift
-import Ably
+import AblyPubSubDevice
 import AblyLiveObjects
 
 let clientOptions = ARTClientOptions(key: "your-ably-api-key")
@@ -130,7 +130,7 @@ As of ably-cocoa 1.3.0, the plugin is developed, versioned and released from the
 Your imports and plugin registration are unchanged:
 
 ```swift
-import Ably
+import AblyPubSubDevice
 import AblyLiveObjects
 
 let clientOptions = ARTClientOptions(key: "your-ably-api-key")

@@ -1,4 +1,4 @@
-#import <Ably/ARTPushChannelSubscriptions.h>
+#import <AblyPubSubDevice/ARTPushChannelSubscriptions.h>
 #import "ARTQueuedDealloc.h"
 
 @class ARTRestInternal;

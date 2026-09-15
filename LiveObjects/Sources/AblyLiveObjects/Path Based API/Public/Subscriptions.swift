@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 
 // MARK: - Subscription (SUB)
 

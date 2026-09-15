@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 
 /// Default implementation of ``PrimitivePathObject``, a terminal primitive view adding a
 /// type-narrowed ``value()`` on top of ``DefaultPathObject``. Per RTTS6h, the six per-primitive

@@ -1,9 +1,9 @@
 #import "ARTRest+Private.h"
 #import "ARTEncoder.h"
-#import <Ably/ARTTokenDetails.h>
-#import <Ably/ARTTokenRequest.h>
-#import <Ably/ARTAuthDetails.h>
-#import <Ably/ARTStats.h>
+#import <AblyPubSubDevice/ARTTokenDetails.h>
+#import <AblyPubSubDevice/ARTTokenRequest.h>
+#import <AblyPubSubDevice/ARTAuthDetails.h>
+#import <AblyPubSubDevice/ARTStats.h>
 
 @class ARTPublishResult;
 @class ARTPublishResultSerial;

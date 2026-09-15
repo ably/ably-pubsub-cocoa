@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 import AblyTesting
 import AblyTestingObjC
 import Nimble

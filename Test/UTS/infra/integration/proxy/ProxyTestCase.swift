@@ -3,7 +3,7 @@
 
 import Foundation
 import Testing
-import Ably
+import AblyPubSubDevice
 
 /// Base class for **proxy** integration suites:
 /// `@Suite(.serialized) final class FooTests: ProxyTestCase`.

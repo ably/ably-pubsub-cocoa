@@ -3,7 +3,7 @@
 
 import Testing
 import Foundation
-import Ably
+import AblyPubSubDevice
 
 /// Auth re-authorization (RTN22, RTC8a)
 /// Derived from ably/specification `uts/realtime/integration/proxy/auth_reauth.md`

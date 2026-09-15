@@ -1,4 +1,4 @@
-@preconcurrency import Ably.Private
+@preconcurrency import AblyPubSubDevice.Private
 
 class TestProxyTransportFactory: RealtimeTransportFactory {
     // This value will be used by all TestProxyTransportFactory instances created by this factory (including those created before this property is updated).
@@ -28,7 +28,7 @@ class TestProxyTransportFactory: RealtimeTransportFactory {
         return testProxyTransport
     }
 
-    private class WebSocketFactory: Ably.WebSocketFactory {
+    private class WebSocketFactory: AblyPubSubDevice.WebSocketFactory {
         weak var testProxyTransport: TestProxyTransport?
 
         func createWebSocket(with request: URLRequest, logger: InternalLog?) -> ARTWebSocket {

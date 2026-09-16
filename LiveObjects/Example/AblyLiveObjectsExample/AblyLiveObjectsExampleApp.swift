@@ -7,7 +7,7 @@ struct AblyLiveObjectsExampleApp: App {
     private func getRealtime() -> ARTRealtimeClient {
         let clientOptions = ARTClientOptions(key: Secrets.ablyAPIKey)
         clientOptions.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]
-        return ARTRealtimeClient(options: clientOptions)
+        return PubSubDevice.createClient(options: clientOptions)
     }
 
     var body: some Scene {

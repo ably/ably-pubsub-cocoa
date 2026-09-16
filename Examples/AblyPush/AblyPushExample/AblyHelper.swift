@@ -30,7 +30,7 @@ class AblyHelper: NSObject, ObservableObject {
         let options = ARTClientOptions(key: key)
         options.clientId = "basic-apns-example"
         options.pushRegistererDelegate = self
-        self.realtime = ARTRealtimeClient(options: options)
+        self.realtime = PubSubDevice.createClient(options: options)
         UNUserNotificationCenter.current().delegate = self
         locationManager = CLLocationManager()
         locationManager.delegate = self

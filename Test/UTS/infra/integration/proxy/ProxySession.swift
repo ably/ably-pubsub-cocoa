@@ -146,7 +146,7 @@ struct ProxyEvent: @unchecked Sendable {
 ///     tokenSigner.auth.createTokenRequest(params, options: nil) { callback($0, $1) }
 /// }
 /// options.connectThroughProxy(session)
-/// let client = ARTRealtimeClient(options: options)
+/// let client = makeRealtimeForSide(options: options)
 /// // … test scenario …
 /// await session.close()   // always — `defer` can't await, so close at the end of every path
 /// ```

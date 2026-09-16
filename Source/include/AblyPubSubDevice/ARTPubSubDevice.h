@@ -11,9 +11,8 @@ NS_ASSUME_NONNULL_BEGIN
  * traffic counts toward the total, the connection must carry a `clientId`, and that `clientId` is
  * subject to a concurrency limit.
  *
- * The returned object is an `ARTRealtimeClient` and behaves exactly as one built with
- * `-[ARTRealtimeClient initWithOptions:]`, so all of the Ably Pub/Sub documentation applies to it
- * unchanged.
+ * The returned object is an `ARTRealtimeClient`, and it behaves like any other client of that
+ * class, so all of the Ably Pub/Sub documentation applies to it unchanged.
  */
 NS_SWIFT_NAME(PubSubDevice)
 @interface ARTPubSubDevice : NSObject

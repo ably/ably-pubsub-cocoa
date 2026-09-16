@@ -53,7 +53,7 @@ import AblyLiveObjects
 
 let clientOptions = ARTClientOptions(key: "your-ably-api-key")
 clientOptions.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]
-let realtime = ARTRealtimeClient(options: clientOptions)
+let realtime = PubSubDevice.createClient(options: clientOptions)
 
 // Fetch a channel, specifying the LiveObjects channel modes
 let channelOptions = ARTRealtimeChannelOptions()

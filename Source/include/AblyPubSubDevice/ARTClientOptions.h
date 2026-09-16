@@ -15,7 +15,7 @@ typedef NSString *ARTPluginName NS_TYPED_EXTENSIBLE_ENUM;
 extern const ARTPluginName ARTPluginNameLiveObjects;
 
 /**
- * Passes additional client-specific properties to the HTTP client or the Realtime `-[ARTRealtimeProtocol initWithOptions:]`.
+ * Passes additional client-specific properties to the HTTP client or the Realtime client.
  */
 @interface ARTClientOptions : ARTAuthOptions
 
@@ -80,7 +80,7 @@ extern const ARTPluginName ARTPluginNameLiveObjects;
 @property (readwrite, nonatomic) BOOL autoConnect;
 
 /**
- * Enables a connection to inherit the state of a previous connection that may have existed under a different instance of the Realtime library. This might happen upon the app restart where a recovery key string can be explicitly provided to the `-[ARTRealtimeProtocol initWithOptions:]` initializer. See [connection state recovery](https://ably.com/docs/realtime/connection/#connection-state-recovery) for further information.
+ * Enables a connection to inherit the state of a previous connection that may have existed under a different instance of the Realtime library. This might happen upon the app restart where a recovery key string can be explicitly provided when the client is created. See [connection state recovery](https://ably.com/docs/realtime/connection/#connection-state-recovery) for further information.
  */
 @property (nullable, readwrite, copy, nonatomic) NSString *recover;
 

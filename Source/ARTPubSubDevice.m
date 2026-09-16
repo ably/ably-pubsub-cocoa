@@ -1,5 +1,6 @@
 #import <AblyPubSubDevice/ARTPubSubDevice.h>
 #import <AblyPubSubDevice/ARTClientInformation.h>
+#import "ARTRealtimeClient+Private.h"
 
 /**
  * The agent entry that declares a client is running on an end user's device.

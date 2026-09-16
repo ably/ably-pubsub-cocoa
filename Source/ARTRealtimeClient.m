@@ -139,18 +139,6 @@
     return self;
 }
 
-+ (instancetype)createWithOptions:(ARTClientOptions *)options {
-    return [[ARTRealtimeClient alloc] initWithOptions:options];
-}
-
-+ (instancetype)createWithKey:(NSString *)key {
-    return [[ARTRealtimeClient alloc] initWithKey:key];
-}
-
-+ (instancetype)createWithToken:(NSString *)tokenId {
-    return [[ARTRealtimeClient alloc] initWithToken:tokenId];
-}
-
 - (void)time:(ARTDateTimeCallback)cb {
     [_internal timeWithWrapperSDKAgents:nil
                              completion:cb];

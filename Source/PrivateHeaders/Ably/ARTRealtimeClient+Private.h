@@ -23,6 +23,18 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// Constructs a client directly, without declaring the runtime it is on.
+///
+/// Applications use `+[ARTPubSubDevice createClientWithOptions:]`, which declares that the
+/// client runs on an end user's device. These initializers are for the SDK and its tests.
+@interface ARTRealtimeClient (Construction)
+
+- (instancetype)initWithOptions:(ARTClientOptions *)options;
+- (instancetype)initWithKey:(NSString *)key;
+- (instancetype)initWithToken:(NSString *)token;
+
+@end
+
 @interface ARTRealtimeClient ()
 
 @property (nonatomic, readonly) ARTRealtimeClientInternal *internal;

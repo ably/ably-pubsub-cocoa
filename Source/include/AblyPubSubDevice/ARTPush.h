@@ -67,13 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
 // Push Registration token
 
 /// See [iOS push notifications tutorial](https://ably.com/tutorials/ios-push-notifications#step7-register-push-ably) for details.
-+ (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken rest:(ARTHttpClient *)rest;
-
-/// See [iOS push notifications tutorial](https://ably.com/tutorials/ios-push-notifications#step7-register-push-ably) for details.
 + (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken realtime:(ARTRealtimeClient *)realtime;
-
-/// See [iOS push notifications tutorial](https://ably.com/tutorials/ios-push-notifications#step7-register-push-ably) for details.
-+ (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error rest:(ARTHttpClient *)rest;
 
 /// See [iOS push notifications tutorial](https://ably.com/tutorials/ios-push-notifications#step7-register-push-ably) for details.
 + (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error realtime:(ARTRealtimeClient *)realtime;
@@ -81,13 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
 // Location Push Registration token
 
 /// Registers location device token within Ably service. You obtain it by calling `CLLocationManager.startMonitoringLocationPushes(completion:)`.
-+ (void)didRegisterForLocationNotificationsWithDeviceToken:(NSData *)deviceToken rest:(ARTHttpClient *)rest;
-
-/// Registers location device token within Ably service. You obtain it by calling `CLLocationManager.startMonitoringLocationPushes(completion:)`.
 + (void)didRegisterForLocationNotificationsWithDeviceToken:(NSData *)deviceToken realtime:(ARTRealtimeClient *)realtime;
-
-/// Call this method if you got an error calling `CLLocationManager.startMonitoringLocationPushes(completion:)`.
-+ (void)didFailToRegisterForLocationNotificationsWithError:(NSError *)error rest:(ARTHttpClient *)rest;
 
 /// Call this method if you got an error calling `CLLocationManager.startMonitoringLocationPushes(completion:)`.
 + (void)didFailToRegisterForLocationNotificationsWithError:(NSError *)error realtime:(ARTRealtimeClient *)realtime;

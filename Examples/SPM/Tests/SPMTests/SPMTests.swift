@@ -4,7 +4,6 @@
     final class SPMTests: XCTestCase {
         func ablyInitTest() {
             let clientOptions = ARTClientOptions()
-            let _ = ARTHttpClient(options: clientOptions)
             let _ = ARTRealtimeClient(options: clientOptions)
         }
 

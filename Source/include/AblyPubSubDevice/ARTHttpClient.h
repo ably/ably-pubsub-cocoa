@@ -82,25 +82,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// :nodoc:
 - (instancetype)init NS_UNAVAILABLE;
 
-/**
- * Construct an `ARTHttpClient` object using an Ably `ARTClientOptions` object.
- *
- * @param options A `ARTClientOptions` object to configure the client connection to Ably.
- */
-- (instancetype)initWithOptions:(ARTClientOptions *)options;
-
-/**
- * Constructs a `ARTHttpClient` object using an Ably API key.
- * @param key The Ably API key used to validate the client.
- */
-- (instancetype)initWithKey:(NSString *)key;
-
-/**
- * Constructs a `ARTHttpClient` object using an Ably token string.
- * @param token The Ably token string used to validate the client.
- */
-- (instancetype)initWithToken:(NSString *)token;
-
 @end
 
 /**
@@ -123,15 +104,6 @@ NS_SWIFT_SENDABLE
  * An `ARTAuth` object.
  */
 @property (readonly) ARTAuth *auth;
-
-/// :nodoc:
-+ (instancetype)createWithOptions:(ARTClientOptions *)options NS_SWIFT_UNAVAILABLE("Use instance initializer instead");
-
-/// :nodoc:
-+ (instancetype)createWithKey:(NSString *)key NS_SWIFT_UNAVAILABLE("Use instance initializer instead");
-
-/// :nodoc:
-+ (instancetype)createWithToken:(NSString *)tokenId NS_SWIFT_UNAVAILABLE("Use instance initializer instead");
 
 @end
 

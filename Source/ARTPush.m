@@ -38,32 +38,16 @@
 
 #if TARGET_OS_IOS
 
-+ (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken rest:(ARTHttpClient *)rest; {
-    return [ARTPushInternal didRegisterForRemoteNotificationsWithDeviceToken:deviceToken rest:rest];
-}
-
 + (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken realtime:(ARTRealtimeClient *)realtime; {
     return [ARTPushInternal didRegisterForRemoteNotificationsWithDeviceToken:deviceToken realtime:realtime];
-}
-
-+ (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error rest:(ARTHttpClient *)rest; {
-    return [ARTPushInternal didFailToRegisterForRemoteNotificationsWithError:error rest:rest];
 }
 
 + (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error realtime:(ARTRealtimeClient *)realtime; {
     return [ARTPushInternal didFailToRegisterForRemoteNotificationsWithError:error realtime:realtime];
 }
 
-+ (void)didRegisterForLocationNotificationsWithDeviceToken:(NSData *)deviceToken rest:(ARTHttpClient *)rest; {
-    return [ARTPushInternal didRegisterForLocationNotificationsWithDeviceToken:deviceToken rest:rest];
-}
-
 + (void)didRegisterForLocationNotificationsWithDeviceToken:(NSData *)deviceToken realtime:(ARTRealtimeClient *)realtime; {
     return [ARTPushInternal didRegisterForLocationNotificationsWithDeviceToken:deviceToken realtime:realtime];
-}
-
-+ (void)didFailToRegisterForLocationNotificationsWithError:(NSError *)error rest:(ARTHttpClient *)rest; {
-    return [ARTPushInternal didFailToRegisterForLocationNotificationsWithError:error rest:rest];
 }
 
 + (void)didFailToRegisterForLocationNotificationsWithError:(NSError *)error realtime:(ARTRealtimeClient *)realtime; {

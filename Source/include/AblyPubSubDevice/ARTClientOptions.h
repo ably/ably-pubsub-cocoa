@@ -15,7 +15,7 @@ typedef NSString *ARTPluginName NS_TYPED_EXTENSIBLE_ENUM;
 extern const ARTPluginName ARTPluginNameLiveObjects;
 
 /**
- * Passes additional client-specific properties to the REST `-[ARTHttpClientProtocol initWithOptions:]` or the Realtime `-[ARTRealtimeProtocol initWithOptions:]`.
+ * Passes additional client-specific properties to the HTTP client or the Realtime `-[ARTRealtimeProtocol initWithOptions:]`.
  */
 @interface ARTClientOptions : ARTAuthOptions
 

@@ -118,7 +118,7 @@ class PushTests: XCTestCase {
             rest.push.activate()
 
             let error = NSError(domain: ARTAblyErrorDomain, code: 42, userInfo: nil)
-            ARTPush.didFailToRegisterForRemoteNotificationsWithError(error, rest: rest)
+            ARTPushInternal.didFailToRegisterForRemoteNotificationsWithError(error, rest: rest)
         }
     }
 
@@ -211,8 +211,8 @@ class PushTests: XCTestCase {
                     partialDone()
                 }
             }
-            ARTPush.didRegisterForRemoteNotifications(withDeviceToken: TestDeviceToken.tokenData, rest: rest)
-            ARTPush.didRegisterForLocationNotifications(withDeviceToken: TestLocationDeviceToken.tokenData, rest: rest)
+            ARTPushInternal.didRegisterForRemoteNotifications(withDeviceToken: TestDeviceToken.tokenData, rest: rest)
+            ARTPushInternal.didRegisterForLocationNotifications(withDeviceToken: TestLocationDeviceToken.tokenData, rest: rest)
         }
         let expectedDeviceTokenKey = "ARTAPNSDeviceToken-default" // ARTAPNSDeviceTokenKeyOfType(nil)
         expect(storage.keysWritten.keys).to(contain([expectedDeviceTokenKey]))
@@ -226,7 +226,7 @@ class PushTests: XCTestCase {
     // https://github.com/ably/ably-cocoa/issues/888
     func test__007__activation__should_not_sync_the_local_device_dispatched_in_internal_queue() {
         XCTAssertNil(tryInObjC {
-            ARTPush.didRegisterForRemoteNotifications(withDeviceToken: TestDeviceToken.tokenData, rest: rest)
+            ARTPushInternal.didRegisterForRemoteNotifications(withDeviceToken: TestDeviceToken.tokenData, rest: rest)
         })
     }
 
@@ -453,7 +453,7 @@ class PushTests: XCTestCase {
 
             rest.push.activate()
 
-            ARTPush.didRegisterForRemoteNotifications(withDeviceToken: "testDeviceToken".data(using: .utf8)!, rest: rest)
+            ARTPushInternal.didRegisterForRemoteNotifications(withDeviceToken: "testDeviceToken".data(using: .utf8)!, rest: rest)
         }
 
         XCTAssertEqual(rest.device.clientId, expectedClientId)
@@ -477,7 +477,7 @@ class PushTests: XCTestCase {
             }
             rest.internal.httpExecutor = MockHTTPExecutor()
             rest.push.activate()
-            ARTPush.didRegisterForRemoteNotifications(withDeviceToken: TestDeviceToken.tokenData, rest: rest)
+            ARTPushInternal.didRegisterForRemoteNotifications(withDeviceToken: TestDeviceToken.tokenData, rest: rest)
         }
     }
 
@@ -550,7 +550,7 @@ class PushTests: XCTestCase {
                 }
                 else if event is ARTPushActivationEventGotDeviceRegistration {
                     partialDone()
-                    ARTPush.didRegisterForRemoteNotifications(withDeviceToken: TestDeviceToken.tokenData, rest: rest)
+                    ARTPushInternal.didRegisterForRemoteNotifications(withDeviceToken: TestDeviceToken.tokenData, rest: rest)
                 }
                 else if event is ARTPushActivationEventRegistrationSynced {
                     stateMachine.transitions = nil
@@ -610,7 +610,7 @@ class PushTests: XCTestCase {
         defer { rest.device.setAndPersistAPNSDeviceToken(nil) }
 
         func requestLocationDeviceToken() {
-            ARTPush.didRegisterForLocationNotifications(withDeviceToken: TestLocationDeviceToken.tokenData, rest: rest)
+            ARTPushInternal.didRegisterForLocationNotifications(withDeviceToken: TestLocationDeviceToken.tokenData, rest: rest)
         }
 
         waitUntil(timeout: testTimeout) { done in

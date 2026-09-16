@@ -22,6 +22,22 @@ NSString *_Nonnull ARTAnnotationActionToStr(ARTAnnotationAction action);
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ This object is used for providing parameters into the annotations methods with paginated results.
+ */
+NS_SWIFT_SENDABLE
+@interface ARTAnnotationsQuery : NSObject
+
+/**
+ * An upper limit on the number of annotations returned.
+ */
+@property (nonatomic, readonly) NSUInteger limit;
+
+/// :nodoc:
+- (instancetype)initWithLimit:(NSUInteger)limit;
+
+@end
+
 NS_SWIFT_SENDABLE
 @interface ARTAnnotation : NSObject<NSCopying>
 

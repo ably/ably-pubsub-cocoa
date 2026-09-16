@@ -119,6 +119,17 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
 
 @end
 
+/// Constructs an HTTP client directly. Applications reach Ably through
+/// `+[ARTPubSubDevice createClientWithOptions:]`; these initializers are for the SDK and
+/// its tests.
+@interface ARTHttpClient (Construction)
+
+- (instancetype)initWithOptions:(ARTClientOptions *)options;
+- (instancetype)initWithKey:(NSString *)key;
+- (instancetype)initWithToken:(NSString *)token;
+
+@end
+
 @interface ARTHttpClient ()
 
 @property (nonatomic, readonly) ARTHttpClientInternal *internal;

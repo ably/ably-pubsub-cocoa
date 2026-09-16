@@ -5,7 +5,7 @@
 #import "ARTDataQuery+Private.h"
 #import "ARTPaginatedResult+Private.h"
 #import "ARTAuth+Private.h"
-#import "ARTHttp.h"
+#import "ARTHTTPExecutor.h"
 #import "ARTEncoder.h"
 #import "ARTJsonLikeEncoder.h"
 #import "ARTJsonEncoder.h"
@@ -13,7 +13,7 @@
 #import "ARTMessage.h"
 #import "ARTPresence.h"
 #import "ARTPresenceMessage.h"
-#import "ARTHttp.h"
+#import "ARTHTTPExecutor.h"
 #import "ARTClientOptions+Private.h"
 #import "ARTDefault.h"
 #import "ARTStats.h"
@@ -194,7 +194,7 @@ NS_ASSUME_NONNULL_END
                                                   logValues:_options.testOptions.logLocalDeviceStorageValues];
         }
 #endif
-        _http = [[ARTHttp alloc] initWithQueue:_queue logger:_logger];
+        _http = [[ARTHTTPExecutor alloc] initWithQueue:_queue logger:_logger];
         ARTLogVerbose(_logger, @"RS:%p %p alloc HTTP", self, _http);
         _httpExecutor = options.testOptions.httpExecutor ?: _http;
 

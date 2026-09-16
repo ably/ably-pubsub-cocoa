@@ -1,9 +1,9 @@
-#import "ARTHttp+Private.h"
+#import "ARTHTTPExecutor+Private.h"
 #import "ARTURLSessionServerTrust.h"
 #import "ARTConstants.h"
 #import "ARTInternalLog.h"
 
-@interface ARTHttp ()
+@interface ARTHTTPExecutor ()
 
 @property (readonly, nonatomic) id<ARTURLSession> urlSession;
 
@@ -11,9 +11,9 @@
 
 Class configuredUrlSessionClass = nil;
 
-#pragma mark - ARTHttp
+#pragma mark - ARTHTTPExecutor
 
-@implementation ARTHttp {
+@implementation ARTHTTPExecutor {
     ARTInternalLog *_logger;
 }
 

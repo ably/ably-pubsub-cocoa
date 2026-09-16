@@ -23,7 +23,7 @@ class SoakTest: XCTestCase {
     }
 
     func testSoak() {
-        ARTHttp.setURLSessionClass(SoakTestURLSession.self)
+        ARTHTTPExecutor.setURLSessionClass(SoakTestURLSession.self)
 
         let shouldStop = DispatchQueue(label: "io.ably.soakTest.shouldStop").syncValue(false)
 

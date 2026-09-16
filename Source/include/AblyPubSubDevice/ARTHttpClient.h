@@ -4,7 +4,7 @@
 #import <AblyPubSubDevice/ARTHttpChannels.h>
 #import <AblyPubSubDevice/ARTLocalDevice.h>
 
-@protocol ARTHTTPExecutor;
+@protocol ARTHTTPExecuting;
 
 @class ARTHttpChannels;
 @class ARTClientOptions;

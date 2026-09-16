@@ -195,7 +195,7 @@ Test/UTS/
 │   │   │                                #     awaitConnectionState/awaitChannelState/poll, advanceTime
 │   │   │                                #     (≈ Kotlin's infra/unit/ClientFactories.kt)
 │   │   ├── MockWebSocket.swift          #     MockWebSocketProvider + MockWebSocket + the two factories
-│   │   ├── MockHTTPClient.swift         #     fake ARTHTTPExecutor + PendingHTTPConnection/Request
+│   │   ├── MockHTTPClient.swift         #     fake ARTHTTPExecuting + PendingHTTPConnection/Request
 │   │   ├── MockTimeProvider.swift       #     virtual clock + virtual timers (deterministic time)
 │   │   ├── ProtocolMessage.swift        #     Sendable server-message factories (.connected/.attached/…)
 │   │   ├── Captured.swift               #     thread-safe captured_* collector (Swift 6 safe)
@@ -247,7 +247,7 @@ the cocoa analogue of ably-java's `DebugOptions`):
 | Seam | Type | Mock installed there |
 |------|------|----------------------|
 | `testOptions.transportFactory` | `RealtimeTransportFactory` | `MockWebSocketTransportFactory` (→ `MockWebSocket`) |
-| `testOptions.httpExecutor` | `ARTHTTPExecutor` | `MockHTTPClient` |
+| `testOptions.httpExecutor` | `ARTHTTPExecuting` | `MockHTTPClient` |
 | `testOptions.timeProvider` | `ARTTimeProvider` | `MockTimeProvider` |
 | `testOptions.reachabilityClass` | `ARTReachability` class | `NoOpReachability` |
 | `options.logHandler` | `ARTLog` | `CapturingLog` (when a test asserts on log output) |
@@ -338,7 +338,7 @@ real `ARTSRWebSocket` contract.
 
 ### 6.3 `MockHTTPClient.swift` — the fake REST transport
 
-A fake `ARTHTTPExecutor` mirroring the spec's `mock_http.md`. The cocoa HTTP seam is
+A fake `ARTHTTPExecuting` mirroring the spec's `mock_http.md`. The cocoa HTTP seam is
 **request-level** (`execute(_:completion:)`), so each request is a standalone two-phase attempt:
 
 1. **Connection phase** — `onConnectionAttempt` receives a `PendingHTTPConnection` (`host`, `port`,
@@ -1034,7 +1034,7 @@ non-compliant → gate the spec-correct assertion behind `RUN_DEVIATIONS` and re
 |------|--------------------|------|
 | `infra/unit/UTSTestCase.swift` | `installMock(_:)` ×2, `makeRealtime { }`, `makeRest { }`, `awaitConnectionState`, `awaitChannelState`, `poll`, `enableFakeTimers`, `advanceTime(byMilliseconds:)`, `closeClient`, `defaultAwaitTimeout` (2 s) | Base class for every UTS suite; seeds the dummy key; wires all seams; `deinit` closes clients + cancels leaked timers. |
 | `infra/unit/MockWebSocket.swift` | `MockWebSocketProvider` (`onConnectionAttempt`, `activeConnection`); `MockWebSocket` (`respondWithSuccess`/`respondWithSuccess(_:)`, `sendToClient`, `sendToClientAndClose`, `respondWithRefused`, `simulateDisconnect`, `request`/`url`/`queryParams`, `sentMessages`); `MockWebSocketFactory`; `MockWebSocketTransportFactory` | Fake realtime transport (handler style). Real `ARTWebSocketTransport` on top → production URL building exercised. Close codes: 1000 closed / 1001 disconnected / 1003 refused. |
-| `infra/unit/MockHTTPClient.swift` | `MockHTTPClient(onConnectionAttempt:onRequest:)`; `PendingHTTPConnection` (`host`/`port`/`tls`/`queryParams`, `respondWithSuccess/Refused/Timeout/DNSError`); `PendingHTTPRequest` (`url`, `method`, `headers`, `body`, `queryParams`, `respondWith(status:body:headers:)`, `respondWithDelay(_:status:body:)`, `respondWithTimeout`) | Fake REST transport (`ARTHTTPExecutor`); two-phase connect→request per call. |
+| `infra/unit/MockHTTPClient.swift` | `MockHTTPClient(onConnectionAttempt:onRequest:)`; `PendingHTTPConnection` (`host`/`port`/`tls`/`queryParams`, `respondWithSuccess/Refused/Timeout/DNSError`); `PendingHTTPRequest` (`url`, `method`, `headers`, `body`, `queryParams`, `respondWith(status:body:headers:)`, `respondWithDelay(_:status:body:)`, `respondWithTimeout`) | Fake REST transport (`ARTHTTPExecuting`); two-phase connect→request per call. |
 | `infra/unit/MockTimeProvider.swift` | `init(initialWallClockMilliseconds:)`, `advanceTime(byMilliseconds:)`, `pendingScheduledCount`, `cancelAllScheduled()`; implements `wallClockNow`, `continuousClockNow`, `schedule(after:queue:block:)` | Virtual clocks + recorded timers; `advanceTime` drains SDK queues, fires due blocks, and settles cascades. |
 | `infra/unit/ProtocolMessage.swift` | `.connected(…)`, `.attached(…)`, `.error(…)`, `.ack(…)`, `.closed()`; `.connectedMessage` (default CONNECTED); `makeProtocolMessage()` | `Sendable` server→client message descriptions, materialised at delivery time. |
 | `infra/unit/Captured.swift` | `append`, `all`, `count`, `first`, subscript | Thread-safe local collector for the spec's `captured_*` pattern (Swift 6 race-free). |

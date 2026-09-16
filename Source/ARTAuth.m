@@ -5,7 +5,7 @@
 #endif
 
 #import "ARTHttpClient+Private.h"
-#import "ARTHttp.h"
+#import "ARTHTTPExecutor.h"
 #import "ARTClientOptions.h"
 #import "ARTAuthOptions.h"
 #import "ARTTokenDetails.h"

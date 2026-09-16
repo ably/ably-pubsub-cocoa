@@ -1,10 +1,10 @@
 #import <AblyPubSubDevice/ARTHttpClient.h>
-#import "ARTHttp.h"
+#import "ARTHTTPExecutor.h"
 #import "ARTHttpChannels+Private.h"
 #import "ARTPush+Private.h"
 
 @protocol ARTEncoder;
-@protocol ARTHTTPExecutor;
+@protocol ARTHTTPExecuting;
 @protocol ARTDeviceStorage;
 @class ARTInternalLog;
 @class ARTRealtimeInternal;
@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 // Must be atomic!
 @property (readwrite, atomic, nullable) NSString *prioritizedHost;
 
-@property (nonatomic) id<ARTHTTPExecutor> httpExecutor;
+@property (nonatomic) id<ARTHTTPExecuting> httpExecutor;
 @property (nonatomic, readonly, getter=getBaseUrl) NSURL *baseUrl;
 @property (nullable, nonatomic, copy) NSString *currentFallbackHost;
 @property (nullable, readonly, nonatomic) id<ARTContinuousClockInstant> fallbackRetryExpiration;
@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) ARTInternalLog *logger_onlyForUseInClassMethodsAndTests;
 
 // MARK: Not accessible by tests
-@property (readonly, nonatomic) ARTHttp *http;
+@property (readonly, nonatomic) ARTHTTPExecutor *http;
 @property (readwrite, nonatomic) int fallbackCount;
 
 - (instancetype)initWithOptions:(ARTClientOptions *)options realtime:(ARTRealtimeInternal *_Nullable)realtime logger:(ARTInternalLog *)logger;
@@ -72,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSObject<ARTCancellable> *)_timeWithWrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
                                                       completion:(ARTDateTimeCallback)callback;
 
-// MARK: ARTHTTPExecutor
+// MARK: ARTHTTPExecuting
 
 - (nullable NSObject<ARTCancellable> *)executeRequest:(NSURLRequest *)request
                                      wrapperSDKAgents:(nullable NSDictionary<NSString *, NSString *> *)wrapperSDKAgents

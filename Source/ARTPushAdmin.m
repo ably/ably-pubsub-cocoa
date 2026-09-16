@@ -1,5 +1,5 @@
 #import "ARTPushAdmin.h"
-#import "ARTHttp.h"
+#import "ARTHTTPExecutor.h"
 #import "ARTHttpClient+Private.h"
 #import "ARTPushDeviceRegistrations+Private.h"
 #import "ARTPushChannelSubscriptions+Private.h"

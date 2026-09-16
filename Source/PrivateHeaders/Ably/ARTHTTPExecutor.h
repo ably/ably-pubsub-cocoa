@@ -10,14 +10,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol ARTHTTPExecutor
+@protocol ARTHTTPExecuting
 
 - (nullable NSObject<ARTCancellable> *)executeRequest:(NSURLRequest *)request
                                            completion:(nullable ARTURLRequestCallback)callback;
 
 @end
 
-@interface ARTHttp : NSObject<ARTHTTPExecutor>
+@interface ARTHTTPExecutor : NSObject<ARTHTTPExecuting>
 
 + (void)setURLSessionClass:(Class)urlSessionClass;
 

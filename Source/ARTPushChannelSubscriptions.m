@@ -1,5 +1,5 @@
 #import "ARTPushChannelSubscriptions+Private.h"
-#import "ARTHttp.h"
+#import "ARTHTTPExecutor.h"
 #import "ARTPaginatedResult+Private.h"
 #import "ARTPushChannelSubscription.h"
 #import "ARTClientOptions.h"

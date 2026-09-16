@@ -7,7 +7,7 @@
 #import "ARTInternalLog.h"
 #import "ARTHttpClient+Private.h"
 #import "ARTAuth+Private.h"
-#import "ARTHttp.h"
+#import "ARTHTTPExecutor.h"
 #import "ARTTypes+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN

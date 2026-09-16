@@ -22,7 +22,7 @@
 #import "ARTNSDictionary+ARTDictionaryUtil.h"
 #import "ARTNSDate+ARTUtil.h"
 #import "ARTInternalLog.h"
-#import "ARTHttp.h"
+#import "ARTHTTPExecutor.h"
 #import "ARTStatus.h"
 #import "ARTTokenDetails.h"
 #import "ARTTokenRequest.h"

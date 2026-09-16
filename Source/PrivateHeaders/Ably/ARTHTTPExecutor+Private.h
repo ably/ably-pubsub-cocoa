@@ -1,8 +1,8 @@
-#import "ARTHttp.h"
+#import "ARTHTTPExecutor.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ARTHttp (Private)
+@interface ARTHTTPExecutor (Private)
 
 @property (readonly) dispatch_queue_t queue;
 

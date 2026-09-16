@@ -2,7 +2,7 @@ import Foundation
 import AblyPubSubDevice
 import AblyPubSubDevice.Private
 
-/// The UTS `MockHttpClient` — a fake `ARTHTTPExecutor` that intercepts the SDK's outgoing HTTP
+/// The UTS `MockHttpClient` — a fake `ARTHTTPExecuting` that intercepts the SDK's outgoing HTTP
 /// requests so tests can observe them and inject responses, with no real network. Installed via
 /// `rest.internal.httpExecutor` (the cocoa mapping of the spec's `install_mock`).
 ///
@@ -10,7 +10,7 @@ import AblyPubSubDevice.Private
 /// (`executeRequest:completion:`), so each `execute(_:)` is a standalone attempt: `onConnectionAttempt`
 /// is consulted first (its `respond_with_refused`/`timeout`/`dns_error` fail the request with the
 /// corresponding `NSError`), and unless the connection failed, the request is delivered to `onRequest`.
-final class MockHTTPClient: NSObject, ARTHTTPExecutor, Sendable {
+final class MockHTTPClient: NSObject, ARTHTTPExecuting, Sendable {
     /// Returns the error the connection should fail with, or `nil` if it succeeds.
     typealias ConnectionHandler = @Sendable (PendingHTTPConnection) -> NSError?
     typealias RequestHandler = @Sendable (PendingHTTPRequest) -> Void
@@ -24,7 +24,7 @@ final class MockHTTPClient: NSObject, ARTHTTPExecutor, Sendable {
         super.init()
     }
 
-    // MARK: ARTHTTPExecutor
+    // MARK: ARTHTTPExecuting
 
     func execute(_ request: URLRequest, completion callback: ((HTTPURLResponse?, Data?, Error?) -> Void)? = nil) -> (ARTCancellable & NSObjectProtocol)? {
         // Connection phase — fail the request if the connection handler rejects it.

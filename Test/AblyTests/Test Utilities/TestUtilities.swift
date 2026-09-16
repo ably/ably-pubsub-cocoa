@@ -901,7 +901,7 @@ enum FakeNetworkResponse {
     }
 }
 
-class MockHTTP: ARTHttp {
+class MockHTTP: ARTHTTPExecutor {
 
     enum Rule {
         case host(name: String)
@@ -1079,7 +1079,7 @@ extension [String: Any] {
     }
 }
 
-class MockHTTPExecutor: NSObject, ARTHTTPExecutor {
+class MockHTTPExecutor: NSObject, ARTHTTPExecuting {
 
     fileprivate var errorSimulator: NSError?
     private var successResponseData: (data: Data?, contentType: String)?
@@ -1132,11 +1132,11 @@ class MockHTTPExecutor: NSObject, ARTHTTPExecutor {
 }
 
 /// Records each request and response for test purpose.
-class TestProxyHTTPExecutor: NSObject, ARTHTTPExecutor {
+class TestProxyHTTPExecutor: NSObject, ARTHTTPExecuting {
 
     typealias HTTPExecutorCallback = (HTTPURLResponse?, Data?, Error?) -> Void
 
-    private(set) var http: ARTHttp
+    private(set) var http: ARTHTTPExecutor
     private(set) var logger: InternalLog
 
     private var errorSimulator: ErrorSimulator?
@@ -1165,15 +1165,15 @@ class TestProxyHTTPExecutor: NSObject, ARTHTTPExecutor {
 
     init(logger: InternalLog) {
         self.logger = logger
-        self.http = ARTHttp(queue: AblyTests.queue, logger: logger)
+        self.http = ARTHTTPExecutor(queue: AblyTests.queue, logger: logger)
     }
 
-    init(http: ARTHttp, logger: InternalLog) {
+    init(http: ARTHTTPExecutor, logger: InternalLog) {
         self.logger = logger
         self.http = http
     }
 
-    public func setHTTP(http: ARTHttp) {
+    public func setHTTP(http: ARTHTTPExecutor) {
         self.http.queue.async {
             self.http = http
         }

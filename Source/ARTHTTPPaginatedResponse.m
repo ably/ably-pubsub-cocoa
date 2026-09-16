@@ -1,7 +1,7 @@
 #import "ARTHTTPPaginatedResponse+Private.h"
 #import "ARTPaginatedResult+Subclass.h"
 
-#import "ARTHttp.h"
+#import "ARTHTTPExecutor.h"
 #import "ARTAuth.h"
 #import "ARTHttpClient+Private.h"
 #import "ARTPaginatedResult+Private.h"

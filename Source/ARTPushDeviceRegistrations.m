@@ -1,5 +1,5 @@
 #import "ARTPushDeviceRegistrations+Private.h"
-#import "ARTHttp.h"
+#import "ARTHTTPExecutor.h"
 #import "ARTInternalLog.h"
 #import "ARTPaginatedResult+Private.h"
 #import "ARTDeviceDetails.h"

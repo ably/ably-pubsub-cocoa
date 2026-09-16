@@ -1,5 +1,5 @@
 #import "ARTPushChannel+Private.h"
-#import "ARTHttp.h"
+#import "ARTHTTPExecutor.h"
 #import "ARTInternalLog.h"
 #import "ARTJsonLikeEncoder.h"
 #import "ARTHttpClient+Private.h"

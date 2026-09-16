@@ -3,7 +3,7 @@
 @protocol ARTRealtimeTransportFactory;
 @protocol ARTJitterCoefficientGenerator;
 @protocol ARTTimeProvider;
-@protocol ARTHTTPExecutor;
+@protocol ARTHTTPExecuting;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -56,9 +56,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) Class reachabilityClass;
 
 /**
- An `ARTHTTPExecutor` that `ARTHttpClientInternal` uses for all of its HTTP requests instead of creating its own. Tests install a mock here so that requests are intercepted rather than sent over the network. When `nil` (the initial value), the rest client creates its own `ARTHttp`.
+ An `ARTHTTPExecuting` that `ARTHttpClientInternal` uses for all of its HTTP requests instead of creating its own. Tests install a mock here so that requests are intercepted rather than sent over the network. When `nil` (the initial value), the rest client creates its own `ARTHTTPExecutor`.
  */
-@property (nullable, nonatomic) id<ARTHTTPExecutor> httpExecutor;
+@property (nullable, nonatomic) id<ARTHTTPExecuting> httpExecutor;
 
 /**
  When `YES`, `ARTLocalDeviceStorage` log lines include the fetched or

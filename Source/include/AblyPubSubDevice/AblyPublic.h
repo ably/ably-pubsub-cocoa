@@ -5,7 +5,7 @@
 #import <AblyPubSubDevice/ARTAuthDetails.h>
 #import <AblyPubSubDevice/ARTConnection.h>
 #import <AblyPubSubDevice/ARTBaseMessage.h>
-#import <AblyPubSubDevice/ARTRestChannels.h>
+#import <AblyPubSubDevice/ARTHttpChannels.h>
 #import <AblyPubSubDevice/ARTChannelOptions.h>
 #import <AblyPubSubDevice/ARTTokenDetails.h>
 #import <AblyPubSubDevice/ARTTokenRequest.h>
@@ -18,10 +18,10 @@
 #import <AblyPubSubDevice/ARTMessage.h>
 #import <AblyPubSubDevice/ARTPresence.h>
 #import <AblyPubSubDevice/ARTPresenceMessage.h>
-#import <AblyPubSubDevice/ARTRest.h>
-#import <AblyPubSubDevice/ARTRestChannel.h>
-#import <AblyPubSubDevice/ARTRestPresence.h>
-#import <AblyPubSubDevice/ARTRestAnnotations.h>
+#import <AblyPubSubDevice/ARTHttpClient.h>
+#import <AblyPubSubDevice/ARTHttpChannel.h>
+#import <AblyPubSubDevice/ARTHttpPresence.h>
+#import <AblyPubSubDevice/ARTHttpAnnotations.h>
 #import <AblyPubSubDevice/ARTRealtime.h>
 #import <AblyPubSubDevice/ARTPubSubDevice.h>
 #import <AblyPubSubDevice/ARTRealtimeChannel.h>

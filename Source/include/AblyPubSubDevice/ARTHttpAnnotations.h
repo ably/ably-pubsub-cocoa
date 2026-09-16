@@ -2,12 +2,12 @@
 #import <AblyPubSubDevice/ARTDataQuery.h>
 #import <AblyPubSubDevice/ARTPaginatedResult.h>
 
-@class ARTRestChannel, ARTAnnotation, ARTOutboundAnnotation, ARTMessage, ARTErrorInfo;
+@class ARTHttpChannel, ARTAnnotation, ARTOutboundAnnotation, ARTMessage, ARTErrorInfo;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- This object is used for providing parameters into `ARTRestAnnotations`'s methods with paginated results.
+ This object is used for providing parameters into `ARTHttpAnnotations`'s methods with paginated results.
  */
 NS_SWIFT_SENDABLE
 @interface ARTAnnotationsQuery : NSObject
@@ -23,9 +23,9 @@ NS_SWIFT_SENDABLE
 @end
 
 /**
- The protocol upon which the `ARTRestAnnotations` is implemented.
+ The protocol upon which the `ARTHttpAnnotations` is implemented.
  */
-@protocol ARTRestAnnotationsProtocol
+@protocol ARTHttpAnnotationsProtocol
 
 /**
  * Publish a new annotation for a message.
@@ -86,10 +86,10 @@ NS_SWIFT_SENDABLE
 /**
  * Functionality for annotating messages with small pieces of data, such as emoji reactions, that the server will roll up into the message as a summary.
  *
- * @see See `ARTRestAnnotationsProtocol` for details.
+ * @see See `ARTHttpAnnotationsProtocol` for details.
  */
 NS_SWIFT_SENDABLE
-@interface ARTRestAnnotations : NSObject <ARTRestAnnotationsProtocol>
+@interface ARTHttpAnnotations : NSObject <ARTHttpAnnotationsProtocol>
 @end
 
 NS_ASSUME_NONNULL_END

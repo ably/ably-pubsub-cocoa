@@ -3,12 +3,12 @@
 #import <AblyPubSubDevice/ARTPresence.h>
 #import <AblyPubSubDevice/ARTDataQuery.h>
 
-@class ARTRestChannel;
+@class ARTHttpChannel;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- This object is used for providing parameters into `ARTRestPresence`'s methods with paginated results.
+ This object is used for providing parameters into `ARTHttpPresence`'s methods with paginated results.
  */
 @interface ARTPresenceQuery : NSObject
 
@@ -39,9 +39,9 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /**
- The protocol upon which the `ARTRestPresence` is implemented.
+ The protocol upon which the `ARTHttpPresence` is implemented.
  */
-@protocol ARTRestPresenceProtocol
+@protocol ARTHttpPresenceProtocol
 
 /// :nodoc: TODO: docstring
 - (void)get:(ARTPaginatedPresenceCallback)callback;
@@ -78,10 +78,10 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Enables the retrieval of the current and historic presence set for a channel.
  *
- * @see See `ARTRestPresenceProtocol` for details.
+ * @see See `ARTHttpPresenceProtocol` for details.
  */
 NS_SWIFT_SENDABLE
-@interface ARTRestPresence : ARTPresence <ARTRestPresenceProtocol>
+@interface ARTHttpPresence : ARTPresence <ARTHttpPresenceProtocol>
 @end
 
 NS_ASSUME_NONNULL_END

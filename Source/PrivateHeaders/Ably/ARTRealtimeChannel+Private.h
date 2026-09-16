@@ -4,7 +4,7 @@
 //
 
 #import "ARTChannel.h"
-#import "ARTRestChannel+Private.h"
+#import "ARTHttpChannel+Private.h"
 #import <AblyPubSubDevice/ARTRealtimeChannel.h>
 #import <AblyPubSubDevice/ARTEventEmitter.h>
 #import "ARTMessageSendStatus.h"
@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isAnnotationSubscribeGranted;
 
 @property (readonly, weak, nonatomic) ARTRealtimeInternal *realtime; // weak because realtime owns self
-@property (readonly, nonatomic) ARTRestChannelInternal *restChannel;
+@property (readonly, nonatomic) ARTHttpChannelInternal *restChannel;
 @property (readwrite, nonatomic, nullable) NSString *attachSerial;
 @property (readwrite, nonatomic, nullable) NSString *channelSerial; // CP2b
 @property (readonly, nullable, getter=getClientId) NSString *clientId;

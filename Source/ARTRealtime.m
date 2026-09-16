@@ -9,7 +9,7 @@
 #import "ARTRealtimeChannel+Private.h"
 #import "ARTStatus.h"
 #import "ARTDefault.h"
-#import "ARTRest+Private.h"
+#import "ARTHttpClient+Private.h"
 #import "ARTAuth+Private.h"
 #import "ARTTokenDetails.h"
 #import "ARTMessage.h"
@@ -250,7 +250,7 @@ typedef NS_ENUM(NSUInteger, ARTNetworkState) {
 
         _logger = [[ARTInternalLog alloc] initWithClientOptions:options];
         _timeProvider = options.testOptions.timeProvider;
-        _rest = [[ARTRestInternal alloc] initWithOptions:options realtime:self logger:_logger];
+        _rest = [[ARTHttpClientInternal alloc] initWithOptions:options realtime:self logger:_logger];
         _userQueue = _rest.userQueue;
         _queue = _rest.queue;
         _internalEventEmitter = [[ARTInternalEventEmitter alloc] initWithQueue:_rest.queue timeProvider:_timeProvider];

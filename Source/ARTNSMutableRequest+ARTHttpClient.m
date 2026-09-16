@@ -1,8 +1,8 @@
-#import "ARTNSMutableRequest+ARTRest.h"
+#import "ARTNSMutableRequest+ARTHttpClient.h"
 
 #import "ARTEncoder.h"
 
-@implementation NSMutableURLRequest (ARTRest)
+@implementation NSMutableURLRequest (ARTHttpClient)
 
 - (void)setAcceptHeader:(id<ARTEncoder>)defaultEncoder encoders:(NSDictionary<NSString *, id<ARTEncoder>> *)encoders {
     NSMutableArray *allEncoders = [NSMutableArray arrayWithArray:[encoders.allValues valueForKeyPath:@"mimeType"]];

@@ -33,12 +33,12 @@ final class AuthReauthTests: ProxyTestCase {
             // SDK config: Use authCallback so re-authentication can be observed.
             // Generate a JWT token signed with the sandbox key
             // (cocoa equivalent: a TokenRequest signed locally with the sandbox key by a separate
-            // TLS "token signer" ARTRest — the proxyClientOptions pattern, inlined here so the
+            // TLS "token signer" ARTHttpClient — the proxyClientOptions pattern, inlined here so the
             // test can count the authCallback invocations itself)
             let authCallbackInvocations = Captured<ARTTokenParams>()
             let signerOptions = ARTClientOptions(key: app.defaultKey)
             signerOptions.restHost = SandboxApp.sandboxHost
-            let tokenSigner = ARTRest(options: signerOptions)
+            let tokenSigner = ARTHttpClient(options: signerOptions)
 
             let options = ARTClientOptions()
             options.authCallback = { params, callback in

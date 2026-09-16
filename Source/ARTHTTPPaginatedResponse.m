@@ -3,7 +3,7 @@
 
 #import "ARTHttp.h"
 #import "ARTAuth.h"
-#import "ARTRest+Private.h"
+#import "ARTHttpClient+Private.h"
 #import "ARTPaginatedResult+Private.h"
 #import "ARTNSMutableURLRequest+ARTPaginated.h"
 #import "ARTNSHTTPURLResponse+ARTPaginated.h"
@@ -16,7 +16,7 @@
 
 - (instancetype)initWithResponse:(NSHTTPURLResponse *)response
                            items:(NSArray *)items
-                            rest:(ARTRestInternal *)rest
+                            rest:(ARTHttpClientInternal *)rest
                         relFirst:(NSMutableURLRequest *)relFirst
                       relCurrent:(NSMutableURLRequest *)relCurrent
                          relNext:(NSMutableURLRequest *)relNext
@@ -86,7 +86,7 @@
     [self.class executePaginated:self.rest withRequest:self.relNext wrapperSDKAgents:self.wrapperSDKAgents logger:self.logger callback:callback];
 }
 
-+ (void)executePaginated:(ARTRestInternal *)rest
++ (void)executePaginated:(ARTHttpClientInternal *)rest
              withRequest:(NSMutableURLRequest *)request
         wrapperSDKAgents:(nullable NSDictionary<NSString *, NSString *> *)wrapperSDKAgents
                   logger:(ARTInternalLog *)logger

@@ -7,7 +7,7 @@
 #import "ARTDeviceIdentityTokenDetails.h"
 #import "ARTClientOptions.h"
 #import "ARTEncoder.h"
-#import "ARTRest+Private.h"
+#import "ARTHttpClient+Private.h"
 #import "ARTLocalDevice.h"
 #import "ARTNSMutableRequest+ARTPush.h"
 #import "ARTGCD.h"
@@ -48,13 +48,13 @@
 @end
 
 @implementation ARTPushDeviceRegistrationsInternal {
-    __weak ARTRestInternal *_rest; // weak because rest owns self
+    __weak ARTHttpClientInternal *_rest; // weak because rest owns self
     ARTInternalLog *_logger;
     dispatch_queue_t _queue;
     dispatch_queue_t _userQueue;
 }
 
-- (instancetype)initWithRest:(ARTRestInternal *)rest logger:(ARTInternalLog *)logger {
+- (instancetype)initWithRest:(ARTHttpClientInternal *)rest logger:(ARTInternalLog *)logger {
     if (self = [super init]) {
         _rest = rest;
         _logger = logger;

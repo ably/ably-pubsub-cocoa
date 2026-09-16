@@ -25,14 +25,14 @@ final class PresenceTests: IntegrationTestCase {
             let options = ARTClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
 
             let channel = client.channels.get("persisted:presence_fixtures")
             // ASSERT presence IS NOT null
-            // (satisfied by the type system: ARTRestChannel.presence is a non-optional property)
-            let presence: ARTRestPresence = channel.presence
+            // (satisfied by the type system: ARTHttpChannel.presence is a non-optional property)
+            let presence: ARTHttpPresence = channel.presence
             // ASSERT presence IS RestPresence
-            #expect((presence as Any) is ARTRestPresence)
+            #expect((presence as Any) is ARTHttpPresence)
         }
     }
 
@@ -44,7 +44,7 @@ final class PresenceTests: IntegrationTestCase {
             let options = ARTClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
 
             let channel = client.channels.get("persisted:presence_fixtures")
             // ASSERT result IS PaginatedResult
@@ -69,7 +69,7 @@ final class PresenceTests: IntegrationTestCase {
             let options = ARTClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
 
             let channel = client.channels.get("persisted:presence_fixtures")
             let result = try #require(await self.presenceGet(channel.presence))
@@ -96,7 +96,7 @@ final class PresenceTests: IntegrationTestCase {
             let options = ARTClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
 
             let channel = client.channels.get("persisted:presence_fixtures")
 
@@ -121,7 +121,7 @@ final class PresenceTests: IntegrationTestCase {
             let options = ARTClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
 
             let channel = client.channels.get("persisted:presence_fixtures")
             let query = ARTPresenceQuery()
@@ -144,7 +144,7 @@ final class PresenceTests: IntegrationTestCase {
             let options = ARTClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
 
             // Use a unique channel name that has no presence members
             let channelName = "presence-empty-\(UUID().uuidString)"
@@ -167,7 +167,7 @@ final class PresenceTests: IntegrationTestCase {
             let options = ARTClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
 
             let channelName = "presence-history-\(UUID().uuidString)"
 
@@ -216,7 +216,7 @@ final class PresenceTests: IntegrationTestCase {
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
             options.clientId = "test-client"
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
 
             let channelName = "presence-history-time-\(UUID().uuidString)"
 
@@ -269,7 +269,7 @@ final class PresenceTests: IntegrationTestCase {
             let options = ARTClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
 
             let channelName = "presence-direction-\(UUID().uuidString)"
 
@@ -321,7 +321,7 @@ final class PresenceTests: IntegrationTestCase {
             let options = ARTClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
 
             let channelName = "presence-limit-\(UUID().uuidString)"
 
@@ -372,7 +372,7 @@ final class PresenceTests: IntegrationTestCase {
             let options = ARTClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
 
             let channel = client.channels.get("persisted:presence_fixtures")
             let query = ARTPresenceQuery()
@@ -394,7 +394,7 @@ final class PresenceTests: IntegrationTestCase {
             let options = ARTClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
 
             let channel = client.channels.get("persisted:presence_fixtures")
             let query = ARTPresenceQuery()
@@ -416,7 +416,7 @@ final class PresenceTests: IntegrationTestCase {
             let options = ARTClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
 
             let cipherKey = try #require(Data(base64Encoded: "WUP6u0K7MXI5Zeo0VppPwg=="))
 
@@ -445,7 +445,7 @@ final class PresenceTests: IntegrationTestCase {
             let options = ARTClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
 
             let channelName = "presence-decode-history-\(UUID().uuidString)"
 
@@ -487,7 +487,7 @@ final class PresenceTests: IntegrationTestCase {
             let options = ARTClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
 
             // The fixture channel has multiple members
             let channel = client.channels.get("persisted:presence_fixtures")
@@ -524,7 +524,7 @@ final class PresenceTests: IntegrationTestCase {
             let options = ARTClientOptions(key: "invalid.key:secret")
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
 
             // AWAIT client.channels.get("test").presence.get() FAILS WITH error
             let error = try #require(await self.presenceGetError(client.channels.get("test").presence))
@@ -545,7 +545,7 @@ final class PresenceTests: IntegrationTestCase {
             let options = ARTClientOptions(key: restrictedKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
 
             // This should work - subscribe capability is sufficient for presence.get
             // ASSERT result IS NOT null (the #require covers it)
@@ -558,7 +558,7 @@ extension PresenceTests {
     /// Awaits `presence.get()` (the spec's `result = AWAIT channel.presence.get()`), returning the
     /// paginated result — or nil, after recording an issue, on failure (tests unwrap with
     /// `try #require`).
-    private func presenceGet(_ presence: ARTRestPresence,
+    private func presenceGet(_ presence: ARTHttpPresence,
                              sourceLocation: SourceLocation = #_sourceLocation) async -> ARTPaginatedResult<ARTPresenceMessage>? {
         let (result, failure): (ARTPaginatedResult<ARTPresenceMessage>?, String?) = await withCheckedContinuation { continuation in
             presence.get { result, error in
@@ -575,7 +575,7 @@ extension PresenceTests {
 
     /// Awaits `presence.get(query)` (the spec's `AWAIT channel.presence.get(limit:/clientId:)`),
     /// returning the paginated result — or nil, after recording an issue, on failure.
-    private func presenceGet(_ presence: ARTRestPresence,
+    private func presenceGet(_ presence: ARTHttpPresence,
                              query: ARTPresenceQuery,
                              sourceLocation: SourceLocation = #_sourceLocation) async -> ARTPaginatedResult<ARTPresenceMessage>? {
         let (result, failure): (ARTPaginatedResult<ARTPresenceMessage>?, String?) = await withCheckedContinuation { continuation in
@@ -598,7 +598,7 @@ extension PresenceTests {
     /// Awaits `presence.get()` expecting it to fail (the spec's `AWAIT presence.get() FAILS WITH
     /// error`), returning the error — or nil, after recording an issue, if it unexpectedly
     /// succeeded (tests unwrap with `try #require`).
-    private func presenceGetError(_ presence: ARTRestPresence,
+    private func presenceGetError(_ presence: ARTHttpPresence,
                                   sourceLocation: SourceLocation = #_sourceLocation) async -> ARTErrorInfo? {
         let error: ARTErrorInfo? = await withCheckedContinuation { continuation in
             presence.get { _, error in
@@ -615,7 +615,7 @@ extension PresenceTests {
 
     /// Awaits `presence.history()` (the spec's `result = AWAIT rest_channel.presence.history()`),
     /// returning the paginated result — or nil, after recording an issue, on failure.
-    private func presenceHistory(_ presence: ARTRestPresence,
+    private func presenceHistory(_ presence: ARTHttpPresence,
                                  sourceLocation: SourceLocation = #_sourceLocation) async -> ARTPaginatedResult<ARTPresenceMessage>? {
         let (result, failure): (ARTPaginatedResult<ARTPresenceMessage>?, String?) = await withCheckedContinuation { continuation in
             presence.history { result, error in
@@ -633,7 +633,7 @@ extension PresenceTests {
     /// Fetches presence history (default query), propagating any `presence.history()` error so it
     /// aborts the enclosing `pollUntil` and surfaces the real failure (plain `poll_until`
     /// semantics; js/java do the same).
-    private func presenceHistoryPage(_ presence: ARTRestPresence) async throws -> ARTPaginatedResult<ARTPresenceMessage> {
+    private func presenceHistoryPage(_ presence: ARTHttpPresence) async throws -> ARTPaginatedResult<ARTPresenceMessage> {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<ARTPaginatedResult<ARTPresenceMessage>, Error>) in
             presence.history { result, error in
                 if let error {
@@ -649,7 +649,7 @@ extension PresenceTests {
 
     /// Awaits `presence.history(query)` (the spec's `AWAIT presence.history(start:/direction:/limit:)`),
     /// returning the paginated result — or nil, after recording an issue, on failure.
-    private func presenceHistory(_ presence: ARTRestPresence,
+    private func presenceHistory(_ presence: ARTHttpPresence,
                                  query: ARTDataQuery,
                                  sourceLocation: SourceLocation = #_sourceLocation) async -> ARTPaginatedResult<ARTPresenceMessage>? {
         let (result, failure): (ARTPaginatedResult<ARTPresenceMessage>?, String?) = await withCheckedContinuation { continuation in

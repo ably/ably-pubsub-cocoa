@@ -1,8 +1,8 @@
-#import "ARTRestPresence+Private.h"
+#import "ARTHttpPresence+Private.h"
 
 #import "ARTPresence+Private.h"
-#import "ARTRest+Private.h"
-#import "ARTRestChannel+Private.h"
+#import "ARTHttpClient+Private.h"
+#import "ARTHttpChannel+Private.h"
 #import "ARTPaginatedResult+Private.h"
 #import "ARTDataQuery+Private.h"
 #import "ARTJsonEncoder.h"
@@ -52,11 +52,11 @@
 
 @end
 
-@implementation ARTRestPresence {
+@implementation ARTHttpPresence {
     ARTQueuedDealloc *_dealloc;
 }
 
-- (instancetype)initWithInternal:(ARTRestPresenceInternal *)internal queuedDealloc:(ARTQueuedDealloc *)dealloc {
+- (instancetype)initWithInternal:(ARTHttpPresenceInternal *)internal queuedDealloc:(ARTQueuedDealloc *)dealloc {
     self = [super init];
     if (self) {
         _internal = internal;
@@ -89,7 +89,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ARTRestPresenceInternal ()
+@interface ARTHttpPresenceInternal ()
 
 @property (nonatomic, readonly) ARTInternalLog *logger;
 
@@ -97,13 +97,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_ASSUME_NONNULL_END
 
-@implementation ARTRestPresenceInternal {
-    __weak ARTRestChannelInternal *_channel; // weak because channel owns self
+@implementation ARTHttpPresenceInternal {
+    __weak ARTHttpChannelInternal *_channel; // weak because channel owns self
     dispatch_queue_t _userQueue;
     dispatch_queue_t _queue;
 }
 
-- (instancetype)initWithChannel:(ARTRestChannelInternal *)channel logger:(ARTInternalLog *)logger {
+- (instancetype)initWithChannel:(ARTHttpChannelInternal *)channel logger:(ARTInternalLog *)logger {
     if (self = [super init]) {
         _channel = channel;
         _userQueue = channel.rest.userQueue;

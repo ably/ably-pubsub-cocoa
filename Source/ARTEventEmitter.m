@@ -313,12 +313,12 @@
 @end
 
 @implementation ARTPublicEventEmitter {
-    __weak ARTRestInternal *_rest; // weak because rest owns self
+    __weak ARTHttpClientInternal *_rest; // weak because rest owns self
     dispatch_queue_t _queue;
     dispatch_queue_t _userQueue;
 }
 
-- (instancetype)initWithRest:(ARTRestInternal *)rest logger:(ARTInternalLog *)logger {
+- (instancetype)initWithRest:(ARTHttpClientInternal *)rest logger:(ARTInternalLog *)logger {
     if (self = [super initWithQueue:rest.queue timeProvider:rest.timeProvider]) {
         _rest = rest;
         _queue = rest.queue;

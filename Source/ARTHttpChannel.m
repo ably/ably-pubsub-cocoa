@@ -1,7 +1,7 @@
-#import "ARTRestChannel+Private.h"
+#import "ARTHttpChannel+Private.h"
 
-#import "ARTRest+Private.h"
-#import "ARTRestPresence+Private.h"
+#import "ARTHttpClient+Private.h"
+#import "ARTHttpPresence+Private.h"
 #import "ARTChannel+Private.h"
 #import "ARTChannelOptions.h"
 #import "ARTMessage.h"
@@ -21,18 +21,18 @@
 #import "ARTClientOptions.h"
 #import "ARTNSError+ARTUtils.h"
 #import "ARTInternalLog.h"
-#import "ARTRestAnnotations.h"
-#import "ARTRestAnnotations+Private.h"
+#import "ARTHttpAnnotations.h"
+#import "ARTHttpAnnotations+Private.h"
 #import "ARTConstants.h"
 #import "ARTGCD.h"
 #import "ARTPublishResult.h"
 #import "ARTPublishResultSerial.h"
 
-@implementation ARTRestChannel {
+@implementation ARTHttpChannel {
     ARTQueuedDealloc *_dealloc;
 }
 
-- (instancetype)initWithInternal:(ARTRestChannelInternal *)internal queuedDealloc:(ARTQueuedDealloc *)dealloc {
+- (instancetype)initWithInternal:(ARTHttpChannelInternal *)internal queuedDealloc:(ARTQueuedDealloc *)dealloc {
     self = [super init];
     if (self) {
         _internal = internal;
@@ -41,12 +41,12 @@
     return self;
 }
 
-- (ARTRestPresence*) presence {
-    return [[ARTRestPresence alloc] initWithInternal:_internal.presence queuedDealloc:_dealloc];
+- (ARTHttpPresence*) presence {
+    return [[ARTHttpPresence alloc] initWithInternal:_internal.presence queuedDealloc:_dealloc];
 }
 
-- (ARTRestAnnotations *)annotations {
-    return [[ARTRestAnnotations alloc] initWithInternal:_internal.annotations queuedDealloc:_dealloc];
+- (ARTHttpAnnotations *)annotations {
+    return [[ARTHttpAnnotations alloc] initWithInternal:_internal.annotations queuedDealloc:_dealloc];
 }
 
 - (ARTPushChannel *)push {
@@ -147,11 +147,11 @@
 
 @end
 
-@implementation ARTRestChannelInternal {
+@implementation ARTHttpChannelInternal {
 @private
     dispatch_queue_t _userQueue;
-    ARTRestPresenceInternal *_presence;
-    ARTRestAnnotationsInternal *_annotations;
+    ARTHttpPresenceInternal *_presence;
+    ARTHttpAnnotationsInternal *_annotations;
     ARTPushChannelInternal *_pushChannel;
 @public
     NSString *_basePath;
@@ -159,12 +159,12 @@
 
 @dynamic options;
 
-- (instancetype)initWithName:(NSString *)name withOptions:(ARTChannelOptions *)options andRest:(ARTRestInternal *)rest logger:(ARTInternalLog *)logger {
+- (instancetype)initWithName:(NSString *)name withOptions:(ARTChannelOptions *)options andRest:(ARTHttpClientInternal *)rest logger:(ARTInternalLog *)logger {
     if (self = [super initWithName:name andOptions:options rest:rest logger:logger]) {
         _rest = rest;
         _queue = rest.queue;
         _userQueue = rest.userQueue;
-        _annotations = [[ARTRestAnnotationsInternal alloc] initWithChannel:self logger:self.logger];
+        _annotations = [[ARTHttpAnnotationsInternal alloc] initWithChannel:self logger:self.logger];
         _basePath = [NSString stringWithFormat:@"/channels/%@", [name stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]]]; // Using URLHostAllowedCharacterSet, because it doesn't include '/', which can be used in channel names across other platforms.
         ARTLogDebug(self.logger, @"RS:%p instantiating under '%@'", self, name);
     }
@@ -175,14 +175,14 @@
     return _basePath;
 }
 
-- (ARTRestPresenceInternal *)presence {
+- (ARTHttpPresenceInternal *)presence {
     if (!_presence) {
-        _presence = [[ARTRestPresenceInternal alloc] initWithChannel:self logger:self.logger];
+        _presence = [[ARTHttpPresenceInternal alloc] initWithChannel:self logger:self.logger];
     }
     return _presence;
 }
 
-- (ARTRestAnnotationsInternal *)annotations {
+- (ARTHttpAnnotationsInternal *)annotations {
     return _annotations;
 }
 

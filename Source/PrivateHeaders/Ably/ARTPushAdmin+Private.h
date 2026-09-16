@@ -3,7 +3,7 @@
 #import "ARTPushChannelSubscriptions+Private.h"
 #import "ARTQueuedDealloc.h"
 
-@class ARTRestInternal;
+@class ARTHttpClientInternal;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) ARTPushDeviceRegistrationsInternal *deviceRegistrations;
 @property (nonatomic, readonly) ARTPushChannelSubscriptionsInternal *channelSubscriptions;
 
-- (instancetype)initWithRest:(ARTRestInternal *)rest logger:(ARTInternalLog *)logger;
+- (instancetype)initWithRest:(ARTHttpClientInternal *)rest logger:(ARTInternalLog *)logger;
 
 - (void)publish:(ARTPushRecipient *)recipient data:(ARTJsonObject *)data wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(nullable ARTCallback)callback;
 

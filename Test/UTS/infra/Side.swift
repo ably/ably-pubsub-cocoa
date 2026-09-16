@@ -35,8 +35,8 @@ enum UTSSide: String, Sendable {
 /// Every realtime client in every tier comes from here, so a suite run under `UTS_SIDE=device`
 /// exercises the specs through `PubSubDevice.createClient` rather than the constructor.
 ///
-/// REST clients are deliberately not routed through this: the device package exposes no HTTP door,
-/// so `ARTRest` is the only entry point for a stateless client in either mode.
+/// HTTP clients are deliberately not routed through this: the device package exposes no HTTP door,
+/// so `ARTHttpClient` is the only entry point for a stateless client in either mode.
 func makeRealtimeForSide(options: ARTClientOptions) -> ARTRealtime {
     switch UTSSide.current {
     case .core:

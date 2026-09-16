@@ -7,7 +7,7 @@ import AblyPubSubDevice
 ///
 /// Direct-sandbox integration test against the Ably Sandbox (`sandbox.realtime.ably-nonprod.net`,
 /// via SandboxApp.sandboxHost) — no proxy, no fault injection. Provisions a throwaway SandboxApp
-/// and points real REST clients straight at the sandbox. Needs outbound network:
+/// and points real HTTP clients straight at the sandbox. Needs outbound network:
 ///
 /// ```bash
 /// swift test --filter UTS.HistoryTests
@@ -24,7 +24,7 @@ final class HistoryTests: IntegrationTestCase {
             let options = ARTClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
             let channelName = "history-test-RSL2a-\(UUID().uuidString)"
             let channel = client.channels.get(channelName)
 
@@ -67,7 +67,7 @@ final class HistoryTests: IntegrationTestCase {
             let options = ARTClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
             let channelName = "history-direction-\(UUID().uuidString)"
             let channel = client.channels.get(channelName)
 
@@ -102,7 +102,7 @@ final class HistoryTests: IntegrationTestCase {
             let options = ARTClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
             let channelName = "history-limit-\(UUID().uuidString)"
             let channel = client.channels.get(channelName)
 
@@ -138,7 +138,7 @@ final class HistoryTests: IntegrationTestCase {
             let options = ARTClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
             let channelName = "history-timerange-\(UUID().uuidString)"
             let channel = client.channels.get(channelName)
 
@@ -210,7 +210,7 @@ final class HistoryTests: IntegrationTestCase {
             let options = ARTClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
             // Use a fresh channel with no messages
             let channelName = "history-empty-\(UUID().uuidString)"
             let channel = client.channels.get(channelName)
@@ -232,7 +232,7 @@ final class HistoryTests: IntegrationTestCase {
 extension HistoryTests {
     /// Awaits the publish acknowledgement (the spec's `AWAIT channel.publish(name:data:)`),
     /// recording an issue on error.
-    private func awaitPublish(_ channel: ARTRestChannel,
+    private func awaitPublish(_ channel: ARTHttpChannel,
                               name: String,
                               data: Any,
                               sourceLocation: SourceLocation = #_sourceLocation) async {
@@ -250,7 +250,7 @@ extension HistoryTests {
     /// Fetches the channel's history — with the given query (the spec's
     /// `channel.history(direction:/limit:/start:/end:)`) or the default query when nil — and
     /// returns its items, recording an issue on error.
-    private func historyItems(of channel: ARTRestChannel,
+    private func historyItems(of channel: ARTHttpChannel,
                               query: ARTDataQuery? = nil,
                               sourceLocation: SourceLocation = #_sourceLocation) async -> [ARTMessage] {
         let (items, failure): ([ARTMessage], String?) = await withCheckedContinuation { continuation in
@@ -273,7 +273,7 @@ extension HistoryTests {
     /// Fetches the channel's history (default query) and returns its items, propagating any
     /// `history()` error so it aborts the enclosing `pollUntil` and surfaces the real failure
     /// (matching the plain `poll_until` reference semantics; js/java do the same).
-    private func historyItems(of channel: ARTRestChannel) async throws -> [ARTMessage] {
+    private func historyItems(of channel: ARTHttpChannel) async throws -> [ARTMessage] {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[ARTMessage], Error>) in
             channel.history { result, error in
                 if let error {
@@ -289,7 +289,7 @@ extension HistoryTests {
     /// pagination flags (the spec's `history.hasNext()` / `history.isLast()`), recording an issue
     /// on error. Extracted to value types — `ARTPaginatedResult` is not Sendable, so it cannot
     /// cross the continuation.
-    private func historyPage(of channel: ARTRestChannel,
+    private func historyPage(of channel: ARTHttpChannel,
                              sourceLocation: SourceLocation = #_sourceLocation) async
         -> (items: [ARTMessage], hasNext: Bool, isLast: Bool) {
         let (page, failure): ((items: [ARTMessage], hasNext: Bool, isLast: Bool), String?) = await withCheckedContinuation { continuation in

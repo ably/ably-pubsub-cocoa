@@ -8,7 +8,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- Provides an interface for injecting additional configuration into `ARTRest` or `ARTRealtime` instances.
+ Provides an interface for injecting additional configuration into `ARTHttpClient` or `ARTRealtime` instances.
 
  This is for anything that test code wishes to be able to configure but which should not be part of the public API of these classes. It can also be used for exposing additional debugging options to be used in Ably-authored applications.
  */
@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) Class reachabilityClass;
 
 /**
- An `ARTHTTPExecutor` that `ARTRestInternal` uses for all of its HTTP requests instead of creating its own. Tests install a mock here so that requests are intercepted rather than sent over the network. When `nil` (the initial value), the rest client creates its own `ARTHttp`.
+ An `ARTHTTPExecutor` that `ARTHttpClientInternal` uses for all of its HTTP requests instead of creating its own. Tests install a mock here so that requests are intercepted rather than sent over the network. When `nil` (the initial value), the rest client creates its own `ARTHttp`.
  */
 @property (nullable, nonatomic) id<ARTHTTPExecutor> httpExecutor;
 
@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  - Persisted state: an `ARTDeviceStorage` is installed that raises on every read and write. This is the backstop for any code path that attempts to touch storage.
 
- - In-memory shared state: the `ARTLocalDevice` that `ARTRestInternal` exposes via `device_nosync` lives in a process-wide static and may already be cached by another client, so reading it would not necessarily hit storage. `device_nosync` therefore has an explicit guard that raises when this flag is set.
+ - In-memory shared state: the `ARTLocalDevice` that `ARTHttpClientInternal` exposes via `device_nosync` lives in a process-wide static and may already be cached by another client, so reading it would not necessarily hit storage. `device_nosync` therefore has an explicit guard that raises when this flag is set.
 
  - Side effects of unrelated flows (e.g. auth propagating a clientId via `ARTAuth.setLocalDeviceClientId_nosync`) silently no-op rather than raise, since raising would break the unrelated flow.
 

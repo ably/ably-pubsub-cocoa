@@ -180,7 +180,7 @@ class UtilitiesTests: XCTestCase {
         beforeEach__Utilities__JSON_Encoder()
 
         let options = try AblyTests.commonAppSetup(for: test)
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         let channel = rest.channels.get(test.uniqueChannelName())
         waitUntil(timeout: testTimeout) { done in
             channel.publish("test", data: NSDate()) { error in
@@ -209,7 +209,7 @@ class UtilitiesTests: XCTestCase {
         beforeEach__Utilities__JSON_Encoder()
 
         let options = try AblyTests.commonAppSetup(for: test)
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         let testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
         rest.internal.httpExecutor = testHTTPExecutor
         let channel = rest.channels.get(test.uniqueChannelName())
@@ -236,7 +236,7 @@ class UtilitiesTests: XCTestCase {
         beforeEach__Utilities__JSON_Encoder()
 
         let options = try AblyTests.commonAppSetup(for: test)
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         let testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
         rest.internal.httpExecutor = testHTTPExecutor
 
@@ -268,7 +268,7 @@ class UtilitiesTests: XCTestCase {
         beforeEach__Utilities__JSON_Encoder()
 
         let options = try AblyTests.commonAppSetup(for: test)
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         let testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
         rest.internal.httpExecutor = testHTTPExecutor
 

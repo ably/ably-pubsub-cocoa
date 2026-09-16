@@ -15,7 +15,7 @@
 #import "ARTEventEmitter+Private.h"
 #import "ARTClientOptions.h"
 #import "ARTRealtimeChannelOptions.h"
-#import "ARTRestAnnotations+Private.h"
+#import "ARTHttpAnnotations+Private.h"
 #import "ARTGCD.h"
 
 @implementation ARTRealtimeAnnotations {

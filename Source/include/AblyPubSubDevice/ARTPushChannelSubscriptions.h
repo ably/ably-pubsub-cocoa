@@ -3,7 +3,7 @@
 
 @class ARTPushChannelSubscription;
 @class ARTPaginatedResult;
-@class ARTRest;
+@class ARTHttpClient;
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -224,7 +224,7 @@ final class MockWebSocketTransportFactory: NSObject, RealtimeTransportFactory {
         super.init()
     }
 
-    func transport(withRest rest: ARTRestInternal, options: ARTClientOptions, resumeKey: String?, logger: InternalLog) -> ARTRealtimeTransport {
+    func transport(withRest rest: ARTHttpClientInternal, options: ARTClientOptions, resumeKey: String?, logger: InternalLog) -> ARTRealtimeTransport {
         let webSocketFactory = MockWebSocketFactory(workQueue: rest.queue, decoder: rest.defaultEncoder, wsProvider: wsProvider)
         return ARTWebSocketTransport(rest: rest, options: options, resumeKey: resumeKey, logger: logger, webSocketFactory: webSocketFactory)
     }

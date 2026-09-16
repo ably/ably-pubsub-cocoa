@@ -8,7 +8,7 @@ class SoakTestWebSocketFactory: WebSocketFactory {
 }
 
 class SoakTestRealtimeTransportFactory: RealtimeTransportFactory {
-    func transport(withRest rest: ARTRestInternal, options: ARTClientOptions, resumeKey: String?, logger: InternalLog) -> ARTRealtimeTransport {
+    func transport(withRest rest: ARTHttpClientInternal, options: ARTClientOptions, resumeKey: String?, logger: InternalLog) -> ARTRealtimeTransport {
         return ARTWebSocketTransport(
             rest: rest,
             options: options,

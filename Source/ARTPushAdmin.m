@@ -1,6 +1,6 @@
 #import "ARTPushAdmin.h"
 #import "ARTHttp.h"
-#import "ARTRest+Private.h"
+#import "ARTHttpClient+Private.h"
 #import "ARTPushDeviceRegistrations+Private.h"
 #import "ARTPushChannelSubscriptions+Private.h"
 #import "ARTInternalLog.h"
@@ -36,13 +36,13 @@
 @end
 
 @implementation ARTPushAdminInternal {
-    __weak ARTRestInternal *_rest; // weak because rest owns self
+    __weak ARTHttpClientInternal *_rest; // weak because rest owns self
     ARTInternalLog *_logger;
     dispatch_queue_t _userQueue;
     dispatch_queue_t _queue;
 }
 
-- (instancetype)initWithRest:(ARTRestInternal *)rest logger:(ARTInternalLog *)logger {
+- (instancetype)initWithRest:(ARTHttpClientInternal *)rest logger:(ARTInternalLog *)logger {
     if (self = [super init]) {
         _rest = rest;
         _logger = logger;

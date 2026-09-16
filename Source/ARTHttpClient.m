@@ -1,7 +1,7 @@
-#import "ARTRest+Private.h"
+#import "ARTHttpClient+Private.h"
 
 #import "ARTChannel+Private.h"
-#import "ARTRestChannels+Private.h"
+#import "ARTHttpChannels+Private.h"
 #import "ARTDataQuery+Private.h"
 #import "ARTPaginatedResult+Private.h"
 #import "ARTAuth+Private.h"
@@ -21,7 +21,7 @@
 #import "ARTFallbackHosts.h"
 #import "ARTNSDictionary+ARTDictionaryUtil.h"
 #import "ARTNSArray+ARTFunctional.h"
-#import "ARTRestChannel.h"
+#import "ARTHttpChannel.h"
 #import "ARTTokenParams.h"
 #import "ARTTokenDetails.h"
 #import "ARTDefault.h"
@@ -32,7 +32,7 @@
 #import "ARTLocalDevice+Private.h"
 #import "ARTLocalDeviceStorage.h"
 #import "ARTThrowingLocalDeviceStorage.h"
-#import "ARTNSMutableRequest+ARTRest.h"
+#import "ARTNSMutableRequest+ARTHttpClient.h"
 #import "ARTHTTPPaginatedResponse+Private.h"
 #import "ARTNSError+ARTUtils.h"
 #import "ARTNSMutableURLRequest+ARTUtils.h"
@@ -49,11 +49,11 @@
 #import "ARTPushActivationEvent.h"
 #endif
 
-@implementation ARTRest {
+@implementation ARTHttpClient {
     ARTQueuedDealloc *_dealloc;
 }
 
-- (void)internalAsync:(void (^)(ARTRestInternal * _Nonnull))use {
+- (void)internalAsync:(void (^)(ARTHttpClientInternal * _Nonnull))use {
     art_dispatch_async(_internal.queue, ^{
         use(self->_internal);
     });
@@ -66,7 +66,7 @@
 - (instancetype)initWithOptions:(ARTClientOptions *)options {
     self = [super init];
     if (self) {
-        _internal = [[ARTRestInternal alloc] initWithOptions:options];
+        _internal = [[ARTHttpClientInternal alloc] initWithOptions:options];
         [self initCommon];
     }
     return self;
@@ -75,7 +75,7 @@
 - (instancetype)initWithKey:(NSString *)key {
     self = [super init];
     if (self) {
-        _internal = [[ARTRestInternal alloc] initWithKey:key];
+        _internal = [[ARTHttpClientInternal alloc] initWithKey:key];
         [self initCommon];
     }
     return self;
@@ -84,22 +84,22 @@
 - (instancetype)initWithToken:(NSString *)token {
     self = [super init];
     if (self) {
-        _internal = [[ARTRestInternal alloc] initWithToken:token];
+        _internal = [[ARTHttpClientInternal alloc] initWithToken:token];
         [self initCommon];
     }
     return self;
 }
 
 + (instancetype)createWithOptions:(ARTClientOptions *)options {
-    return [[ARTRest alloc] initWithOptions:options];
+    return [[ARTHttpClient alloc] initWithOptions:options];
 }
 
 + (instancetype)createWithKey:(NSString *)key {
-    return [[ARTRest alloc] initWithKey:key];
+    return [[ARTHttpClient alloc] initWithKey:key];
 }
 
 + (instancetype)createWithToken:(NSString *)tokenId {
-    return [[ARTRest alloc] initWithToken:tokenId];
+    return [[ARTHttpClient alloc] initWithToken:tokenId];
 }
 
 - (void)time:(ARTDateTimeCallback)callback {
@@ -126,8 +126,8 @@
     return [_internal stats:query wrapperSDKAgents:nil callback:callback error:errorPtr];
 }
 
-- (ARTRestChannels *)channels {
-    return [[ARTRestChannels alloc] initWithInternal:_internal.channels queuedDealloc:_dealloc];
+- (ARTHttpChannels *)channels {
+    return [[ARTHttpChannels alloc] initWithInternal:_internal.channels queuedDealloc:_dealloc];
 }
 
 - (ARTAuth *)auth {
@@ -154,7 +154,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ARTRestInternal ()
+@interface ARTHttpClientInternal ()
 
 @property (nonatomic, readonly) ARTInternalLog *logger;
 
@@ -162,7 +162,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_ASSUME_NONNULL_END
 
-@implementation ARTRestInternal {
+@implementation ARTHttpClientInternal {
     ARTInternalLog *_logger;
     NSUInteger _tokenErrorRetries;
 }
@@ -177,7 +177,7 @@ NS_ASSUME_NONNULL_END
 - (instancetype)initWithOptions:(ARTClientOptions *)options realtime:(ARTRealtimeInternal *_Nullable)realtime logger:(ARTInternalLog *)logger {
     self = [super init];
     if (self) {
-        NSAssert(options, @"ARTRest: No options provided");
+        NSAssert(options, @"ARTHttpClient: No options provided");
 
         _realtime = realtime;
         _options = [options copy];
@@ -210,7 +210,7 @@ NS_ASSUME_NONNULL_END
 
         _auth = [[ARTAuthInternal alloc] init:self withOptions:_options logger:_logger];
         _push = [[ARTPushInternal alloc] initWithRest:self logger:_logger];
-        _channels = [[ARTRestChannelsInternal alloc] initWithRest:self logger:_logger];
+        _channels = [[ARTHttpChannelsInternal alloc] initWithRest:self logger:_logger];
 
         ARTLogVerbose(self.logger, @"RS:%p initialized", self);
     }
@@ -292,14 +292,14 @@ NS_ASSUME_NONNULL_END
         // Basic
         NSString *authorization = [self prepareBasicAuthorisationHeader:self.options.key];
         [request setValue:authorization forHTTPHeaderField:@"Authorization"];
-        ARTLogVerbose(self.logger, @"RS:%p ARTRest: %@", self, authorization);
+        ARTLogVerbose(self.logger, @"RS:%p ARTHttpClient: %@", self, authorization);
         task = [self executeRequest:request wrapperSDKAgents:wrapperSDKAgents completion:callback];
     }
     else {
         if (!force && [self.auth tokenRemainsValid]) {
             // Reuse token
             NSString *authorization = [self prepareTokenAuthorisationHeader:self.auth.tokenDetails.token];
-            ARTLogVerbose(self.logger, @"RS:%p ARTRestInternal reusing token: authorization bearer in Base64 %@", self, authorization);
+            ARTLogVerbose(self.logger, @"RS:%p ARTHttpClientInternal reusing token: authorization bearer in Base64 %@", self, authorization);
             [request setValue:authorization forHTTPHeaderField:@"Authorization"];
             task = [self executeRequest:request wrapperSDKAgents:wrapperSDKAgents completion:callback];
         }
@@ -307,12 +307,12 @@ NS_ASSUME_NONNULL_END
             // New Token
             task = [self.auth _authorize:nil options:self.options callback:^(ARTTokenDetails *tokenDetails, NSError *error) {
                 if (error) {
-                    ARTLogDebug(self.logger, @"RS:%p ARTRestInternal reissuing token failed %@", self, error);
+                    ARTLogDebug(self.logger, @"RS:%p ARTHttpClientInternal reissuing token failed %@", self, error);
                     if (callback) callback(nil, nil, error);
                     return;
                 }
                 NSString *authorization = [self prepareTokenAuthorisationHeader:tokenDetails.token];
-                ARTLogVerbose(self.logger, @"RS:%p ARTRestInternal reissuing token: authorization bearer %@", self, authorization);
+                ARTLogVerbose(self.logger, @"RS:%p ARTHttpClientInternal reissuing token: authorization bearer %@", self, authorization);
                 [request setValue:authorization forHTTPHeaderField:@"Authorization"];
                 task = [self executeRequest:request wrapperSDKAgents:wrapperSDKAgents completion:callback];
             }];
@@ -795,7 +795,7 @@ art_dispatch_async(_queue, ^{
                     format:@"device_nosync invoked on a client configured with disableLocalDevice"];
     }
     __block ARTLocalDevice *ret;
-    art_dispatch_sync([ARTRestInternal deviceAccessQueue], ^{
+    art_dispatch_sync([ARTHttpClientInternal deviceAccessQueue], ^{
         ret = [self sharedDevice_onlyCallOnDeviceAccessQueue];
     });
     return ret;
@@ -816,7 +816,7 @@ static BOOL sharedDeviceNeedsLoading_onlyAccessOnDeviceAccessQueue = YES;
 
 - (ARTLocalDevice *)sharedDevice_onlyCallOnDeviceAccessQueue {
     // The device is shared in a static variable because it's a reflection
-    // of what's persisted. Having a device instance per ARTRest instance
+    // of what's persisted. Having a device instance per ARTHttpClient instance
     // could leave some instances in a stale state, if, through another
     // instance, the persisted state is changed.
     //
@@ -834,27 +834,27 @@ static BOOL sharedDeviceNeedsLoading_onlyAccessOnDeviceAccessQueue = YES;
 - (void)setupLocalDevice_nosync {
     ARTLocalDevice *device = [self device_nosync];
     NSString *clientId = self.auth.clientId_nosync;
-    art_dispatch_sync([ARTRestInternal deviceAccessQueue], ^{
+    art_dispatch_sync([ARTHttpClientInternal deviceAccessQueue], ^{
         [device setupDetailsWithClientId:clientId];
     });
 }
 
 - (void)resetLocalDevice_nosync {
     ARTLocalDevice *device = [self device_nosync];
-    art_dispatch_sync([ARTRestInternal deviceAccessQueue], ^{
+    art_dispatch_sync([ARTHttpClientInternal deviceAccessQueue], ^{
         [device resetDetails];
     });
 }
 
 - (void)resetDeviceSingleton {
-    art_dispatch_sync([ARTRestInternal deviceAccessQueue], ^{
+    art_dispatch_sync([ARTHttpClientInternal deviceAccessQueue], ^{
         sharedDeviceNeedsLoading_onlyAccessOnDeviceAccessQueue = YES;
     });
 }
 
 - (void)setAndPersistAPNSDeviceTokenData:(NSData *)deviceTokenData tokenType:(NSString *)tokenType {
     NSString *deviceToken = deviceTokenData.deviceTokenString;
-    ARTLogInfo(self.logger, @"ARTRest: device token: %@ of type: `%@`", deviceToken, tokenType);
+    ARTLogInfo(self.logger, @"ARTHttpClient: device token: %@ of type: `%@`", deviceToken, tokenType);
 
     NSString *currentDeviceToken = [ARTLocalDevice apnsDeviceTokenOfType:tokenType fromStorage:self.storage];
     if ([currentDeviceToken isEqualToString:deviceToken]) {
@@ -863,7 +863,7 @@ static BOOL sharedDeviceNeedsLoading_onlyAccessOnDeviceAccessQueue = YES;
     }
 
     [self.device_nosync setAndPersistAPNSDeviceToken:deviceToken tokenType:tokenType];
-    ARTLogDebug(self.logger, @"ARTRest: device token stored");
+    ARTLogDebug(self.logger, @"ARTHttpClient: device token stored");
 
     [self.push getActivationMachine:^(ARTPushActivationStateMachine *_Nullable stateMachine) {
         [stateMachine sendEvent:[ARTPushActivationEventGotPushDeviceDetails new]];

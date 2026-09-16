@@ -91,9 +91,9 @@ class UTSTestCase {
         return client
     }
 
-    /// Builds an `ARTRest` whose HTTP layer is the currently installed `MockHTTPClient` (so requests are
+    /// Builds an `ARTHttpClient` whose HTTP layer is the currently installed `MockHTTPClient` (so requests are
     /// intercepted, not sent over the network). A mock must be installed first via `installMock(_:)`.
-    func makeRest(configure: (ARTClientOptions) -> Void = { _ in }, sourceLocation: SourceLocation = #_sourceLocation) -> ARTRest {
+    func makeRest(configure: (ARTClientOptions) -> Void = { _ in }, sourceLocation: SourceLocation = #_sourceLocation) -> ARTHttpClient {
         guard let mockHTTP = installedMockHTTPClient else {
             Issue.record("No MockHTTPClient installed — call installMock(_:) before makeRest()", sourceLocation: sourceLocation)
             fatalError("No MockHTTPClient installed")
@@ -115,7 +115,7 @@ class UTSTestCase {
 
         configure(options)
 
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         return rest
     }
 

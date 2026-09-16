@@ -1,14 +1,14 @@
-#import <AblyPubSubDevice/ARTRestPresence.h>
+#import <AblyPubSubDevice/ARTHttpPresence.h>
 #import "ARTQueuedDealloc.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class ARTRestChannelInternal;
+@class ARTHttpChannelInternal;
 @class ARTInternalLog;
 
-@interface ARTRestPresenceInternal : NSObject
+@interface ARTHttpPresenceInternal : NSObject
 
-- (instancetype)initWithChannel:(ARTRestChannelInternal *)channel logger:(ARTInternalLog *)logger;
+- (instancetype)initWithChannel:(ARTHttpChannelInternal *)channel logger:(ARTInternalLog *)logger;
 
 - (void)get:(ARTPaginatedPresenceCallback)callback;
 
@@ -23,11 +23,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface ARTRestPresence ()
+@interface ARTHttpPresence ()
 
-@property (nonatomic, readonly) ARTRestPresenceInternal *internal;
+@property (nonatomic, readonly) ARTHttpPresenceInternal *internal;
 
-- (instancetype)initWithInternal:(ARTRestPresenceInternal *)internal queuedDealloc:(ARTQueuedDealloc *)dealloc;
+- (instancetype)initWithInternal:(ARTHttpPresenceInternal *)internal queuedDealloc:(ARTQueuedDealloc *)dealloc;
 
 @end
 

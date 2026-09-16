@@ -2,14 +2,14 @@
 #import "ARTQueuedDealloc.h"
 
 @class ARTChannel;
-@class ARTRestInternal;
+@class ARTHttpClientInternal;
 @class ARTInternalLog;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ARTPushChannelInternal : NSObject
 
-- (instancetype)init:(ARTRestInternal *)rest withChannel:(ARTChannel *)channel logger:(ARTInternalLog *)logger;
+- (instancetype)init:(ARTHttpClientInternal *)rest withChannel:(ARTChannel *)channel logger:(ARTInternalLog *)logger;
 
 - (void)subscribeDeviceWithWrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents;
 

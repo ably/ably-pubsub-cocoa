@@ -1,5 +1,5 @@
 #import <AblyPubSubDevice/ARTEventEmitter.h>
-#import "ARTRest+Private.h"
+#import "ARTHttpClient+Private.h"
 
 @protocol ARTTimeProvider;
 
@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ARTPublicEventEmitter<EventType:id<ARTEventIdentification>, ItemType> : ARTEventEmitter<EventType, ItemType>
 
-- (instancetype)initWithRest:(ARTRestInternal *)rest logger:(ARTInternalLog *)logger;
+- (instancetype)initWithRest:(ARTHttpClientInternal *)rest logger:(ARTInternalLog *)logger;
 - (void)off_nosync;
 
 @end

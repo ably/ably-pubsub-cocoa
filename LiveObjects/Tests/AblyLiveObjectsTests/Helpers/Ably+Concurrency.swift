@@ -28,7 +28,7 @@ extension ARTRealtimeChannelProtocol {
     }
 }
 
-extension ARTRestProtocol {
+extension ARTHttpClientProtocol {
     func requestAsync(_ method: String, path: String, params: [String: String]?, body: Any?, headers: [String: String]?) async throws(ARTErrorInfo) -> ARTHTTPPaginatedResponse {
         try await withCheckedContinuation { (continuation: CheckedContinuation<Result<ARTHTTPPaginatedResponse, ARTErrorInfo>, _>) in
             do {

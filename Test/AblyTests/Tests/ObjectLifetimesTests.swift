@@ -20,7 +20,7 @@ class ObjectLifetimesTests: XCTestCase {
         var realtime: ARTRealtime? = ARTRealtime(options: options)
         weak var internalRealtime: ARTRealtimeInternal? = realtime!.internal
         weak var internalConn: ARTConnectionInternal? = realtime!.connection.internal
-        weak var internalRest: ARTRestInternal? = realtime!.internal.rest
+        weak var internalRest: ARTHttpClientInternal? = realtime!.internal.rest
 
         waitUntil(timeout: testTimeout) { done in
             options.internalDispatchQueue.async {
@@ -90,7 +90,7 @@ class ObjectLifetimesTests: XCTestCase {
         waitUntil(timeout: testTimeout) { done in
             client!.channels.get(channelName).subscribe(attachCallback: { _ in
                 client = nil
-                ARTRest(options: options).channels.get(channelName).publish(nil, data: "bar")
+                ARTHttpClient(options: options).channels.get(channelName).publish(nil, data: "bar")
             }, callback: { msg in
                 XCTAssertEqual(msg.data as? String, "bar")
                 done()

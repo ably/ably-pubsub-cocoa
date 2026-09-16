@@ -1,4 +1,4 @@
-#import "ARTRest+Private.h"
+#import "ARTHttpClient+Private.h"
 #import "ARTEncoder.h"
 #import <AblyPubSubDevice/ARTTokenDetails.h>
 #import <AblyPubSubDevice/ARTTokenRequest.h>
@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithDelegate:(id<ARTJsonLikeEncoderDelegate>)delegate timeProvider:(id<ARTTimeProvider>)timeProvider;
-- (instancetype)initWithRest:(ARTRestInternal *)rest delegate:(nullable id<ARTJsonLikeEncoderDelegate>)delegate logger:(ARTInternalLog *)logger;
+- (instancetype)initWithRest:(ARTHttpClientInternal *)rest delegate:(nullable id<ARTJsonLikeEncoderDelegate>)delegate logger:(ARTInternalLog *)logger;
 
 @end
 

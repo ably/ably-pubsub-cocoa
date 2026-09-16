@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 
-#import <AblyPubSubDevice/ARTRestPresence.h>
+#import <AblyPubSubDevice/ARTHttpPresence.h>
 #import <AblyPubSubDevice/ARTDataQuery.h>
 #import <AblyPubSubDevice/ARTEventEmitter.h>
 #import <AblyPubSubDevice/ARTRealtimeChannel.h>

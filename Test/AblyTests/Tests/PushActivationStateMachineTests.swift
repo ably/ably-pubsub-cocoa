@@ -4,7 +4,7 @@ import AblyTesting
 import Nimble
 import XCTest
 
-private var rest: ARTRest!
+private var rest: ARTHttpClient!
 private var httpExecutor: MockHTTPExecutor!
 private var storage: MockDeviceStorage!
 private var initialStateMachine: ARTPushActivationStateMachine!
@@ -36,7 +36,7 @@ class PushActivationStateMachineTests: XCTestCase {
         // Start from a clean on-disk device storage
         AblyTests.clearOnDiskDeviceStorage()
 
-        rest = ARTRest(key: "xxxx:xxxx")
+        rest = ARTHttpClient(key: "xxxx:xxxx")
         httpExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = httpExecutor
         storage = MockDeviceStorage()
@@ -120,7 +120,7 @@ class PushActivationStateMachineTests: XCTestCase {
         beforeEach__Activation_state_machine__State_NotActivated()
 
         let options = ARTClientOptions(key: "xxxx:xxxx")
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         rest.internal.storage = storage
         let stateMachine = ARTPushActivationStateMachine(rest: rest.internal, delegate: StateMachineDelegate(), logger: .init(core: MockInternalLogCore()))
 
@@ -133,7 +133,7 @@ class PushActivationStateMachineTests: XCTestCase {
         beforeEach__Activation_state_machine__State_NotActivated()
 
         let options = ARTClientOptions(key: "xxxx:xxxx")
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         rest.internal.storage = storage
         let stateMachine = ARTPushActivationStateMachine(rest: rest.internal, delegate: StateMachineDelegate(), logger: .init(core: MockInternalLogCore()))
 
@@ -151,7 +151,7 @@ class PushActivationStateMachineTests: XCTestCase {
 
         let options = ARTClientOptions(key: "xxxx:xxxx")
         options.clientId = "deviceClient"
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         rest.internal.storage = storage
 
         let stateMachine = ARTPushActivationStateMachine(rest: rest.internal, delegate: StateMachineDelegate(), logger: .init(core: MockInternalLogCore()))
@@ -886,7 +886,7 @@ class PushActivationStateMachineTests: XCTestCase {
 
         let options = ARTClientOptions(key: "xxxx:xxxx")
         options.clientId = "client1"
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         rest.internal.storage = storage
         stateMachine = ARTPushActivationStateMachine(rest: rest.internal, delegate: StateMachineDelegate(), logger: .init(core: MockInternalLogCore()))
 
@@ -954,7 +954,7 @@ class PushActivationStateMachineTests: XCTestCase {
 
         let options1 = ARTClientOptions(key: "xxxx:xxxx")
         options1.clientId = "client1"
-        let rest1 = ARTRest(options: options1)
+        let rest1 = ARTHttpClient(options: options1)
         httpExecutor = MockHTTPExecutor()
         rest1.internal.httpExecutor = httpExecutor
         rest1.internal.storage = storage
@@ -988,7 +988,7 @@ class PushActivationStateMachineTests: XCTestCase {
 
         let options2 = ARTClientOptions(key: "xxxx:xxxx")
         options2.clientId = "client2"
-        let rest2 = ARTRest(options: options2)
+        let rest2 = ARTHttpClient(options: options2)
         rest2.internal.storage = storage
         rest2.internal.httpExecutor = httpExecutor
 
@@ -1076,7 +1076,7 @@ class PushActivationStateMachineTests: XCTestCase {
 
             let options = ARTClientOptions(key: "xxxx:xxxx")
             options.clientId = "deviceClient"
-            let rest = ARTRest(options: options)
+            let rest = ARTHttpClient(options: options)
             rest.internal.storage = storage
             rest.internal.setupLocalDevice_nosync()
 
@@ -1084,7 +1084,7 @@ class PushActivationStateMachineTests: XCTestCase {
 
             let newOptions = ARTClientOptions(key: "xxxx:xxxx")
             newOptions.clientId = "instanceClient"
-            let newRest = ARTRest(options: newOptions)
+            let newRest = ARTHttpClient(options: newOptions)
             newRest.internal.storage = storage
             let stateMachine = ARTPushActivationStateMachine(rest: newRest.internal, delegate: StateMachineDelegate(), logger: .init(core: MockInternalLogCore()))
 

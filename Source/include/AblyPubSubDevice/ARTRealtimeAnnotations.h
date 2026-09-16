@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <AblyPubSubDevice/ARTAnnotation.h>
 #import <AblyPubSubDevice/ARTOutboundAnnotation.h>
-#import <AblyPubSubDevice/ARTRestAnnotations.h>
+#import <AblyPubSubDevice/ARTHttpAnnotations.h>
 #import <AblyPubSubDevice/ARTDataQuery.h>
 #import <AblyPubSubDevice/ARTEventEmitter.h>
 #import <AblyPubSubDevice/ARTRealtimeChannel.h>

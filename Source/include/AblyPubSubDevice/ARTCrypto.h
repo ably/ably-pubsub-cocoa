@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /**
- * Sets the properties to configure encryption for an `ARTRestChannel` or `ARTRealtimeChannel` object.
+ * Sets the properties to configure encryption for an `ARTHttpChannel` or `ARTRealtimeChannel` object.
  */
 @interface ARTCipherParams : NSObject <ARTCipherParamsCompatible>
 

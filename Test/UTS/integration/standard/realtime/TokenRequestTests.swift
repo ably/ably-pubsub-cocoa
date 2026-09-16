@@ -30,7 +30,7 @@ final class TokenRequestTests: IntegrationTestCase {
             // Client A creates TokenRequests using the API key
             let creatorOptions = ARTClientOptions(key: app.defaultKey)
             creatorOptions.restHost = SandboxApp.sandboxHost
-            let creator = ARTRest(options: creatorOptions)
+            let creator = ARTHttpClient(options: creatorOptions)
 
             // Client B connects using TokenRequests from client A
             let options = ARTClientOptions()
@@ -69,7 +69,7 @@ final class TokenRequestTests: IntegrationTestCase {
 
             let creatorOptions = ARTClientOptions(key: app.defaultKey)
             creatorOptions.restHost = SandboxApp.sandboxHost
-            let creator = ARTRest(options: creatorOptions)
+            let creator = ARTHttpClient(options: creatorOptions)
 
             let options = ARTClientOptions()
             options.authCallback = { _, callback in

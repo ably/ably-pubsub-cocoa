@@ -130,7 +130,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /**
- * A client that extends the functionality of the `ARTRest` and provides additional realtime-specific features.
+ * A client that extends the functionality of the `ARTHttpClient` and provides additional realtime-specific features.
  */
 NS_SWIFT_SENDABLE
 @interface ARTRealtime : NSObject <ARTRealtimeProtocol>

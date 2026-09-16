@@ -189,7 +189,7 @@ final class LocalDeviceStorageTests: XCTestCase {
         }
         let storage = makeStorage(keychainSecretReader: reader)
 
-        let rest = ARTRest(key: "fake:key")
+        let rest = ARTHttpClient(key: "fake:key")
         rest.internal.storage = storage
         rest.internal.resetDeviceSingleton()
         defer { rest.internal.resetDeviceSingleton() }
@@ -232,7 +232,7 @@ final class LocalDeviceStorageTests: XCTestCase {
         }
         let storage = makeStorage(keychainSecretReader: reader)
 
-        let rest = ARTRest(key: "fake:key")
+        let rest = ARTHttpClient(key: "fake:key")
         rest.internal.storage = storage
         rest.internal.resetDeviceSingleton()
         defer { rest.internal.resetDeviceSingleton() }
@@ -385,7 +385,7 @@ extension LocalDeviceStorageTests {
     // An archived activation state, used by the RSH3h test so that its survival/absence
     // is what distinguishes "state retained" from "state discarded".
     private func archivedWaitingForDeviceRegistrationState(logger: InternalLog) -> Data {
-        let rest = ARTRest(key: "fake:key")
+        let rest = ARTHttpClient(key: "fake:key")
         rest.internal.storage = MockDeviceStorage()
         let stateMachine = ARTPushActivationStateMachine(rest: rest.internal, delegate: StateMachineDelegate(), logger: logger)
         let state = ARTPushActivationStateWaitingForDeviceRegistration(machine: stateMachine, logger: logger)

@@ -7,7 +7,7 @@
 @class ARTStatus;
 @class ARTErrorInfo;
 @class ARTClientOptions;
-@class ARTRestInternal;
+@class ARTHttpClientInternal;
 @class ARTInternalLog;
 
 NS_ASSUME_NONNULL_BEGIN

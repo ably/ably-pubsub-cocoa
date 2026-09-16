@@ -9,7 +9,7 @@ class TestProxyTransportFactory: RealtimeTransportFactory {
 
     var transportCreatedEvent: ((ARTRealtimeTransport) -> Void)?
 
-    func transport(withRest rest: ARTRestInternal, options: ARTClientOptions, resumeKey: String?, logger: InternalLog) -> ARTRealtimeTransport {
+    func transport(withRest rest: ARTHttpClientInternal, options: ARTClientOptions, resumeKey: String?, logger: InternalLog) -> ARTRealtimeTransport {
         let webSocketFactory = WebSocketFactory()
 
         let testProxyTransport = TestProxyTransport(
@@ -64,7 +64,7 @@ class TestProxyTransport: ARTWebSocketTransport, @unchecked Sendable {
         return _factory
     }
 
-    init(factory: TestProxyTransportFactory, rest: ARTRestInternal, options: ARTClientOptions, resumeKey: String?, logger: InternalLog, webSocketFactory: WebSocketFactory) {
+    init(factory: TestProxyTransportFactory, rest: ARTHttpClientInternal, options: ARTClientOptions, resumeKey: String?, logger: InternalLog, webSocketFactory: WebSocketFactory) {
         _factory = factory
         super.init(rest: rest, options: options, resumeKey: resumeKey, logger: logger, webSocketFactory: webSocketFactory)
     }

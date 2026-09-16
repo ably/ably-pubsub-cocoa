@@ -4,7 +4,7 @@
 
 @implementation ARTDefaultRealtimeTransportFactory
 
-- (id<ARTRealtimeTransport>)transportWithRest:(ARTRestInternal *)rest options:(ARTClientOptions *)options resumeKey:(NSString *)resumeKey logger:(ARTInternalLog *)logger {
+- (id<ARTRealtimeTransport>)transportWithRest:(ARTHttpClientInternal *)rest options:(ARTClientOptions *)options resumeKey:(NSString *)resumeKey logger:(ARTInternalLog *)logger {
     const id<ARTWebSocketFactory> webSocketFactory = [[ARTDefaultWebSocketFactory alloc] init];
     return [[ARTWebSocketTransport alloc] initWithRest:rest
                                                options:options

@@ -3,7 +3,7 @@
 
 #import "ARTHttp.h"
 #import "ARTAuth.h"
-#import "ARTRest+Private.h"
+#import "ARTHttpClient+Private.h"
 #import "ARTNSMutableURLRequest+ARTPaginated.h"
 #import "ARTNSHTTPURLResponse+ARTPaginated.h"
 #import "ARTInternalLog.h"
@@ -13,7 +13,7 @@
     BOOL _initializedViaInit;
 
     // All of the below instance variables are non-nil if and only if _initializedViaInit is NO
-    ARTRestInternal *_Nullable _rest;
+    ARTHttpClientInternal *_Nullable _rest;
     dispatch_queue_t _Nullable _userQueue;
     dispatch_queue_t _Nullable _queue;
     NSMutableURLRequest *_Nullable _relFirst;
@@ -42,7 +42,7 @@
 }
 
 - (instancetype)initWithItems:(NSArray *)items
-                     rest:(ARTRestInternal *)rest
+                     rest:(ARTHttpClientInternal *)rest
                      relFirst:(NSMutableURLRequest *)relFirst
                    relCurrent:(NSMutableURLRequest *)relCurrent
                       relNext:(NSMutableURLRequest *)relNext
@@ -71,14 +71,14 @@
 
         // ARTPaginatedResult doesn't need a internal counterpart, as other
         // public objects do. It basically acts as a proxy to a
-        // strongly-referenced ARTRestInternal, so it can be thought as an
-        // alternative public counterpart to ARTRestInternal.
+        // strongly-referenced ARTHttpClientInternal, so it can be thought as an
+        // alternative public counterpart to ARTHttpClientInternal.
         //
         // So, since it's owned by user code, it should dispatch its release of
-        // its ARTRestInternal to the internal queue. We could take the common
+        // its ARTHttpClientInternal to the internal queue. We could take the common
         // ARTQueuedDealloc as an argument as other public objects do, but
         // that would just be bookkeeping since we know it will be initialized
-        // from the ARTRestInternal we already have access to anyway, so we can
+        // from the ARTHttpClientInternal we already have access to anyway, so we can
         // make our own.
         _dealloc = [[ARTQueuedDealloc alloc] init:_rest queue:_queue];
     }
@@ -144,7 +144,7 @@
     [self.class executePaginated:_rest withRequest:_relNext andResponseProcessor:_responseProcessor wrapperSDKAgents:_wrapperSDKAgents logger:_logger callback:callback];
 }
 
-+ (void)executePaginated:(ARTRestInternal *)rest withRequest:(NSMutableURLRequest *)request andResponseProcessor:(ARTPaginatedResultResponseProcessor)responseProcessor wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents logger:(ARTInternalLog *)logger callback:(void (^)(ARTPaginatedResult<id> *_Nullable result, ARTErrorInfo *_Nullable error))callback {
++ (void)executePaginated:(ARTHttpClientInternal *)rest withRequest:(NSMutableURLRequest *)request andResponseProcessor:(ARTPaginatedResultResponseProcessor)responseProcessor wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents logger:(ARTInternalLog *)logger callback:(void (^)(ARTPaginatedResult<id> *_Nullable result, ARTErrorInfo *_Nullable error))callback {
     ARTLogDebug(logger, @"Paginated request: %@", request);
 
     [rest executeRequest:request withAuthOption:ARTAuthenticationOn wrapperSDKAgents:wrapperSDKAgents completion:^(NSHTTPURLResponse *response, NSData *data, NSError *error) {

@@ -1,7 +1,7 @@
 #import "ARTWebSocketTransport+Private.h"
 
-#import "ARTRest.h"
-#import "ARTRest+Private.h"
+#import "ARTHttpClient.h"
+#import "ARTHttpClient+Private.h"
 #import "ARTProtocolMessage.h"
 #import "ARTClientOptions.h"
 #import "ARTClientOptions+Private.h"
@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_END
 @synthesize delegate = _delegate;
 @synthesize stateEmitter = _stateEmitter;
 
-- (instancetype)initWithRest:(ARTRestInternal *)rest options:(ARTClientOptions *)options resumeKey:(NSString *)resumeKey logger:(ARTInternalLog *)logger webSocketFactory:(id<ARTWebSocketFactory>)webSocketFactory {
+- (instancetype)initWithRest:(ARTHttpClientInternal *)rest options:(ARTClientOptions *)options resumeKey:(NSString *)resumeKey logger:(ARTInternalLog *)logger webSocketFactory:(id<ARTWebSocketFactory>)webSocketFactory {
     self = [super init];
     if (self) {
         _workQueue = rest.queue;

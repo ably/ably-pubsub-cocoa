@@ -5,7 +5,7 @@ import AblyTestingObjC
 import Nimble
 import XCTest
 
-private var rest: ARTRest!
+private var rest: ARTHttpClient!
 private var mockHttpExecutor: MockHTTPExecutor!
 private var storage: MockDeviceStorage!
 private var stateMachineDelegate: StateMachineDelegate!
@@ -45,7 +45,7 @@ class PushTests: XCTestCase {
         // Start from a clean on-disk device storage
         AblyTests.clearOnDiskDeviceStorage()
 
-        rest = ARTRest(key: "xxxx:xxxx")
+        rest = ARTHttpClient(key: "xxxx:xxxx")
         mockHttpExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHttpExecutor
         storage = MockDeviceStorage()
@@ -138,7 +138,7 @@ class PushTests: XCTestCase {
             })
         }
 
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         let mockHttpExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHttpExecutor
         let storage = MockDeviceStorage()
@@ -252,7 +252,7 @@ class PushTests: XCTestCase {
 
     // RSH8
     func test__008__LocalDevice__has_a_device_method_that_returns_a_LocalDevice() {
-        let _: ARTLocalDevice = ARTRest(key: "fake:key").device
+        let _: ARTLocalDevice = ARTHttpClient(key: "fake:key").device
         let _: ARTLocalDevice = ARTRealtime(key: "fake:key").device
     }
 
@@ -267,7 +267,7 @@ class PushTests: XCTestCase {
             clientId: "client1"
         )
 
-        let rest = ARTRest(key: "fake:key")
+        let rest = ARTHttpClient(key: "fake:key")
         rest.internal.storage = storage
 
         storage.simulateOnNextRead(string: "testId", for: ARTDeviceIdKey)
@@ -466,7 +466,7 @@ class PushTests: XCTestCase {
         options.key = "xxxx:xxxx"
         let pushRegistererDelegate = StateMachineDelegate()
         options.pushRegistererDelegate = pushRegistererDelegate
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         waitUntil(timeout: testTimeout) { done in
             pushRegistererDelegate.onDidActivateAblyPush = { error in
                 XCTAssertNil(error)
@@ -487,7 +487,7 @@ class PushTests: XCTestCase {
         options.key = "xxxx:xxxx"
         var pushRegistererDelegate: StateMachineDelegate? = StateMachineDelegate()
         options.pushRegistererDelegate = pushRegistererDelegate
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         XCTAssertNotNil(rest.internal.options.pushRegistererDelegate)
         pushRegistererDelegate = nil
         XCTAssertNil(rest.internal.options.pushRegistererDelegate)
@@ -521,7 +521,7 @@ class PushTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.key = "xxxx:xxxx"
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         let mockHttpExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHttpExecutor
         let storage = MockDeviceStorage()
@@ -597,7 +597,7 @@ class PushTests: XCTestCase {
         options.key = "xxxx:xxxx"
         let pushRegistererDelegate = StateMachineDelegate()
         options.pushRegistererDelegate = pushRegistererDelegate
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         let mockHttpExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHttpExecutor
         let storage = MockDeviceStorage()

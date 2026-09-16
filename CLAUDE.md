@@ -56,7 +56,7 @@ All SDK source is in `Source/`, written entirely in Objective-C:
 - `Source/SocketRocket/` — Vendored WebSocket implementation.
 - `Source/include/module.modulemap` — Module map defining the public and private module interfaces.
 
-Key classes follow the `ART` prefix convention: `ARTRealtime`, `ARTRest`, `ARTAuth`, `ARTChannel`, `ARTConnection`, `ARTPresence`, `ARTPush`.
+Key classes follow the `ART` prefix convention: `ARTRealtime`, `ARTHttpClient`, `ARTAuth`, `ARTChannel`, `ARTConnection`, `ARTPresence`, `ARTPush`.
 
 ### Plugin System
 

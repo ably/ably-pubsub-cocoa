@@ -3617,7 +3617,7 @@ class RealtimeClientPresenceTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
 
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
 
         let realtime = ARTRealtime(options: options)
         defer { realtime.dispose(); realtime.close() }
@@ -3628,12 +3628,12 @@ class RealtimeClientPresenceTests: XCTestCase {
 
         var restPresenceHistoryMethodWasCalled = false
 
-        let hookRest = channelRest.presence.internal.testSuite_injectIntoMethod(after: #selector(ARTRestPresenceInternal.history(_:wrapperSDKAgents:callback:))) {
+        let hookRest = channelRest.presence.internal.testSuite_injectIntoMethod(after: #selector(ARTHttpPresenceInternal.history(_:wrapperSDKAgents:callback:))) {
             restPresenceHistoryMethodWasCalled = true
         }
         defer { hookRest.remove() }
 
-        let hookRealtime = channelRealtime.presence.internal.testSuite_injectIntoMethod(after: #selector(ARTRestPresenceInternal.history(_:wrapperSDKAgents:callback:))) {
+        let hookRealtime = channelRealtime.presence.internal.testSuite_injectIntoMethod(after: #selector(ARTHttpPresenceInternal.history(_:wrapperSDKAgents:callback:))) {
             restPresenceHistoryMethodWasCalled = true
         }
         defer { hookRealtime.remove() }

@@ -2,7 +2,7 @@
 #import "ARTPush.h"
 #import "ARTPushActivationEvent.h"
 #import "ARTPushActivationState.h"
-#import "ARTRest+Private.h"
+#import "ARTHttpClient+Private.h"
 #import "ARTInternalLog.h"
 #import "ARTJsonEncoder.h"
 #import "ARTJsonLikeEncoder.h"
@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_END
     id<ARTDeviceStorage> _storage;
 }
 
-- (instancetype)initWithRest:(ARTRestInternal *const)rest
+- (instancetype)initWithRest:(ARTHttpClientInternal *const)rest
                     delegate:(const id<ARTPushRegistererDelegate, NSObject>)delegate
                       logger:(ARTInternalLog *)logger {
     if (self = [super init]) {

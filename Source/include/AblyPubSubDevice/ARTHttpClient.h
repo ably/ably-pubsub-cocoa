@@ -1,12 +1,12 @@
 #import <Foundation/Foundation.h>
 
 #import <AblyPubSubDevice/ARTTypes.h>
-#import <AblyPubSubDevice/ARTRestChannels.h>
+#import <AblyPubSubDevice/ARTHttpChannels.h>
 #import <AblyPubSubDevice/ARTLocalDevice.h>
 
 @protocol ARTHTTPExecutor;
 
-@class ARTRestChannels;
+@class ARTHttpChannels;
 @class ARTClientOptions;
 @class ARTAuth;
 @class ARTPush;
@@ -17,9 +17,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- This protocol contains the non-initializer instance methods provided by the `ARTRest` client class.
+ This protocol contains the non-initializer instance methods provided by the `ARTHttpClient` client class.
  */
-@protocol ARTRestInstanceMethodsProtocol <NSObject>
+@protocol ARTHttpClientInstanceMethodsProtocol <NSObject>
 
 /**
  * Retrieves the time from the Ably service. Clients that do not have access to a sufficiently well maintained time source and wish to issue Ably `ARTTokenRequest`s with a more accurate timestamp should use the `ARTAuthOptions.queryTime` property instead of this method.
@@ -75,28 +75,28 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /**
- The protocol upon which the top level object `ARTRest` is implemented.
+ The protocol upon which the top level object `ARTHttpClient` is implemented.
  */
-@protocol ARTRestProtocol <ARTRestInstanceMethodsProtocol>
+@protocol ARTHttpClientProtocol <ARTHttpClientInstanceMethodsProtocol>
 
 /// :nodoc:
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
- * Construct an `ARTRest` object using an Ably `ARTClientOptions` object.
+ * Construct an `ARTHttpClient` object using an Ably `ARTClientOptions` object.
  *
  * @param options A `ARTClientOptions` object to configure the client connection to Ably.
  */
 - (instancetype)initWithOptions:(ARTClientOptions *)options;
 
 /**
- * Constructs a `ARTRest` object using an Ably API key.
+ * Constructs a `ARTHttpClient` object using an Ably API key.
  * @param key The Ably API key used to validate the client.
  */
 - (instancetype)initWithKey:(NSString *)key;
 
 /**
- * Constructs a `ARTRest` object using an Ably token string.
+ * Constructs a `ARTHttpClient` object using an Ably token string.
  * @param token The Ably token string used to validate the client.
  */
 - (instancetype)initWithToken:(NSString *)token;
@@ -107,12 +107,12 @@ NS_ASSUME_NONNULL_BEGIN
  * A client that offers a simple stateless API to interact directly with Ably's REST API.
  */
 NS_SWIFT_SENDABLE
-@interface ARTRest : NSObject <ARTRestProtocol>
+@interface ARTHttpClient : NSObject <ARTHttpClientProtocol>
 
 /**
  * An `ARTChannels` object.
  */
-@property (readonly) ARTRestChannels *channels;
+@property (readonly) ARTHttpChannels *channels;
 
 /**
  * An `ARTPush` object.

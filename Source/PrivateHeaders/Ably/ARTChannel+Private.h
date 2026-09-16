@@ -3,12 +3,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class ARTRestInternal;
+@class ARTHttpClientInternal;
 @class ARTInternalLog;
 
 @interface ARTChannel()
 
-- (instancetype)initWithName:(NSString *)name andOptions:(ARTChannelOptions *)options rest:(ARTRestInternal *)rest logger:(ARTInternalLog *)logger;
+- (instancetype)initWithName:(NSString *)name andOptions:(ARTChannelOptions *)options rest:(ARTHttpClientInternal *)rest logger:(ARTInternalLog *)logger;
 
 @property (readonly, nullable) ARTChannelOptions *options;
 
@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
  *   - Protocol message creation (for realtime) or REST request construction
  *   - Actual transmission to the server
  *
- * Subclasses (ARTRealtimeChannelInternal, ARTRestChannelInternal) override this method
+ * Subclasses (ARTRealtimeChannelInternal, ARTHttpChannelInternal) override this method
  * to implement their specific transport logic.
  */
 - (void)internalPostMessages:(id)data callback:(nullable ARTPublishResultCallback)callback;
@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
  *     (this applies cipher encryption if the channel has cipher params configured)
  *   - Encoding errors have been handled and will not reach this method
  *
- * @discussion Subclasses (ARTRealtimeChannelInternal, ARTRestChannelInternal) override this method
+ * @discussion Subclasses (ARTRealtimeChannelInternal, ARTHttpChannelInternal) override this method
  * to implement their specific transport logic for message mutations.
  */
 - (void)internalSendEditRequestForMessage:(ARTMessage *)message

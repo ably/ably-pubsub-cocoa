@@ -4,7 +4,7 @@
 #import <UIKit/UIKit.h>
 #endif
 
-#import "ARTRest+Private.h"
+#import "ARTHttpClient+Private.h"
 #import "ARTHttp.h"
 #import "ARTClientOptions.h"
 #import "ARTAuthOptions.h"
@@ -100,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_ASSUME_NONNULL_END
 
 @implementation ARTAuthInternal {
-    __weak ARTRestInternal *_rest; // weak because rest owns auth
+    __weak ARTHttpClientInternal *_rest; // weak because rest owns auth
     dispatch_queue_t _userQueue;
     ARTTokenParams *_tokenParams;
     // Dedicated to Protocol Message
@@ -110,7 +110,7 @@ NS_ASSUME_NONNULL_END
     id<ARTTimeProvider> _timeProvider;
 }
 
-- (instancetype)init:(ARTRestInternal *)rest withOptions:(ARTClientOptions *)options logger:(ARTInternalLog *)logger {
+- (instancetype)init:(ARTHttpClientInternal *)rest withOptions:(ARTClientOptions *)options logger:(ARTInternalLog *)logger {
     if (self = [super init]) {
         _rest = rest;
         _userQueue = rest.userQueue;

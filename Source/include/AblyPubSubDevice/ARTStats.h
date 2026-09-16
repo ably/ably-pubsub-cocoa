@@ -115,7 +115,7 @@ typedef NS_ENUM(NSUInteger, ARTStatsGranularity) {
 @property (readonly, nonatomic) ARTStatsMessageTypes *realtime;
 
 /**
- * A `ARTStatsMessageTypes` object containing a breakdown of usage by message type for messages transferred over a rest transport such as `ARTRest`.
+ * A `ARTStatsMessageTypes` object containing a breakdown of usage by message type for messages transferred over a rest transport such as `ARTHttpClient`.
  */
 @property (readonly, nonatomic) ARTStatsMessageTypes *rest;
 

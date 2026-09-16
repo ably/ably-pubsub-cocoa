@@ -599,7 +599,7 @@ REST calls will callback (e.g. `rest.time { ... }`) — make the test `async thr
 method that bridges the completion handler with a continuation:
 
 ```swift
-private func awaitTime(_ rest: ARTRest, sourceLocation: SourceLocation = #_sourceLocation) async -> Date {
+private func awaitTime(_ rest: ARTHttpClient, sourceLocation: SourceLocation = #_sourceLocation) async -> Date {
     await withCheckedContinuation { (continuation: CheckedContinuation<Date, Never>) in
         rest.time { date, error in
             if let error { Issue.record("time() failed: \(error)", sourceLocation: sourceLocation) }
@@ -1168,7 +1168,7 @@ automatically (REC2c2), so don't add `fallbackHosts`.
 The proxy serves plain ws (`tls = false`) and basic (key) auth is TLS-only (**RSA1**), so a proxied client
 can't just use the sandbox key. Where the pseudocode "generates a JWT from the key parts", the idiomatic
 ably-cocoa equivalent is a **locally-signed `TokenRequest`** from the same sandbox key — no JWT library
-required: a separate TLS "token signer" `ARTRest` calls `auth.createTokenRequest(params, options:)` inside
+required: a separate TLS "token signer" `ARTHttpClient` calls `auth.createTokenRequest(params, options:)` inside
 an `authCallback`, and the realtime client exchanges it for a token through the proxy.
 
 The base class packages all of this: **`proxyClientOptions(for: app, through: session)`** returns
@@ -1179,7 +1179,7 @@ callbacks itself:
 ```swift
 let signerOptions = ARTClientOptions(key: app.defaultKey)
 signerOptions.restHost = SandboxApp.sandboxHost
-let tokenSigner = ARTRest(options: signerOptions)   // TLS, real host — local signing plus one token fetch
+let tokenSigner = ARTHttpClient(options: signerOptions)   // TLS, real host — local signing plus one token fetch
 
 let options = ARTClientOptions()
 options.authCallback = { params, callback in

@@ -46,7 +46,7 @@ class ProxyTestCase: IntegrationTestCase {
     func proxyClientOptions(for app: SandboxApp, through session: ProxySession) -> ARTClientOptions {
         let signerOptions = ARTClientOptions(key: app.defaultKey)
         signerOptions.restHost = SandboxApp.sandboxHost
-        let tokenSigner = ARTRest(options: signerOptions)
+        let tokenSigner = ARTHttpClient(options: signerOptions)
 
         let options = ARTClientOptions()
         options.authCallback = { params, callback in

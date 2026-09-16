@@ -2,17 +2,17 @@
 
 #import <AblyPubSubDevice/ARTChannelProtocol.h>
 
-@class ARTRest;
-@class ARTRestPresence;
-@class ARTRestAnnotations;
+@class ARTHttpClient;
+@class ARTHttpPresence;
+@class ARTHttpAnnotations;
 @class ARTPushChannel;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- The protocol upon which the `ARTRestChannel` is implemented.
+ The protocol upon which the `ARTHttpChannel` is implemented.
  */
-@protocol ARTRestChannelProtocol <ARTChannelProtocol>
+@protocol ARTHttpChannelProtocol <ARTChannelProtocol>
 
 /// :nodoc: TODO: docstring
 @property (readonly, nullable) ARTChannelOptions *options;
@@ -48,17 +48,17 @@ NS_ASSUME_NONNULL_BEGIN
  * Enables messages to be published and historic messages to be retrieved for a channel.
  */
 NS_SWIFT_SENDABLE
-@interface ARTRestChannel : NSObject <ARTRestChannelProtocol>
+@interface ARTHttpChannel : NSObject <ARTHttpChannelProtocol>
 
 /**
- * A `ARTRestPresence` object.
+ * A `ARTHttpPresence` object.
  */
-@property (readonly) ARTRestPresence *presence;
+@property (readonly) ARTHttpPresence *presence;
 
 /**
- * An `ARTRestAnnotations` object.
+ * An `ARTHttpAnnotations` object.
  */
-@property (readonly) ARTRestAnnotations *annotations;
+@property (readonly) ARTHttpAnnotations *annotations;
 
 /**
  * A `ARTPushChannel` object.

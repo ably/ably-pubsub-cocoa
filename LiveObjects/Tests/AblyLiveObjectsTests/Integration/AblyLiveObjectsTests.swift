@@ -44,7 +44,7 @@ struct AblyLiveObjectsTests {
         let restClientOptions = clientOptions.copy() as! ARTClientOptions
         // TODO: Understand why the LiveObjects REST API is failing when I try to use MessagePack (asked in https://ably-real-time.slack.com/archives/CURL4U2FP/p1749739112276359); for now am just using a separate client that always uses JSON.
         restClientOptions.useBinaryProtocol = false
-        let rest = ARTRest(options: restClientOptions)
+        let rest = ARTHttpClient(options: restClientOptions)
 
         let currentAblyTimestamp = UInt64(Date().timeIntervalSince1970) * MSEC_PER_SEC
 

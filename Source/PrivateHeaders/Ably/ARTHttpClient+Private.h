@@ -1,6 +1,6 @@
-#import <AblyPubSubDevice/ARTRest.h>
+#import <AblyPubSubDevice/ARTHttpClient.h>
 #import "ARTHttp.h"
-#import "ARTRestChannels+Private.h"
+#import "ARTHttpChannels+Private.h"
 #import "ARTPush+Private.h"
 
 @protocol ARTEncoder;
@@ -14,15 +14,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// ARTRest private methods that are used internally and for internal testing
-@interface ARTRestInternal : NSObject
+/// ARTHttpClient private methods that are used internally and for internal testing
+@interface ARTHttpClientInternal : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithOptions:(ARTClientOptions *)options;
 - (instancetype)initWithKey:(NSString *)key;
 - (instancetype)initWithToken:(NSString *)token;
 
-@property (nonatomic, readonly) ARTRestChannelsInternal *channels;
+@property (nonatomic, readonly) ARTHttpChannelsInternal *channels;
 @property (nonatomic, readonly) ARTAuthInternal *auth;
 @property (nonatomic, readonly) ARTPushInternal *push;
 #if TARGET_OS_IOS
@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
    - they wish to perform logging
    - they do not accept a logger parameter
    - their signature is already locked since they are part of the public API of the library
-   - they have access to an ARTRest instance
+   - they have access to an ARTHttpClient instance
 
  - When writing tests which wish to perform actions on this instance's logger (for making assertions about how the logger was set up).
  */
@@ -119,11 +119,11 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
 
 @end
 
-@interface ARTRest ()
+@interface ARTHttpClient ()
 
-@property (nonatomic, readonly) ARTRestInternal *internal;
+@property (nonatomic, readonly) ARTHttpClientInternal *internal;
 
-- (void)internalAsync:(void (^)(ARTRestInternal *))use;
+- (void)internalAsync:(void (^)(ARTHttpClientInternal *))use;
 
 @end
 

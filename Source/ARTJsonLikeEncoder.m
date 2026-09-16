@@ -34,7 +34,7 @@
 #import "ARTDevicePushDetails.h"
 #import "ARTDevicePushDetails+Private.h"
 #import "ARTConnectionDetails.h"
-#import "ARTRest+Private.h"
+#import "ARTHttpClient+Private.h"
 #import "ARTJsonEncoder.h"
 #import "ARTPushChannelSubscription.h"
 #import "ARTClientOptions+Private.h"
@@ -45,7 +45,7 @@
 #endif
 
 @implementation ARTJsonLikeEncoder {
-    __weak ARTRestInternal *_rest; // weak because rest owns self
+    __weak ARTHttpClientInternal *_rest; // weak because rest owns self
     ARTInternalLog *_logger;
     id<ARTTimeProvider> _timeProvider;
 }
@@ -60,7 +60,7 @@
     return self;
 }
 
-- (instancetype)initWithRest:(ARTRestInternal *)rest delegate:(id<ARTJsonLikeEncoderDelegate>)delegate logger:(ARTInternalLog *)logger {
+- (instancetype)initWithRest:(ARTHttpClientInternal *)rest delegate:(id<ARTJsonLikeEncoderDelegate>)delegate logger:(ARTInternalLog *)logger {
     if (self = [super init]) {
         _rest = rest;
         _logger = logger;

@@ -4,13 +4,13 @@ import XCTest
 
 #if hasFeature(RetroactiveAttribute)
 // Swift isn't yet smart enough to do this automatically when bridging Objective-C APIs
-extension ARTRestChannels: @retroactive Sequence {
+extension ARTHttpChannels: @retroactive Sequence {
     public func makeIterator() -> NSFastEnumerationIterator {
         return NSFastEnumerationIterator(iterate())
     }
 }
 #else
-extension ARTRestChannels: Sequence {
+extension ARTHttpChannels: Sequence {
     public func makeIterator() -> NSFastEnumerationIterator {
         return NSFastEnumerationIterator(iterate())
     }
@@ -25,7 +25,7 @@ private func beAChannel(named expectedValue: String) -> Nimble.Predicate<ARTChan
     }
 }
 
-private var client: ARTRest!
+private var client: ARTHttpClient!
 private var channelName: String!
 
 private let cipherParams: ARTCipherParams? = nil
@@ -43,13 +43,13 @@ class RestClientChannelsTests: XCTestCase {
     override func setUp() {
         super.setUp()
 
-        client = ARTRest(key: "fake:key")
+        client = ARTHttpClient(key: "fake:key")
         channelName = ProcessInfo.processInfo.globallyUniqueString
     }
 
     // RSN1
     func test__001__RestClient__channels__should_return_collection_of_channels() {
-        let _: ARTRestChannels = client.channels
+        let _: ARTHttpChannels = client.channels
     }
 
     // RSN3
@@ -109,7 +109,7 @@ class RestClientChannelsTests: XCTestCase {
     // RSN4
 
     func test__008__RestClient__channels__releaseChannel__should_release_a_channel() {
-        weak var channel: ARTRestChannelInternal!
+        weak var channel: ARTHttpChannelInternal!
 
         autoreleasepool {
             channel = client.channels.get(channelName).internal
@@ -129,7 +129,7 @@ class RestClientChannelsTests: XCTestCase {
         ]
 
         for channel in client.channels {
-            expect(channels).to(contain((channel as! ARTRestChannel).internal))
+            expect(channels).to(contain((channel as! ARTHttpChannel).internal))
         }
     }
 }

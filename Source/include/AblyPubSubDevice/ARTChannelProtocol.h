@@ -3,7 +3,7 @@
 #import <AblyPubSubDevice/ARTTypes.h>
 #import "ARTStringifiable.h"
 
-@class ARTRest;
+@class ARTHttpClient;
 @class ARTChannelOptions;
 @class ARTMessage;
 @class ARTMessageOperation;
@@ -15,7 +15,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- The protocol upon which `ARTRestChannelProtocol` and `ARTRealtimeChannelProtocol` are based.
+ The protocol upon which `ARTHttpChannelProtocol` and `ARTRealtimeChannelProtocol` are based.
  */
 @protocol ARTChannelProtocol
 

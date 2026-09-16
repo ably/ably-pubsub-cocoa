@@ -4,7 +4,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NSMutableURLRequest (ARTRest)
+@interface NSMutableURLRequest (ARTHttpClient)
 
 - (void)setAcceptHeader:(id<ARTEncoder>)defaultEncoder encoders:(NSDictionary<NSString *, id<ARTEncoder>> *)encoders;
 

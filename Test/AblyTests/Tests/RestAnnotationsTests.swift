@@ -16,7 +16,7 @@ class RestAnnotationsTests: XCTestCase {
         defer { realtimeClient.dispose(); realtimeClient.close() }
 
         // Create rest client
-        let restClient = ARTRest(options: options)
+        let restClient = ARTHttpClient(options: options)
 
         // Channel name and options
         let channelName = test.uniqueChannelName(prefix: "mutable:")
@@ -169,7 +169,7 @@ class RestAnnotationsTests: XCTestCase {
         defer { realtimeClient.dispose(); realtimeClient.close() }
 
         // Create rest client
-        let restClient = ARTRest(options: options)
+        let restClient = ARTHttpClient(options: options)
 
         // Channel name and options
         let channelName = test.uniqueChannelName(prefix: "mutable:")
@@ -297,7 +297,7 @@ class RestAnnotationsTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
         options.testOptions.channelNamePrefix = nil
 
-        let restClient = ARTRest(options: options)
+        let restClient = ARTHttpClient(options: options)
         let channel = restClient.channels.get(test.uniqueChannelName(prefix: "mutable:"))
 
         let largeString = String(repeating: "f", count: ARTDefault.maxMessageSize() + 100) // Create a string larger than maxMessageSize
@@ -340,7 +340,7 @@ class RestAnnotationsTests: XCTestCase {
         let realtimeClient = ARTRealtime(options: options)
         defer { realtimeClient.dispose(); realtimeClient.close() }
 
-        let restClient = ARTRest(options: options)
+        let restClient = ARTHttpClient(options: options)
         let testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
         restClient.internal.httpExecutor = testHTTPExecutor
 
@@ -354,7 +354,7 @@ class RestAnnotationsTests: XCTestCase {
         // cipher-less encoder if it cached one.
         let restChannel = restClient.channels.get(channelName)
 
-        // Now add a cipher. `ARTRestChannel.setOptions` is not visible from Swift — the ObjC
+        // Now add a cipher. `ARTHttpChannel.setOptions` is not visible from Swift — the ObjC
         // importer folds it into the read-only `options` property — so go through
         // `channels.get`, which applies the options to the already-created channel via
         // `setOptions_nosync:`: the same path, recreating the channel's data encoder.

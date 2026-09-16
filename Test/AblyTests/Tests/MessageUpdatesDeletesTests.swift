@@ -9,7 +9,7 @@ class MessageUpdatesDeletesTests: XCTestCase {
     // MARK: - Test Environment
 
     private enum TestEnvironment {
-        case rest(client: ARTRest, testHTTPExecutor: TestProxyHTTPExecutor, channelName: String)
+        case rest(client: ARTHttpClient, testHTTPExecutor: TestProxyHTTPExecutor, channelName: String)
         case realtime(client: ARTRealtime, testHTTPExecutor: TestProxyHTTPExecutor, channelName: String)
 
         var channel: ARTChannelProtocol {
@@ -41,7 +41,7 @@ class MessageUpdatesDeletesTests: XCTestCase {
         static func rest(_ test: Test) throws -> TestEnvironment {
             let options = try AblyTests.commonAppSetup(for: test)
             options.testOptions.channelNamePrefix = nil
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
             let testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
             client.internal.httpExecutor = testHTTPExecutor
             let channelName = test.uniqueChannelName(prefix: "mutable:") // updates and deletes don't work without this prefix on a channel name

@@ -2130,7 +2130,7 @@ class RealtimeClientChannelTests: XCTestCase {
 
         let channelName = test.uniqueChannelName()
 
-        let rest = ARTRest(options: try AblyTests.commonAppSetup(for: test))
+        let rest = ARTHttpClient(options: try AblyTests.commonAppSetup(for: test))
         let restChannel = rest.channels.get(channelName)
 
         var restEncodedMessage: ARTMessage?
@@ -3285,7 +3285,7 @@ class RealtimeClientChannelTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
 
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
 
         let realtime = ARTRealtime(options: options)
         defer { realtime.close() }
@@ -3295,12 +3295,12 @@ class RealtimeClientChannelTests: XCTestCase {
 
         var restChannelHistoryMethodWasCalled = false
 
-        let hookRest = channelRest.testSuite_injectIntoMethod(after: #selector(ARTRestChannel.history(_:callback:))) {
+        let hookRest = channelRest.testSuite_injectIntoMethod(after: #selector(ARTHttpChannel.history(_:callback:))) {
             restChannelHistoryMethodWasCalled = true
         }
         defer { hookRest.remove() }
 
-        let hookRealtime = channelRealtime.testSuite_injectIntoMethod(after: #selector(ARTRestChannel.history(_:callback:))) {
+        let hookRealtime = channelRealtime.testSuite_injectIntoMethod(after: #selector(ARTHttpChannel.history(_:callback:))) {
             restChannelHistoryMethodWasCalled = true
         }
         defer { hookRealtime.remove() }
@@ -4393,7 +4393,7 @@ class RealtimeClientChannelTests: XCTestCase {
         }
 
         var restChannelSetOptions: ARTChannelOptions?
-        let token = channel.internal.restChannel.testSuite_getArgument(from: #selector(ARTRestChannelInternal.setOptions_nosync(_:)), at: 0) { arg in
+        let token = channel.internal.restChannel.testSuite_getArgument(from: #selector(ARTHttpChannelInternal.setOptions_nosync(_:)), at: 0) { arg in
             guard let optionsArg = arg as? ARTChannelOptions else {
                 XCTFail("Expected setOptions: to have been called with an ARTChannelOptions instance")
                 return

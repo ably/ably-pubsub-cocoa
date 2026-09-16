@@ -36,7 +36,7 @@ private func postTestStats(_ stats: [[String: Any]], for test: Test) throws -> A
     return try withProvisioningRetriesSync { try provisionAppAndIngestStats() }
 }
 
-private func queryStats(_ client: ARTRest, _ query: ARTStatsQuery, file: FileString = #file, line: UInt = #line) throws -> ARTPaginatedResult<ARTStats> {
+private func queryStats(_ client: ARTHttpClient, _ query: ARTStatsQuery, file: FileString = #file, line: UInt = #line) throws -> ARTPaginatedResult<ARTStats> {
     let (stats, error) = try AblyTests.waitFor(timeout: testTimeout, file: file, line: line) { value in
         expect {
             try client.stats(query, callback: { result, err in
@@ -119,7 +119,7 @@ class RestClientStatsTests: XCTestCase {
         let test = Test()
         try beforeEach__RestClient__stats__result(for: test)
 
-        let client = ARTRest(options: statsOptions)
+        let client = ARTHttpClient(options: statsOptions)
         let query = ARTStatsQuery()
         query.start = date
         query.direction = .forwards
@@ -142,7 +142,7 @@ class RestClientStatsTests: XCTestCase {
         let test = Test()
         try beforeEach__RestClient__stats__result(for: test)
 
-        let client = ARTRest(options: statsOptions)
+        let client = ARTHttpClient(options: statsOptions)
         let query = ARTStatsQuery()
         query.start = date
         query.direction = .forwards
@@ -165,7 +165,7 @@ class RestClientStatsTests: XCTestCase {
         let test = Test()
         try beforeEach__RestClient__stats__result(for: test)
 
-        let client = ARTRest(options: statsOptions)
+        let client = ARTHttpClient(options: statsOptions)
         let query = ARTStatsQuery()
         query.end = calendar.date(byAdding: .day, value: 1, to: date, options: NSCalendar.Options(rawValue: 0))
         query.direction = .forwards
@@ -184,7 +184,7 @@ class RestClientStatsTests: XCTestCase {
         let test = Test()
         try beforeEach__RestClient__stats__result(for: test)
 
-        let client = ARTRest(options: statsOptions)
+        let client = ARTHttpClient(options: statsOptions)
         let query = ARTStatsQuery()
         query.end = calendar.date(byAdding: .month, value: 1, to: date, options: NSCalendar.Options(rawValue: 0))
         query.direction = .forwards
@@ -203,7 +203,7 @@ class RestClientStatsTests: XCTestCase {
         let test = Test()
         try beforeEach__RestClient__stats__result(for: test)
 
-        let client = ARTRest(options: statsOptions)
+        let client = ARTHttpClient(options: statsOptions)
         let query = ARTStatsQuery()
         query.end = date.addingTimeInterval(60) // 20XX-02-03:16:04
         query.limit = 1
@@ -221,7 +221,7 @@ class RestClientStatsTests: XCTestCase {
         let test = Test()
         try beforeEach__RestClient__stats__result(for: test)
 
-        let client = ARTRest(options: statsOptions)
+        let client = ARTHttpClient(options: statsOptions)
         let query = ARTStatsQuery()
         query.end = date.addingTimeInterval(60) // 20XX-02-03:16:04
         query.limit = 1
@@ -240,7 +240,7 @@ class RestClientStatsTests: XCTestCase {
         let test = Test()
         try beforeEach__RestClient__stats__result(for: test)
 
-        let client = ARTRest(options: statsOptions)
+        let client = ARTHttpClient(options: statsOptions)
         let query = ARTStatsQuery()
         query.end = date.addingTimeInterval(120) // 20XX-02-03:16:05
         query.limit = 1
@@ -289,7 +289,7 @@ class RestClientStatsTests: XCTestCase {
         let test = Test()
         try beforeEach__RestClient__stats__result(for: test)
 
-        let client = ARTRest(options: statsOptions)
+        let client = ARTHttpClient(options: statsOptions)
         let query = ARTStatsQuery()
         query.end = date.addingTimeInterval(120) // 20XX-02-03:16:05
         query.limit = 1
@@ -340,7 +340,7 @@ class RestClientStatsTests: XCTestCase {
     // RSC6b1
 
     func test__009__RestClient__stats__query__start__should_return_an_error_when_later_than_end() {
-        let client = ARTRest(key: "fake:key")
+        let client = ARTHttpClient(key: "fake:key")
         let query = ARTStatsQuery()
 
         query.start = NSDate.distantFuture
@@ -366,7 +366,7 @@ class RestClientStatsTests: XCTestCase {
     }
 
     func test__012__RestClient__stats__query__limit__should_return_an_error_when_greater_than_1000() {
-        let client = ARTRest(key: "fake:key")
+        let client = ARTHttpClient(key: "fake:key")
         let query = ARTStatsQuery()
 
         query.limit = 1001

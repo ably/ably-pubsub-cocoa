@@ -4,7 +4,7 @@
 #import <AblyPubSubDevice/ARTChannelProtocol.h>
 #import <AblyPubSubDevice/ARTStringifiable.h>
 
-@class ARTRest;
+@class ARTHttpClient;
 @class ARTChannelOptions;
 @class ARTMessage;
 @class ARTBaseMessage;
@@ -15,7 +15,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * The base class for `ARTRestChannel` and `ARTRealtimeChannel`.
+ * The base class for `ARTHttpChannel` and `ARTRealtimeChannel`.
  * Ably platform service organizes the message traffic within applications into named channels. Channels are the medium through which messages are distributed; clients attach to channels to subscribe to messages, and every message published to a unique channel is broadcast by Ably to all subscribers.
  *
  * @see See `ARTChannelProtocol` for details.

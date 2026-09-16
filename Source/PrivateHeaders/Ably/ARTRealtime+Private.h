@@ -9,13 +9,13 @@
 
 #import "ARTRealtimeTransport.h"
 #import "ARTAuth+Private.h"
-#import "ARTRest+Private.h"
+#import "ARTHttpClient+Private.h"
 
 #ifdef ABLY_SUPPORTS_PLUGINS
 @import _AblyPluginSupportPrivate;
 #endif
 
-@class ARTRestInternal;
+@class ARTHttpClientInternal;
 @class ARTErrorInfo;
 @class ARTProtocolMessage;
 @class ARTConnectionInternal;
@@ -103,7 +103,7 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
 /// ARTRealtimeInternal private methods that are used for internal testing.
 @interface ARTRealtimeInternal ()
 
-@property (readwrite, nonatomic) ARTRestInternal *rest;
+@property (readwrite, nonatomic) ARTHttpClientInternal *rest;
 @property (readonly, nullable) id<ARTRealtimeTransport> transport;
 @property (readonly, nonatomic, nonnull) id<ARTReachability> reachability;
 @property (nonatomic) NSTimeInterval connectionStateTtl;

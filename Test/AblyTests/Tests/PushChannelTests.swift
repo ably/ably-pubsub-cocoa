@@ -5,7 +5,7 @@ import XCTest
 
 class PushChannelTests: XCTestCase {
     private struct TestEnvironment {
-        var rest: ARTRest
+        var rest: ARTHttpClient
         var mockHttpExecutor: MockHTTPExecutor
         var userQueue: DispatchQueue
 
@@ -15,7 +15,7 @@ class PushChannelTests: XCTestCase {
             userQueue = AblyTests.createUserQueue(for: test)
             options.dispatchQueue = userQueue
             options.internalDispatchQueue = AblyTests.queue
-            rest = ARTRest(options: options)
+            rest = ARTHttpClient(options: options)
             rest.internal.options.clientId = "tester"
             rest.internal.httpExecutor = mockHttpExecutor
             rest.internal.resetDeviceSingleton()
@@ -340,7 +340,7 @@ class PushChannelTests: XCTestCase {
         options.clientId = "tester"
         // Prevent channel name to be prefixed by test-*
         options.testOptions.channelNamePrefix = nil
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         rest.internal.storage = MockDeviceStorage()
         rest.internal.setupLocalDevice_nosync()
 

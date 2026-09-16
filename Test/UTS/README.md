@@ -520,7 +520,7 @@ fake-timer-driven SUSPENDED, `queryParams`/`sentMessages` as the two inspection 
 
 **File:** `unit/rest/TimeTests.swift`
 **Tier:** Unit (mocked HTTP, no network).
-**Spec area:** RSC16 — `ARTRest.time()`.
+**Spec area:** RSC16 — `ARTHttpClient.time()`.
 
 Five tests (`// UTS: rest/unit/RSC16/…`): the returned `Date` matches the server's millisecond
 timestamp; the request is a `GET /time` (asserted via `PendingHTTPRequest.url`/`method`); no
@@ -597,8 +597,8 @@ through it is what puts that client to work, and so shows the factory to be a fa
 and not merely a correct stamp. Every realtime client in
 every tier is built by `makeRealtimeForSide` in [`infra/Side.swift`](infra/Side.swift), so there is
 one seam to keep honest; `SideSeamTests` asserts the routing directly, because a broken seam would
-otherwise leave the suite quietly repeating the core run and reporting it as coverage. REST clients
-are deliberately not routed through it — the device package exposes no HTTP door, so `ARTRest` is
+otherwise leave the suite quietly repeating the core run and reporting it as coverage. HTTP clients
+are deliberately not routed through it — the device package exposes no HTTP door, so `ARTHttpClient` is
 the only way to build a stateless client in either mode. An unrecognised value aborts the run
 rather than falling back to `core`.
 
@@ -856,7 +856,7 @@ try await withProxySession(rules: []) { app, session in
    let authCallbackInvocations = Captured<ARTTokenParams>()
    let signerOptions = ARTClientOptions(key: app.defaultKey)
    signerOptions.restHost = SandboxApp.sandboxHost
-   let tokenSigner = ARTRest(options: signerOptions)
+   let tokenSigner = ARTHttpClient(options: signerOptions)
 
    let options = ARTClientOptions()
    options.authCallback = { params, callback in

@@ -2,7 +2,7 @@
 
 #import <AblyPubSubDevice/ARTTypes.h>
 
-@class ARTRest;
+@class ARTHttpClient;
 @class ARTClientOptions;
 @class ARTAuthOptions;
 @class ARTTokenParams;

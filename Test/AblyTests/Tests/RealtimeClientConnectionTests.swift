@@ -2820,7 +2820,7 @@ class RealtimeClientConnectionTests: XCTestCase {
         defer { client.dispose(); client.close() }
         let restOptions = try AblyTests.clientOptions(for: test, key: options.key!)
         restOptions.testOptions.channelNamePrefix = options.testOptions.channelNamePrefix
-        let rest = ARTRest(options: restOptions)
+        let rest = ARTHttpClient(options: restOptions)
 
         let channelName = test.uniqueChannelName()
         let channel = client.channels.get(channelName)
@@ -5049,7 +5049,7 @@ class RealtimeClientConnectionTests: XCTestCase {
 
         let restOptions = try AblyTests.clientOptions(for: test, key: options.key!)
         restOptions.testOptions.channelNamePrefix = options.testOptions.channelNamePrefix
-        let rest = ARTRest(options: restOptions)
+        let rest = ARTHttpClient(options: restOptions)
 
         waitUntil(timeout: testTimeout) { done in
             let partialDone = AblyTests.splitDone(2, done: done)
@@ -5129,7 +5129,7 @@ class RealtimeClientConnectionTests: XCTestCase {
 
         let restOptions = try AblyTests.clientOptions(for: test, key: options.key!)
         restOptions.testOptions.channelNamePrefix = options.testOptions.channelNamePrefix
-        let rest = ARTRest(options: restOptions)
+        let rest = ARTHttpClient(options: restOptions)
 
         waitUntil(timeout: testTimeout) { done in
             let partialDone = AblyTests.splitDone(2, done: done)
@@ -5399,7 +5399,7 @@ class RealtimeClientConnectionTests: XCTestCase {
     func test__112__Connection__with_fixture_messages__should_send_messages_through_raw_JSON_POST_and_retrieve_equal_messages_through_MsgPack_and_JSON() throws {
         let test = Test()
         try setupDependencies(for: test)
-        let restPublishClient = ARTRest(options: jsonOptions)
+        let restPublishClient = ARTHttpClient(options: jsonOptions)
         let realtimeSubscribeClientMsgPack = AblyTests.newRealtime(msgpackOptions).client
         let realtimeSubscribeClientJSON = AblyTests.newRealtime(jsonOptions).client
         defer {
@@ -5453,9 +5453,9 @@ class RealtimeClientConnectionTests: XCTestCase {
     func test__113__Connection__with_fixture_messages__should_send_messages_through_MsgPack_and_JSON_and_retrieve_equal_messages_through_raw_JSON_GET() throws {
         let test = Test()
         try setupDependencies(for: test)
-        let restPublishClientMsgPack = ARTRest(options: msgpackOptions)
-        let restPublishClientJSON = ARTRest(options: jsonOptions)
-        let restRetrieveClient = ARTRest(options: jsonOptions)
+        let restPublishClientMsgPack = ARTHttpClient(options: msgpackOptions)
+        let restPublishClientJSON = ARTHttpClient(options: jsonOptions)
+        let restRetrieveClient = ARTHttpClient(options: jsonOptions)
 
         let channelName = test.uniqueChannelName()
         let restPublishChannelMsgPack = restPublishClientMsgPack.channels.get(channelName)

@@ -9,7 +9,7 @@
 #import "ARTNSArray+ARTFunctional.h"
 #import "ARTBaseMessage+Private.h"
 #import "ARTDataQuery.h"
-#import "ARTRest+Private.h"
+#import "ARTHttpClient+Private.h"
 #import "ARTDefault.h"
 #import "ARTClientOptions+Private.h"
 #import "ARTInternalLog.h"
@@ -20,7 +20,7 @@
     ARTChannelOptions *_options;
 }
 
-- (instancetype)initWithName:(NSString *)name andOptions:(ARTChannelOptions *)options rest:(ARTRestInternal *)rest logger:(ARTInternalLog *)logger {
+- (instancetype)initWithName:(NSString *)name andOptions:(ARTChannelOptions *)options rest:(ARTHttpClientInternal *)rest logger:(ARTInternalLog *)logger {
     if (self = [super init]) {
         _name = name;
         _logger = logger;

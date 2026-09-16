@@ -7,7 +7,7 @@ import AblyPubSubDevice
 ///
 /// Direct-sandbox integration test against the Ably Sandbox (`sandbox.realtime.ably-nonprod.net`,
 /// via SandboxApp.sandboxHost) — no proxy, no fault injection. Provisions a throwaway SandboxApp
-/// and points real REST clients straight at the sandbox. Needs outbound network:
+/// and points real HTTP clients straight at the sandbox. Needs outbound network:
 ///
 /// ```bash
 /// swift test --filter UTS.PublishTests
@@ -31,7 +31,7 @@ final class PublishTests: IntegrationTestCase {
             let restrictedOptions = ARTClientOptions(key: restrictedKey)
             restrictedOptions.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             restrictedOptions.useBinaryProtocol = useBinaryProtocol
-            let restrictedClient = ARTRest(options: restrictedOptions)
+            let restrictedClient = ARTHttpClient(options: restrictedOptions)
             let restrictedChannel = restrictedClient.channels.get(channelName)
 
             // Test Steps
@@ -50,7 +50,7 @@ final class PublishTests: IntegrationTestCase {
             let options = ARTClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
             let channelName = "test-serials-\(UUID().uuidString)"
             let channel = client.channels.get(channelName)
 
@@ -93,7 +93,7 @@ final class PublishTests: IntegrationTestCase {
             let options = ARTClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTRest(options: options)
+            let client = ARTHttpClient(options: options)
             let channelName = "idempotent-explicit-\(UUID().uuidString)"
             let channel = client.channels.get(channelName)
 
@@ -140,7 +140,7 @@ final class PublishTests: IntegrationTestCase {
         //     params: { "_forceNack": "true" }
         //   ) FAILS WITH error
         //   ASSERT error.code == 40099  # Specific code for forced nack
-        // (no assertion: ARTRestChannel has no publish overload accepting request params — see
+        // (no assertion: ARTHttpChannel has no publish overload accepting request params — see
         // deviations.md)
         Issue.record("RSL1l1: ably-cocoa has no publish-with-params API — see deviations.md (Failing Tests)")
     }
@@ -154,7 +154,7 @@ final class PublishTests: IntegrationTestCase {
             let keyClientOptions = ARTClientOptions(key: app.defaultKey)
             keyClientOptions.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             keyClientOptions.useBinaryProtocol = useBinaryProtocol
-            let keyClient = ARTRest(options: keyClientOptions)
+            let keyClient = ARTHttpClient(options: keyClientOptions)
 
             let token = try #require(await self.requestToken(
                 keyClient, tokenParams: ARTTokenParams(clientId: "authenticated-client-id")))
@@ -163,7 +163,7 @@ final class PublishTests: IntegrationTestCase {
             let tokenClientOptions = ARTClientOptions(token: token)
             tokenClientOptions.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             tokenClientOptions.useBinaryProtocol = useBinaryProtocol
-            let tokenClient = ARTRest(options: tokenClientOptions)
+            let tokenClient = ARTHttpClient(options: tokenClientOptions)
 
             let channelName = "clientid-mismatch-\(UUID().uuidString)"
             let channel = tokenClient.channels.get(channelName)
@@ -184,7 +184,7 @@ extension PublishTests {
     /// Awaits `publish(name:data:)` expecting it to fail (the spec's `AWAIT publish FAILS WITH
     /// error`), returning the error — or nil, after recording an issue, if it unexpectedly
     /// succeeded (tests unwrap with `try #require`).
-    private func publishError(_ channel: ARTRestChannel,
+    private func publishError(_ channel: ARTHttpChannel,
                               name: String,
                               data: String,
                               sourceLocation: SourceLocation = #_sourceLocation) async -> ARTErrorInfo? {
@@ -203,7 +203,7 @@ extension PublishTests {
 
     /// Awaits `publish(messages:)` expecting it to fail, returning the error — or nil, after
     /// recording an issue, if it unexpectedly succeeded (tests unwrap with `try #require`).
-    private func publishError(_ channel: ARTRestChannel,
+    private func publishError(_ channel: ARTHttpChannel,
                               messages: [ARTMessage],
                               sourceLocation: SourceLocation = #_sourceLocation) async -> ARTErrorInfo? {
         let error: ARTErrorInfo? = await withCheckedContinuation { continuation in
@@ -221,7 +221,7 @@ extension PublishTests {
 
     /// Awaits the publish acknowledgement and returns the `ARTPublishResult` (the spec's
     /// `result = AWAIT channel.publish(name:data:)`), recording an issue on error.
-    private func publishResult(_ channel: ARTRestChannel,
+    private func publishResult(_ channel: ARTHttpChannel,
                                name: String,
                                data: String,
                                sourceLocation: SourceLocation = #_sourceLocation) async -> ARTPublishResult? {
@@ -241,7 +241,7 @@ extension PublishTests {
     /// Awaits the publish acknowledgement for an array of messages and returns the
     /// `ARTPublishResult` (the spec's `result = AWAIT channel.publish(messages:)`), recording an
     /// issue on error.
-    private func publishResult(_ channel: ARTRestChannel,
+    private func publishResult(_ channel: ARTHttpChannel,
                                messages: [ARTMessage],
                                sourceLocation: SourceLocation = #_sourceLocation) async -> ARTPublishResult? {
         let (result, failure): (ARTPublishResult?, String?) = await withCheckedContinuation { continuation in
@@ -259,7 +259,7 @@ extension PublishTests {
 
     /// Awaits the publish acknowledgement of a single pre-built message (the spec's
     /// `AWAIT channel.publish(message: ...)`), recording an issue on error.
-    private func awaitPublish(_ channel: ARTRestChannel,
+    private func awaitPublish(_ channel: ARTHttpChannel,
                               message: ARTMessage,
                               sourceLocation: SourceLocation = #_sourceLocation) async {
         let failure: String? = await withCheckedContinuation { continuation in
@@ -275,7 +275,7 @@ extension PublishTests {
 
     /// Fetches the channel's history (default query) and returns its items, recording an issue on
     /// error.
-    private func historyItems(of channel: ARTRestChannel,
+    private func historyItems(of channel: ARTHttpChannel,
                               sourceLocation: SourceLocation = #_sourceLocation) async -> [ARTMessage] {
         let (items, failure): ([ARTMessage], String?) = await withCheckedContinuation { continuation in
             channel.history { result, error in
@@ -293,7 +293,7 @@ extension PublishTests {
     /// Fetches the channel's history (default query) and returns its items, propagating any
     /// `history()` error so it aborts the enclosing `pollUntil` and surfaces the real failure
     /// (matching the plain `poll_until` reference semantics; js/java do the same).
-    private func historyItems(of channel: ARTRestChannel) async throws -> [ARTMessage] {
+    private func historyItems(of channel: ARTHttpChannel) async throws -> [ARTMessage] {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[ARTMessage], Error>) in
             channel.history { result, error in
                 if let error {
@@ -309,7 +309,7 @@ extension PublishTests {
     /// returning the issued `TokenDetails.token` string — the only field the tests use, and
     /// `ARTTokenDetails` is not Sendable so it cannot cross the continuation. Returns nil, after
     /// recording an issue, on failure (tests unwrap with `try #require`).
-    private func requestToken(_ client: ARTRest,
+    private func requestToken(_ client: ARTHttpClient,
                               tokenParams: ARTTokenParams,
                               sourceLocation: SourceLocation = #_sourceLocation) async -> String? {
         let (token, failure): (String?, String?) = await withCheckedContinuation { continuation in

@@ -32,7 +32,7 @@ RUN_DEVIATIONS=1 swift test --filter UTS.<TestClass>/<testMethod>
    `params:` exists only on the message-edit methods (`updateMessage:operation:params:callback:`,
    `deleteMessage:…`, `appendMessage:…` — RSL15f), on both `ARTChannelProtocol` and the internal
    `ARTChannel`, so the spec's `channel.publish(message:, params:)` cannot be expressed at all.
-4. **Root cause**: `Source/include/AblyPubSubDevice/ARTChannelProtocol.h` / `Source/ARTRestChannel.m` — the
+4. **Root cause**: `Source/include/AblyPubSubDevice/ARTChannelProtocol.h` / `Source/ARTHttpChannel.m` — the
    publish family (`publish:data:…`, `publish:` messages array) has no `params:` variant; RSL1l1 is
    unimplemented.
 5. **Test impact**: `UTS.PublishTests/test_RSL1l1_publish_params_with_forceNack` — the spec-correct

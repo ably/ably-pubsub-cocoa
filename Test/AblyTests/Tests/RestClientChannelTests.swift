@@ -37,7 +37,7 @@ private let binaryData = "123456".data(using: .utf8)!
 
 private func testSupportsAESEncryptionWithKeyLength(_ encryptionKeyLength: UInt, for test: Test, channelName: String, testHTTPExecutor: TestProxyHTTPExecutor) throws {
     let options = try AblyTests.commonAppSetup(for: test)
-    let client = ARTRest(options: options)
+    let client = ARTHttpClient(options: options)
     client.internal.httpExecutor = testHTTPExecutor
 
     let params: ARTCipherParams = ARTCrypto.getDefaultParams([
@@ -131,12 +131,12 @@ class RestClientChannelTests: XCTestCase {
     }
 
     private struct TestEnvironment {
-        var client: ARTRest
+        var client: ARTHttpClient
         var testHTTPExecutor: TestProxyHTTPExecutor
 
         init(test: Test) throws {
             let options = try AblyTests.commonAppSetup(for: test)
-            client = ARTRest(options: options)
+            client = ARTHttpClient(options: options)
             testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
         }
     }
@@ -308,7 +308,7 @@ class RestClientChannelTests: XCTestCase {
     // RSL1f1
     func test__011__publish__Unidentified_clients_using_Basic_Auth__should_publish_message_with_the_provided_clientId() throws {
         let test = Test()
-        let client = ARTRest(options: try AblyTests.commonAppSetup(for: test))
+        let client = ARTHttpClient(options: try AblyTests.commonAppSetup(for: test))
         let channel = client.channels.get(test.uniqueChannelName())
         waitUntil(timeout: testTimeout) { done in
             channel.publish([ARTMessage(name: nil, data: "message", clientId: "tester")]) { error in
@@ -357,7 +357,7 @@ class RestClientChannelTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.clientId = "john-doe"
-        let client = ARTRest(options: options)
+        let client = ARTHttpClient(options: options)
         let testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
         client.internal.httpExecutor = testHTTPExecutor
         waitUntil(timeout: testTimeout) { done in
@@ -385,7 +385,7 @@ class RestClientChannelTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
         options.clientId = "client-rest"
         let expectedClientId = options.clientId
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         options.clientId = "client-realtime"
         let realtime = ARTRealtime(options: options)
 
@@ -418,7 +418,7 @@ class RestClientChannelTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
         options.clientId = "client-rest"
         let expectedClientId = options.clientId!
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         options.clientId = "client-realtime"
         let realtime = ARTRealtime(options: options)
 
@@ -450,7 +450,7 @@ class RestClientChannelTests: XCTestCase {
         let test = Test()
         let expectedClientId = "client-rest"
         let options = try AblyTests.commonAppSetup(for: test)
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         let realtime = ARTRealtime(options: options)
 
         let chanelName = test.uniqueChannelName(prefix: "ch1")
@@ -481,7 +481,7 @@ class RestClientChannelTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.clientId = "client-rest"
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         options.clientId = "client-realtime"
         let realtime = ARTRealtime(options: options)
 
@@ -522,7 +522,7 @@ class RestClientChannelTests: XCTestCase {
             }
         }
 
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         let channel = rest.channels.get(test.uniqueChannelName(prefix: "issue-1074"))
 
         waitUntil(timeout: testTimeout) { done in
@@ -546,7 +546,7 @@ class RestClientChannelTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.clientId = "john"
-        let client = ARTRest(options: options)
+        let client = ARTHttpClient(options: options)
         let channel = client.channels.get(test.uniqueChannelName())
         waitUntil(timeout: testTimeout) { done in
             channel.publish("name", data: "some data", clientId: "tester") { error in
@@ -562,7 +562,7 @@ class RestClientChannelTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
         // Prevent channel name to be prefixed by test-*
         options.testOptions.channelNamePrefix = nil
-        let client = ARTRest(options: options)
+        let client = ARTHttpClient(options: options)
         let channel = client.channels.get(test.uniqueChannelName(prefix: "pushenabled:test"))
         let extras = ["push": ["notification": ["title": "Hello from Ably!"]]] as ARTJsonCompatible
 
@@ -602,7 +602,7 @@ class RestClientChannelTests: XCTestCase {
     func test__018__publish__If_the_total_size_of_message_s__exceeds_the_maxMessageSize__the_client_library_should_reject_the_publish_and_indicate_an_error() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        let client = ARTRest(options: options)
+        let client = ARTHttpClient(options: options)
         let channel = client.channels.get(test.uniqueChannelName())
         let messages = buildMessagesThatExceedMaxMessageSize()
 
@@ -617,7 +617,7 @@ class RestClientChannelTests: XCTestCase {
     func test__019__publish__If_the_total_size_of_message_s__exceeds_the_maxMessageSize__also_when_using_publish_data_clientId_extras() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        let client = ARTRest(options: options)
+        let client = ARTHttpClient(options: options)
         let channel = client.channels.get(test.uniqueChannelName())
         let name = buildStringThatExceedMaxMessageSize()
 
@@ -658,7 +658,7 @@ class RestClientChannelTests: XCTestCase {
         let message = ARTMessage(name: nil, data: "foo")
         XCTAssertNil(message.id)
 
-        let rest = ARTRest(key: "xxxx:xxxx")
+        let rest = ARTHttpClient(key: "xxxx:xxxx")
         rest.internal.options.idempotentRestPublishing = true
         let mockHTTPExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHTTPExecutor
@@ -693,7 +693,7 @@ class RestClientChannelTests: XCTestCase {
         let message2 = ARTMessage(name: "john", data: "foo2")
         XCTAssertNil(message2.id)
 
-        let rest = ARTRest(key: "xxxx:xxxx")
+        let rest = ARTHttpClient(key: "xxxx:xxxx")
         rest.internal.options.idempotentRestPublishing = true
         let mockHTTPExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHTTPExecutor
@@ -730,7 +730,7 @@ class RestClientChannelTests: XCTestCase {
         let message = ARTMessage(name: nil, data: "foo")
         message.id = "123"
 
-        let rest = ARTRest(key: "xxxx:xxxx")
+        let rest = ARTHttpClient(key: "xxxx:xxxx")
         rest.internal.options.idempotentRestPublishing = true
         let mockHTTPExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHTTPExecutor
@@ -759,7 +759,7 @@ class RestClientChannelTests: XCTestCase {
 
     func test__022__publish__idempotent_publishing__should_generate_for_internal_message_that_is_created_in_publish_name_data___method() throws {
         let test = Test()
-        let rest = ARTRest(key: "xxxx:xxxx")
+        let rest = ARTHttpClient(key: "xxxx:xxxx")
         rest.internal.options.idempotentRestPublishing = true
         let mockHTTPExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHTTPExecutor
@@ -793,7 +793,7 @@ class RestClientChannelTests: XCTestCase {
         let message2 = ARTMessage(name: "john", data: "foo2")
         message2.id = "123"
 
-        let rest = ARTRest(key: "xxxx:xxxx")
+        let rest = ARTHttpClient(key: "xxxx:xxxx")
         rest.internal.options.idempotentRestPublishing = true
         let mockHTTPExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHTTPExecutor
@@ -829,7 +829,7 @@ class RestClientChannelTests: XCTestCase {
         let message2 = ARTMessage(name: "john", data: "foo2")
         XCTAssertNil(message2.id)
 
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         let mockHTTPExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHTTPExecutor
         mockHTTPExecutor.setSuccessResponse(
@@ -908,7 +908,7 @@ class RestClientChannelTests: XCTestCase {
     func test__026__publish__idempotent_publishing__should_publish_a_message_with_implicit_Id_only_once() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         rest.internal.options.idempotentRestPublishing = true
         let channel = rest.channels.get(test.uniqueChannelName())
 
@@ -941,7 +941,7 @@ class RestClientChannelTests: XCTestCase {
     func test__004__publish__should_include_attributes_supplied_by_the_caller_in_the_encoded_message() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        let client = ARTRest(options: options)
+        let client = ARTHttpClient(options: options)
         let proxyHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
         client.internal.httpExecutor = proxyHTTPExecutor
 
@@ -977,7 +977,7 @@ class RestClientChannelTests: XCTestCase {
     // RSL2a
     func test__029__history__should_return_a_PaginatedResult_page_containing_the_first_page_of_messages() throws {
         let test = Test()
-        let client = ARTRest(options: try AblyTests.commonAppSetup(for: test))
+        let client = ARTHttpClient(options: try AblyTests.commonAppSetup(for: test))
         let channel = client.channels.get(test.uniqueChannelName())
 
         waitUntil(timeout: testTimeout) { done in
@@ -1055,7 +1055,7 @@ class RestClientChannelTests: XCTestCase {
     // RSL2b1
     func test__030__history__query_arguments__start_and_end_should_filter_messages_between_those_two_times() throws {
         let test = Test()
-        let client = ARTRest(options: try AblyTests.commonAppSetup(for: test))
+        let client = ARTHttpClient(options: try AblyTests.commonAppSetup(for: test))
         let channel = client.channels.get(test.uniqueChannelName())
 
         let query = ARTDataQuery()
@@ -1115,7 +1115,7 @@ class RestClientChannelTests: XCTestCase {
     // RSL2b1
     func test__031__history__query_arguments__start_must_be_equal_to_or_less_than_end_and_is_unaffected_by_the_request_direction() throws {
         let test = Test()
-        let client = ARTRest(options: try AblyTests.commonAppSetup(for: test))
+        let client = ARTHttpClient(options: try AblyTests.commonAppSetup(for: test))
         let channel = client.channels.get(test.uniqueChannelName())
 
         let query = ARTDataQuery()
@@ -1137,7 +1137,7 @@ class RestClientChannelTests: XCTestCase {
     // RSL2b2
     func test__032__history__query_arguments__direction_backwards_or_forwards() throws {
         let test = Test()
-        let client = ARTRest(options: try AblyTests.commonAppSetup(for: test))
+        let client = ARTHttpClient(options: try AblyTests.commonAppSetup(for: test))
         let channel = client.channels.get(test.uniqueChannelName())
 
         let query = ARTDataQuery()
@@ -1179,7 +1179,7 @@ class RestClientChannelTests: XCTestCase {
     // RSL2b3
     func test__033__history__query_arguments__limit_items_result() throws {
         let test = Test()
-        let client = ARTRest(options: try AblyTests.commonAppSetup(for: test))
+        let client = ARTHttpClient(options: try AblyTests.commonAppSetup(for: test))
         let channel = client.channels.get(test.uniqueChannelName())
 
         let query = ARTDataQuery()
@@ -1218,7 +1218,7 @@ class RestClientChannelTests: XCTestCase {
     // RSL2b3
     func test__034__history__query_arguments__limit_supports_up_to_1000_items() throws {
         let test = Test()
-        let client = ARTRest(options: try AblyTests.commonAppSetup(for: test))
+        let client = ARTHttpClient(options: try AblyTests.commonAppSetup(for: test))
         let channel = client.channels.get(test.uniqueChannelName())
 
         let query = ARTDataQuery()
@@ -1240,7 +1240,7 @@ class RestClientChannelTests: XCTestCase {
         // This test is intermittently failing because sometimes the list of returned presence messages on the persisted:presence_fixtures channel is empty. The test always seems to pass when run in isolation which makes me speculate that these fixtures have some sort of expiry (have asked in https://ably-real-time.slack.com/archives/CURL4U2FP/p1750083485931569), so let's try creating a new test app with fresh fixtures here.
         let options = try AblyTests.commonAppSetup(for: test, forceNewApp: true)
         options.testOptions.channelNamePrefix = nil
-        let client = ARTRest(options: options)
+        let client = ARTHttpClient(options: options)
         let key = appSetupModel.cipher.key
         let cipherParams = ARTCipherParams(
             algorithm: appSetupModel.cipher.algorithm,
@@ -1572,7 +1572,7 @@ class RestClientChannelTests: XCTestCase {
     func test__045__message_decoding__should_deliver_with_a_binary_payload_when_the_payload_was_successfully_decoded_but_it_could_not_be_decrypted() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        let clientEncrypted = ARTRest(options: options)
+        let clientEncrypted = ARTHttpClient(options: options)
 
         let channelName = test.uniqueChannelName()
         let channelOptions = ARTChannelOptions(cipher: ["key": ARTCrypto.generateRandomKey()] as ARTCipherParamsCompatible)
@@ -1586,7 +1586,7 @@ class RestClientChannelTests: XCTestCase {
             }
         }
 
-        let client = ARTRest(options: options)
+        let client = ARTHttpClient(options: options)
         let channel = client.channels.get(channelName)
 
         waitUntil(timeout: testTimeout) { done in
@@ -1614,7 +1614,7 @@ class RestClientChannelTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
         options.useBinaryProtocol = false
         options.logHandler = ARTLog(capturingOutput: true)
-        let client = ARTRest(options: options)
+        let client = ARTHttpClient(options: options)
         let channelOptions = ARTChannelOptions(cipher: ["key": ARTCrypto.generateRandomKey()] as ARTCipherParamsCompatible)
         let channel = client.channels.get(test.uniqueChannelName(), options: channelOptions)
         client.internal.httpExecutor = testHTTPExecutor
@@ -1658,7 +1658,7 @@ class RestClientChannelTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.clientId = "Client 1"
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         let realtime = ARTRealtime(options: options)
         let channelName = test.uniqueChannelName()
         let channelOptions = ARTRealtimeChannelOptions()

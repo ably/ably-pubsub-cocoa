@@ -967,7 +967,7 @@ Implementation details settled by the port (don't re-derive them):
   an `objectIds` string array; the helper flattens those into its `[String]` return. The UTS spec
   helper documents no response contract — flagged upstream.
 - The cocoa port posts through the UTS infra's plain `URLSession` helpers
-  (`jsonRequest`/`httpRequest`, `infra/Utils.swift`) rather than an `ARTRest` client, so the spec's
+  (`jsonRequest`/`httpRequest`, `infra/Utils.swift`) rather than an `ARTHttpClient` client, so the spec's
   "REST client must be closed after use" note doesn't apply here.
 
 The realtime client then observes the provisioned data through OBJECT_SYNC +

@@ -467,7 +467,7 @@ class PublishTestMessage {
     var completion: ((ARTErrorInfo?) -> Void)? = nil
     var error: ARTErrorInfo? = nil
 
-    init(client: ARTRest, channelName: String, failOnError: Bool = true, completion: ((ARTErrorInfo?) -> Void)? = nil) {
+    init(client: ARTHttpClient, channelName: String, failOnError: Bool = true, completion: ((ARTErrorInfo?) -> Void)? = nil) {
         client.channels.get(channelName).publish(nil, data: "message") { error in
             self.error = error
             if let callback = completion {
@@ -516,11 +516,11 @@ class PublishTestMessage {
 }
 
 /// Rest - Publish message
-@discardableResult func publishTestMessage(_ rest: ARTRest, channelName: String, completion: Optional<(ARTErrorInfo?)->()>) -> PublishTestMessage {
+@discardableResult func publishTestMessage(_ rest: ARTHttpClient, channelName: String, completion: Optional<(ARTErrorInfo?)->()>) -> PublishTestMessage {
     return PublishTestMessage(client: rest, channelName: channelName, failOnError: false, completion: completion)
 }
 
-@discardableResult func publishTestMessage(_ rest: ARTRest, channelName: String, failOnError: Bool = true) -> PublishTestMessage {
+@discardableResult func publishTestMessage(_ rest: ARTHttpClient, channelName: String, failOnError: Bool = true) -> PublishTestMessage {
     return PublishTestMessage(client: rest, channelName: channelName, failOnError: failOnError)
 }
 
@@ -571,7 +571,7 @@ func getTestTokenDetails(for test: Test, key: String? = nil, clientId: String? =
         options.queryTime = queryTime
     }
 
-    let client = ARTRest(options: options)
+    let client = ARTHttpClient(options: options)
 
     var tokenParams: ARTTokenParams? = nil
     if let capability = capability {
@@ -1279,7 +1279,7 @@ class TestProxyTransport: ARTWebSocketTransport {
         return _factory
     }
 
-    init(factory: TestProxyTransportFactory, rest: ARTRestInternal, options: ARTClientOptions, resumeKey: String?, logger: InternalLog) {
+    init(factory: TestProxyTransportFactory, rest: ARTHttpClientInternal, options: ARTClientOptions, resumeKey: String?, logger: InternalLog) {
         self._factory = factory
         super.init(
             rest: rest,

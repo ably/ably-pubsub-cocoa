@@ -2,7 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class ARTRestInternal;
+@class ARTHttpClientInternal;
 @protocol ARTPushRegistererDelegate;
 @class ARTInternalLog;
 
@@ -11,9 +11,9 @@ extern NSString *const ARTPushActivationPendingEventsKey;
 
 @interface ARTPushActivationStateMachine ()
 
-@property (nonatomic) ARTRestInternal *rest;
+@property (nonatomic) ARTHttpClientInternal *rest;
 
-- (instancetype)initWithRest:(ARTRestInternal *)rest
+- (instancetype)initWithRest:(ARTHttpClientInternal *)rest
                     delegate:(id<ARTPushRegistererDelegate, NSObject>)delegate
                       logger:(ARTInternalLog *)logger NS_DESIGNATED_INITIALIZER;
 

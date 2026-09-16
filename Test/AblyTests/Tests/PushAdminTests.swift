@@ -3,7 +3,7 @@ import AblyPubSubDevice
 import Nimble
 import XCTest
 
-private var rest: ARTRest!
+private var rest: ARTHttpClient!
 private var mockHttpExecutor: MockHTTPExecutor!
 private var storage: MockDeviceStorage!
 private var localDevice: ARTLocalDevice!
@@ -113,7 +113,7 @@ class PushAdminTests: XCTestCase {
         }
         options.pushFullWait = true
         options.dispatchQueue = AblyTests.createUserQueue(for: test)
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         rest.internal.storage = MockDeviceStorage()
         let group = DispatchGroup()
 
@@ -146,7 +146,7 @@ class PushAdminTests: XCTestCase {
             fatalError("commonAppSetup failed: \(error)")
         }
         options.dispatchQueue = AblyTests.createUserQueue(for: test)
-        let rest = ARTRest(options: options)
+        let rest = ARTHttpClient(options: options)
         rest.internal.storage = MockDeviceStorage()
         let group = DispatchGroup()
 
@@ -184,7 +184,7 @@ class PushAdminTests: XCTestCase {
     override func setUp() {
         super.setUp()
 
-        rest = ARTRest(key: "xxxx:xxxx")
+        rest = ARTHttpClient(key: "xxxx:xxxx")
         mockHttpExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHttpExecutor
         storage = MockDeviceStorage()

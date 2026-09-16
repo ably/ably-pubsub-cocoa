@@ -6,7 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  An `ARTDeviceStorage` whose every method raises
  `NSInternalInconsistencyException`. Used as the storage of an
- `ARTRestInternal` when `ARTTestClientOptions.disableLocalDevice` is set.
+ `ARTHttpClientInternal` when `ARTTestClientOptions.disableLocalDevice` is set.
  */
 @interface ARTThrowingLocalDeviceStorage : NSObject<ARTDeviceStorage>
 @end

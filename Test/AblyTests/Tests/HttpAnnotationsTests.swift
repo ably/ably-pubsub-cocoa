@@ -2,7 +2,7 @@ import AblyPubSubDevice
 import Nimble
 import XCTest
 
-class RestAnnotationsTests: XCTestCase {
+class HttpAnnotationsTests: XCTestCase {
     // RSAN1
     // RSAN2
     // RSAN3

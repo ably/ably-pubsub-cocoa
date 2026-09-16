@@ -3,7 +3,7 @@ import Nimble
 import XCTest
 import AblyTestingObjC
 
-class RestClientPresenceTests: XCTestCase {
+class HttpClientPresenceTests: XCTestCase {
     // RSP3
 
     // RSP3a

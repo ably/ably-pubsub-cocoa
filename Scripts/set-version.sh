@@ -34,7 +34,7 @@ other_files=(
   "Test/AblyTests/Tests/ClientInformationTests.swift"
   "Test/AblyTests/Tests/PubSubDeviceTests.swift"
   "Test/AblyTests/Tests/RealtimeClientConnectionTests.swift"
-  "Test/AblyTests/Tests/RestClientTests.swift"
+  "Test/AblyTests/Tests/HttpClientTests.swift"
   "Test/AblyTests/Tests/WrapperSDKProxyTests.swift"
 )
 

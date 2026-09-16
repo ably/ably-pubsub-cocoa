@@ -6,7 +6,7 @@ private let links = "<./messages?start=0&end=1535035746063&limit=100&direction=b
 
 private let url = URL(string: "https://sandbox-rest.ably.io:443/channels/foo/messages?limit=100&direction=backwards")!
 
-class RestPaginatedTests: XCTestCase {
+class HttpPaginatedTests: XCTestCase {
     // XCTest invokes this method before executing the first test in the test suite. We use it to ensure that the global variables are initialized at the same moment, and in the same order, as they would have been when we used the Quick testing framework.
     override class var defaultTestSuite: XCTestSuite {
         _ = links

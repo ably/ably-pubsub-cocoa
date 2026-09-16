@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 
-#import <AblyPubSubDevice/ARTStatus.h>
+#import <AblyPubSubDevice/ARTErrorInfo.h>
 #import <AblyPubSubDevice/ARTCrypto.h>
 
 @class ARTCipherParams;

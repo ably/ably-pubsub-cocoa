@@ -1,31 +1,5 @@
 #import <Foundation/Foundation.h>
 
-// This enum keeps its prefix in Swift. `State` is SwiftUI's property-wrapper type, so a view
-// that imports this module alongside SwiftUI could no longer write `@State`.
-/// :nodoc:
-typedef NS_ENUM(NSUInteger, ARTState) {
-    ARTStateOk = 0,
-    ARTStateConnectionClosedByClient,
-    ARTStateConnectionDisconnected,
-    ARTStateConnectionSuspended,
-    ARTStateConnectionFailed,
-    ARTStateAccessRefused,
-    ARTStateNeverConnected,
-    ARTStateConnectionTimedOut,
-    ARTStateAttachTimedOut,
-    ARTStateDetachTimedOut,
-    ARTStateNotAttached,
-    ARTStateInvalidArgs,
-    ARTStateCryptoBadPadding,
-    ARTStateNoClientId,
-    ARTStateMismatchedClientId,
-    ARTStateRequestTokenFailed,
-    ARTStateAuthorizationFailed,
-    ARTStateAuthUrlIncompatibleContent,
-    ARTStateBadConnectionState,
-    ARTStateError = 99999
-};
-
 /**
  The list of all public error codes returned under the error domain ARTAblyErrorDomain
  */
@@ -166,14 +140,6 @@ typedef CF_ENUM(NSUInteger, ARTErrorCode) {
     ARTErrorUnableToApplyObjectsOperationSyncDidNotComplete = 92008
 } NS_SWIFT_NAME(ErrorCode);
 
-/**
- The list of all client error codes returned under the error domain ARTAblyErrorDomain
- */
-typedef CF_ENUM(NSUInteger, ARTClientCodeError) {
-    ARTClientCodeErrorInvalidType,
-    ARTClientCodeErrorTransport,
-} NS_SWIFT_NAME(ClientCodeError);
-
 NS_ASSUME_NONNULL_BEGIN
 
 /// :nodoc:
@@ -265,28 +231,6 @@ NS_SWIFT_NAME(ErrorInfo)
 /// :nodoc:
 - (NSString *)description;
 
-@end
-
-/**
- * :nodoc: TODO: docstring
- * An object representing a status of an operation.
- */
-NS_SWIFT_NAME(Status)
-@interface ARTStatus : NSObject
-
-@property (nullable, readonly, nonatomic) ARTErrorInfo *errorInfo;
-@property (nonatomic) ARTState state;
-
-+ (ARTStatus *)state:(ARTState) state;
-+ (ARTStatus *)state:(ARTState) state info:(nullable ARTErrorInfo *) info;
-
-- (NSString *)description;
-
-@end
-
-/// :nodoc:
-NS_SWIFT_NAME(Exception)
-@interface ARTException : NSException
 @end
 
 /// :nodoc:

@@ -1,6 +1,6 @@
 #import "ARTErrorChecker.h"
 #import "ARTTypes.h"
-#import "ARTStatus.h"
+#import "ARTErrorInfo.h"
 
 @implementation ARTDefaultErrorChecker
 

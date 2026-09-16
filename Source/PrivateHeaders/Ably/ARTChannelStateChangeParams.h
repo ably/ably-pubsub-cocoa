@@ -1,5 +1,6 @@
 @import Foundation;
 #import <AblyPubSubDevice/ARTTypes.h>
+#import "ARTStatus.h"
 
 @class ARTErrorInfo;
 @class ARTRetryAttempt;

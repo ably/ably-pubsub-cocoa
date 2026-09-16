@@ -1,4 +1,5 @@
 #import "ARTChannelStateChangeParams.h"
+#import "ARTStatus.h"
 
 @implementation ARTChannelStateChangeParams
 

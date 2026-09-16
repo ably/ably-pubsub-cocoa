@@ -1,4 +1,5 @@
 #import "ARTPresenceMessage+Private.h"
+#import "ARTStatus.h"
 
 NSString *const ARTPresenceMessageException = @"ARTPresenceMessageException";
 NSString *const ARTAblyMessageInvalidPresenceId = @"Received presence message id is invalid %@";

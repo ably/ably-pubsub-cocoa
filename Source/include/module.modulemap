@@ -142,6 +142,7 @@ module AblyPubSubDevice {
         header "../PrivateHeaders/Ably/ARTPluginAPI.h"
         header "../PrivateHeaders/Ably/ARTPublicRealtimeChannelUnderlyingObjects.h"
         header "../PrivateHeaders/Ably/ARTErrorInfo+Private.h"
+        header "../PrivateHeaders/Ably/ARTStatus.h"
         header "../PrivateHeaders/Ably/ARTDictionarySerializable.h"
         header "../PrivateHeaders/Ably/ARTMessageOperation+Private.h"
         header "../PrivateHeaders/Ably/ARTMessage+Private.h"

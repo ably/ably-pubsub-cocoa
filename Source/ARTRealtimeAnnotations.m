@@ -2,7 +2,7 @@
 #import "ARTRealtimeClient+Private.h"
 #import "ARTChannel+Private.h"
 #import "ARTRealtimeChannel+Private.h"
-#import "ARTStatus.h"
+#import "ARTErrorInfo.h"
 #import "ARTDataQuery+Private.h"
 #import "ARTConnection+Private.h"
 #import "ARTNSArray+ARTFunctional.h"

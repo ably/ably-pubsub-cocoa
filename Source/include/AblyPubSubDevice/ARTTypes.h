@@ -1,9 +1,8 @@
 #import <Foundation/Foundation.h>
 
-#import <AblyPubSubDevice/ARTStatus.h>
+#import <AblyPubSubDevice/ARTErrorInfo.h>
 #import <AblyPubSubDevice/ARTEventEmitter.h>
 
-@class ARTStatus;
 @class ARTHttpResponse;
 @class ARTErrorInfo;
 @class ARTMessage;
@@ -537,9 +536,6 @@ typedef void (^ARTPaginatedAnnotationsCallback)(ARTPaginatedResult<ARTAnnotation
 
 /// :nodoc:
 typedef void (^ARTChannelDetailsCallback)(ARTChannelDetails *_Nullable details, ARTErrorInfo *_Nullable error) NS_SWIFT_NAME(ChannelDetailsCallback);
-
-/// :nodoc:
-typedef void (^ARTStatusCallback)(ARTStatus *status) NS_SWIFT_NAME(StatusCallback);
 
 /// :nodoc:
 typedef void (^ARTURLRequestCallback)(NSHTTPURLResponse *_Nullable result, NSData *_Nullable data, NSError *_Nullable error) NS_SWIFT_NAME(URLRequestCallback);

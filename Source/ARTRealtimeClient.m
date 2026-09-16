@@ -8,6 +8,7 @@
 
 #import "ARTRealtimeChannel+Private.h"
 #import "ARTStatus.h"
+#import "ARTErrorInfo+Private.h"
 #import "ARTDefault.h"
 #import "ARTHttpClient+Private.h"
 #import "ARTAuth+Private.h"

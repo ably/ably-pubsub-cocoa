@@ -75,7 +75,7 @@ class UtilitiesTests: XCTestCase {
         expect { result = try jsonEncoder.encode(pm) }.to(throwError { error in
             let e = error as NSError
             XCTAssertEqual(e.domain, ablyErrorDomain)
-            XCTAssertEqual(e.code, Int(ClientCodeError.invalidType.rawValue))
+            XCTAssertEqual(e.code, Int(ARTClientCodeError.invalidType.rawValue))
             expect(e.localizedDescription).to(contain("Invalid type in JSON write"))
         })
         XCTAssertNil(result)

@@ -1,5 +1,6 @@
 #import "ARTAuthOptions+Private.h"
 #import "ARTTokenDetails.h"
+#import "ARTStatus.h"
 
 @implementation ARTAuthOptions
 

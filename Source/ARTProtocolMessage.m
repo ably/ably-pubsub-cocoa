@@ -1,7 +1,7 @@
 #import "ARTDefault.h"
 #import "ARTProtocolMessage.h"
 #import "ARTProtocolMessage+Private.h"
-#import "ARTStatus.h"
+#import "ARTErrorInfo.h"
 #import "ARTConnectionDetails.h"
 #import "ARTNSString+ARTUtil.h"
 #import "ARTNSArray+ARTFunctional.h"

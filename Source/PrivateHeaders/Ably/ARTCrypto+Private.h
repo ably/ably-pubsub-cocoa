@@ -1,4 +1,5 @@
 #import <AblyPubSubDevice/ARTCrypto.h>
+#import "ARTStatus.h"
 
 @class ARTInternalLog;
 

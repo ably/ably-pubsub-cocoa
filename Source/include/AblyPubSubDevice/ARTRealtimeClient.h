@@ -5,7 +5,6 @@
 #import <AblyPubSubDevice/ARTEventEmitter.h>
 #import <AblyPubSubDevice/ARTConnection.h>
 
-@class ARTStatus;
 @class ARTMessage;
 @class ARTClientOptions;
 @class ARTStatsQuery;

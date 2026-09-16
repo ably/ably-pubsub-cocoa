@@ -1,7 +1,7 @@
 #import "ARTFallback+Private.h"
 
 #import "ARTDefault+Private.h"
-#import "ARTStatus.h"
+#import "ARTErrorInfo.h"
 #import "ARTHTTPExecutor.h"
 
 void (^const ARTFallback_shuffleArray)(NSMutableArray *) = ^void(NSMutableArray *a) {

@@ -2,6 +2,7 @@
 #import "ARTInternalLog.h"
 
 #import <CommonCrypto/CommonCrypto.h>
+#import "ARTStatus.h"
 
 #define ART_CBC_BLOCK_LENGTH (16)
 

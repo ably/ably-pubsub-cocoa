@@ -1,4 +1,6 @@
 #import "ARTJsonEncoder.h"
+#import "ARTErrorInfo+Private.h"
+#import "ARTStatus.h"
 
 @implementation ARTJsonEncoder
 

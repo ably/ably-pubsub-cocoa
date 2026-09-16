@@ -27,6 +27,7 @@
 #import "ARTGCD.h"
 #import "ARTPublishResult.h"
 #import "ARTPublishResultSerial.h"
+#import "ARTStatus.h"
 
 @implementation ARTHttpChannel {
     ARTQueuedDealloc *_dealloc;

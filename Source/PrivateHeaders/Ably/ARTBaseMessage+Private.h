@@ -1,7 +1,7 @@
 @import Foundation;
 #import <AblyPubSubDevice/ARTBaseMessage.h>
 #import "ARTDataEncoder.h"
-#import <AblyPubSubDevice/ARTStatus.h>
+#import <AblyPubSubDevice/ARTErrorInfo.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -1,4 +1,5 @@
 import AblyPubSubDevice
+import AblyPubSubDevice.Private
 import AblyTestingObjC
 import Foundation
 import Nimble

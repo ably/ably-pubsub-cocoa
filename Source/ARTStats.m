@@ -1,5 +1,6 @@
 #import "ARTStats.h"
 #import "ARTDataQuery+Private.h"
+#import "ARTStatus.h"
 
 @implementation ARTStatsQuery
 

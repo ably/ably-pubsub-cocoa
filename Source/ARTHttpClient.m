@@ -38,6 +38,7 @@
 #import "ARTNSMutableURLRequest+ARTUtils.h"
 #import "ARTNSURL+ARTUtils.h"
 #import "ARTClientInformation.h"
+#import "ARTStatus.h"
 #import "ARTErrorChecker.h"
 #import "ARTInternalLog.h"
 #import "ARTLogAdapter.h"

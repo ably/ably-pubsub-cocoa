@@ -3,7 +3,7 @@
 #import "ARTAuthOptions+Private.h"
 
 #import "ARTDefault+Private.h"
-#import "ARTStatus.h"
+#import "ARTErrorInfo.h"
 #import "ARTTokenParams.h"
 #import "ARTStringifiable.h"
 #import "ARTNSString+ARTUtil.h"

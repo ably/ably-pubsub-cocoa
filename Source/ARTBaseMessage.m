@@ -1,5 +1,5 @@
 #import "ARTBaseMessage+Private.h"
-#import "ARTStatus.h"
+#import "ARTErrorInfo.h"
 
 @implementation ARTBaseMessage
 

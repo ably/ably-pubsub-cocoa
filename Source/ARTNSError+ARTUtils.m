@@ -1,5 +1,5 @@
 #import "ARTNSError+ARTUtils.h"
-#import "ARTStatus.h"
+#import "ARTErrorInfo.h"
 
 @implementation NSError (ARTUtils)
 

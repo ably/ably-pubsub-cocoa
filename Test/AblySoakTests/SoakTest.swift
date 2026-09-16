@@ -32,11 +32,11 @@ class SoakTest: XCTestCase {
             let internalQueue = DispatchQueue(label: "io.ably.soakTest.internal.\(i)")
 
             queue.async {
-                let options: ARTClientOptions = {
+                let options: ClientOptions = {
                     if true.times(1, outOf: 2) {
-                        return ARTClientOptions(key: "fake:key")
+                        return ClientOptions(key: "fake:key")
                     } else {
-                        let options = ARTClientOptions()
+                        let options = ClientOptions()
                         options.authUrl = NSURL(string: "http://fakeauth.com") as URL?
                         return options
                     }
@@ -46,7 +46,7 @@ class SoakTest: XCTestCase {
                 options.dispatchQueue = queue
                 options.internalDispatchQueue = internalQueue
                 options.testOptions.transportFactory = SoakTestRealtimeTransportFactory()
-                let realtime = ARTRealtimeClient(options: options)
+                let realtime = RealtimeClient(options: options)
                 realtime.internal.setReachabilityClass(SoakTestReachability.self)
 
                 realtime.connection.on { stateChange in
@@ -97,7 +97,7 @@ final class SyncValue<T> {
     }
 }
 
-func realtimeOperations(realtime: ARTRealtimeClient, queue: DispatchQueue, shouldStop: @escaping () -> Bool) {
+func realtimeOperations(realtime: RealtimeClient, queue: DispatchQueue, shouldStop: @escaping () -> Bool) {
     if shouldStop() {
         return
     }
@@ -125,7 +125,7 @@ func realtimeOperations(realtime: ARTRealtimeClient, queue: DispatchQueue, shoul
     }
 }
 
-func channelsOperations(realtime: ARTRealtimeClient, queue: DispatchQueue) {
+func channelsOperations(realtime: RealtimeClient, queue: DispatchQueue) {
     queue.afterSeconds(between: 0.1 ... 1.0) {
         if realtime.connection.state == .closed {
             return
@@ -186,7 +186,7 @@ func channelsOperations(realtime: ARTRealtimeClient, queue: DispatchQueue) {
     }
 }
 
-func presenceCycle(channel: ARTRealtimeChannel, queue: DispatchQueue) {
+func presenceCycle(channel: RealtimeChannel, queue: DispatchQueue) {
     let client = "presenceClient.\(nextGlobalSerial())"
     channel.presence.enterClient(client, data: randomMessageData()) { error in
         print("\(channel.name): got enter ack; error: \(String(describing: error))")
@@ -212,7 +212,7 @@ func presenceCycle(channel: ARTRealtimeChannel, queue: DispatchQueue) {
     }
 }
 
-extension ARTRealtimeChannels: @retroactive Sequence {
+extension RealtimeChannels: @retroactive Sequence {
     public func makeIterator() -> NSFastEnumerationIterator {
         return NSFastEnumerationIterator(self.iterate())
     }

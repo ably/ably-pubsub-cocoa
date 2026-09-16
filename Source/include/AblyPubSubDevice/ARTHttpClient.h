@@ -19,6 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  This protocol contains the non-initializer instance methods provided by the `ARTHttpClient` client class.
  */
+NS_SWIFT_NAME(HttpClientInstanceMethodsProtocol)
 @protocol ARTHttpClientInstanceMethodsProtocol <NSObject>
 
 /**
@@ -77,6 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  The protocol upon which the top level object `ARTHttpClient` is implemented.
  */
+NS_SWIFT_NAME(HttpClientProtocol)
 @protocol ARTHttpClientProtocol <ARTHttpClientInstanceMethodsProtocol>
 
 /// :nodoc:
@@ -88,6 +90,7 @@ NS_ASSUME_NONNULL_BEGIN
  * A client that offers a simple stateless API to interact directly with Ably's REST API.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(HttpClient)
 @interface ARTHttpClient : NSObject <ARTHttpClientProtocol>
 
 /**

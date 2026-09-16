@@ -9,6 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  The protocol upon which the `ARTPushChannel` is implemented.
  */
+NS_SWIFT_NAME(PushChannelProtocol)
 @protocol ARTPushChannelProtocol
 
 /// :nodoc:
@@ -83,6 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @see See `ARTPushChannelProtocol` for details.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(PushChannel)
 @interface ARTPushChannel : NSObject <ARTPushChannelProtocol>
 
 @end

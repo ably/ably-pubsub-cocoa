@@ -1,7 +1,7 @@
 internal import _AblyPluginSupportPrivate
 import AblyPubSubDevice
 
-internal extension ARTClientOptions {
+internal extension ClientOptions {
     private class Box<T> {
         internal let boxed: T
 

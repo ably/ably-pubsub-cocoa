@@ -10,6 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  This object is used for providing parameters into the presence methods with paginated results.
  */
+NS_SWIFT_NAME(PresenceQuery)
 @interface ARTPresenceQuery : NSObject
 
 /**
@@ -39,6 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /// :nodoc:
+NS_SWIFT_NAME(Presence)
 @interface ARTPresence : NSObject
 
 - (void)history:(ARTPaginatedPresenceCallback)callback;

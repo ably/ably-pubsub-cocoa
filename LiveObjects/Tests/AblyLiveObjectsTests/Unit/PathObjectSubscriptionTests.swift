@@ -214,7 +214,7 @@ struct PathObjectSubscriptionTests {
     func subscribeRejectedInUnusableChannelState(state: _AblyPluginSupportPrivate.RealtimeChannelState) throws {
         let fixture = Self.makeFixture(channelState: state)
 
-        #expect(throws: ARTErrorInfo.self) {
+        #expect(throws: ErrorInfo.self) {
             _ = try Self.rootPath(fixture).subscribe { _ in }
         }
     }

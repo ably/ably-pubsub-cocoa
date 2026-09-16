@@ -1,7 +1,7 @@
 import AblyPubSubDevice
 
 // `import AblyPubSubDevice` alone reaches the core's types too.
-let options = ARTClientOptions()
+let options = ClientOptions()
 options.autoConnect = false
 options.key = "xxxx:xxxx"
 options.clientId = "me"

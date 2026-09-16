@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  The interface for handling Push activation/deactivation-related actions.
  */
+NS_SWIFT_NAME(PushRegistererDelegate)
 @protocol ARTPushRegistererDelegate
 
 /**
@@ -57,6 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  The protocol upon which the `ARTPush` is implemented.
  */
+NS_SWIFT_NAME(PushProtocol)
 @protocol ARTPushProtocol
 
 /// :nodoc:
@@ -110,6 +112,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Enables a device to be registered and deregistered from receiving push notifications.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(Push)
 @interface ARTPush : NSObject <ARTPushProtocol>
 
 /**

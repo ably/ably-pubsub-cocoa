@@ -42,9 +42,9 @@ typedef NS_ENUM(NSUInteger, ARTMessageAction) {
      * replace the previous values.
      */
     ARTMessageActionAppend,
-};
+} NS_SWIFT_NAME(MessageAction);
 
-NSString *_Nonnull ARTMessageActionToStr(ARTMessageAction action);
+NSString *_Nonnull ARTMessageActionToStr(ARTMessageAction action) NS_SWIFT_NAME(messageActionToStr(_:));
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -54,6 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Contains an individual message that is sent to, or received from, Ably.
  */
+NS_SWIFT_NAME(Message)
 @interface ARTMessage : ARTBaseMessage
 
 /// The event name, if available

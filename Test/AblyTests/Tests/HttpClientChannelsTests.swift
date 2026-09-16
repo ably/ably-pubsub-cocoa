@@ -4,13 +4,13 @@ import XCTest
 
 #if hasFeature(RetroactiveAttribute)
 // Swift isn't yet smart enough to do this automatically when bridging Objective-C APIs
-extension ARTHttpChannels: @retroactive Sequence {
+extension HttpChannels: @retroactive Sequence {
     public func makeIterator() -> NSFastEnumerationIterator {
         return NSFastEnumerationIterator(iterate())
     }
 }
 #else
-extension ARTHttpChannels: Sequence {
+extension HttpChannels: Sequence {
     public func makeIterator() -> NSFastEnumerationIterator {
         return NSFastEnumerationIterator(iterate())
     }
@@ -25,10 +25,10 @@ private func beAChannel(named expectedValue: String) -> Nimble.Predicate<ARTChan
     }
 }
 
-private var client: ARTHttpClient!
+private var client: HttpClient!
 private var channelName: String!
 
-private let cipherParams: ARTCipherParams? = nil
+private let cipherParams: CipherParams? = nil
 
 class HttpClientChannelsTests: XCTestCase {
     // XCTest invokes this method before executing the first test in the test suite. We use it to ensure that the global variables are initialized at the same moment, and in the same order, as they would have been when we used the Quick testing framework.
@@ -43,13 +43,13 @@ class HttpClientChannelsTests: XCTestCase {
     override func setUp() {
         super.setUp()
 
-        client = ARTHttpClient(key: "fake:key")
+        client = HttpClient(key: "fake:key")
         channelName = ProcessInfo.processInfo.globallyUniqueString
     }
 
     // RSN1
     func test__001__RestClient__channels__should_return_collection_of_channels() {
-        let _: ARTHttpChannels = client.channels
+        let _: HttpChannels = client.channels
     }
 
     // RSN3
@@ -65,7 +65,7 @@ class HttpClientChannelsTests: XCTestCase {
 
     // RSN3b
     func test__004__RestClient__channels__get__should_return_a_channel_with_the_provided_options() {
-        let options = ARTChannelOptions(cipher: cipherParams)
+        let options = ChannelOptions(cipher: cipherParams)
         let channel = client.channels.get(channelName, options: options)
 
         expect(channel.internal).to(beAChannel(named: channelName))
@@ -74,7 +74,7 @@ class HttpClientChannelsTests: XCTestCase {
 
     // RSN3b
     func test__005__RestClient__channels__get__should_not_replace_the_options_on_an_existing_channel_when_none_are_provided() {
-        let options = ARTChannelOptions(cipher: cipherParams)
+        let options = ChannelOptions(cipher: cipherParams)
         let channel = client.channels.get(channelName, options: options).internal
 
         let newButSameChannel = client.channels.get(channelName).internal
@@ -88,7 +88,7 @@ class HttpClientChannelsTests: XCTestCase {
         let channel = client.channels.get(channelName).internal
         let oldOptions = channel.options
 
-        let newOptions = ARTChannelOptions(cipher: cipherParams)
+        let newOptions = ChannelOptions(cipher: cipherParams)
         let newButSameChannel = client.channels.get(channelName, options: newOptions).internal
 
         XCTAssertTrue(newButSameChannel === channel)
@@ -129,7 +129,7 @@ class HttpClientChannelsTests: XCTestCase {
         ]
 
         for channel in client.channels {
-            expect(channels).to(contain((channel as! ARTHttpChannel).internal))
+            expect(channels).to(contain((channel as! HttpChannel).internal))
         }
     }
 }

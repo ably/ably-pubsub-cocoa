@@ -8,6 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Contains an Ably Token and its associated metadata.
  */
+NS_SWIFT_NAME(TokenDetails)
 @interface ARTTokenDetails : NSObject<NSCopying>
 
 /**

@@ -6,6 +6,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// :nodoc:
+NS_SWIFT_NAME(CipherKeyCompatible)
 @protocol ARTCipherKeyCompatible <NSObject>
 - (NSData *)toData;
 @end
@@ -23,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class ARTCipherParams;
 
 /// :nodoc:
+NS_SWIFT_NAME(CipherParamsCompatible)
 @protocol ARTCipherParamsCompatible <NSObject>
 - (ARTCipherParams *)toCipherParams;
 @end
@@ -35,6 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Sets the properties to configure encryption for an `ARTHttpChannel` or `ARTRealtimeChannel` object.
  */
+NS_SWIFT_NAME(CipherParams)
 @interface ARTCipherParams : NSObject <ARTCipherParamsCompatible>
 
 /**
@@ -71,6 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Contains the properties required to configure the encryption of `ARTMessage` payloads.
  */
+NS_SWIFT_NAME(Crypto)
 @interface ARTCrypto : NSObject
 /**
  * Returns an `ARTCipherParams` object, using the default values for any fields not supplied by the `cipherParams` dictionary.

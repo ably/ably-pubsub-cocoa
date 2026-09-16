@@ -11,6 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  The protocol upon which the `ARTRealtimeAnnotations` is implemented.
  */
+NS_SWIFT_NAME(RealtimeAnnotationsProtocol)
 @protocol ARTRealtimeAnnotationsProtocol
 
 /**
@@ -141,6 +142,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @see See `ARTRealtimeAnnotationsProtocol` for details.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(RealtimeAnnotations)
 @interface ARTRealtimeAnnotations : NSObject <ARTRealtimeAnnotationsProtocol>
 @end
 

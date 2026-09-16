@@ -178,7 +178,7 @@ final class TimeTests: UTSTestCase {
 
 extension TimeTests {
     /// Bridges the completion-handler `time:` API (UTS `AWAIT client.time()`, success path).
-    func awaitTime(_ rest: ARTHttpClient, sourceLocation: SourceLocation = #_sourceLocation) async throws -> Date {
+    func awaitTime(_ rest: HttpClient, sourceLocation: SourceLocation = #_sourceLocation) async throws -> Date {
         let (date, failure): (Date?, String?) = await withCheckedContinuation { continuation in
             rest.time { date, error in
                 continuation.resume(returning: (date, error.map { "\($0)" }))
@@ -193,11 +193,11 @@ extension TimeTests {
     }
 
     /// Bridges the completion-handler `time:` API (UTS `AWAIT client.time() FAILS WITH error`).
-    func awaitTimeError(_ rest: ARTHttpClient, sourceLocation: SourceLocation = #_sourceLocation) async throws -> ARTErrorInfo {
-        let (error, unexpectedDate): (ARTErrorInfo?, String?) = await withCheckedContinuation { continuation in
+    func awaitTimeError(_ rest: HttpClient, sourceLocation: SourceLocation = #_sourceLocation) async throws -> ErrorInfo {
+        let (error, unexpectedDate): (ErrorInfo?, String?) = await withCheckedContinuation { continuation in
             rest.time { date, error in
                 if let error {
-                    continuation.resume(returning: (error as? ARTErrorInfo ?? ARTErrorInfo.create(from: error), nil))
+                    continuation.resume(returning: (error as? ErrorInfo ?? ErrorInfo.create(from: error), nil))
                 } else {
                     continuation.resume(returning: (nil, String(describing: date)))
                 }

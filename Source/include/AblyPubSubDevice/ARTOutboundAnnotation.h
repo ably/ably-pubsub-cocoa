@@ -9,6 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
  * This type is based on ``ARTAnnotation`` but omits the properties that are populated by the Realtime service.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(OutboundAnnotation)
 @interface ARTOutboundAnnotation : NSObject<NSCopying>
 
 // (RSAN1a2) The form of the second argument may accept any language-idiomatic representation (e.g. plain objects in untyped languages), but must allow the user to supply at least the type, clientId, name, count, data, and extras fields

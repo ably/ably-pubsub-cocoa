@@ -8,6 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Passes additional properties to an `ARTHttpChannel` object, such as encryption.
  */
+NS_SWIFT_NAME(ChannelOptions)
 @interface ARTChannelOptions : NSObject <NSCopying>
 
 /**

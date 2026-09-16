@@ -10,6 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  The protocol upon which the `ARTHttpAnnotations` is implemented.
  */
+NS_SWIFT_NAME(HttpAnnotationsProtocol)
 @protocol ARTHttpAnnotationsProtocol
 
 /**
@@ -74,6 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @see See `ARTHttpAnnotationsProtocol` for details.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(HttpAnnotations)
 @interface ARTHttpAnnotations : NSObject <ARTHttpAnnotationsProtocol>
 @end
 

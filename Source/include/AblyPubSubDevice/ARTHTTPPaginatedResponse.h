@@ -8,6 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
  * A superset of `ARTPaginatedResult` which represents a page of results plus metadata indicating the relative queries available to it. `ARTHttpPaginatedResponse` additionally carries information about the response to an HTTP request.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(HTTPPaginatedResponse)
 @interface ARTHTTPPaginatedResponse : ARTPaginatedResult<NSDictionary *>
 
 /**

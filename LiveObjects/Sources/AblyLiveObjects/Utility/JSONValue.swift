@@ -173,7 +173,7 @@ internal enum JSONObjectOrArray: Equatable {
         case incompatibleJSONValue(JSONValue)
     }
 
-    internal init(jsonValue: JSONValue) throws(ARTErrorInfo) {
+    internal init(jsonValue: JSONValue) throws(ErrorInfo) {
         self = switch jsonValue {
         case let .array(array):
             .array(array)
@@ -286,7 +286,7 @@ internal extension JSONObjectOrArray {
     }
 
     /// Deserializes a JSON string into a `JSONObjectOrArray`. Throws an error if not given a valid JSON string.
-    init(jsonString: String) throws(ARTErrorInfo) {
+    init(jsonString: String) throws(ErrorInfo) {
         let data = Data(jsonString.utf8)
         let jsonSerializationOutput: Any
         do {

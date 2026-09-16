@@ -20,7 +20,7 @@ As of [`5cc6f06`](https://github.com/ably/ably-cocoa/commit/5cc6f067f567ad77fafb
 If the existing logs don't give you much information about what's causing a failure, or if you want to investigate some hypothesis, you might want to:
 
 - add further log statements to the test suite or SDK
-- increase the logging level of the SDK for a particular test case - you can do this, for example, by passing the `debug: true` parameter to [`AblyTests.commonAppSetup`](../Test/AblyTests/Test%20Utilities/TestUtilities.swift#L176) which will turn on verbose logging in the created `ARTClientOptions`
+- increase the logging level of the SDK for a particular test case - you can do this, for example, by passing the `debug: true` parameter to [`AblyTests.commonAppSetup`](../Test/AblyTests/Test%20Utilities/TestUtilities.swift#L176) which will turn on verbose logging in the created `ClientOptions`
     - It's worth mentioning that increasing the log level seems to interfere with some tests – I found out that [turning on verbose logging for the entire test suite](https://test-observability.herokuapp.com/repos/ably/ably-cocoa/uploads?branches%5B%5D=1279-run-in-loop-with-extra-logging&createdBefore=&createdAfter=&failureMessage=) seemed to introduce test failures I'd not seen before.
 - try running a particular test case in isolation by disabling all other tests
 

@@ -4,14 +4,14 @@ import XCTest
 
 #if hasFeature(RetroactiveAttribute)
 // Swift isn't yet smart enough to do this automatically when bridging Objective-C APIs
-extension ARTRealtimeChannels: @retroactive Sequence {
+extension RealtimeChannels: @retroactive Sequence {
     public func makeIterator() -> NSFastEnumerationIterator {
         return NSFastEnumerationIterator(iterate())
     }
 }
 #else
 // Swift isn't yet smart enough to do this automatically when bridging Objective-C APIs
-extension ARTRealtimeChannels: Sequence {
+extension RealtimeChannels: Sequence {
     public func makeIterator() -> NSFastEnumerationIterator {
         return NSFastEnumerationIterator(iterate())
     }
@@ -22,7 +22,7 @@ class RealtimeClientChannelsTests: XCTestCase {
     // RTS2
     func test__001__Channels__should_exist_methods_to_check_if_a_channel_exists_or_iterate_through_the_existing_channels() throws {
         let test = Test()
-        let client = ARTRealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let client = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.dispose(); client.close() }
         var disposable = [String]()
 
@@ -39,7 +39,7 @@ class RealtimeClientChannelsTests: XCTestCase {
         XCTAssertFalse(client.channels.exists("testX"))
 
         for channel in client.channels {
-            XCTAssertTrue(disposable.contains((channel as! ARTRealtimeChannel).name))
+            XCTAssertTrue(disposable.contains((channel as! RealtimeChannel).name))
         }
     }
 
@@ -49,7 +49,7 @@ class RealtimeClientChannelsTests: XCTestCase {
     func test__002__Channels__get__should_create_a_new_Channel_if_none_exists_or_return_the_existing_one() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        let client = ARTRealtimeClient(options: options)
+        let client = RealtimeClient(options: options)
         defer { client.dispose(); client.close() }
 
         XCTAssertEqual(client.channels.internal.collection.count, 0)
@@ -65,9 +65,9 @@ class RealtimeClientChannelsTests: XCTestCase {
     // RTS3b
     func test__003__Channels__get__should_be_possible_to_specify_a_ChannelOptions() throws {
         let test = Test()
-        let client = ARTRealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let client = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.dispose(); client.close() }
-        let options = ARTRealtimeChannelOptions()
+        let options = RealtimeChannelOptions()
         let channel = client.channels.get(test.uniqueChannelName(), options: options)
         XCTAssertTrue(channel.options === options)
     }
@@ -75,11 +75,11 @@ class RealtimeClientChannelsTests: XCTestCase {
     // RTS3c
     func test__004__Channels__get__accessing_an_existing_Channel_with_options_should_update_the_options_and_then_return_the_object() throws {
         let test = Test()
-        let client = ARTRealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let client = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.dispose(); client.close() }
         let channelName = test.uniqueChannelName()
         XCTAssertNil(client.channels.get(channelName).options)
-        let options = ARTRealtimeChannelOptions()
+        let options = RealtimeChannelOptions()
         let channel = client.channels.get(channelName, options: options)
         XCTAssertTrue(channel.options === options)
     }
@@ -88,7 +88,7 @@ class RealtimeClientChannelsTests: XCTestCase {
 
     func test__005__Channels__release__should_release_a_channel() throws {
         let test = Test()
-        let client = ARTRealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let client = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.dispose(); client.close() }
 
         let channelName = test.uniqueChannelName()
@@ -102,7 +102,7 @@ class RealtimeClientChannelsTests: XCTestCase {
         waitUntil(timeout: testTimeout) { done in
             client.channels.release(channelName) { errorInfo in
                 XCTAssertNil(errorInfo)
-                XCTAssertEqual(channel.state, ARTRealtimeChannelState.detached)
+                XCTAssertEqual(channel.state, RealtimeChannelState.detached)
                 done()
             }
         }

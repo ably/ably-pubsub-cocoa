@@ -28,7 +28,7 @@ internal final class DefaultLiveMapInstance: LiveMapInstance {
 
     // MARK: - LiveMapInstance
 
-    internal func get(key: String) throws(ARTErrorInfo) -> Instance? {
+    internal func get(key: String) throws(ErrorInfo) -> Instance? {
         // RTINS5b (the node accessor runs the RTO25b check), RTINS5c
         guard let value = try node.get(key: key, coreSDK: coreSDK, delegate: realtimeObjects) else {
             // RTINS5c: an absent/dangling result stays nil
@@ -37,7 +37,7 @@ internal final class DefaultLiveMapInstance: LiveMapInstance {
         return Instance.from(internalValue: value, coreSDK: coreSDK, realtimeObjects: realtimeObjects, internalQueue: internalQueue)
     }
 
-    internal func entries() throws(ARTErrorInfo) -> [(key: String, value: Instance)] {
+    internal func entries() throws(ErrorInfo) -> [(key: String, value: Instance)] {
         // RTINS6b: delegate to the node's entries (tombstoned/dangling entries already excluded) and
         // wrap each value in an Instance.
         try node.entries(coreSDK: coreSDK, delegate: realtimeObjects).map { key, value in
@@ -45,37 +45,37 @@ internal final class DefaultLiveMapInstance: LiveMapInstance {
         }
     }
 
-    internal func keys() throws(ARTErrorInfo) -> [String] {
+    internal func keys() throws(ErrorInfo) -> [String] {
         // RTINS7b -> RTLM12
         try node.keys(coreSDK: coreSDK, delegate: realtimeObjects)
     }
 
-    internal func values() throws(ARTErrorInfo) -> [Instance] {
+    internal func values() throws(ErrorInfo) -> [Instance] {
         // RTINS8b: the values of the entries
         try entries().map(\.value)
     }
 
     internal var size: Int {
-        get throws(ARTErrorInfo) {
+        get throws(ErrorInfo) {
             // RTINS9b -> RTLM10d
             try node.size(coreSDK: coreSDK, delegate: realtimeObjects)
         }
     }
 
-    internal func set(key: String, value: LiveMapValue) async throws(ARTErrorInfo) {
+    internal func set(key: String, value: LiveMapValue) async throws(ErrorInfo) {
         // RTINS12c -> RTLM20: delegate straight to the node's set, which handles both primitive values
         // and LiveMap/LiveCounter blueprints (evaluating a blueprint and publishing its *_CREATE
         // messages atomically with the MAP_SET, per RTLM20e7g/RTLM20h1).
         try await node.set(key: key, value: value, coreSDK: coreSDK, realtimeObjects: realtimeObjects)
     }
 
-    internal func remove(key: String) async throws(ARTErrorInfo) {
+    internal func remove(key: String) async throws(ErrorInfo) {
         // RTINS13c -> RTLM21
         try await node.remove(key: key, coreSDK: coreSDK, realtimeObjects: realtimeObjects)
     }
 
     @discardableResult
-    internal func subscribe(listener: @escaping InstanceSubscriptionCallback) throws(ARTErrorInfo) -> any Subscription {
+    internal func subscribe(listener: @escaping InstanceSubscriptionCallback) throws(ErrorInfo) -> any Subscription {
         // RTINS16b (the node's subscribe runs the RTO25b check), RTINS16d -> RTLO4b
         let response = try node.subscribe(
             listener: { [weak self] update, _ in
@@ -93,7 +93,7 @@ internal final class DefaultLiveMapInstance: LiveMapInstance {
         return DefaultSubscription(response: response)
     }
 
-    internal func compactJson() throws(ARTErrorInfo) -> JSONValue {
+    internal func compactJson() throws(ErrorInfo) -> JSONValue {
         // RTINS11a/RTINS11b -> RTPO14: recursive compaction with cycle markers (see the helper).
         var visited: Set<String> = []
         return try Self.compactJson(
@@ -120,7 +120,7 @@ internal final class DefaultLiveMapInstance: LiveMapInstance {
         coreSDK: CoreSDK,
         delegate: any InternalRealtimeObjectsProtocol,
         visited: inout Set<String>,
-    ) throws(ARTErrorInfo) -> JSONValue {
+    ) throws(ErrorInfo) -> JSONValue {
         // RTPO14b2 parity: mark this map visited before descending.
         visited.insert(objectID)
         var result: [String: JSONValue] = [:]

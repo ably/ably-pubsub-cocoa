@@ -10,6 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  This object is used for providing parameters into `ARTRealtimePresence`'s methods with paginated results.
  */
+NS_SWIFT_NAME(RealtimePresenceQuery)
 @interface ARTRealtimePresenceQuery : ARTPresenceQuery
 
 /**
@@ -22,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  The protocol upon which the `ARTRealtimePresence` is implemented.
  */
+NS_SWIFT_NAME(RealtimePresenceProtocol)
 @protocol ARTRealtimePresenceProtocol
 
 /**
@@ -218,6 +220,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @see See `ARTRealtimePresenceProtocol` for details.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(RealtimePresence)
 @interface ARTRealtimePresence : ARTPresence <ARTRealtimePresenceProtocol>
 @end
 

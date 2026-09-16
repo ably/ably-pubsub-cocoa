@@ -5,6 +5,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Contains the token string used to authenticate a client with Ably.
  */
+NS_SWIFT_NAME(AuthDetails)
 @interface ARTAuthDetails : NSObject<NSCopying>
 
 /**

@@ -5,6 +5,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Represents default library settings.
  */
+NS_SWIFT_NAME(Default)
 @interface ARTDefault : NSObject
 
 + (NSString *)apiVersion;

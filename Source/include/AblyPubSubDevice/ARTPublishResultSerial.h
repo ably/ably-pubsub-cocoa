@@ -6,6 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Represents the message serial of a message published to Ably, as contained in an `ARTPublishResult`.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(PublishResultSerial)
 @interface ARTPublishResultSerial : NSObject
 
 /**

@@ -7,6 +7,7 @@ NS_SWIFT_SENDABLE
 /**
  * A set of options for controlling the creation of an `ARTWrapperSDKProxyRealtime` object.
  */
+NS_SWIFT_NAME(WrapperSDKProxyOptions)
 @interface ARTWrapperSDKProxyOptions: NSObject
 
 /**

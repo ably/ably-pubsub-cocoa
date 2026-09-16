@@ -58,6 +58,10 @@ All SDK source is in `Source/`, written entirely in Objective-C:
 
 Key classes follow the `ART` prefix convention: `ARTRealtimeClient`, `ARTHttpClient`, `ARTAuth`, `ARTChannel`, `ARTConnection`, `ARTPresence`, `ARTPush`.
 
+Swift sees these names without the prefix: `RealtimeClient`, `HttpClient`, `Auth` and so on. Every declaration in the module's public headers carries an `NS_SWIFT_NAME` that strips `ART`, so a new public declaration needs one too. Objective-C keeps the prefix everywhere.
+
+The private headers were not swept. Most of them keep the prefix in Swift as well, so a test reaching internals through `import AblyPubSubDevice.Private` writes `ARTProtocolMessage`. Some carry an `NS_SWIFT_NAME` of their own, though — `InternalLog`, `WebSocketFactory` and `SystemTimeProvider` among them — so read the header rather than assuming either spelling.
+
 ### Plugin System
 
 Plugins are passed via `ARTClientOptions.plugins`. Plugin support is gated behind `#ifdef ABLY_SUPPORTS_PLUGINS`, which `Package.swift` defines for the `AblyPubSubDevice` target. See `Docs/plugins.md`.
@@ -81,7 +85,7 @@ SPM discovers source files automatically, so a new file needs no manifest change
 
 When adding new Objective-C files:
 
-- **Public headers** go in `Source/include/AblyPubSubDevice/` and must be imported in the appropriate umbrella header (`AblyPublic.h` or `AblyInternal.h`).
+- **Public headers** go in `Source/include/AblyPubSubDevice/` and must be imported in the appropriate umbrella header (`AblyPublic.h` or `AblyInternal.h`). Every class, protocol, enum, typedef, function and constant they declare needs an `NS_SWIFT_NAME` that drops the `ART` prefix.
 - **Private headers** go in `Source/PrivateHeaders/Ably/` and must be declared in the `Private` module in `Source/include/module.modulemap`.
 - **Implementation files** go in `Source/`.
 

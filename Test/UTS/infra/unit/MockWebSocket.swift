@@ -6,7 +6,7 @@ import AblyPubSubDevice.Private
 /// (the SDK creates a new `MockWebSocket` for every connection attempt), holding the
 /// `onConnectionAttempt` handler and the history of all connection attempts.
 ///
-/// It is installed via `ARTClientOptions.testOptions.transportFactory` (the cocoa mapping of the
+/// It is installed via `ClientOptions.testOptions.transportFactory` (the cocoa mapping of the
 /// spec's `install_mock`). The SDK still builds a *real* `ARTWebSocketTransport`, so URL and
 /// query-param construction (`recover`, `resume`, `format`, …) is exercised by production code;
 /// only the underlying socket is faked, via the `ARTWebSocketFactory` seam.
@@ -215,7 +215,7 @@ final class MockWebSocketFactory: NSObject, WebSocketFactory {
 }
 
 /// A `RealtimeTransportFactory` that builds a real `ARTWebSocketTransport` backed by a
-/// `MockWebSocketFactory`. Installed via `ARTClientOptions.testOptions.transportFactory`.
+/// `MockWebSocketFactory`. Installed via `ClientOptions.testOptions.transportFactory`.
 final class MockWebSocketTransportFactory: NSObject, RealtimeTransportFactory {
     private let wsProvider: MockWebSocketProvider
 
@@ -224,7 +224,7 @@ final class MockWebSocketTransportFactory: NSObject, RealtimeTransportFactory {
         super.init()
     }
 
-    func transport(withRest rest: ARTHttpClientInternal, options: ARTClientOptions, resumeKey: String?, logger: InternalLog) -> ARTRealtimeTransport {
+    func transport(withRest rest: ARTHttpClientInternal, options: ClientOptions, resumeKey: String?, logger: InternalLog) -> ARTRealtimeTransport {
         let webSocketFactory = MockWebSocketFactory(workQueue: rest.queue, decoder: rest.defaultEncoder, wsProvider: wsProvider)
         return ARTWebSocketTransport(rest: rest, options: options, resumeKey: resumeKey, logger: logger, webSocketFactory: webSocketFactory)
     }

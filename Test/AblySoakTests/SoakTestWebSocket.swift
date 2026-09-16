@@ -8,7 +8,7 @@ class SoakTestWebSocketFactory: WebSocketFactory {
 }
 
 class SoakTestRealtimeTransportFactory: RealtimeTransportFactory {
-    func transport(withRest rest: ARTHttpClientInternal, options: ARTClientOptions, resumeKey: String?, logger: InternalLog) -> ARTRealtimeTransport {
+    func transport(withRest rest: ARTHttpClientInternal, options: ClientOptions, resumeKey: String?, logger: InternalLog) -> ARTRealtimeTransport {
         return ARTWebSocketTransport(
             rest: rest,
             options: options,
@@ -36,7 +36,7 @@ class SoakTestWebSocket: NSObject, ARTWebSocket {
 
     func open() {
         readyState = .connecting
-        delegateDispatchQueue!.afterSeconds(between: 0.1 ... ARTDefault.realtimeRequestTimeout() + 1.0) {
+        delegateDispatchQueue!.afterSeconds(between: 0.1 ... Default.realtimeRequestTimeout() + 1.0) {
             if true.times(9, outOf: 10) {
                 self.readyState = .open
                 self.delegate?.webSocketDidOpen?(self)
@@ -62,7 +62,7 @@ class SoakTestWebSocket: NSObject, ARTWebSocket {
                         self.sendHeartbeats()
                     } else {
                         self.messageToClient(action: .error) { m in
-                            m.error = ARTErrorInfo.create(from: fakeError)
+                            m.error = ErrorInfo.create(from: fakeError)
                         }
                     }
                 }
@@ -95,7 +95,7 @@ class SoakTestWebSocket: NSObject, ARTWebSocket {
         return ARTProtocolMessage.build(action: action) { m in
             m.connectionId = self.connectionId
             // Presence members inherit their `id` from the containing protocol message,
-            // and `ARTPresenceMessage.isSynthesized` reads it as `<connectionId>:…`.
+            // and `PresenceMessage.isSynthesized` reads it as `<connectionId>:…`.
             m.id = "\(self.connectionId):\(nextGlobalSerial())"
             m.timestamp = Date()
             setUp(m)
@@ -136,7 +136,7 @@ class SoakTestWebSocket: NSObject, ARTWebSocket {
                 self.messageToClient(action: .nack) { m in
                     m.msgSerial = self.pendingSerials.first!
                     m.count = Int32(self.pendingSerials.count)
-                    m.error = ARTErrorInfo.create(from: fakeError)
+                    m.error = ErrorInfo.create(from: fakeError)
                 }
             }
             self.pendingSerials.removeAll()
@@ -167,7 +167,7 @@ class SoakTestWebSocket: NSObject, ARTWebSocket {
                     if true.times(1, outOf: 10) {
                         self.messageToClient(action: .error) { m in
                             m.channel = message.channel
-                            m.error = ARTErrorInfo.create(from: fakeError)
+                            m.error = ErrorInfo.create(from: fakeError)
                         }
                         return
                     }
@@ -198,7 +198,7 @@ class SoakTestWebSocket: NSObject, ARTWebSocket {
                 self.messageToClient(action: .detached) { m in
                     m.channel = message.channel
                     if true.times(1, outOf: 5) {
-                        m.error = ARTErrorInfo.create(from: fakeError)
+                        m.error = ErrorInfo.create(from: fakeError)
                     }
                 }
 
@@ -238,7 +238,7 @@ class SoakTestWebSocket: NSObject, ARTWebSocket {
     func sendMessages(channel: String) {
         doIfStillOpen(afterSecondsBetween: 0.1 ... 2.0) {
             self.nextMessageToClient(forChannel: channel, action: .message) { m in
-                m.messages = [ARTMessage(
+                m.messages = [Message(
                     name: "fakeMessage",
                     data: randomMessageData()
                 )]
@@ -250,7 +250,7 @@ class SoakTestWebSocket: NSObject, ARTWebSocket {
 
     func sendPresenceMessages(channel: String) {
         doIfStillOpen(afterSecondsBetween: 0.1 ... 2.0) {
-            let presence = ARTPresenceMessage()
+            let presence = PresenceMessage()
             presence.clientId = "someone.\(nextGlobalSerial())"
             presence.data = randomMessageData()
             presence.action = .enter
@@ -267,7 +267,7 @@ class SoakTestWebSocket: NSObject, ARTWebSocket {
 
     func updatePresence(channel: String, clientId: String) {
         doIfStillOpen(afterSecondsBetween: 0.1 ... 10.0) {
-            let presence = ARTPresenceMessage()
+            let presence = PresenceMessage()
             presence.clientId = clientId
 
             if true.times(3, outOf: 4) {
@@ -313,7 +313,7 @@ class SoakTestWebSocket: NSObject, ARTWebSocket {
             self.messageToClient(action: .sync) { m in
                 m.channelSerial = "somethingsomething:\(cursor)"
                 m.presence = page.map { member in
-                    let message = ARTPresenceMessage()
+                    let message = PresenceMessage()
                     message.clientId = member
                     message.action = .present
                     return message
@@ -345,8 +345,8 @@ extension String {
 
 let fakeError = "fake error for soak test".asError()
 
-func authError() -> ARTErrorInfo {
-    return ARTErrorInfo.create(from: "fake auth error".asError(code: 40140))
+func authError() -> ErrorInfo {
+    return ErrorInfo.create(from: "fake auth error".asError(code: 40140))
 }
 
 func serialSequence(label: String, first: Int64 = 0) -> (() -> Int64) {

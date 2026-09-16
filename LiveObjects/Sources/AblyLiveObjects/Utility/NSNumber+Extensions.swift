@@ -24,7 +24,7 @@ internal extension NSNumber {
     /// text and let `Double(_: String)`, which is correctly rounded, do the conversion.
     ///
     /// This only makes a difference when the JSON protocol is in use, that is when
-    /// `ARTClientOptions.useBinaryProtocol` is `false` (it defaults to `true`). Under MessagePack a
+    /// `ClientOptions.useBinaryProtocol` is `false` (it defaults to `true`). Under MessagePack a
     /// number arrives as a float64 and is decoded into a plain `NSNumber` that already holds the
     /// closest `Double`, so nothing here changes the value; there is no decimal text to misread.
     ///

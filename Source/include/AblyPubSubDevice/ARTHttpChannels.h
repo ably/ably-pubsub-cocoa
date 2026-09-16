@@ -4,6 +4,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// :nodoc:
+NS_SWIFT_NAME(HttpChannelsProtocol)
 @protocol ARTHttpChannelsProtocol
 
 // We copy this from the parent class and replace ChannelType by ARTHttpChannel * because
@@ -16,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// :nodoc:
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(HttpChannels)
 @interface ARTHttpChannels : NSObject<ARTHttpChannelsProtocol>
 
 - (ARTHttpChannel *)get:(NSString *)name;

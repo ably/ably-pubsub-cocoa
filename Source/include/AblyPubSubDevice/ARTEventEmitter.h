@@ -6,6 +6,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// :nodoc:
+NS_SWIFT_NAME(EventIdentification)
 @protocol ARTEventIdentification
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
@@ -13,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /// :nodoc:
+NS_SWIFT_NAME(Event)
 @interface ARTEvent : NSObject<ARTEventIdentification>
 
 - (instancetype)initWithString:(NSString *)value;
@@ -24,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
  An object representing a listener returned by `ARTEventEmitter` methods.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(EventListener)
 @interface ARTEventListener : NSObject
 @end
 
@@ -31,6 +34,7 @@ NS_SWIFT_SENDABLE
  * A generic interface for event registration and delivery used in a number of the types in the Realtime client library. For example, the `ARTConnection` and `ARTRealtimeChannel` objects emit events for their state using the `ARTEventEmitter` pattern.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(EventEmitter)
 @interface ARTEventEmitter<EventType:id<ARTEventIdentification>, ItemType> : NSObject
 
 /// :nodoc:

@@ -36,11 +36,11 @@ public protocol PathObject: Sendable {
     /// Resolves the path and returns an ``Instance`` wrapping the resolved value — whether that value
     /// is a `LiveObject` (RTPO8c) or a primitive (RTPO8f). Returns `nil` only if resolution fails
     /// (RTPO8e). Spec: `RTPO8`.
-    func instance() throws(ARTErrorInfo) -> Instance?
+    func instance() throws(ErrorInfo) -> Instance?
 
     /// Resolves the path and returns a JSON-serializable, recursively-compacted representation of the
     /// resolved value, or `nil` if resolution fails. Spec: `RTPO14`.
-    func compactJson() throws(ARTErrorInfo) -> JSONValue?
+    func compactJson() throws(ErrorInfo) -> JSONValue?
 
     /// Registers a listener that is called when the object at this path is updated.
     ///
@@ -50,14 +50,14 @@ public protocol PathObject: Sendable {
     /// - Returns: A ``Subscription`` that allows the listener to be deregistered.
     /// Spec: `RTPO19`.
     @discardableResult
-    func subscribe(options: PathObjectSubscriptionOptions?, listener: @escaping PathObjectSubscriptionCallback) throws(ARTErrorInfo) -> any Subscription
+    func subscribe(options: PathObjectSubscriptionOptions?, listener: @escaping PathObjectSubscriptionCallback) throws(ErrorInfo) -> any Subscription
 
     /// Resolves the path and reports whether a value exists there. Spec: `RTTS4a`.
-    func exists() throws(ARTErrorInfo) -> Bool
+    func exists() throws(ErrorInfo) -> Bool
 
     /// Resolves the path and returns the ``ValueType`` of the value there, or `nil` if nothing
     /// resolves at the path. Spec: `RTTS4b`.
-    func type() throws(ARTErrorInfo) -> ValueType?
+    func type() throws(ErrorInfo) -> ValueType?
 
     /// Returns a view of this path object typed as a ``LiveMapPathObject``. Purely a type refinement;
     /// it does not resolve the path and never throws on a type mismatch. Spec: `RTTS5a`.
@@ -76,7 +76,7 @@ public extension PathObject {
     /// Registers a listener that is called when the object at this path is updated, using default
     /// options. Spec: `RTPO19`.
     @discardableResult
-    func subscribe(listener: @escaping PathObjectSubscriptionCallback) throws(ARTErrorInfo) -> any Subscription {
+    func subscribe(listener: @escaping PathObjectSubscriptionCallback) throws(ErrorInfo) -> any Subscription {
         try subscribe(options: nil, listener: listener)
     }
 }
@@ -86,7 +86,7 @@ public extension PathObject {
     /// Returns an `AsyncSequence` that emits a ``PathObjectSubscriptionEvent`` each time the object at
     /// this path is updated. The underlying subscription is removed when the stream is terminated.
     /// Spec: `RTPO19`.
-    func events(options: PathObjectSubscriptionOptions? = nil) throws(ARTErrorInfo) -> AsyncStream<PathObjectSubscriptionEvent> {
+    func events(options: PathObjectSubscriptionOptions? = nil) throws(ErrorInfo) -> AsyncStream<PathObjectSubscriptionEvent> {
         let (stream, continuation) = AsyncStream.makeStream(of: PathObjectSubscriptionEvent.self)
         let subscription = try subscribe(options: options) { event in
             continuation.yield(event)
@@ -113,25 +113,25 @@ public protocol LiveMapPathObject: PathObject {
 
     /// Resolves the path and, if it resolves to a map, returns an array of `[key, PathObject]` pairs.
     /// Returns an empty array if the resolved value is not a map or resolution fails. Spec: `RTPO9`.
-    func entries() throws(ARTErrorInfo) -> [(key: String, value: any PathObject)]
+    func entries() throws(ErrorInfo) -> [(key: String, value: any PathObject)]
 
     /// Resolves the path and, if it resolves to a map, returns its keys. Returns an empty array if
     /// the resolved value is not a map or resolution fails. Spec: `RTPO10`.
-    func keys() throws(ARTErrorInfo) -> [String]
+    func keys() throws(ErrorInfo) -> [String]
 
     /// Resolves the path and, if it resolves to a map, returns a ``PathObject`` for each value.
     /// Returns an empty array if the resolved value is not a map or resolution fails. Spec: `RTPO11`.
-    func values() throws(ARTErrorInfo) -> [any PathObject]
+    func values() throws(ErrorInfo) -> [any PathObject]
 
     /// Resolves the path and, if it resolves to a map, returns the number of entries. Returns `nil`
     /// if the resolved value is not a map or resolution fails. Spec: `RTPO12`.
-    func size() throws(ARTErrorInfo) -> Int?
+    func size() throws(ErrorInfo) -> Int?
 
     /// Sends an operation to set `key` to `value` on the map at this path. Spec: `RTPO15`.
-    func set(key: String, value: LiveMapValue) async throws(ARTErrorInfo)
+    func set(key: String, value: LiveMapValue) async throws(ErrorInfo)
 
     /// Sends an operation to remove `key` from the map at this path. Spec: `RTPO16`.
-    func remove(key: String) async throws(ARTErrorInfo)
+    func remove(key: String) async throws(ErrorInfo)
 }
 
 // MARK: - LiveCounterPathObject (RTPO / RTTS6, counter subset)
@@ -142,27 +142,27 @@ public protocol LiveCounterPathObject: PathObject {
     /// Resolves the path and, if it resolves to a counter, returns its current value (per `RTPO7c`).
     /// Returns `nil` otherwise, including when resolution fails or the value is not a counter.
     /// Spec: `RTTS6b`.
-    func value() throws(ARTErrorInfo) -> Double?
+    func value() throws(ErrorInfo) -> Double?
 
     /// Sends an operation to increment the counter at this path. Spec: `RTPO17`.
     ///
     /// - Parameter amount: The amount by which to increment.
-    func increment(amount: Double) async throws(ARTErrorInfo)
+    func increment(amount: Double) async throws(ErrorInfo)
 
     /// Sends an operation to decrement the counter at this path. Spec: `RTPO18`.
     ///
     /// - Parameter amount: The amount by which to decrement.
-    func decrement(amount: Double) async throws(ARTErrorInfo)
+    func decrement(amount: Double) async throws(ErrorInfo)
 }
 
 public extension LiveCounterPathObject {
     /// Sends an operation to increment the counter at this path by 1. Spec: `RTPO17`.
-    func increment() async throws(ARTErrorInfo) {
+    func increment() async throws(ErrorInfo) {
         try await increment(amount: 1)
     }
 
     /// Sends an operation to decrement the counter at this path by 1. Spec: `RTPO18`.
-    func decrement() async throws(ARTErrorInfo) {
+    func decrement() async throws(ErrorInfo) {
         try await decrement(amount: 1)
     }
 }
@@ -176,7 +176,7 @@ public protocol PrimitivePathObject: PathObject {
     /// Resolves the path and, if it resolves to a primitive, returns it (per `RTPO7d`). Returns `nil`
     /// if the resolved value is a `LiveObject` (`RTPO7e`) or resolution fails (`RTPO7f`). Spec:
     /// `RTTS6b`.
-    func value() throws(ARTErrorInfo) -> Primitive?
+    func value() throws(ErrorInfo) -> Primitive?
 }
 
 /// Convenience accessors for a single expected primitive type.
@@ -189,32 +189,32 @@ public protocol PrimitivePathObject: PathObject {
 /// path-resolving accessors: each resolves the path at call time and is therefore O(path length).
 public extension PrimitivePathObject {
     /// If the value at this path is a `string` primitive, this returns the associated value. Else, it returns `nil`.
-    func stringValue() throws(ARTErrorInfo) -> String? {
+    func stringValue() throws(ErrorInfo) -> String? {
         try value()?.stringValue
     }
 
     /// If the value at this path is a `number` primitive, this returns the associated value. Else, it returns `nil`.
-    func numberValue() throws(ARTErrorInfo) -> Double? {
+    func numberValue() throws(ErrorInfo) -> Double? {
         try value()?.numberValue
     }
 
     /// If the value at this path is a `bool` primitive, this returns the associated value. Else, it returns `nil`.
-    func boolValue() throws(ARTErrorInfo) -> Bool? {
+    func boolValue() throws(ErrorInfo) -> Bool? {
         try value()?.boolValue
     }
 
     /// If the value at this path is a `data` primitive, this returns the associated value. Else, it returns `nil`.
-    func dataValue() throws(ARTErrorInfo) -> Data? {
+    func dataValue() throws(ErrorInfo) -> Data? {
         try value()?.dataValue
     }
 
     /// If the value at this path is a `jsonArray` primitive, this returns the associated value. Else, it returns `nil`.
-    func jsonArrayValue() throws(ARTErrorInfo) -> [JSONValue]? {
+    func jsonArrayValue() throws(ErrorInfo) -> [JSONValue]? {
         try value()?.jsonArrayValue
     }
 
     /// If the value at this path is a `jsonObject` primitive, this returns the associated value. Else, it returns `nil`.
-    func jsonObjectValue() throws(ARTErrorInfo) -> [String: JSONValue]? {
+    func jsonObjectValue() throws(ErrorInfo) -> [String: JSONValue]? {
         try value()?.jsonObjectValue
     }
 }

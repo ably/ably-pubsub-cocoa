@@ -5,7 +5,7 @@ final class ClientInformationTests: XCTestCase {
 
     // CR2, CR2a
     func testAgents() {
-        let agents = ARTClientInformation.agents
+        let agents = ClientInformation.agents
 
         XCTAssertEqual(agents.keys.count, 2)
 
@@ -28,26 +28,26 @@ final class ClientInformationTests: XCTestCase {
     func testAgentIdentifierWithAdditionalAgents_withNilAdditionalAgents() {
         let expectedIdentifier = [
             "ably-pubsub-cocoa/2.0.0",
-            ARTDefault.platformAgent()
+            Default.platformAgent()
         ].sorted().joined(separator: " ")
 
-        XCTAssertEqual(ARTClientInformation.agentIdentifier(withAdditionalAgents: nil), expectedIdentifier)
+        XCTAssertEqual(ClientInformation.agentIdentifier(withAdditionalAgents: nil), expectedIdentifier)
     }
 
     // CR3, CR3b, CR3c
     func testAgentIdentifierWithAdditionalAgents_withNonNilAdditionalAgents() {
         let additionalAgents = [
             "demolib": "0.0.1",
-            "morelib": ARTClientInformationAgentNotVersioned
+            "morelib": clientInformationAgentNotVersioned
         ]
 
         let expectedIdentifier = [
             "ably-pubsub-cocoa/2.0.0",
             "demolib/0.0.1",
             "morelib",
-            ARTDefault.platformAgent()
+            Default.platformAgent()
         ].sorted().joined(separator: " ")
 
-        XCTAssertEqual(ARTClientInformation.agentIdentifier(withAdditionalAgents: additionalAgents), expectedIdentifier)
+        XCTAssertEqual(ClientInformation.agentIdentifier(withAdditionalAgents: additionalAgents), expectedIdentifier)
     }
 }

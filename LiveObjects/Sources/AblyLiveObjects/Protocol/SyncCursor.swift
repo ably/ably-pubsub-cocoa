@@ -20,7 +20,7 @@ internal struct SyncCursor {
     /// A `channelSerial` that lacks a colon separator is malformed. Per RTO5a6 such a `channelSerial`
     /// must be treated as if it were absent (RTO5a5); we surface the malformed case as a thrown ``Error``
     /// so the caller can apply that handling.
-    internal init(channelSerial: String) throws(ARTErrorInfo) {
+    internal init(channelSerial: String) throws(ErrorInfo) {
         let scanner = Scanner(string: channelSerial)
         scanner.charactersToBeSkipped = nil
 

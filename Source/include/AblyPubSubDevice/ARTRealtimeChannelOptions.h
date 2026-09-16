@@ -39,13 +39,14 @@ typedef NS_OPTIONS(NSUInteger, ARTChannelMode) {
      * The client can publish object messages.
      */
     ARTChannelModeObjectPublish = 1 << 25
-};
+} NS_SWIFT_NAME(ChannelMode);
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Passes additional properties to an `ARTRealtimeChannel` object, such as encryption, an `ARTChannelMode` and channel parameters.
  */
+NS_SWIFT_NAME(RealtimeChannelOptions)
 @interface ARTRealtimeChannelOptions : ARTChannelOptions
 
 /**

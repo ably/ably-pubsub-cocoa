@@ -127,20 +127,20 @@ internal extension ProtocolTypes.InboundObjectMessage {
     ///
     /// - Parameters:
     ///   - format: The format to use when applying the decoding rules of OD5.
-    /// - Throws: `ARTErrorInfo` if JSON or Base64 decoding fails.
+    /// - Throws: `ErrorInfo` if JSON or Base64 decoding fails.
     init(
         wireObjectMessage: InboundWireObjectMessage,
         format: _AblyPluginSupportPrivate.EncodingFormat
-    ) throws(ARTErrorInfo) {
+    ) throws(ErrorInfo) {
         id = wireObjectMessage.id
         clientId = wireObjectMessage.clientId
         connectionId = wireObjectMessage.connectionId
         extras = wireObjectMessage.extras
         timestamp = wireObjectMessage.timestamp
-        operation = try wireObjectMessage.operation.map { wireObjectOperation throws(ARTErrorInfo) in
+        operation = try wireObjectMessage.operation.map { wireObjectOperation throws(ErrorInfo) in
             try .init(wireObjectOperation: wireObjectOperation, format: format)
         }
-        object = try wireObjectMessage.object.map { wireObjectState throws(ARTErrorInfo) in
+        object = try wireObjectMessage.object.map { wireObjectState throws(ErrorInfo) in
             try .init(wireObjectState: wireObjectState, format: format)
         }
         serial = wireObjectMessage.serial
@@ -175,18 +175,18 @@ internal extension ProtocolTypes.ObjectOperation {
     ///
     /// - Parameters:
     ///   - format: The format to use when applying the decoding rules of OD5.
-    /// - Throws: `ARTErrorInfo` if JSON or Base64 decoding fails.
+    /// - Throws: `ErrorInfo` if JSON or Base64 decoding fails.
     init(
         wireObjectOperation: WireObjectOperation,
         format: _AblyPluginSupportPrivate.EncodingFormat
-    ) throws(ARTErrorInfo) {
+    ) throws(ErrorInfo) {
         action = wireObjectOperation.action
         objectId = wireObjectOperation.objectId
 
-        mapCreate = try wireObjectOperation.mapCreate.map { wireMapCreate throws(ARTErrorInfo) in
+        mapCreate = try wireObjectOperation.mapCreate.map { wireMapCreate throws(ErrorInfo) in
             try .init(wireMapCreate: wireMapCreate, format: format)
         }
-        mapSet = try wireObjectOperation.mapSet.map { wireMapSet throws(ARTErrorInfo) in
+        mapSet = try wireObjectOperation.mapSet.map { wireMapSet throws(ErrorInfo) in
             try .init(wireMapSet: wireMapSet, format: format)
         }
         mapRemove = wireObjectOperation.mapRemove
@@ -225,11 +225,11 @@ internal extension ProtocolTypes.ObjectData {
     ///
     /// - Parameters:
     ///   - format: The format to use when applying the decoding rules of OD5.
-    /// - Throws: `ARTErrorInfo` if JSON or Base64 decoding fails.
+    /// - Throws: `ErrorInfo` if JSON or Base64 decoding fails.
     init(
         wireObjectData: WireObjectData,
         format: _AblyPluginSupportPrivate.EncodingFormat
-    ) throws(ARTErrorInfo) {
+    ) throws(ErrorInfo) {
         objectId = wireObjectData.objectId
         boolean = wireObjectData.boolean
         number = wireObjectData.number
@@ -328,9 +328,9 @@ internal extension ProtocolTypes.MapSet {
     init(
         wireMapSet: WireMapSet,
         format: _AblyPluginSupportPrivate.EncodingFormat
-    ) throws(ARTErrorInfo) {
+    ) throws(ErrorInfo) {
         key = wireMapSet.key
-        value = try wireMapSet.value.map { wireObjectData throws(ARTErrorInfo) in
+        value = try wireMapSet.value.map { wireObjectData throws(ErrorInfo) in
             try .init(wireObjectData: wireObjectData, format: format)
         }
     }
@@ -347,9 +347,9 @@ internal extension ProtocolTypes.MapCreate {
     init(
         wireMapCreate: WireMapCreate,
         format: _AblyPluginSupportPrivate.EncodingFormat
-    ) throws(ARTErrorInfo) {
+    ) throws(ErrorInfo) {
         semantics = wireMapCreate.semantics
-        entries = try wireMapCreate.entries?.ablyLiveObjects_mapValuesWithTypedThrow { wireMapEntry throws(ARTErrorInfo) in
+        entries = try wireMapCreate.entries?.ablyLiveObjects_mapValuesWithTypedThrow { wireMapEntry throws(ErrorInfo) in
             try .init(wireObjectsMapEntry: wireMapEntry, format: format)
         }
     }
@@ -389,11 +389,11 @@ internal extension ProtocolTypes.ObjectsMapEntry {
     ///
     /// - Parameters:
     ///   - format: The format to use when applying the decoding rules of OD5.
-    /// - Throws: `ARTErrorInfo` if JSON or Base64 decoding fails.
+    /// - Throws: `ErrorInfo` if JSON or Base64 decoding fails.
     init(
         wireObjectsMapEntry: WireObjectsMapEntry,
         format: _AblyPluginSupportPrivate.EncodingFormat
-    ) throws(ARTErrorInfo) {
+    ) throws(ErrorInfo) {
         tombstone = wireObjectsMapEntry.tombstone
         timeserial = wireObjectsMapEntry.timeserial
         data = if let wireObjectData = wireObjectsMapEntry.data {
@@ -422,13 +422,13 @@ internal extension ProtocolTypes.ObjectsMap {
     ///
     /// - Parameters:
     ///   - format: The format to use when applying the decoding rules of OD5.
-    /// - Throws: `ARTErrorInfo` if JSON or Base64 decoding fails.
+    /// - Throws: `ErrorInfo` if JSON or Base64 decoding fails.
     init(
         wireObjectsMap: WireObjectsMap,
         format: _AblyPluginSupportPrivate.EncodingFormat
-    ) throws(ARTErrorInfo) {
+    ) throws(ErrorInfo) {
         semantics = wireObjectsMap.semantics
-        entries = try wireObjectsMap.entries?.ablyLiveObjects_mapValuesWithTypedThrow { wireMapEntry throws(ARTErrorInfo) in
+        entries = try wireObjectsMap.entries?.ablyLiveObjects_mapValuesWithTypedThrow { wireMapEntry throws(ErrorInfo) in
             try .init(wireObjectsMapEntry: wireMapEntry, format: format)
         }
         clearTimeserial = wireObjectsMap.clearTimeserial
@@ -452,18 +452,18 @@ internal extension ProtocolTypes.ObjectState {
     ///
     /// - Parameters:
     ///   - format: The format to use when applying the decoding rules of OD5.
-    /// - Throws: `ARTErrorInfo` if JSON or Base64 decoding fails.
+    /// - Throws: `ErrorInfo` if JSON or Base64 decoding fails.
     init(
         wireObjectState: WireObjectState,
         format: _AblyPluginSupportPrivate.EncodingFormat
-    ) throws(ARTErrorInfo) {
+    ) throws(ErrorInfo) {
         objectId = wireObjectState.objectId
         siteTimeserials = wireObjectState.siteTimeserials
         tombstone = wireObjectState.tombstone
-        createOp = try wireObjectState.createOp.map { wireObjectOperation throws(ARTErrorInfo) in
+        createOp = try wireObjectState.createOp.map { wireObjectOperation throws(ErrorInfo) in
             try .init(wireObjectOperation: wireObjectOperation, format: format)
         }
-        map = try wireObjectState.map.map { wireObjectsMap throws(ARTErrorInfo) in
+        map = try wireObjectState.map.map { wireObjectsMap throws(ErrorInfo) in
             try .init(wireObjectsMap: wireObjectsMap, format: format)
         }
         counter = wireObjectState.counter

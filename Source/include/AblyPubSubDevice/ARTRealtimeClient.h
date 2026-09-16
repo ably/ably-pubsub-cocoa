@@ -27,6 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  This protocol contains the non-initializer instance methods provided by the `ARTRealtimeClient` client class.
  */
+NS_SWIFT_NAME(RealtimeInstanceMethodsProtocol)
 @protocol ARTRealtimeInstanceMethodsProtocol <NSObject>
 
 #if TARGET_OS_IOS
@@ -101,6 +102,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  The protocol upon which the top level object `ARTRealtimeClient` is implemented.
  */
+NS_SWIFT_NAME(RealtimeProtocol)
 @protocol ARTRealtimeProtocol <ARTRealtimeInstanceMethodsProtocol>
 
 /// :nodoc:
@@ -112,6 +114,7 @@ NS_ASSUME_NONNULL_BEGIN
  * A client that extends the functionality of the HTTP client and provides additional realtime-specific features.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(RealtimeClient)
 @interface ARTRealtimeClient : NSObject <ARTRealtimeProtocol>
 
 /**

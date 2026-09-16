@@ -17,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  The protocol upon which `ARTHttpChannelProtocol` and `ARTRealtimeChannelProtocol` are based.
  */
+NS_SWIFT_NAME(ChannelProtocol)
 @protocol ARTChannelProtocol
 
 /**

@@ -12,6 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  The protocol upon which the `ARTHttpChannel` is implemented.
  */
+NS_SWIFT_NAME(HttpChannelProtocol)
 @protocol ARTHttpChannelProtocol <ARTChannelProtocol>
 
 /// :nodoc: TODO: docstring
@@ -48,6 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Enables messages to be published and historic messages to be retrieved for a channel.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(HttpChannel)
 @interface ARTHttpChannel : NSObject <ARTHttpChannelProtocol>
 
 /**

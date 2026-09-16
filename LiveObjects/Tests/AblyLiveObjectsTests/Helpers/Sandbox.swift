@@ -111,9 +111,9 @@ enum Sandbox {
 
     /// Client options wired for the sandbox: the shared API key plus both transports pointed at
     /// ``sandboxHost`` — the key is environment-scoped, so key and hosts must travel together.
-    static func clientOptions() async throws -> ARTClientOptions {
+    static func clientOptions() async throws -> ClientOptions {
         let key = try await fetchSharedAPIKey()
-        let options = ARTClientOptions(key: key)
+        let options = ClientOptions(key: key)
         options.restHost = sandboxHost
         options.realtimeHost = sandboxHost
         return options

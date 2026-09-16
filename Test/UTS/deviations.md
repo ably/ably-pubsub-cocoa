@@ -30,7 +30,7 @@ RUN_DEVIATIONS=1 swift test --filter UTS.<TestClass>/<testMethod>
    `_forceNack: "true"` test param, expecting the publish to fail with error code 40099).
 3. **Actual SDK behaviour**: ably-cocoa exposes no publish overload accepting request params.
    `params:` exists only on the message-edit methods (`updateMessage:operation:params:callback:`,
-   `deleteMessage:…`, `appendMessage:…` — RSL15f), on both `ARTChannelProtocol` and the internal
+   `deleteMessage:…`, `appendMessage:…` — RSL15f), on both `ChannelProtocol` and the internal
    `ARTChannel`, so the spec's `channel.publish(message:, params:)` cannot be expressed at all.
 4. **Root cause**: `Source/include/AblyPubSubDevice/ARTChannelProtocol.h` / `Source/ARTHttpChannel.m` — the
    publish family (`publish:data:…`, `publish:` messages array) has no `params:` variant; RSL1l1 is

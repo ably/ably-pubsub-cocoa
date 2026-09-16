@@ -5,11 +5,11 @@ import AblyPubSubDevice
 final class MockCoreSDK: CoreSDK {
     /// Synchronizes access to `_publishHandler` and `_publishCallbackHandler`.
     private let mutex = NSLock()
-    private nonisolated(unsafe) var _publishHandler: (([ProtocolTypes.OutboundObjectMessage]) async throws(ARTErrorInfo) -> PublishResult)?
-    private nonisolated(unsafe) var _publishCallbackHandler: (([ProtocolTypes.OutboundObjectMessage], @escaping @Sendable (Result<PublishResult, ARTErrorInfo>) -> Void) -> Void)?
+    private nonisolated(unsafe) var _publishHandler: (([ProtocolTypes.OutboundObjectMessage]) async throws(ErrorInfo) -> AblyLiveObjects.PublishResult)?
+    private nonisolated(unsafe) var _publishCallbackHandler: (([ProtocolTypes.OutboundObjectMessage], @escaping @Sendable (Result<AblyLiveObjects.PublishResult, ErrorInfo>) -> Void) -> Void)?
     /// Custom handler for `nosync_attach` (RTL33b implicit attach). If unset, `nosync_attach`
     /// simulates a successful attach that transitions the channel to ATTACHED.
-    private nonisolated(unsafe) var _attachHandler: ((@escaping @Sendable (ARTErrorInfo?) -> Void) -> Void)?
+    private nonisolated(unsafe) var _attachHandler: ((@escaping @Sendable (ErrorInfo?) -> Void) -> Void)?
 
     private let channelStateMutex: DispatchQueueMutex<_AblyPluginSupportPrivate.RealtimeChannelState>
     private let serverTime: Date
@@ -24,7 +24,7 @@ final class MockCoreSDK: CoreSDK {
     /// The value returned by ``echoMessages`` (RTO26).
     private nonisolated(unsafe) var _echoMessages: Bool
     /// The value returned by ``nosync_connectionStateError`` (RTO26); `nil` = connection is active.
-    private nonisolated(unsafe) var _connectionStateError: ARTErrorInfo?
+    private nonisolated(unsafe) var _connectionStateError: ErrorInfo?
 
     init(
         channelState: _AblyPluginSupportPrivate.RealtimeChannelState,
@@ -33,7 +33,7 @@ final class MockCoreSDK: CoreSDK {
         channelName: String = "",
         objectChannelModes: _AblyPluginSupportPrivate.ChannelMode = [.objectSubscribe, .objectPublish],
         echoMessages: Bool = true,
-        connectionStateError: ARTErrorInfo? = nil,
+        connectionStateError: ErrorInfo? = nil,
         internalQueue: DispatchQueue,
     ) {
         channelStateMutex = DispatchQueueMutex(dispatchQueue: internalQueue, initialValue: channelState)
@@ -61,11 +61,11 @@ final class MockCoreSDK: CoreSDK {
         mutex.withLock { _echoMessages = enabled }
     }
 
-    var nosync_connectionStateError: ARTErrorInfo? {
+    var nosync_connectionStateError: ErrorInfo? {
         mutex.withLock { _connectionStateError }
     }
 
-    func setConnectionStateError(_ error: ARTErrorInfo?) {
+    func setConnectionStateError(_ error: ErrorInfo?) {
         mutex.withLock { _connectionStateError = error }
     }
 
@@ -78,10 +78,10 @@ final class MockCoreSDK: CoreSDK {
         mutex.withLock { _maxMessageSize = maxMessageSize }
     }
 
-    func nosync_publish(objectMessages: [ProtocolTypes.OutboundObjectMessage], callback: @escaping @Sendable (Result<PublishResult, ARTErrorInfo>) -> Void) {
+    func nosync_publish(objectMessages: [ProtocolTypes.OutboundObjectMessage], callback: @escaping @Sendable (Result<AblyLiveObjects.PublishResult, ErrorInfo>) -> Void) {
         // We can't return _publishHandler from `mutex.withLock` because we get "error: runtime support for typed throws function types is only available in macOS 15.0.0 or newer"
-        var asyncHandler: (([ProtocolTypes.OutboundObjectMessage]) async throws(ARTErrorInfo) -> PublishResult)?
-        var callbackHandler: (([ProtocolTypes.OutboundObjectMessage], @escaping @Sendable (Result<PublishResult, ARTErrorInfo>) -> Void) -> Void)?
+        var asyncHandler: (([ProtocolTypes.OutboundObjectMessage]) async throws(ErrorInfo) -> AblyLiveObjects.PublishResult)?
+        var callbackHandler: (([ProtocolTypes.OutboundObjectMessage], @escaping @Sendable (Result<AblyLiveObjects.PublishResult, ErrorInfo>) -> Void) -> Void)?
         mutex.withLock {
             asyncHandler = _publishHandler
             callbackHandler = _publishCallbackHandler
@@ -92,7 +92,7 @@ final class MockCoreSDK: CoreSDK {
         } else if let asyncHandler {
             let queue = channelStateMutex.dispatchQueue
             Task {
-                do throws(ARTErrorInfo) {
+                do throws(ErrorInfo) {
                     let publishResult = try await asyncHandler(objectMessages)
                     queue.async { callback(.success(publishResult)) }
                 } catch {
@@ -104,7 +104,7 @@ final class MockCoreSDK: CoreSDK {
         }
     }
 
-    func testsOnly_overridePublish(with _: @escaping ([ProtocolTypes.OutboundObjectMessage]) async throws(ARTErrorInfo) -> PublishResult) {
+    func testsOnly_overridePublish(with _: @escaping ([ProtocolTypes.OutboundObjectMessage]) async throws(ErrorInfo) -> AblyLiveObjects.PublishResult) {
         protocolRequirementNotImplemented()
     }
 
@@ -112,8 +112,8 @@ final class MockCoreSDK: CoreSDK {
         channelStateMutex.withoutSync { $0 }
     }
 
-    func nosync_attach(callback: @escaping @Sendable (ARTErrorInfo?) -> Void) {
-        var handler: ((@escaping @Sendable (ARTErrorInfo?) -> Void) -> Void)?
+    func nosync_attach(callback: @escaping @Sendable (ErrorInfo?) -> Void) {
+        var handler: ((@escaping @Sendable (ErrorInfo?) -> Void) -> Void)?
         mutex.withLock { handler = _attachHandler }
         if let handler {
             handler(callback)
@@ -127,7 +127,7 @@ final class MockCoreSDK: CoreSDK {
 
     /// Sets a custom `nosync_attach` handler (RTL33b), e.g. to inject an attach failure or a state
     /// transition. The handler is invoked on the internal queue and must call the supplied callback.
-    func setAttachHandler(_ handler: @escaping (@escaping @Sendable (ARTErrorInfo?) -> Void) -> Void) {
+    func setAttachHandler(_ handler: @escaping (@escaping @Sendable (ErrorInfo?) -> Void) -> Void) {
         mutex.withLock { _attachHandler = handler }
     }
 
@@ -139,7 +139,7 @@ final class MockCoreSDK: CoreSDK {
     /// Sets a custom publish handler for testing.
     ///
     /// - Precondition: ``setPublishCallbackHandler(_:)`` must not have been called.
-    func setPublishHandler(_ handler: @escaping ([ProtocolTypes.OutboundObjectMessage]) async throws(ARTErrorInfo) -> PublishResult) {
+    func setPublishHandler(_ handler: @escaping ([ProtocolTypes.OutboundObjectMessage]) async throws(ErrorInfo) -> AblyLiveObjects.PublishResult) {
         mutex.withLock {
             precondition(_publishCallbackHandler == nil, "Cannot set both publishHandler and publishCallbackHandler")
             _publishHandler = handler
@@ -155,7 +155,7 @@ final class MockCoreSDK: CoreSDK {
     /// explicit control over their ordering.
     ///
     /// - Precondition: ``setPublishHandler(_:)`` must not have been called.
-    func setPublishCallbackHandler(_ handler: @escaping ([ProtocolTypes.OutboundObjectMessage], @escaping @Sendable (Result<PublishResult, ARTErrorInfo>) -> Void) -> Void) {
+    func setPublishCallbackHandler(_ handler: @escaping ([ProtocolTypes.OutboundObjectMessage], @escaping @Sendable (Result<AblyLiveObjects.PublishResult, ErrorInfo>) -> Void) -> Void) {
         mutex.withLock {
             // We use pattern matching instead of `== nil` to avoid "runtime support for typed
             // throws function types is only available in macOS 15.0.0 or newer".
@@ -166,7 +166,7 @@ final class MockCoreSDK: CoreSDK {
         }
     }
 
-    func nosync_fetchServerTime(callback: @escaping @Sendable (Result<Date, ARTErrorInfo>) -> Void) {
+    func nosync_fetchServerTime(callback: @escaping @Sendable (Result<Date, ErrorInfo>) -> Void) {
         callback(.success(serverTime))
     }
 }

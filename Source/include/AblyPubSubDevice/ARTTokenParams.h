@@ -10,6 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Defines the properties of an Ably Token.
  */
+NS_SWIFT_NAME(TokenParams)
 @interface ARTTokenParams : NSObject<NSCopying>
 
 /**

@@ -28,12 +28,12 @@ final class TokenRequestTests: IntegrationTestCase {
         try await withSandboxApp { app in
             // Setup
             // Client A creates TokenRequests using the API key
-            let creatorOptions = ARTClientOptions(key: app.defaultKey)
+            let creatorOptions = ClientOptions(key: app.defaultKey)
             creatorOptions.restHost = SandboxApp.sandboxHost
-            let creator = ARTHttpClient(options: creatorOptions)
+            let creator = HttpClient(options: creatorOptions)
 
             // Client B connects using TokenRequests from client A
-            let options = ARTClientOptions()
+            let options = ClientOptions()
             options.authCallback = { _, callback in
                 creator.auth.createTokenRequest(nil, options: nil) { tokenRequest, error in
                     callback(tokenRequest, error)
@@ -67,13 +67,13 @@ final class TokenRequestTests: IntegrationTestCase {
             // Setup
             let testClientId = "token-request-client-\(UUID().uuidString)"
 
-            let creatorOptions = ARTClientOptions(key: app.defaultKey)
+            let creatorOptions = ClientOptions(key: app.defaultKey)
             creatorOptions.restHost = SandboxApp.sandboxHost
-            let creator = ARTHttpClient(options: creatorOptions)
+            let creator = HttpClient(options: creatorOptions)
 
-            let options = ARTClientOptions()
+            let options = ClientOptions()
             options.authCallback = { _, callback in
-                creator.auth.createTokenRequest(ARTTokenParams(clientId: testClientId), options: nil) { tokenRequest, error in
+                creator.auth.createTokenRequest(TokenParams(clientId: testClientId), options: nil) { tokenRequest, error in
                     callback(tokenRequest, error)
                 }
             }

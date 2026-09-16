@@ -37,17 +37,17 @@ private let binaryData = "123456".data(using: .utf8)!
 
 private func testSupportsAESEncryptionWithKeyLength(_ encryptionKeyLength: UInt, for test: Test, channelName: String, testHTTPExecutor: TestProxyHTTPExecutor) throws {
     let options = try AblyTests.commonAppSetup(for: test)
-    let client = ARTHttpClient(options: options)
+    let client = HttpClient(options: options)
     client.internal.httpExecutor = testHTTPExecutor
 
-    let params: ARTCipherParams = ARTCrypto.getDefaultParams([
-        "key": ARTCrypto.generateRandomKey(encryptionKeyLength),
+    let params: CipherParams = Crypto.getDefaultParams([
+        "key": Crypto.generateRandomKey(encryptionKeyLength),
     ])
     XCTAssertEqual(params.algorithm, "AES")
     XCTAssertEqual(params.keyLength, encryptionKeyLength)
     XCTAssertEqual(params.mode, "CBC")
 
-    let channelOptions = ARTChannelOptions(cipher: params)
+    let channelOptions = ChannelOptions(cipher: params)
     let channel = client.channels.get(channelName, options: channelOptions)
 
     waitUntil(timeout: testTimeout) { done in
@@ -131,12 +131,12 @@ class HttpClientChannelTests: XCTestCase {
     }
 
     private struct TestEnvironment {
-        var client: ARTHttpClient
+        var client: HttpClient
         var testHTTPExecutor: TestProxyHTTPExecutor
 
         init(test: Test) throws {
             let options = try AblyTests.commonAppSetup(for: test)
-            client = ARTHttpClient(options: options)
+            client = HttpClient(options: options)
             testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
         }
     }
@@ -149,8 +149,8 @@ class HttpClientChannelTests: XCTestCase {
         let test = Test()
         let testEnvironment = try TestEnvironment(test: test)
 
-        var publishError: ARTErrorInfo? = ARTErrorInfo.create(from: NSError(domain: "", code: -1, userInfo: nil))
-        var publishedMessage: ARTMessage?
+        var publishError: ErrorInfo? = ErrorInfo.create(from: NSError(domain: "", code: -1, userInfo: nil))
+        var publishedMessage: Message?
 
         let channel = testEnvironment.client.channels.get(test.uniqueChannelName())
 
@@ -172,8 +172,8 @@ class HttpClientChannelTests: XCTestCase {
         let test = Test()
         let testEnvironment = try TestEnvironment(test: test)
 
-        var publishError: ARTErrorInfo? = ARTErrorInfo.create(from: NSError(domain: "io.ably.XCTest", code: -1, userInfo: nil))
-        var publishedMessage: ARTMessage?
+        var publishError: ErrorInfo? = ErrorInfo.create(from: NSError(domain: "io.ably.XCTest", code: -1, userInfo: nil))
+        var publishedMessage: Message?
 
         let channel = testEnvironment.client.channels.get(test.uniqueChannelName())
 
@@ -195,8 +195,8 @@ class HttpClientChannelTests: XCTestCase {
         let test = Test()
         let testEnvironment = try TestEnvironment(test: test)
 
-        var publishError: ARTErrorInfo? = ARTErrorInfo.create(from: NSError(domain: "", code: -1, userInfo: nil))
-        var publishedMessage: ARTMessage?
+        var publishError: ErrorInfo? = ErrorInfo.create(from: NSError(domain: "", code: -1, userInfo: nil))
+        var publishedMessage: Message?
 
         let channel = testEnvironment.client.channels.get(test.uniqueChannelName())
 
@@ -218,8 +218,8 @@ class HttpClientChannelTests: XCTestCase {
         let test = Test()
         let testEnvironment = try TestEnvironment(test: test)
 
-        var publishError: ARTErrorInfo? = ARTErrorInfo.create(from: NSError(domain: "", code: -1, userInfo: nil))
-        var publishedMessage: ARTMessage?
+        var publishError: ErrorInfo? = ErrorInfo.create(from: NSError(domain: "", code: -1, userInfo: nil))
+        var publishedMessage: Message?
 
         let channel = testEnvironment.client.channels.get(test.uniqueChannelName())
 
@@ -242,13 +242,13 @@ class HttpClientChannelTests: XCTestCase {
         let test = Test()
         let testEnvironment = try TestEnvironment(test: test)
 
-        var publishError: ARTErrorInfo? = ARTErrorInfo.create(from: NSError(domain: "", code: -1, userInfo: nil))
-        var publishedMessage: ARTMessage?
+        var publishError: ErrorInfo? = ErrorInfo.create(from: NSError(domain: "", code: -1, userInfo: nil))
+        var publishedMessage: Message?
 
         let channel = testEnvironment.client.channels.get(test.uniqueChannelName())
 
         waitUntil(timeout: testTimeout) { done in
-            channel.publish([ARTMessage(name: PublishArgs.name, data: PublishArgs.data)]) { error in
+            channel.publish([Message(name: PublishArgs.name, data: PublishArgs.data)]) { error in
                 publishError = error
                 channel.history { result, _ in
                     publishedMessage = result?.items.first
@@ -274,12 +274,12 @@ class HttpClientChannelTests: XCTestCase {
         defer { client.internal.httpExecutor = oldExecutor }
         client.internal.httpExecutor = testHTTPExecutor
 
-        var publishError: ARTErrorInfo? = ARTErrorInfo.create(from: NSError(domain: "", code: -1, userInfo: nil))
-        var publishedMessages: [ARTMessage] = []
+        var publishError: ErrorInfo? = ErrorInfo.create(from: NSError(domain: "", code: -1, userInfo: nil))
+        var publishedMessages: [Message] = []
 
         let messages = [
-            ARTMessage(name: "bar", data: "foo"),
-            ARTMessage(name: "bat", data: "baz"),
+            Message(name: "bar", data: "foo"),
+            Message(name: "bat", data: "baz"),
         ]
 
         let channel = client.channels.get(test.uniqueChannelName())
@@ -308,12 +308,12 @@ class HttpClientChannelTests: XCTestCase {
     // RSL1f1
     func test__011__publish__Unidentified_clients_using_Basic_Auth__should_publish_message_with_the_provided_clientId() throws {
         let test = Test()
-        let client = ARTHttpClient(options: try AblyTests.commonAppSetup(for: test))
+        let client = HttpClient(options: try AblyTests.commonAppSetup(for: test))
         let channel = client.channels.get(test.uniqueChannelName())
         waitUntil(timeout: testTimeout) { done in
-            channel.publish([ARTMessage(name: nil, data: "message", clientId: "tester")]) { error in
+            channel.publish([Message(name: nil, data: "message", clientId: "tester")]) { error in
                 XCTAssertNil(error)
-                XCTAssertEqual(client.auth.internal.method, ARTAuthMethod.basic)
+                XCTAssertEqual(client.auth.internal.method, AuthMethod.basic)
                 channel.history { page, error in
                     XCTAssertNil(error)
                     guard let page = page else {
@@ -357,7 +357,7 @@ class HttpClientChannelTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.clientId = "john-doe"
-        let client = ARTHttpClient(options: options)
+        let client = HttpClient(options: options)
         let testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
         client.internal.httpExecutor = testHTTPExecutor
         waitUntil(timeout: testTimeout) { done in
@@ -385,9 +385,9 @@ class HttpClientChannelTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
         options.clientId = "client-rest"
         let expectedClientId = options.clientId
-        let rest = ARTHttpClient(options: options)
+        let rest = HttpClient(options: options)
         options.clientId = "client-realtime"
-        let realtime = ARTRealtimeClient(options: options)
+        let realtime = RealtimeClient(options: options)
 
         let chanelName = test.uniqueChannelName(prefix: "ch1")
 
@@ -418,9 +418,9 @@ class HttpClientChannelTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
         options.clientId = "client-rest"
         let expectedClientId = options.clientId!
-        let rest = ARTHttpClient(options: options)
+        let rest = HttpClient(options: options)
         options.clientId = "client-realtime"
-        let realtime = ARTRealtimeClient(options: options)
+        let realtime = RealtimeClient(options: options)
 
         let chanelName = test.uniqueChannelName(prefix: "ch1")
 
@@ -450,8 +450,8 @@ class HttpClientChannelTests: XCTestCase {
         let test = Test()
         let expectedClientId = "client-rest"
         let options = try AblyTests.commonAppSetup(for: test)
-        let rest = ARTHttpClient(options: options)
-        let realtime = ARTRealtimeClient(options: options)
+        let rest = HttpClient(options: options)
+        let realtime = RealtimeClient(options: options)
 
         let chanelName = test.uniqueChannelName(prefix: "ch1")
 
@@ -481,9 +481,9 @@ class HttpClientChannelTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.clientId = "client-rest"
-        let rest = ARTHttpClient(options: options)
+        let rest = HttpClient(options: options)
         options.clientId = "client-realtime"
-        let realtime = ARTRealtimeClient(options: options)
+        let realtime = RealtimeClient(options: options)
 
         let chanelName = test.uniqueChannelName(prefix: "ch1")
 
@@ -522,7 +522,7 @@ class HttpClientChannelTests: XCTestCase {
             }
         }
 
-        let rest = ARTHttpClient(options: options)
+        let rest = HttpClient(options: options)
         let channel = rest.channels.get(test.uniqueChannelName(prefix: "issue-1074"))
 
         waitUntil(timeout: testTimeout) { done in
@@ -546,7 +546,7 @@ class HttpClientChannelTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.clientId = "john"
-        let client = ARTHttpClient(options: options)
+        let client = HttpClient(options: options)
         let channel = client.channels.get(test.uniqueChannelName())
         waitUntil(timeout: testTimeout) { done in
             channel.publish("name", data: "some data", clientId: "tester") { error in
@@ -562,9 +562,9 @@ class HttpClientChannelTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
         // Prevent channel name to be prefixed by test-*
         options.testOptions.channelNamePrefix = nil
-        let client = ARTHttpClient(options: options)
+        let client = HttpClient(options: options)
         let channel = client.channels.get(test.uniqueChannelName(prefix: "pushenabled:test"))
-        let extras = ["push": ["notification": ["title": "Hello from Ably!"]]] as ARTJsonCompatible
+        let extras = ["push": ["notification": ["title": "Hello from Ably!"]]] as JsonCompatible
 
         XCTAssertTrue((client.internal.encoders["application/json"] as! ARTJsonLikeEncoder).message(from: [
             "data": "foo",
@@ -578,7 +578,7 @@ class HttpClientChannelTests: XCTestCase {
                     done(); return
                 }
 
-                let query = ARTDataQuery()
+                let query = DataQuery()
                 query.limit = 1
 
                 try! channel.history(query) { messages, error in
@@ -602,13 +602,13 @@ class HttpClientChannelTests: XCTestCase {
     func test__018__publish__If_the_total_size_of_message_s__exceeds_the_maxMessageSize__the_client_library_should_reject_the_publish_and_indicate_an_error() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        let client = ARTHttpClient(options: options)
+        let client = HttpClient(options: options)
         let channel = client.channels.get(test.uniqueChannelName())
         let messages = buildMessagesThatExceedMaxMessageSize()
 
         waitUntil(timeout: testTimeout) { done in
             channel.publish(messages) { error in
-                XCTAssertEqual(error?.code, ARTErrorCode.maxMessageLengthExceeded.intValue)
+                XCTAssertEqual(error?.code, ErrorCode.maxMessageLengthExceeded.intValue)
                 done()
             }
         }
@@ -617,13 +617,13 @@ class HttpClientChannelTests: XCTestCase {
     func test__019__publish__If_the_total_size_of_message_s__exceeds_the_maxMessageSize__also_when_using_publish_data_clientId_extras() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        let client = ARTHttpClient(options: options)
+        let client = HttpClient(options: options)
         let channel = client.channels.get(test.uniqueChannelName())
         let name = buildStringThatExceedMaxMessageSize()
 
         waitUntil(timeout: testTimeout) { done in
             channel.publish(name, data: nil, extras: nil) { error in
-                XCTAssertEqual(error?.code, ARTErrorCode.maxMessageLengthExceeded.intValue)
+                XCTAssertEqual(error?.code, ErrorCode.maxMessageLengthExceeded.intValue)
                 done()
             }
         }
@@ -635,16 +635,16 @@ class HttpClientChannelTests: XCTestCase {
     func test__020__publish__idempotent_publishing__idempotentRestPublishing_option() throws {
         let test = Test()
 
-        XCTAssertEqual(ARTClientOptions.getDefaultIdempotentRestPublishing(forVersion: "2"), true)
-        XCTAssertEqual(ARTClientOptions.getDefaultIdempotentRestPublishing(forVersion: "2.0.0"), true)
-        XCTAssertEqual(ARTClientOptions.getDefaultIdempotentRestPublishing(forVersion: "1.1"), false)
-        XCTAssertEqual(ARTClientOptions.getDefaultIdempotentRestPublishing(forVersion: "1.1.2"), false)
-        XCTAssertEqual(ARTClientOptions.getDefaultIdempotentRestPublishing(forVersion: "1.2"), true)
-        XCTAssertEqual(ARTClientOptions.getDefaultIdempotentRestPublishing(forVersion: "1.2.2"), true)
-        XCTAssertEqual(ARTClientOptions.getDefaultIdempotentRestPublishing(forVersion: "1.0"), false)
-        XCTAssertEqual(ARTClientOptions.getDefaultIdempotentRestPublishing(forVersion: "1.0.5"), false)
-        XCTAssertEqual(ARTClientOptions.getDefaultIdempotentRestPublishing(forVersion: "0.9"), false)
-        XCTAssertEqual(ARTClientOptions.getDefaultIdempotentRestPublishing(forVersion: "0.9.1"), false)
+        XCTAssertEqual(ClientOptions.getDefaultIdempotentRestPublishing(forVersion: "2"), true)
+        XCTAssertEqual(ClientOptions.getDefaultIdempotentRestPublishing(forVersion: "2.0.0"), true)
+        XCTAssertEqual(ClientOptions.getDefaultIdempotentRestPublishing(forVersion: "1.1"), false)
+        XCTAssertEqual(ClientOptions.getDefaultIdempotentRestPublishing(forVersion: "1.1.2"), false)
+        XCTAssertEqual(ClientOptions.getDefaultIdempotentRestPublishing(forVersion: "1.2"), true)
+        XCTAssertEqual(ClientOptions.getDefaultIdempotentRestPublishing(forVersion: "1.2.2"), true)
+        XCTAssertEqual(ClientOptions.getDefaultIdempotentRestPublishing(forVersion: "1.0"), false)
+        XCTAssertEqual(ClientOptions.getDefaultIdempotentRestPublishing(forVersion: "1.0.5"), false)
+        XCTAssertEqual(ClientOptions.getDefaultIdempotentRestPublishing(forVersion: "0.9"), false)
+        XCTAssertEqual(ClientOptions.getDefaultIdempotentRestPublishing(forVersion: "0.9.1"), false)
 
         // Current version
         let options = try AblyTests.clientOptions(for: test)
@@ -655,10 +655,10 @@ class HttpClientChannelTests: XCTestCase {
 
     func test__027__publish__idempotent_publishing__random_idempotent_publish_id__should_generate_for_one_message_with_empty_id() throws {
         let test = Test()
-        let message = ARTMessage(name: nil, data: "foo")
+        let message = Message(name: nil, data: "foo")
         XCTAssertNil(message.id)
 
-        let rest = ARTHttpClient(key: "xxxx:xxxx")
+        let rest = HttpClient(key: "xxxx:xxxx")
         rest.internal.options.idempotentRestPublishing = true
         let mockHTTPExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHTTPExecutor
@@ -688,12 +688,12 @@ class HttpClientChannelTests: XCTestCase {
 
     func test__028__publish__idempotent_publishing__random_idempotent_publish_id__should_generate_for_multiple_messages_with_empty_id() throws {
         let test = Test()
-        let message1 = ARTMessage(name: nil, data: "foo1")
+        let message1 = Message(name: nil, data: "foo1")
         XCTAssertNil(message1.id)
-        let message2 = ARTMessage(name: "john", data: "foo2")
+        let message2 = Message(name: "john", data: "foo2")
         XCTAssertNil(message2.id)
 
-        let rest = ARTHttpClient(key: "xxxx:xxxx")
+        let rest = HttpClient(key: "xxxx:xxxx")
         rest.internal.options.idempotentRestPublishing = true
         let mockHTTPExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHTTPExecutor
@@ -727,10 +727,10 @@ class HttpClientChannelTests: XCTestCase {
     // RSL1k2
     func test__021__publish__idempotent_publishing__should_not_generate_for_message_with_a_non_empty_id() throws {
         let test = Test()
-        let message = ARTMessage(name: nil, data: "foo")
+        let message = Message(name: nil, data: "foo")
         message.id = "123"
 
-        let rest = ARTHttpClient(key: "xxxx:xxxx")
+        let rest = HttpClient(key: "xxxx:xxxx")
         rest.internal.options.idempotentRestPublishing = true
         let mockHTTPExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHTTPExecutor
@@ -759,7 +759,7 @@ class HttpClientChannelTests: XCTestCase {
 
     func test__022__publish__idempotent_publishing__should_generate_for_internal_message_that_is_created_in_publish_name_data___method() throws {
         let test = Test()
-        let rest = ARTHttpClient(key: "xxxx:xxxx")
+        let rest = HttpClient(key: "xxxx:xxxx")
         rest.internal.options.idempotentRestPublishing = true
         let mockHTTPExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHTTPExecutor
@@ -788,12 +788,12 @@ class HttpClientChannelTests: XCTestCase {
     // RSL1k3
     func test__023__publish__idempotent_publishing__should_not_generate_for_multiple_messages_with_a_non_empty_id() throws {
         let test = Test()
-        let message1 = ARTMessage(name: nil, data: "foo1")
+        let message1 = Message(name: nil, data: "foo1")
         XCTAssertNil(message1.id)
-        let message2 = ARTMessage(name: "john", data: "foo2")
+        let message2 = Message(name: "john", data: "foo2")
         message2.id = "123"
 
-        let rest = ARTHttpClient(key: "xxxx:xxxx")
+        let rest = HttpClient(key: "xxxx:xxxx")
         rest.internal.options.idempotentRestPublishing = true
         let mockHTTPExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHTTPExecutor
@@ -821,15 +821,15 @@ class HttpClientChannelTests: XCTestCase {
 
     func test__024__publish__idempotent_publishing__should_not_generate_when_idempotentRestPublishing_flag_is_off() throws {
         let test = Test()
-        let options = ARTClientOptions(key: "xxxx:xxxx")
+        let options = ClientOptions(key: "xxxx:xxxx")
         options.idempotentRestPublishing = false
 
-        let message1 = ARTMessage(name: nil, data: "foo1")
+        let message1 = Message(name: nil, data: "foo1")
         XCTAssertNil(message1.id)
-        let message2 = ARTMessage(name: "john", data: "foo2")
+        let message2 = Message(name: "john", data: "foo2")
         XCTAssertNil(message2.id)
 
-        let rest = ARTHttpClient(options: options)
+        let rest = HttpClient(options: options)
         let mockHTTPExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHTTPExecutor
         mockHTTPExecutor.setSuccessResponse(
@@ -863,10 +863,10 @@ class HttpClientChannelTests: XCTestCase {
 
         client.internal.options.idempotentRestPublishing = true
         client.internal.httpExecutor = testHTTPExecutor
-        client.internal.options.fallbackHosts = ARTDefault.fallbackHosts()
+        client.internal.options.fallbackHosts = Default.fallbackHosts()
 
         let forceRetryError = ErrorSimulator(
-            value: ARTErrorCode.internalError.intValue,
+            value: ErrorCode.internalError.intValue,
             description: "force retry",
             statusCode: 500,
             shouldPerformRequest: true,
@@ -876,9 +876,9 @@ class HttpClientChannelTests: XCTestCase {
         testHTTPExecutor.simulateIncomingServerErrorOnNextRequest(forceRetryError)
 
         let messages = [
-            ARTMessage(name: nil, data: "test1"),
-            ARTMessage(name: nil, data: "test2"),
-            ARTMessage(name: nil, data: "test3"),
+            Message(name: nil, data: "test1"),
+            Message(name: nil, data: "test2"),
+            Message(name: nil, data: "test3"),
         ]
 
         let channel = client.channels.get(test.uniqueChannelName())
@@ -908,11 +908,11 @@ class HttpClientChannelTests: XCTestCase {
     func test__026__publish__idempotent_publishing__should_publish_a_message_with_implicit_Id_only_once() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        let rest = ARTHttpClient(options: options)
+        let rest = HttpClient(options: options)
         rest.internal.options.idempotentRestPublishing = true
         let channel = rest.channels.get(test.uniqueChannelName())
 
-        let message = ARTMessage(name: "unique", data: "foo")
+        let message = Message(name: "unique", data: "foo")
         message.id = "123"
 
         for _ in 1 ... 4 {
@@ -941,12 +941,12 @@ class HttpClientChannelTests: XCTestCase {
     func test__004__publish__should_include_attributes_supplied_by_the_caller_in_the_encoded_message() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        let client = ARTHttpClient(options: options)
+        let client = HttpClient(options: options)
         let proxyHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
         client.internal.httpExecutor = proxyHTTPExecutor
 
         let channel = client.channels.get(test.uniqueChannelName())
-        let message = ARTMessage(name: nil, data: "")
+        let message = Message(name: nil, data: "")
         message.id = "123"
         message.name = "tester"
 
@@ -977,7 +977,7 @@ class HttpClientChannelTests: XCTestCase {
     // RSL2a
     func test__029__history__should_return_a_PaginatedResult_page_containing_the_first_page_of_messages() throws {
         let test = Test()
-        let client = ARTHttpClient(options: try AblyTests.commonAppSetup(for: test))
+        let client = HttpClient(options: try AblyTests.commonAppSetup(for: test))
         let channel = client.channels.get(test.uniqueChannelName())
 
         waitUntil(timeout: testTimeout) { done in
@@ -994,7 +994,7 @@ class HttpClientChannelTests: XCTestCase {
             })
         }
 
-        let query = ARTDataQuery()
+        let query = DataQuery()
         query.direction = .forwards
         query.limit = 2
 
@@ -1055,11 +1055,11 @@ class HttpClientChannelTests: XCTestCase {
     // RSL2b1
     func test__030__history__query_arguments__start_and_end_should_filter_messages_between_those_two_times() throws {
         let test = Test()
-        let client = ARTHttpClient(options: try AblyTests.commonAppSetup(for: test))
+        let client = HttpClient(options: try AblyTests.commonAppSetup(for: test))
         let channel = client.channels.get(test.uniqueChannelName())
 
-        let query = ARTDataQuery()
-        XCTAssertEqual(query.direction, ARTQueryDirection.backwards)
+        let query = DataQuery()
+        XCTAssertEqual(query.direction, QueryDirection.backwards)
         XCTAssertEqual(query.limit, 100)
 
         waitUntil(timeout: testTimeout) { done in
@@ -1070,8 +1070,8 @@ class HttpClientChannelTests: XCTestCase {
         }
 
         let messages = [
-            ARTMessage(name: nil, data: "message1"),
-            ARTMessage(name: nil, data: "message2"),
+            Message(name: nil, data: "message1"),
+            Message(name: nil, data: "message2"),
         ]
         waitUntil(timeout: testTimeout) { done in
             channel.publish(messages) { _ in
@@ -1115,38 +1115,38 @@ class HttpClientChannelTests: XCTestCase {
     // RSL2b1
     func test__031__history__query_arguments__start_must_be_equal_to_or_less_than_end_and_is_unaffected_by_the_request_direction() throws {
         let test = Test()
-        let client = ARTHttpClient(options: try AblyTests.commonAppSetup(for: test))
+        let client = HttpClient(options: try AblyTests.commonAppSetup(for: test))
         let channel = client.channels.get(test.uniqueChannelName())
 
-        let query = ARTDataQuery()
+        let query = DataQuery()
         query.direction = .backwards
         query.end = NSDate() as Date
         query.start = query.end!.addingTimeInterval(10.0)
 
         expect { try channel.history(query) { _, _ in } }.to(throwError { (error: Error) in
-            XCTAssertEqual(error._code, ARTDataQueryError.timestampRange.rawValue)
+            XCTAssertEqual(error._code, DataQueryError.timestampRange.rawValue)
         })
 
         query.direction = .forwards
 
         expect { try channel.history(query) { _, _ in } }.to(throwError { (error: Error) in
-            XCTAssertEqual(error._code, ARTDataQueryError.timestampRange.rawValue)
+            XCTAssertEqual(error._code, DataQueryError.timestampRange.rawValue)
         })
     }
 
     // RSL2b2
     func test__032__history__query_arguments__direction_backwards_or_forwards() throws {
         let test = Test()
-        let client = ARTHttpClient(options: try AblyTests.commonAppSetup(for: test))
+        let client = HttpClient(options: try AblyTests.commonAppSetup(for: test))
         let channel = client.channels.get(test.uniqueChannelName())
 
-        let query = ARTDataQuery()
-        XCTAssertEqual(query.direction, ARTQueryDirection.backwards)
+        let query = DataQuery()
+        XCTAssertEqual(query.direction, QueryDirection.backwards)
         query.direction = .forwards
 
         let messages = [
-            ARTMessage(name: nil, data: "message1"),
-            ARTMessage(name: nil, data: "message2"),
+            Message(name: nil, data: "message1"),
+            Message(name: nil, data: "message2"),
         ]
         waitUntil(timeout: testTimeout) { done in
             channel.publish(messages) { _ in
@@ -1179,14 +1179,14 @@ class HttpClientChannelTests: XCTestCase {
     // RSL2b3
     func test__033__history__query_arguments__limit_items_result() throws {
         let test = Test()
-        let client = ARTHttpClient(options: try AblyTests.commonAppSetup(for: test))
+        let client = HttpClient(options: try AblyTests.commonAppSetup(for: test))
         let channel = client.channels.get(test.uniqueChannelName())
 
-        let query = ARTDataQuery()
+        let query = DataQuery()
         XCTAssertEqual(query.limit, 100)
         query.limit = 2
 
-        let messages = (1 ... 10).compactMap { ARTMessage(name: nil, data: "message\($0)") }
+        let messages = (1 ... 10).compactMap { Message(name: nil, data: "message\($0)") }
         waitUntil(timeout: testTimeout) { done in
             channel.publish(messages) { _ in
                 done()
@@ -1218,10 +1218,10 @@ class HttpClientChannelTests: XCTestCase {
     // RSL2b3
     func test__034__history__query_arguments__limit_supports_up_to_1000_items() throws {
         let test = Test()
-        let client = ARTHttpClient(options: try AblyTests.commonAppSetup(for: test))
+        let client = HttpClient(options: try AblyTests.commonAppSetup(for: test))
         let channel = client.channels.get(test.uniqueChannelName())
 
-        let query = ARTDataQuery()
+        let query = DataQuery()
         XCTAssertEqual(query.limit, 100)
 
         query.limit = 1001
@@ -1240,16 +1240,16 @@ class HttpClientChannelTests: XCTestCase {
         // This test is intermittently failing because sometimes the list of returned presence messages on the persisted:presence_fixtures channel is empty. The test always seems to pass when run in isolation which makes me speculate that these fixtures have some sort of expiry (have asked in https://ably-real-time.slack.com/archives/CURL4U2FP/p1750083485931569), so let's try creating a new test app with fresh fixtures here.
         let options = try AblyTests.commonAppSetup(for: test, forceNewApp: true)
         options.testOptions.channelNamePrefix = nil
-        let client = ARTHttpClient(options: options)
+        let client = HttpClient(options: options)
         let key = appSetupModel.cipher.key
-        let cipherParams = ARTCipherParams(
+        let cipherParams = CipherParams(
             algorithm: appSetupModel.cipher.algorithm,
-            key: key as ARTCipherKeyCompatible,
+            key: key as CipherKeyCompatible,
             iv: Data(base64Encoded: appSetupModel.cipher.iv, options: Data.Base64DecodingOptions(rawValue: 0))!
         )
-        let channel = client.channels.get("persisted:presence_fixtures", options: ARTChannelOptions(cipher: cipherParams))
+        let channel = client.channels.get("persisted:presence_fixtures", options: ChannelOptions(cipher: cipherParams))
 
-        var presenceMessages: [ARTPresenceMessage] = []
+        var presenceMessages: [PresenceMessage] = []
         waitUntil(timeout: testTimeout) { done in
             channel.presence.get { result, _ in
                 if let items = result?.items {
@@ -1269,7 +1269,7 @@ class HttpClientChannelTests: XCTestCase {
             }.first!
 
             XCTAssertNotNil(message.data)
-            XCTAssertEqual(message.action, ARTPresenceAction.present)
+            XCTAssertEqual(message.action, PresenceAction.present)
 
             let encodedFixture = channel.internal.dataEncoder.decode(
                 fixtureMessage.data,
@@ -1572,10 +1572,10 @@ class HttpClientChannelTests: XCTestCase {
     func test__045__message_decoding__should_deliver_with_a_binary_payload_when_the_payload_was_successfully_decoded_but_it_could_not_be_decrypted() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        let clientEncrypted = ARTHttpClient(options: options)
+        let clientEncrypted = HttpClient(options: options)
 
         let channelName = test.uniqueChannelName()
-        let channelOptions = ARTChannelOptions(cipher: ["key": ARTCrypto.generateRandomKey()] as ARTCipherParamsCompatible)
+        let channelOptions = ChannelOptions(cipher: ["key": Crypto.generateRandomKey()] as CipherParamsCompatible)
         let channelEncrypted = clientEncrypted.channels.get(channelName, options: channelOptions)
 
         let expectedMessage = ["something": 1]
@@ -1586,7 +1586,7 @@ class HttpClientChannelTests: XCTestCase {
             }
         }
 
-        let client = ARTHttpClient(options: options)
+        let client = HttpClient(options: options)
         let channel = client.channels.get(channelName)
 
         waitUntil(timeout: testTimeout) { done in
@@ -1613,9 +1613,9 @@ class HttpClientChannelTests: XCTestCase {
 
         let options = try AblyTests.commonAppSetup(for: test)
         options.useBinaryProtocol = false
-        options.logHandler = ARTLog(capturingOutput: true)
-        let client = ARTHttpClient(options: options)
-        let channelOptions = ARTChannelOptions(cipher: ["key": ARTCrypto.generateRandomKey()] as ARTCipherParamsCompatible)
+        options.logHandler = Log(capturingOutput: true)
+        let client = HttpClient(options: options)
+        let channelOptions = ChannelOptions(cipher: ["key": Crypto.generateRandomKey()] as CipherParamsCompatible)
         let channel = client.channels.get(test.uniqueChannelName(), options: channelOptions)
         client.internal.httpExecutor = testHTTPExecutor
 
@@ -1658,10 +1658,10 @@ class HttpClientChannelTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.clientId = "Client 1"
-        let rest = ARTHttpClient(options: options)
-        let realtime = ARTRealtimeClient(options: options)
+        let rest = HttpClient(options: options)
+        let realtime = RealtimeClient(options: options)
         let channelName = test.uniqueChannelName()
-        let channelOptions = ARTRealtimeChannelOptions()
+        let channelOptions = RealtimeChannelOptions()
         channelOptions.modes = [
             /* the default modes… */
             .subscribe,
@@ -1682,7 +1682,7 @@ class HttpClientChannelTests: XCTestCase {
             }
         }
 
-        func checkMetrics(completion: @escaping (ARTChannelDetails) -> ()) {
+        func checkMetrics(completion: @escaping (ChannelDetails) -> ()) {
             restChannel.status { details, error in
                 XCTAssertNil(error)
                 guard let details = details else {
@@ -1736,7 +1736,7 @@ class HttpClientChannelTests: XCTestCase {
     }
 
     // RSL1n
-    func test__49__publish__with_resultCallback__returns_valid_ARTPublishResult_with_message_serials() throws {
+    func test__49__publish__with_resultCallback__returns_valid_PublishResult_with_message_serials() throws {
         let test = Test()
         let testEnvironment = try TestEnvironment(test: test)
 

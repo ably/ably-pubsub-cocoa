@@ -31,16 +31,16 @@ final class LiveCounterViewModel: ObservableObject {
     @Published var isLoading = true
     @Published var errorMessage: String?
 
-    private var channel: ARTRealtimeChannel
+    private var channel: RealtimeChannel
     private var object: any RealtimeObject
     private var root: (any LiveMapPathObject)?
 
     private var subscriptions: [String: any Subscription] = [:]
 
-    init(realtime: ARTRealtimeClient) {
+    init(realtime: RealtimeClient) {
         // Use URL parameters or default channel name
         let channelName = "live-objects-counter"
-        let channelOptions = ARTRealtimeChannelOptions()
+        let channelOptions = RealtimeChannelOptions()
         channelOptions.modes = [.objectPublish, .objectSubscribe]
         channel = realtime.channels.get(channelName, options: channelOptions)
         object = channel.object

@@ -27,14 +27,14 @@ import Testing
 /// node accessors run) and a canned server time. Publishing normally goes through
 /// ``ObjectsUTSRealtimeObjects``, not this type — but the RTO20d4 port needs the *real*
 /// `InternalDefaultRealtimeObjects` publishAndApply pipeline (to exercise the RTO20d4 production
-/// guard), so this type optionally accepts a `publishHandler` returning a canned ``PublishResult``
+/// guard), so this type optionally accepts a `publishHandler` returning a canned ``AblyLiveObjects.PublishResult``
 /// (the unit stand-in for the spec's inline mock ACK). When set, the handler's result is delivered
 /// asynchronously on `internalQueue`, mirroring the real transport's async ACK.
 final class ObjectsUTSCoreSDK: CoreSDK {
     private let channelState: _AblyPluginSupportPrivate.RealtimeChannelState
     private let serverTime: Date
     private let internalQueue: DispatchQueue?
-    private let publishHandler: (@Sendable ([ProtocolTypes.OutboundObjectMessage]) -> PublishResult)?
+    private let publishHandler: (@Sendable ([ProtocolTypes.OutboundObjectMessage]) -> AblyLiveObjects.PublishResult)?
     private let _channelName: String
 
     init(
@@ -42,7 +42,7 @@ final class ObjectsUTSCoreSDK: CoreSDK {
         serverTime: Date = Date(),
         internalQueue: DispatchQueue? = nil,
         channelName: String = "",
-        publishHandler: (@Sendable ([ProtocolTypes.OutboundObjectMessage]) -> PublishResult)? = nil,
+        publishHandler: (@Sendable ([ProtocolTypes.OutboundObjectMessage]) -> AblyLiveObjects.PublishResult)? = nil,
     ) {
         self.channelState = channelState
         self.serverTime = serverTime
@@ -51,7 +51,7 @@ final class ObjectsUTSCoreSDK: CoreSDK {
         self.publishHandler = publishHandler
     }
 
-    func nosync_publish(objectMessages: [ProtocolTypes.OutboundObjectMessage], callback: @escaping @Sendable (Result<PublishResult, ARTErrorInfo>) -> Void) {
+    func nosync_publish(objectMessages: [ProtocolTypes.OutboundObjectMessage], callback: @escaping @Sendable (Result<AblyLiveObjects.PublishResult, ErrorInfo>) -> Void) {
         guard let publishHandler, let internalQueue else {
             fatalError("nosync_publish is not exercised by the unit ports unless a publishHandler is supplied (writes otherwise go through ObjectsUTSRealtimeObjects)")
         }
@@ -61,11 +61,11 @@ final class ObjectsUTSCoreSDK: CoreSDK {
         internalQueue.async { callback(.success(result)) }
     }
 
-    func nosync_fetchServerTime(callback: @escaping @Sendable (Result<Date, ARTErrorInfo>) -> Void) {
+    func nosync_fetchServerTime(callback: @escaping @Sendable (Result<Date, ErrorInfo>) -> Void) {
         callback(.success(serverTime))
     }
 
-    func testsOnly_overridePublish(with _: @escaping ([ProtocolTypes.OutboundObjectMessage]) async throws(ARTErrorInfo) -> PublishResult) {
+    func testsOnly_overridePublish(with _: @escaping ([ProtocolTypes.OutboundObjectMessage]) async throws(ErrorInfo) -> AblyLiveObjects.PublishResult) {
         fatalError("testsOnly_overridePublish is not exercised by the unit ports")
     }
 
@@ -89,7 +89,7 @@ final class ObjectsUTSCoreSDK: CoreSDK {
         true
     }
 
-    var nosync_connectionStateError: ARTErrorInfo? {
+    var nosync_connectionStateError: ErrorInfo? {
         nil
     }
 
@@ -99,7 +99,7 @@ final class ObjectsUTSCoreSDK: CoreSDK {
         nil
     }
 
-    func nosync_attach(callback: @escaping @Sendable (ARTErrorInfo?) -> Void) {
+    func nosync_attach(callback: @escaping @Sendable (ErrorInfo?) -> Void) {
         // The unit ports drive get() on an ATTACHED channel (RTL33a), so the RTL33b implicit attach
         // is never reached; succeed for completeness.
         callback(nil)
@@ -119,7 +119,7 @@ final class ObjectsUTSCoreSDK: CoreSDK {
 final class ObjectsUTSRealtimeObjects: InternalRealtimeObjectsProtocol {
     private let poolDelegate: ObjectsUTSPoolDelegate?
     private let mutex = NSLock()
-    private nonisolated(unsafe) var _handler: (([ProtocolTypes.OutboundObjectMessage]) -> Result<Void, ARTErrorInfo>)?
+    private nonisolated(unsafe) var _handler: (([ProtocolTypes.OutboundObjectMessage]) -> Result<Void, ErrorInfo>)?
 
     /// A real (unused-in-dispatch) register so the type conforms to `InternalRealtimeObjectsProtocol`.
     /// The unit ports do not exercise path-subscription dispatch (Phase 4 part 2).
@@ -143,14 +143,14 @@ final class ObjectsUTSRealtimeObjects: InternalRealtimeObjectsProtocol {
         return poolDelegate.nosync_objectsPool
     }
 
-    func setPublishAndApplyHandler(_ handler: @escaping ([ProtocolTypes.OutboundObjectMessage]) -> Result<Void, ARTErrorInfo>) {
+    func setPublishAndApplyHandler(_ handler: @escaping ([ProtocolTypes.OutboundObjectMessage]) -> Result<Void, ErrorInfo>) {
         mutex.withLock { _handler = handler }
     }
 
     func nosync_publishAndApply(
         objectMessages: [ProtocolTypes.OutboundObjectMessage],
         coreSDK _: CoreSDK,
-        callback: @escaping @Sendable (Result<Void, ARTErrorInfo>) -> Void,
+        callback: @escaping @Sendable (Result<Void, ErrorInfo>) -> Void,
     ) {
         let handler = mutex.withLock { _handler }
         if let handler {
@@ -582,7 +582,7 @@ final class ObjectsUTSSeededRealtimeObjects: InternalRealtimeObjectsProtocol {
     func nosync_publishAndApply(
         objectMessages: [ProtocolTypes.OutboundObjectMessage],
         coreSDK _: CoreSDK,
-        callback: @escaping @Sendable (Result<Void, ARTErrorInfo>) -> Void,
+        callback: @escaping @Sendable (Result<Void, ErrorInfo>) -> Void,
     ) {
         mutex.withLock { _captured = objectMessages }
         // The RTO20 ACK echo, reduced to what the seeded pool can express: apply each captured

@@ -15,10 +15,10 @@ typedef NS_ENUM(NSUInteger, ARTAnnotationAction) {
      * A deleted annotation.
      */
     ARTAnnotationDelete,
-};
+} NS_SWIFT_NAME(AnnotationAction);
 
 /// :nodoc:
-NSString *_Nonnull ARTAnnotationActionToStr(ARTAnnotationAction action);
+NSString *_Nonnull ARTAnnotationActionToStr(ARTAnnotationAction action) NS_SWIFT_NAME(annotationActionToStr(_:));
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
  This object is used for providing parameters into the annotations methods with paginated results.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(AnnotationsQuery)
 @interface ARTAnnotationsQuery : NSObject
 
 /**
@@ -39,6 +40,7 @@ NS_SWIFT_SENDABLE
 @end
 
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(Annotation)
 @interface ARTAnnotation : NSObject<NSCopying>
 
 /// A Unique ID assigned by Ably to this message.

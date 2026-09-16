@@ -9,6 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Contains a page of results for message or presence history, stats, or REST presence requests. An `ARTPaginatedResult` response from a REST API paginated query is also accompanied by metadata that indicates the relative queries available to the `ARTPaginatedResult` object.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(PaginatedResult)
 @interface ARTPaginatedResult<ItemType> : NSObject
 
 /**

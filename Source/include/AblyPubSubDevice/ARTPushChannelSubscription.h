@@ -5,6 +5,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Contains the subscriptions of a device, or a group of devices sharing the same `clientId`, has to a channel in order to receive push notifications.
  */
+NS_SWIFT_NAME(PushChannelSubscription)
 @interface ARTPushChannelSubscription : NSObject
 
 /**

@@ -12,9 +12,9 @@ struct ObjectLifetimesTests {
             /// The queue on which we expect ably-cocoa's QueuedDealloc mechanism to enqueue the relinquishing of `weakInternalRealtime`.
             var realtimeDeallocQueue: DispatchQueue
 
-            weak var weakPublicRealtime: ARTRealtimeClient?
+            weak var weakPublicRealtime: RealtimeClient?
             weak var weakInternalRealtime: ARTRealtimeClientInternal?
-            weak var weakPublicChannel: ARTRealtimeChannel?
+            weak var weakPublicChannel: RealtimeChannel?
             weak var weakInternalChannel: ARTRealtimeChannelInternal?
             var strongPublicRealtimeObject: PublicDefaultRealtimeObject
             weak var weakInternalRealtimeObjects: InternalDefaultRealtimeObjects?
@@ -109,9 +109,9 @@ struct ObjectLifetimesTests {
             /// The queue on which we expect ably-cocoa's QueuedDealloc mechanism to enqueue the relinquishing of `weakInternalRealtime`.
             var realtimeDeallocQueue: DispatchQueue
 
-            weak var weakPublicRealtime: ARTRealtimeClient?
+            weak var weakPublicRealtime: RealtimeClient?
             weak var weakInternalRealtime: ARTRealtimeClientInternal?
-            weak var weakPublicChannel: ARTRealtimeChannel?
+            weak var weakPublicChannel: RealtimeChannel?
             weak var weakInternalChannel: ARTRealtimeChannelInternal?
             weak var weakPublicRealtimeObject: PublicDefaultRealtimeObject?
             weak var weakInternalRealtimeObjects: InternalDefaultRealtimeObjects?

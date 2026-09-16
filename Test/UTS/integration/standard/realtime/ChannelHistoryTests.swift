@@ -23,13 +23,13 @@ final class ChannelHistoryTests: IntegrationTestCase {
             // Setup
             let channelName = "history-RTL10d-\(UUID().uuidString)"
 
-            let publisherOptions = ARTClientOptions(key: app.defaultKey)
+            let publisherOptions = ClientOptions(key: app.defaultKey)
             publisherOptions.realtimeHost = SandboxApp.sandboxHost
             publisherOptions.restHost = SandboxApp.sandboxHost
             publisherOptions.useBinaryProtocol = useBinaryProtocol
             publisherOptions.autoConnect = false
 
-            let subscriberOptions = ARTClientOptions(key: app.defaultKey)
+            let subscriberOptions = ClientOptions(key: app.defaultKey)
             subscriberOptions.realtimeHost = SandboxApp.sandboxHost
             subscriberOptions.restHost = SandboxApp.sandboxHost
             subscriberOptions.useBinaryProtocol = useBinaryProtocol
@@ -90,7 +90,7 @@ final class ChannelHistoryTests: IntegrationTestCase {
 extension ChannelHistoryTests {
     /// Awaits the publish acknowledgement (the spec's `AWAIT pub_channel.publish(...)`), recording
     /// an issue on error.
-    private func awaitPublish(_ channel: ARTRealtimeChannel,
+    private func awaitPublish(_ channel: RealtimeChannel,
                               name: String,
                               data: String,
                               sourceLocation: SourceLocation = #_sourceLocation) async {
@@ -110,8 +110,8 @@ extension ChannelHistoryTests {
     /// real failure — matching the plain `poll_until` reference semantics (js/java do the same).
     /// The eventual-consistency race is an under-count, absorbed by the poll's count check, not an
     /// error.
-    private func historyItems(of channel: ARTRealtimeChannel) async throws -> [ARTMessage] {
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[ARTMessage], Error>) in
+    private func historyItems(of channel: RealtimeChannel) async throws -> [Message] {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[Message], Error>) in
             channel.history { result, error in
                 if let error {
                     continuation.resume(throwing: error)

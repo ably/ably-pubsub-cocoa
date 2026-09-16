@@ -4,7 +4,7 @@ import Foundation
 ///
 /// This allows us to provide stable object identity for our public objects. Concretely, it allows us
 /// to consistently return the same `PublicDefaultRealtimeObject` instance across multiple calls to
-/// `ARTRealtimeChannel.object`. It mirrors the mechanism previously used for the (now-removed)
+/// `RealtimeChannel.object`. It mirrors the mechanism previously used for the (now-removed)
 /// `objects` API.
 ///
 /// - Note: We can only make a best-effort attempt to maintain the pointer identity of the public

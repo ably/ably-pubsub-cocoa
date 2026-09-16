@@ -11,6 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  The protocol upon which the `ARTConnection` is implemented. Also embeds `ARTEventEmitter`.
  */
+NS_SWIFT_NAME(ConnectionProtocol)
 @protocol ARTConnectionProtocol <NSObject>
 
 /**
@@ -76,6 +77,7 @@ ART_EMBED_INTERFACE_EVENT_EMITTER(ARTRealtimeConnectionEvent, ARTConnectionState
  * @see See `ARTConnectionProtocol` for details.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(Connection)
 @interface ARTConnection: NSObject <ARTConnectionProtocol>
 
 @end

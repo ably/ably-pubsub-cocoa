@@ -92,13 +92,13 @@ extension InternalDefaultRealtimeObjects {
     /// production `CoreSDK.nosync_publish` — deliberately *without* the RTO20 apply-on-ACK stage
     /// of `nosync_publishAndApply`, which its callers (the wire-size RTO15d tests and the plugin
     /// round-trip test) must not trigger. A lead-approved exception to the dumb-accessor rule; see README.md.
-    func testsOnly_publish(objectMessages: [ProtocolTypes.OutboundObjectMessage], coreSDK: CoreSDK) async throws(ARTErrorInfo) {
-        try await withCheckedContinuation { (continuation: CheckedContinuation<Result<Void, ARTErrorInfo>, _>) in
+    func testsOnly_publish(objectMessages: [ProtocolTypes.OutboundObjectMessage], coreSDK: CoreSDK) async throws(ErrorInfo) {
+        try await withCheckedContinuation { (continuation: CheckedContinuation<Result<Void, ErrorInfo>, _>) in
             mutableStateMutex.withSync { _ in
                 // RTO15d: reject the publish if the total ObjectMessage size exceeds maxMessageSize.
                 // The check reads the connection's negotiated limit (a `nosync_` accessor), so it must
                 // run on the internal queue.
-                do throws(ARTErrorInfo) {
+                do throws(ErrorInfo) {
                     try Self.ensureMessageSizeWithinLimit(objectMessages, coreSDK: coreSDK)
                 } catch {
                     continuation.resume(returning: .failure(error))

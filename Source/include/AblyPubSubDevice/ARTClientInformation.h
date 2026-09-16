@@ -5,11 +5,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Use this pointer as a dictionary value in the `ARTClientOptions.agents` property and the `ARTClientInformation.additionalAgents` method to indicate that an agent does not have a version.
  */
-extern NSString *const ARTClientInformationAgentNotVersioned;
+extern NSString *const ARTClientInformationAgentNotVersioned NS_SWIFT_NAME(clientInformationAgentNotVersioned);
 
 /**
  Provides information about the Ably client library and the environment in which it's running.
  */
+NS_SWIFT_NAME(ClientInformation)
 @interface ARTClientInformation : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;

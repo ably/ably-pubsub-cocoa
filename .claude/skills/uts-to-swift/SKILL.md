@@ -492,7 +492,7 @@ matching `makeProtocolMessage()` case) if you need another action:
 | `ProtocolMessage(action: CLOSED)` | `.closed()` |
 | `CONNECTED_MESSAGE` (ready-made default) | `.connectedMessage` |
 | `connectionStateTtl: 2000` (wire ms) | seconds here: `connectionStateTtl: 2` |
-| `ConnectionState.connected` / `ChannelState.attached` | `.connected` / `.attached` (`ARTRealtimeConnectionState` / `ARTRealtimeChannelState`) |
+| `ConnectionState.connected` / `ChannelState.attached` | `.connected` / `.attached` (`RealtimeConnectionState` / `RealtimeChannelState`) |
 
 ### Awaiting state
 
@@ -570,7 +570,7 @@ no assertion is emitted. Never delete the spec line.
 #expect(recovered.connectionId == "connection-1")
 
 // ASSERT connection.errorReason IS null
-// (no assertion: ARTConnection exposes no errorReason getter in this state — see deviations.md)
+// (no assertion: Connection exposes no errorReason getter in this state — see deviations.md)
 ```
 
 A dropped or weakened assertion that is *not* annotated this way is a bug — Step 7 re-checks for it.
@@ -584,7 +584,7 @@ Use Swift Testing macros (`import Testing`, **not** `XCTest`):
 | `ASSERT x == y` | `#expect(x == y)` |
 | `ASSERT x IS NOT null` | `let x = try #require(optional)` (or `#expect(x != nil)`) |
 | `ASSERT x IS null` | `#expect(x == nil)` |
-| `ASSERT x IS Auth` (type check) | `#expect(x is ARTAuth)` — or `let auth = try #require(x as? ARTAuth)` when later lines use the value |
+| `ASSERT x IS Auth` (type check) | `#expect(x is Auth)` — or `let auth = try #require(x as? Auth)` when later lines use the value |
 | `ASSERT x matches pattern "..."` | `#expect(x.range(of: "...", options: .regularExpression) != nil)` |
 | `ASSERT list CONTAINS_IN_ORDER [a, b, c]` | `#expect(list.filter { [a, b, c].contains($0) } == [a, b, c])` — or walk an index as the spec does |
 | `ASSERT "k" IN map` / `NOT IN` | `#expect(map["k"] != nil)` / `#expect(map["k"] == nil)` |
@@ -599,7 +599,7 @@ REST calls will callback (e.g. `rest.time { ... }`) — make the test `async thr
 method that bridges the completion handler with a continuation:
 
 ```swift
-private func awaitTime(_ rest: ARTHttpClient, sourceLocation: SourceLocation = #_sourceLocation) async -> Date {
+private func awaitTime(_ rest: HttpClient, sourceLocation: SourceLocation = #_sourceLocation) async -> Date {
     await withCheckedContinuation { (continuation: CheckedContinuation<Date, Never>) in
         rest.time { date, error in
             if let error { Issue.record("time() failed: \(error)", sourceLocation: sourceLocation) }
@@ -964,14 +964,14 @@ generated tests — integration suites run ungated (they just need network; see 
 
 Suites subclass `IntegrationTestCase` and wrap the scenario in the scoped-resource methods:
 `withSandboxApp { app in … }` provisions a throwaway sandbox app and always deletes it;
-`withRealtimeClient(options) { client in … }` builds a real `ARTRealtimeClient` and always closes it (waiting
+`withRealtimeClient(options) { client in … }` builds a real `RealtimeClient` and always closes it (waiting
 for CLOSED).
 
 **Client wiring** — point both transports at the sandbox host; TLS stays on, so the plain sandbox key
 works (RSA1). Explicit hosts auto-disable fallback hosts (REC2c2), so no `fallbackHosts`:
 
 ```swift
-let options = ARTClientOptions(key: app.defaultKey)
+let options = ClientOptions(key: app.defaultKey)
 options.realtimeHost = SandboxApp.sandboxHost   // sandbox.realtime.ably-nonprod.net
 options.restHost = SandboxApp.sandboxHost
 options.useBinaryProtocol = useBinaryProtocol
@@ -1062,7 +1062,7 @@ final class <className>: IntegrationTestCase {
     @Test(arguments: [false, true]) // useBinaryProtocol: false = JSON, true = msgpack
     func test_<SPEC>_<description>(useBinaryProtocol: Bool) async throws {
         try await withSandboxApp { app in
-            let options = ARTClientOptions(key: app.defaultKey)   // TLS stays on → plain key auth is fine
+            let options = ClientOptions(key: app.defaultKey)   // TLS stays on → plain key auth is fine
             options.realtimeHost = SandboxApp.sandboxHost
             options.restHost = SandboxApp.sandboxHost
             options.useBinaryProtocol = useBinaryProtocol
@@ -1150,7 +1150,7 @@ try await withProxySession(rules: [wsConnectRule(action: ["type": "refuse_connec
 
 ### Connecting through the proxy
 
-Call `options.connectThroughProxy(session)` on the client options. It is an `ARTClientOptions` extension
+Call `options.connectThroughProxy(session)` on the client options. It is a `ClientOptions` extension
 (in `ProxySession.swift`) that wires the SDK through the proxy:
 
 | Proxy-def option | What `connectThroughProxy` sets |
@@ -1168,20 +1168,20 @@ automatically (REC2c2), so don't add `fallbackHosts`.
 The proxy serves plain ws (`tls = false`) and basic (key) auth is TLS-only (**RSA1**), so a proxied client
 can't just use the sandbox key. Where the pseudocode "generates a JWT from the key parts", the idiomatic
 ably-cocoa equivalent is a **locally-signed `TokenRequest`** from the same sandbox key — no JWT library
-required: a separate TLS "token signer" `ARTHttpClient` calls `auth.createTokenRequest(params, options:)` inside
+required: a separate TLS "token signer" `HttpClient` calls `auth.createTokenRequest(params, options:)` inside
 an `authCallback`, and the realtime client exchanges it for a token through the proxy.
 
 The base class packages all of this: **`proxyClientOptions(for: app, through: session)`** returns
-`ARTClientOptions` with the token-signer `authCallback` and `connectThroughProxy` already wired. Its body
+`ClientOptions` with the token-signer `authCallback` and `connectThroughProxy` already wired. Its body
 (in `ProxyTestCase.swift`) is the pattern to inline when a spec needs to count or intercept the auth
 callbacks itself:
 
 ```swift
-let signerOptions = ARTClientOptions(key: app.defaultKey)
+let signerOptions = ClientOptions(key: app.defaultKey)
 signerOptions.restHost = SandboxApp.sandboxHost
-let tokenSigner = ARTHttpClient(options: signerOptions)   // TLS, real host — local signing plus one token fetch
+let tokenSigner = HttpClient(options: signerOptions)   // TLS, real host — local signing plus one token fetch
 
-let options = ARTClientOptions()
+let options = ClientOptions()
 options.authCallback = { params, callback in
     tokenSigner.auth.createTokenRequest(params, options: nil) { tokenRequest, error in
         callback(tokenRequest, error)
@@ -1190,7 +1190,7 @@ options.authCallback = { params, callback in
 options.connectThroughProxy(session)
 ```
 
-(The auth types are top-level classes in cocoa — `ARTTokenParams`, `ARTTokenRequest`, `ARTAuthDetails` —
+(The auth types are top-level classes in cocoa — `TokenParams`, `TokenRequest`, `AuthDetails` —
 unlike ably-java, where `TokenParams`/`TokenRequest` are nested in `Auth` and `AuthDetails` in
 `ProtocolMessage`.)
 

@@ -2,13 +2,13 @@ import AblyPubSubDevice
 import XCTest
 
 class ChannelOptionsTests: XCTestCase {
-    // MARK: - ARTChannelOptions
+    // MARK: - ChannelOptions
 
     func test_copyChannelOptions() throws {
-        let options = ARTChannelOptions()
-        options.cipher = ARTCrypto.getDefaultParams(["key": ARTCrypto.generateRandomKey()])
+        let options = ChannelOptions()
+        options.cipher = Crypto.getDefaultParams(["key": Crypto.generateRandomKey()])
 
-        let copied = try XCTUnwrap(options.copy() as? ARTChannelOptions)
+        let copied = try XCTUnwrap(options.copy() as? ChannelOptions)
 
         // Check it creates a new object
         XCTAssertFalse(options === copied)
@@ -18,23 +18,23 @@ class ChannelOptionsTests: XCTestCase {
     }
 
     func test_copyingFrozenChannelOptions_createsUnfrozenCopy() throws {
-        let options = ARTChannelOptions()
+        let options = ChannelOptions()
         options.isFrozen = true
 
-        let copied = try XCTUnwrap(options.copy() as? ARTChannelOptions)
+        let copied = try XCTUnwrap(options.copy() as? ChannelOptions)
         XCTAssertFalse(copied.isFrozen)
     }
 
-    // MARK: - ARTRealtimeChannelOptions
+    // MARK: - RealtimeChannelOptions
 
     func test_copyRealtimeChannelOptions() throws {
-        let options = ARTRealtimeChannelOptions()
-        options.cipher = ARTCrypto.getDefaultParams(["key": ARTCrypto.generateRandomKey()])
+        let options = RealtimeChannelOptions()
+        options.cipher = Crypto.getDefaultParams(["key": Crypto.generateRandomKey()])
         options.params = ["foo": "bar"]
         options.modes = [.subscribe]
         options.attachOnSubscribe = false
 
-        let copied = try XCTUnwrap(options.copy() as? ARTRealtimeChannelOptions)
+        let copied = try XCTUnwrap(options.copy() as? RealtimeChannelOptions)
 
         // Check it creates a new object
         XCTAssertFalse(options === copied)
@@ -47,10 +47,10 @@ class ChannelOptionsTests: XCTestCase {
     }
 
     func test_copyingFrozenRealtimeChannelOptions_createsUnfrozenCopy() throws {
-        let options = ARTRealtimeChannelOptions()
+        let options = RealtimeChannelOptions()
         options.isFrozen = true
 
-        let copied = try XCTUnwrap(options.copy() as? ARTRealtimeChannelOptions)
+        let copied = try XCTUnwrap(options.copy() as? RealtimeChannelOptions)
         XCTAssertFalse(copied.isFrozen)
     }
 }

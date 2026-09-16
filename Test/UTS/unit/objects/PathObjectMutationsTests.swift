@@ -90,7 +90,7 @@ struct PathObjectMutationsTests {
             try await root.get(key: "score").asLiveMap().set(key: "key", value: "value")
             Issue.record("expected set() on a non-map to throw 92007")
         } catch {
-            // ASSERT error.code == 92007 (typed throws: `error` is already an ARTErrorInfo)
+            // ASSERT error.code == 92007 (typed throws: `error` is already an ErrorInfo)
             #expect(error.code == 92007)
         }
     }

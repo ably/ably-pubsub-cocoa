@@ -7,7 +7,7 @@ final class MockRealtimeObjects: InternalRealtimeObjectsProtocol {
 
     /// Synchronizes access to `_publishAndApplyHandler`.
     private let mutex = NSLock()
-    private nonisolated(unsafe) var _publishAndApplyHandler: (([ProtocolTypes.OutboundObjectMessage]) -> Result<Void, ARTErrorInfo>)?
+    private nonisolated(unsafe) var _publishAndApplyHandler: (([ProtocolTypes.OutboundObjectMessage]) -> Result<Void, ErrorInfo>)?
 
     /// A real (unused-in-dispatch) register so the type conforms to `InternalRealtimeObjectsProtocol`.
     /// Tests that exercise path-subscription dispatch use the real `InternalDefaultRealtimeObjects`.
@@ -31,7 +31,7 @@ final class MockRealtimeObjects: InternalRealtimeObjectsProtocol {
         return objectsPoolDelegate.nosync_objectsPool
     }
 
-    func setPublishAndApplyHandler(_ handler: @escaping ([ProtocolTypes.OutboundObjectMessage]) -> Result<Void, ARTErrorInfo>) {
+    func setPublishAndApplyHandler(_ handler: @escaping ([ProtocolTypes.OutboundObjectMessage]) -> Result<Void, ErrorInfo>) {
         mutex.withLock {
             _publishAndApplyHandler = handler
         }
@@ -40,9 +40,9 @@ final class MockRealtimeObjects: InternalRealtimeObjectsProtocol {
     func nosync_publishAndApply(
         objectMessages: [ProtocolTypes.OutboundObjectMessage],
         coreSDK: CoreSDK,
-        callback: @escaping @Sendable (Result<Void, ARTErrorInfo>) -> Void,
+        callback: @escaping @Sendable (Result<Void, ErrorInfo>) -> Void,
     ) {
-        var handler: (([ProtocolTypes.OutboundObjectMessage]) -> Result<Void, ARTErrorInfo>)?
+        var handler: (([ProtocolTypes.OutboundObjectMessage]) -> Result<Void, ErrorInfo>)?
         mutex.withLock {
             handler = _publishAndApplyHandler
         }

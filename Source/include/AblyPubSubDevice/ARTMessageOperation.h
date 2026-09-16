@@ -8,6 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Contains metadata about a message update or delete operation.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(MessageOperation)
 @interface ARTMessageOperation : NSObject
 
 /// Optional identifier of the client performing the operation.

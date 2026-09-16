@@ -68,12 +68,12 @@ navigates `root.get("counter").value()`, that's the **public view** (`PathObject
 
 | Spec / ably-js | ably-cocoa (Swift) |
 |---|---|
-| `channel.object` (objects entry point) | `channel.object` — a **property** on `ARTRealtimeChannel` of type `any RealtimeObject` (`RTL27`). |
-| `root = AWAIT channel.object.get()` | `let root = try await channel.object.get()` — `async throws(ARTErrorInfo)`, returns `any LiveMapPathObject` (always a map view, per `RTTS6d`/`RTO23f`). |
+| `channel.object` (objects entry point) | `channel.object` — a **property** on `RealtimeChannel` of type `any RealtimeObject` (`RTL27`). |
+| `root = AWAIT channel.object.get()` | `let root = try await channel.object.get()` — `async throws(ErrorInfo)`, returns `any LiveMapPathObject` (always a map view, per `RTTS6d`/`RTO23f`). |
 | `channel.object.get<MyType>()` (ably-js generic) | **No generic.** The root is always `any LiveMapPathObject`; narrow downstream with the `as*` views (§4). Drop the type parameter entirely. |
-| Channel needs object modes | `let options = ARTRealtimeChannelOptions(); options.modes = [.objectPublish, .objectSubscribe]; let channel = realtime.channels.get(name, options: options)` |
+| Channel needs object modes | `let options = RealtimeChannelOptions(); options.modes = [.objectPublish, .objectSubscribe]; let channel = realtime.channels.get(name, options: options)` |
 
-Accessing `channel.object` without the `LiveObjects` plugin in `ARTClientOptions.plugins` is a
+Accessing `channel.object` without the `LiveObjects` plugin in `ClientOptions.plugins` is a
 programmer error (traps). The exact wiring is
 `options.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]` plus `import AblyLiveObjects` — on
 the integration tier it is packaged as `objectsClientOptions(key:useBinaryProtocol:)` in
@@ -84,8 +84,8 @@ builder, don't hand-wire the plugin per test**.
 
 ## 3. Async: Promise / await → Swift `try await` (typed throws) <a id="3-async"></a>
 
-Every spec `AWAIT`/Promise-returning call is a Swift `async throws(ARTErrorInfo)` method — no
-future type to unwrap, and the thrown error is **already** an `ARTErrorInfo` (typed throws):
+Every spec `AWAIT`/Promise-returning call is a Swift `async throws(ErrorInfo)` method — no
+future type to unwrap, and the thrown error is **already** an `ErrorInfo` (typed throws):
 
 | Spec / ably-js | ably-cocoa |
 |---|---|
@@ -102,7 +102,7 @@ Path-resolving reads (`exists()`, `type()`, `value()`, `entries()`, …) are syn
 an operation, does something else (e.g. delivers a mock message), *then* awaits — including
 `AWAIT inc_future FAILS WITH error`. Swift has no bare future: wrap the operation in a `Task` at
 the "start" line and await its `value` at the `AWAIT` line. `Task`'s error type is untyped, so
-re-narrow to `ARTErrorInfo` when asserting a failure:
+re-narrow to `ErrorInfo` when asserting a failure:
 
 ```text
 # spec
@@ -119,7 +119,7 @@ do {
     _ = try await incTask.value
     Issue.record("expected the deferred operation to fail")
 } catch {
-    #expect(try #require(error as? ARTErrorInfo).code == N)   // Task erases the typed throw
+    #expect(try #require(error as? ErrorInfo).code == N)   // Task erases the typed throw
 }
 ```
 
@@ -391,7 +391,7 @@ do {
     try await root.asLiveCounter().increment(amount: 5)
     Issue.record("expected increment on a map to throw")
 } catch {
-    #expect(error.code == 92007)    // typed throws: `error` is already ARTErrorInfo
+    #expect(error.code == 92007)    // typed throws: `error` is already ErrorInfo
 }
 ```
 
@@ -544,9 +544,9 @@ Same rule for semantics (`"lww"`→`.lww`) and value types (§10).
 
 ## 12. Errors & error codes <a id="12-errors"></a>
 
-Spec assertions like `FAILS WITH error code 92007` map to `ARTErrorInfo`. Everything in this API
-uses **typed throws** (`throws(ARTErrorInfo)`), so in a `catch` block `error` *is* the
-`ARTErrorInfo` — no casting, no future unwrapping:
+Spec assertions like `FAILS WITH error code 92007` map to `ErrorInfo`. Everything in this API
+uses **typed throws** (`throws(ErrorInfo)`), so in a `catch` block `error` *is* the
+`ErrorInfo` — no casting, no future unwrapping:
 
 ```swift
 do {
@@ -559,7 +559,7 @@ do {
 
 | Spec failure | ably-cocoa |
 |---|---|
-| async op rejects with `ErrorInfo` code N | `try await` throws `ARTErrorInfo`; do/catch and assert `error.code == N` |
+| async op rejects with `ErrorInfo` code N | `try await` throws `ErrorInfo`; do/catch and assert `error.code == N` |
 | wrong write method for the type (e.g. `increment` on a map, `set` on a counter) | the typed view lacks the method — cast first (`asLiveCounter()` / `asLiveMap()`, never throws, `RTTS5d`), then the **operation** throws `92007`. See §7 |
 | `Instance` cast on wrong type (`RTTS9d`) | **not expressible** — `Instance` is an enum; the mismatch case doesn't exist. Deviation. |
 | `PathObject` `as*` cast on wrong type | **never throws** (`RTTS5d`) — failure shows up on the subsequent read (nil) or write (throws) |
@@ -577,8 +577,8 @@ Assert the code as a plain `Int` — `#expect(error.code == 90001)` — matching
 `error.code == 90001`; error codes are int literals, not enums (unlike the action / semantics /
 value-type tags).
 
-> **Never write `error as? ARTErrorInfo` in a typed-throws `catch`.** The catch binding is already
-> `ARTErrorInfo` there, so the cast is an "always succeeds" compiler warning — and the LiveObjects
+> **Never write `error as? ErrorInfo` in a typed-throws `catch`.** The catch binding is already
+> `ErrorInfo` there, so the cast is an "always succeeds" compiler warning — and the LiveObjects
 > CI build treats warnings as errors, so it FAILS the SPM job even though a local
 > `swift build --build-tests` only warns (check build output for warnings, not just the tail). The
 > re-narrowing cast is correct in exactly one place: the `catch` of a deferred `try await task.value`
@@ -587,7 +587,7 @@ the channel-level error, not an objects code — it's what drives the channel in
 makes the objects call fail.
 
 **Nested cause (`error.cause.code`).** A spec's nested `error.cause.code` (e.g. `RTO20e`:
-top-level `92008` plus cause `90000`): `ARTErrorInfo` has no public typed `cause` accessor —
+top-level `92008` plus cause `90000`): `ErrorInfo` has no public typed `cause` accessor —
 inspect the underlying `NSError` chain (`error.userInfo[NSUnderlyingErrorKey]`) and verify what the
 implementation actually populates **at translation time** (the implementation now exists — check
 what it emits rather than assuming). If the cause isn't reachable, assert the top-level code
@@ -842,7 +842,7 @@ Mirror the moved suites (e.g. `Test/UTS/unit/objects/ObjectIdTests.swift`,
 (that belongs to the core-SDK unit tier); use `@Suite(.serialized) final class <Stem>Tests` only when
 the suite genuinely needs serialization. `// UTS:` tag immediately above each `@Test`. Import
 `AblyLiveObjects` + `AblyLiveObjectsTesting` `@testable`; add `Ably` / `_AblyPluginSupportPrivate` only
-when the case touches `ARTErrorInfo` / plugin-facing types (channel state, modes).
+when the case touches `ErrorInfo` / plugin-facing types (channel state, modes).
 
 **Method naming — objects unit tier OVERRIDES SKILL.md Step 4's `test_<SPEC>_<description>` rule:**
 use bare descriptive camelCase names with no `test_` prefix and no embedded spec point (e.g.
@@ -889,7 +889,7 @@ cited by tag per entry.
 // NOT deviations — describe them in the "what these ports drive" line above, not here.
 
 import _AblyPluginSupportPrivate      // only if you touch plugin-facing types (channel state/modes)
-import AblyPubSubDevice                            // only if you touch ARTErrorInfo / core types
+import AblyPubSubDevice                            // only if you touch ErrorInfo / core types
 @testable import AblyLiveObjects
 @testable import AblyLiveObjectsTesting  // only if the suite uses testsOnly_ accessors
 import Foundation
@@ -967,7 +967,7 @@ Implementation details settled by the port (don't re-derive them):
   an `objectIds` string array; the helper flattens those into its `[String]` return. The UTS spec
   helper documents no response contract — flagged upstream.
 - The cocoa port posts through the UTS infra's plain `URLSession` helpers
-  (`jsonRequest`/`httpRequest`, `infra/Utils.swift`) rather than an `ARTHttpClient` client, so the spec's
+  (`jsonRequest`/`httpRequest`, `infra/Utils.swift`) rather than an `HttpClient` client, so the spec's
   "REST client must be closed after use" note doesn't apply here.
 
 The realtime client then observes the provisioned data through OBJECT_SYNC +

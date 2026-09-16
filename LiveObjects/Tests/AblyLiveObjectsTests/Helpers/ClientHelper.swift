@@ -5,7 +5,7 @@ import AblyPubSubDevice
 /// Helper for creating ably-cocoa objects, for use in integration tests.
 enum ClientHelper {
     /// Creates a sandbox Realtime client with LiveObjects support.
-    static func realtimeWithObjects(options: PartialClientOptions = .init()) async throws -> ARTRealtimeClient {
+    static func realtimeWithObjects(options: PartialClientOptions = .init()) async throws -> RealtimeClient {
         let clientOptions = try await Sandbox.clientOptions()
         clientOptions.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]
 
@@ -29,11 +29,11 @@ enum ClientHelper {
             clientOptions.garbageCollectionOptions = garbageCollectionOptions
         }
 
-        return ARTRealtimeClient(options: clientOptions)
+        return RealtimeClient(options: clientOptions)
     }
 
     /// An ably-cocoa logger that adds a given prefix to all emitted log messages.
-    private class PrefixedLogger: ARTLog {
+    private class PrefixedLogger: Log {
         // This dance of using an implicitly unwrapped optional instead of a `let` is because we can't write a custom designated initializer (see comment below).
         var _prefix: String!
         var prefix: String {
@@ -55,15 +55,15 @@ enum ClientHelper {
             self.prefix = prefix
         }
 
-        override public func log(_ message: String, with level: ARTLogLevel) {
+        override public func log(_ message: String, with level: LogLevel) {
             let newMessage = "\(prefix)\(message)"
             super.log(newMessage, with: level)
         }
     }
 
     /// Creates channel options that include the channel modes needed for LiveObjects.
-    static func channelOptionsWithObjects() -> ARTRealtimeChannelOptions {
-        let options = ARTRealtimeChannelOptions()
+    static func channelOptionsWithObjects() -> RealtimeChannelOptions {
+        let options = RealtimeChannelOptions()
         options.modes = [.objectSubscribe, .objectPublish]
         return options
     }

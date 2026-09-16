@@ -16,7 +16,7 @@ public enum ObjectsEvent: Sendable {
 public protocol RealtimeObject: Sendable {
     /// Returns a ``LiveMapPathObject`` rooted at the channel's root map with an empty path, once the
     /// objects are synchronized with the Ably service. Spec: `RTO23`.
-    func get() async throws(ARTErrorInfo) -> any LiveMapPathObject
+    func get() async throws(ErrorInfo) -> any LiveMapPathObject
 
     /// Registers the provided listener for the specified event.
     ///

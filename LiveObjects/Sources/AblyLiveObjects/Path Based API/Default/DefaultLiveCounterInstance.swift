@@ -29,24 +29,24 @@ internal final class DefaultLiveCounterInstance: LiveCounterInstance {
     // MARK: - LiveCounterInstance
 
     internal var value: Double {
-        get throws(ARTErrorInfo) {
+        get throws(ErrorInfo) {
             // RTINS4a/RTINS4b -> RTLC5 (the node accessor runs the RTO25b check)
             try node.value(coreSDK: coreSDK)
         }
     }
 
-    internal func increment(amount: Double) async throws(ARTErrorInfo) {
+    internal func increment(amount: Double) async throws(ErrorInfo) {
         // RTINS14c -> RTLC12
         try await node.increment(amount: amount, coreSDK: coreSDK, realtimeObjects: realtimeObjects)
     }
 
-    internal func decrement(amount: Double) async throws(ARTErrorInfo) {
+    internal func decrement(amount: Double) async throws(ErrorInfo) {
         // RTINS15c -> RTLC13
         try await node.decrement(amount: amount, coreSDK: coreSDK, realtimeObjects: realtimeObjects)
     }
 
     @discardableResult
-    internal func subscribe(listener: @escaping InstanceSubscriptionCallback) throws(ARTErrorInfo) -> any Subscription {
+    internal func subscribe(listener: @escaping InstanceSubscriptionCallback) throws(ErrorInfo) -> any Subscription {
         // RTINS16b (the node's subscribe runs the RTO25b check), RTINS16d -> RTLO4b
         let response = try node.subscribe(
             listener: { [weak self] update, _ in
@@ -64,7 +64,7 @@ internal final class DefaultLiveCounterInstance: LiveCounterInstance {
         return DefaultSubscription(response: response)
     }
 
-    internal func compactJson() throws(ARTErrorInfo) -> JSONValue {
+    internal func compactJson() throws(ErrorInfo) -> JSONValue {
         // RTINS11a/RTINS11b -> RTPO14 -> RTPO13d: a counter compacts to its current numeric value.
         // The node's `value(coreSDK:)` runs the RTO25b check.
         try .number(node.value(coreSDK: coreSDK))

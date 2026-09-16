@@ -63,7 +63,7 @@ internal extension InboundWireObjectMessage {
     init(
         wireObject: [String: WireValue],
         decodingContext: _AblyPluginSupportPrivate.DecodingContextProtocol
-    ) throws(ARTErrorInfo) {
+    ) throws(ErrorInfo) {
         // OM2a
         if let id = try wireObject.optionalStringValueForKey(WireObjectMessageWireKey.id.rawValue) {
             self.id = id
@@ -81,7 +81,7 @@ internal extension InboundWireObjectMessage {
         }
 
         if let wireExtras = try wireObject.optionalObjectValueForKey(WireObjectMessageWireKey.extras.rawValue) {
-            extras = try wireExtras.ablyLiveObjects_mapValuesWithTypedThrow { wireValue throws(ARTErrorInfo) in
+            extras = try wireExtras.ablyLiveObjects_mapValuesWithTypedThrow { wireValue throws(ErrorInfo) in
                 try wireValue.toJSONValue
             }
         } else {
@@ -188,7 +188,7 @@ extension WireObjectOperation: WireObjectCodable {
         case mapClear
     }
 
-    internal init(wireObject: [String: WireValue]) throws(ARTErrorInfo) {
+    internal init(wireObject: [String: WireValue]) throws(ErrorInfo) {
         action = try wireObject.wireEnumValueForKey(WireKey.action.rawValue)
         objectId = try wireObject.stringValueForKey(WireKey.objectId.rawValue)
 
@@ -261,9 +261,9 @@ extension WireObjectState: WireObjectCodable {
         case counter
     }
 
-    internal init(wireObject: [String: WireValue]) throws(ARTErrorInfo) {
+    internal init(wireObject: [String: WireValue]) throws(ErrorInfo) {
         objectId = try wireObject.stringValueForKey(WireKey.objectId.rawValue)
-        siteTimeserials = try wireObject.objectValueForKey(WireKey.siteTimeserials.rawValue).ablyLiveObjects_mapValuesWithTypedThrow { value throws(ARTErrorInfo) in
+        siteTimeserials = try wireObject.objectValueForKey(WireKey.siteTimeserials.rawValue).ablyLiveObjects_mapValuesWithTypedThrow { value throws(ErrorInfo) in
             guard case let .string(string) = value else {
                 throw WireValueDecodingError.wrongTypeForKey(WireKey.siteTimeserials.rawValue, actualValue: value).toARTErrorInfo()
             }
@@ -309,9 +309,9 @@ extension WireObjectsMap: WireObjectCodable {
         case clearTimeserial
     }
 
-    internal init(wireObject: [String: WireValue]) throws(ARTErrorInfo) {
+    internal init(wireObject: [String: WireValue]) throws(ErrorInfo) {
         semantics = try wireObject.wireEnumValueForKey(WireKey.semantics.rawValue)
-        entries = try wireObject.optionalObjectValueForKey(WireKey.entries.rawValue)?.ablyLiveObjects_mapValuesWithTypedThrow { value throws(ARTErrorInfo) in
+        entries = try wireObject.optionalObjectValueForKey(WireKey.entries.rawValue)?.ablyLiveObjects_mapValuesWithTypedThrow { value throws(ErrorInfo) in
             guard case let .object(object) = value else {
                 throw WireValueDecodingError.wrongTypeForKey(WireKey.entries.rawValue, actualValue: value).toARTErrorInfo()
             }
@@ -345,7 +345,7 @@ extension WireObjectsCounter: WireObjectCodable {
         case count
     }
 
-    internal init(wireObject: [String: WireValue]) throws(ARTErrorInfo) {
+    internal init(wireObject: [String: WireValue]) throws(ErrorInfo) {
         count = try wireObject.optionalNumberValueForKey(WireKey.count.rawValue)
     }
 
@@ -369,7 +369,7 @@ extension WireMapSet: WireObjectCodable {
         case value
     }
 
-    internal init(wireObject: [String: WireValue]) throws(ARTErrorInfo) {
+    internal init(wireObject: [String: WireValue]) throws(ErrorInfo) {
         key = try wireObject.stringValueForKey(WireKey.key.rawValue)
         value = try wireObject.optionalDecodableValueForKey(WireKey.value.rawValue)
     }
@@ -396,7 +396,7 @@ extension WireMapRemove: WireObjectCodable {
         case key
     }
 
-    internal init(wireObject: [String: WireValue]) throws(ARTErrorInfo) {
+    internal init(wireObject: [String: WireValue]) throws(ErrorInfo) {
         key = try wireObject.stringValueForKey(WireKey.key.rawValue)
     }
 
@@ -418,9 +418,9 @@ extension WireMapCreate: WireObjectCodable {
         case entries
     }
 
-    internal init(wireObject: [String: WireValue]) throws(ARTErrorInfo) {
+    internal init(wireObject: [String: WireValue]) throws(ErrorInfo) {
         semantics = try wireObject.wireEnumValueForKey(WireKey.semantics.rawValue)
-        entries = try wireObject.optionalObjectValueForKey(WireKey.entries.rawValue)?.ablyLiveObjects_mapValuesWithTypedThrow { value throws(ARTErrorInfo) in
+        entries = try wireObject.optionalObjectValueForKey(WireKey.entries.rawValue)?.ablyLiveObjects_mapValuesWithTypedThrow { value throws(ErrorInfo) in
             guard case let .object(object) = value else {
                 throw WireValueDecodingError.wrongTypeForKey(WireKey.entries.rawValue, actualValue: value).toARTErrorInfo()
             }
@@ -450,7 +450,7 @@ extension WireCounterCreate: WireObjectCodable {
         case count
     }
 
-    internal init(wireObject: [String: WireValue]) throws(ARTErrorInfo) {
+    internal init(wireObject: [String: WireValue]) throws(ErrorInfo) {
         count = try wireObject.optionalNumberValueForKey(WireKey.count.rawValue)
     }
 
@@ -472,7 +472,7 @@ extension WireCounterInc: WireObjectCodable {
         case number
     }
 
-    internal init(wireObject: [String: WireValue]) throws(ARTErrorInfo) {
+    internal init(wireObject: [String: WireValue]) throws(ErrorInfo) {
         number = try wireObject.numberValueForKey(WireKey.number.rawValue)
     }
 
@@ -486,7 +486,7 @@ extension WireCounterInc: WireObjectCodable {
 internal struct WireObjectDelete: Equatable {}
 
 extension WireObjectDelete: WireObjectCodable {
-    internal init(wireObject _: [String: WireValue]) throws(ARTErrorInfo) {
+    internal init(wireObject _: [String: WireValue]) throws(ErrorInfo) {
         // No fields to decode
     }
 
@@ -498,7 +498,7 @@ extension WireObjectDelete: WireObjectCodable {
 internal struct WireMapClear: Equatable {}
 
 extension WireMapClear: WireObjectCodable {
-    internal init(wireObject _: [String: WireValue]) throws(ARTErrorInfo) {
+    internal init(wireObject _: [String: WireValue]) throws(ErrorInfo) {
         // No fields to decode
     }
 
@@ -518,7 +518,7 @@ extension WireMapCreateWithObjectId: WireObjectCodable {
         case initialValue
     }
 
-    internal init(wireObject: [String: WireValue]) throws(ARTErrorInfo) {
+    internal init(wireObject: [String: WireValue]) throws(ErrorInfo) {
         nonce = try wireObject.stringValueForKey(WireKey.nonce.rawValue)
         initialValue = try wireObject.stringValueForKey(WireKey.initialValue.rawValue)
     }
@@ -542,7 +542,7 @@ extension WireCounterCreateWithObjectId: WireObjectCodable {
         case initialValue
     }
 
-    internal init(wireObject: [String: WireValue]) throws(ARTErrorInfo) {
+    internal init(wireObject: [String: WireValue]) throws(ErrorInfo) {
         nonce = try wireObject.stringValueForKey(WireKey.nonce.rawValue)
         initialValue = try wireObject.stringValueForKey(WireKey.initialValue.rawValue)
     }
@@ -570,7 +570,7 @@ extension WireObjectsMapEntry: WireObjectCodable {
         case serialTimestamp
     }
 
-    internal init(wireObject: [String: WireValue]) throws(ARTErrorInfo) {
+    internal init(wireObject: [String: WireValue]) throws(ErrorInfo) {
         tombstone = try wireObject.optionalBoolValueForKey(WireKey.tombstone.rawValue)
         timeserial = try wireObject.optionalStringValueForKey(WireKey.timeserial.rawValue)
         data = try wireObject.optionalDecodableValueForKey(WireKey.data.rawValue)
@@ -616,7 +616,7 @@ extension WireObjectData: WireObjectCodable {
         case json
     }
 
-    internal init(wireObject: [String: WireValue]) throws(ARTErrorInfo) {
+    internal init(wireObject: [String: WireValue]) throws(ErrorInfo) {
         objectId = try wireObject.optionalStringValueForKey(WireKey.objectId.rawValue)
         boolean = try wireObject.optionalBoolValueForKey(WireKey.boolean.rawValue)
         bytes = try wireObject.optionalDecodableValueForKey(WireKey.bytes.rawValue)
@@ -663,7 +663,7 @@ internal enum StringOrData: Equatable, WireCodable {
         case unsupportedValue(WireValue)
     }
 
-    internal init(wireValue: WireValue) throws(ARTErrorInfo) {
+    internal init(wireValue: WireValue) throws(ErrorInfo) {
         self = switch wireValue {
         case let .string(string):
             .string(string)

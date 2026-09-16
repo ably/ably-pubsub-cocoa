@@ -5,13 +5,13 @@ struct ContentView: View {
     @StateObject private var ablyHelper = AblyHelper.shared
 
     @State var showDeviceDetailsAlert = false
-    @State var deviceDetails: ARTDeviceDetails?
-    @State var deviceDetailsError: ARTErrorInfo?
+    @State var deviceDetails: DeviceDetails?
+    @State var deviceDetailsError: ErrorInfo?
 
     @State var showDeviceTokensAlert = false
     @State var defaultDeviceToken: String?
     @State var locationDeviceToken: String?
-    @State var deviceTokensError: ARTErrorInfo?
+    @State var deviceTokensError: ErrorInfo?
 
     var body: some View {
         NavigationView {

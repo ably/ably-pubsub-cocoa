@@ -21,10 +21,10 @@ final class HistoryTests: IntegrationTestCase {
         // The spec's BEFORE/AFTER ALL sandbox app provisioning is owned by the withSandboxApp scope.
         try await withSandboxApp { app in
             // Setup
-            let options = ARTClientOptions(key: app.defaultKey)
+            let options = ClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTHttpClient(options: options)
+            let client = HttpClient(options: options)
             let channelName = "history-test-RSL2a-\(UUID().uuidString)"
             let channel = client.channels.get(channelName)
 
@@ -64,10 +64,10 @@ final class HistoryTests: IntegrationTestCase {
     func test_RSL2b1_history_direction_forwards(useBinaryProtocol: Bool) async throws {
         try await withSandboxApp { app in
             // Setup
-            let options = ARTClientOptions(key: app.defaultKey)
+            let options = ClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTHttpClient(options: options)
+            let client = HttpClient(options: options)
             let channelName = "history-direction-\(UUID().uuidString)"
             let channel = client.channels.get(channelName)
 
@@ -82,7 +82,7 @@ final class HistoryTests: IntegrationTestCase {
                 try await self.historyItems(of: channel).count == 3
             }) else { return }
 
-            let forwardsQuery = ARTDataQuery()
+            let forwardsQuery = DataQuery()
             forwardsQuery.direction = .forwards
             let history = await historyItems(of: channel, query: forwardsQuery)
 
@@ -99,10 +99,10 @@ final class HistoryTests: IntegrationTestCase {
     func test_RSL2b2_history_limit_parameter(useBinaryProtocol: Bool) async throws {
         try await withSandboxApp { app in
             // Setup
-            let options = ARTClientOptions(key: app.defaultKey)
+            let options = ClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTHttpClient(options: options)
+            let client = HttpClient(options: options)
             let channelName = "history-limit-\(UUID().uuidString)"
             let channel = client.channels.get(channelName)
 
@@ -117,7 +117,7 @@ final class HistoryTests: IntegrationTestCase {
                 try await self.historyItems(of: channel).count == 10
             }) else { return }
 
-            let limitQuery = ARTDataQuery()
+            let limitQuery = DataQuery()
             limitQuery.limit = 5
             let history = await historyItems(of: channel, query: limitQuery)
 
@@ -135,10 +135,10 @@ final class HistoryTests: IntegrationTestCase {
     func test_RSL2b3_history_time_range_parameters(useBinaryProtocol: Bool) async throws {
         try await withSandboxApp { app in
             // Setup
-            let options = ARTClientOptions(key: app.defaultKey)
+            let options = ClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTHttpClient(options: options)
+            let client = HttpClient(options: options)
             let channelName = "history-timerange-\(UUID().uuidString)"
             let channel = client.channels.get(channelName)
 
@@ -179,13 +179,13 @@ final class HistoryTests: IntegrationTestCase {
             let timeBoundary = (maxEarlyTs + minLateTs) / 2 // floor((max_early_ts + min_late_ts) / 2)
 
             // Query only early messages (up to the boundary)
-            let earlyQuery = ARTDataQuery()
+            let earlyQuery = DataQuery()
             earlyQuery.start = self.dateFromMilliseconds(maxEarlyTs - 1000)
             earlyQuery.end = self.dateFromMilliseconds(timeBoundary)
             let earlyHistory = await historyItems(of: channel, query: earlyQuery)
 
             // Query only late messages (from the boundary onwards)
-            let lateQuery = ARTDataQuery()
+            let lateQuery = DataQuery()
             lateQuery.start = self.dateFromMilliseconds(timeBoundary + 1)
             lateQuery.end = self.dateFromMilliseconds(minLateTs + 1000)
             let lateHistory = await historyItems(of: channel, query: lateQuery)
@@ -207,10 +207,10 @@ final class HistoryTests: IntegrationTestCase {
     func test_RSL2_history_on_channel_with_no_messages(useBinaryProtocol: Bool) async throws {
         try await withSandboxApp { app in
             // Setup
-            let options = ARTClientOptions(key: app.defaultKey)
+            let options = ClientOptions(key: app.defaultKey)
             options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
             options.useBinaryProtocol = useBinaryProtocol
-            let client = ARTHttpClient(options: options)
+            let client = HttpClient(options: options)
             // Use a fresh channel with no messages
             let channelName = "history-empty-\(UUID().uuidString)"
             let channel = client.channels.get(channelName)
@@ -220,8 +220,8 @@ final class HistoryTests: IntegrationTestCase {
 
             // Assertions
             // ASSERT history.items IS List
-            // (no separate assertion: satisfied by the type system — ARTPaginatedResult.items is
-            // [ARTMessage])
+            // (no separate assertion: satisfied by the type system — PaginatedResult.items is
+            // [Message])
             #expect(history.items.count == 0)
             #expect(history.hasNext == false)
             #expect(history.isLast == true)
@@ -232,7 +232,7 @@ final class HistoryTests: IntegrationTestCase {
 extension HistoryTests {
     /// Awaits the publish acknowledgement (the spec's `AWAIT channel.publish(name:data:)`),
     /// recording an issue on error.
-    private func awaitPublish(_ channel: ARTHttpChannel,
+    private func awaitPublish(_ channel: HttpChannel,
                               name: String,
                               data: Any,
                               sourceLocation: SourceLocation = #_sourceLocation) async {
@@ -250,10 +250,10 @@ extension HistoryTests {
     /// Fetches the channel's history — with the given query (the spec's
     /// `channel.history(direction:/limit:/start:/end:)`) or the default query when nil — and
     /// returns its items, recording an issue on error.
-    private func historyItems(of channel: ARTHttpChannel,
-                              query: ARTDataQuery? = nil,
-                              sourceLocation: SourceLocation = #_sourceLocation) async -> [ARTMessage] {
-        let (items, failure): ([ARTMessage], String?) = await withCheckedContinuation { continuation in
+    private func historyItems(of channel: HttpChannel,
+                              query: DataQuery? = nil,
+                              sourceLocation: SourceLocation = #_sourceLocation) async -> [Message] {
+        let (items, failure): ([Message], String?) = await withCheckedContinuation { continuation in
             do {
                 try channel.history(query, callback: { result, error in
                     continuation.resume(returning: (result?.items ?? [], error.map { "history() failed: \($0)" }))
@@ -273,8 +273,8 @@ extension HistoryTests {
     /// Fetches the channel's history (default query) and returns its items, propagating any
     /// `history()` error so it aborts the enclosing `pollUntil` and surfaces the real failure
     /// (matching the plain `poll_until` reference semantics; js/java do the same).
-    private func historyItems(of channel: ARTHttpChannel) async throws -> [ARTMessage] {
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[ARTMessage], Error>) in
+    private func historyItems(of channel: HttpChannel) async throws -> [Message] {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[Message], Error>) in
             channel.history { result, error in
                 if let error {
                     continuation.resume(throwing: error)
@@ -287,12 +287,12 @@ extension HistoryTests {
 
     /// Fetches the channel's history (default query) and returns the page's items plus its
     /// pagination flags (the spec's `history.hasNext()` / `history.isLast()`), recording an issue
-    /// on error. Extracted to value types — `ARTPaginatedResult` is not Sendable, so it cannot
+    /// on error. Extracted to value types — `PaginatedResult` is not Sendable, so it cannot
     /// cross the continuation.
-    private func historyPage(of channel: ARTHttpChannel,
+    private func historyPage(of channel: HttpChannel,
                              sourceLocation: SourceLocation = #_sourceLocation) async
-        -> (items: [ARTMessage], hasNext: Bool, isLast: Bool) {
-        let (page, failure): ((items: [ARTMessage], hasNext: Bool, isLast: Bool), String?) = await withCheckedContinuation { continuation in
+        -> (items: [Message], hasNext: Bool, isLast: Bool) {
+        let (page, failure): ((items: [Message], hasNext: Bool, isLast: Bool), String?) = await withCheckedContinuation { continuation in
             channel.history { result, error in
                 continuation.resume(returning: ((items: result?.items ?? [],
                                                  hasNext: result?.hasNext ?? false,

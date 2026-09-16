@@ -9,10 +9,10 @@ class MessageUpdatesDeletesTests: XCTestCase {
     // MARK: - Test Environment
 
     private enum TestEnvironment {
-        case rest(client: ARTHttpClient, testHTTPExecutor: TestProxyHTTPExecutor, channelName: String)
-        case realtime(client: ARTRealtimeClient, testHTTPExecutor: TestProxyHTTPExecutor, channelName: String)
+        case rest(client: HttpClient, testHTTPExecutor: TestProxyHTTPExecutor, channelName: String)
+        case realtime(client: RealtimeClient, testHTTPExecutor: TestProxyHTTPExecutor, channelName: String)
 
-        var channel: ARTChannelProtocol {
+        var channel: ChannelProtocol {
             switch self {
             case .rest(let client, _, let channelName):
                 return client.channels.get(channelName)
@@ -21,7 +21,7 @@ class MessageUpdatesDeletesTests: XCTestCase {
             }
         }
 
-        var realtimeClient: ARTRealtimeClient? {
+        var realtimeClient: RealtimeClient? {
             switch self {
             case .rest(_, _, _):
                 return nil
@@ -41,7 +41,7 @@ class MessageUpdatesDeletesTests: XCTestCase {
         static func rest(_ test: Test) throws -> TestEnvironment {
             let options = try AblyTests.commonAppSetup(for: test)
             options.testOptions.channelNamePrefix = nil
-            let client = ARTHttpClient(options: options)
+            let client = HttpClient(options: options)
             let testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
             client.internal.httpExecutor = testHTTPExecutor
             let channelName = test.uniqueChannelName(prefix: "mutable:") // updates and deletes don't work without this prefix on a channel name
@@ -51,7 +51,7 @@ class MessageUpdatesDeletesTests: XCTestCase {
         static func realtime(_ test: Test) throws -> TestEnvironment {
             let options = try AblyTests.commonAppSetup(for: test)
             options.testOptions.channelNamePrefix = nil
-            let client = ARTRealtimeClient(options: options)
+            let client = RealtimeClient(options: options)
             let testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
             client.internal.rest.httpExecutor = testHTTPExecutor
             let channelName = test.uniqueChannelName(prefix: "mutable:")
@@ -62,8 +62,8 @@ class MessageUpdatesDeletesTests: XCTestCase {
     // These `waitUntil*HistoryBecomesAvailable*` functions are needed to wait when the published message makes its way to the database.
     // If you post a message and receive it on a realtime channel and then try to fetch it via `history:`, `getMessageWithSerial:` or  `getMessageVersions:`, the request will fail with ~20% of chance.
 
-    private func waitUntilHistoryBecomesAvailableOnChannel(_ channel: ARTChannelProtocol) -> ARTMessage {
-        var firstMessage: ARTMessage!
+    private func waitUntilHistoryBecomesAvailableOnChannel(_ channel: ChannelProtocol) -> Message {
+        var firstMessage: Message!
         while firstMessage == nil {
             sleep(1) // wait before to increase the chance of the first request
             waitUntil(timeout: testTimeout) { done in
@@ -76,8 +76,8 @@ class MessageUpdatesDeletesTests: XCTestCase {
         return firstMessage
     }
 
-    private func waitUntilEditingHistoryBecomesAvailableForMessageSerial(_ serial: String, onChannel channel: ARTChannelProtocol) -> [ARTMessage] {
-        var versions: [ARTMessage] = []
+    private func waitUntilEditingHistoryBecomesAvailableForMessageSerial(_ serial: String, onChannel channel: ChannelProtocol) -> [Message] {
+        var versions: [Message] = []
         while versions.count == 0 {
             sleep(1) // wait before to increase the chance of the first request
             waitUntil(timeout: testTimeout) { done in
@@ -108,7 +108,7 @@ class MessageUpdatesDeletesTests: XCTestCase {
             return
         }
 
-        var capturedRetrievedMessage: ARTMessage?
+        var capturedRetrievedMessage: Message?
 
         // RSL11a: Get the message by serial string
         waitUntil(timeout: testTimeout) { done in
@@ -155,16 +155,16 @@ class MessageUpdatesDeletesTests: XCTestCase {
         }
 
         // Update data
-        let messageUpdate = publishedMessage.copy() as! ARTMessage
+        let messageUpdate = publishedMessage.copy() as! Message
         messageUpdate.data = "hello world!"
 
         // RSL15a: optional MessageOperation object
-        let operation = ARTMessageOperation(clientId: "updater-client", descriptionText: "Editing message text", metadata: ["newValue": "hello world!"])
+        let operation = MessageOperation(clientId: "updater-client", descriptionText: "Editing message text", metadata: ["newValue": "hello world!"])
 
         // RSL15a: optional params
-        let params: [String: ARTStringifiable] = ["param1": .withString("value1")]
+        let params: [String: Stringifiable] = ["param1": .withString("value1")]
 
-        var updateResult: ARTUpdateDeleteResult?
+        var updateResult: UpdateDeleteResult?
         waitUntil(timeout: testTimeout) { done in
             channel.update(messageUpdate, operation: operation, params: params) { result, error in
                 XCTAssertNil(error)
@@ -217,7 +217,7 @@ class MessageUpdatesDeletesTests: XCTestCase {
             }
         }
 
-        var capturedUpdatedMessage: ARTMessage?
+        var capturedUpdatedMessage: Message?
 
         // Fetch the updated message (poll getMessageWithSerial until it returns the updated message)
         while capturedUpdatedMessage == nil || capturedUpdatedMessage!.version?.serial == publishedMessage.version?.serial {
@@ -278,17 +278,17 @@ class MessageUpdatesDeletesTests: XCTestCase {
         }
 
         // Create message for delete with fields
-        let messageDelete = publishedMessage.copy() as! ARTMessage
+        let messageDelete = publishedMessage.copy() as! Message
         messageDelete.serial = publishedMessageSerial
         messageDelete.data = ""
 
         // RSL15a: optional MessageOperation object
-        let operation = ARTMessageOperation(clientId: "deleter-client", descriptionText: "Test delete operation", metadata: ["reason": "inappropriate content"])
+        let operation = MessageOperation(clientId: "deleter-client", descriptionText: "Test delete operation", metadata: ["reason": "inappropriate content"])
 
         // RSL15a: optional params
-        let params: [String: ARTStringifiable] = ["deleteParam": .withString("deleteValue")]
+        let params: [String: Stringifiable] = ["deleteParam": .withString("deleteValue")]
 
-        var deleteResult: ARTUpdateDeleteResult?
+        var deleteResult: UpdateDeleteResult?
         waitUntil(timeout: testTimeout) { done in
             channel.delete(messageDelete, operation: operation, params: params) { result, error in
                 XCTAssertNil(error)
@@ -341,7 +341,7 @@ class MessageUpdatesDeletesTests: XCTestCase {
             }
         }
 
-        var updatedMessage: ARTMessage?
+        var updatedMessage: Message?
 
         // Fetch the updated message (poll getMessageWithSerial until it returns the updated message)
         while updatedMessage == nil || updatedMessage!.version?.serial == publishedMessage.version?.serial {
@@ -399,17 +399,17 @@ class MessageUpdatesDeletesTests: XCTestCase {
         }
 
         // Create message for append with fields
-        let messageAppend = publishedMessage.copy() as! ARTMessage
+        let messageAppend = publishedMessage.copy() as! Message
         messageAppend.serial = publishedMessageSerial
         messageAppend.data = " world!"
 
         // RSL15a: optional MessageOperation object
-        let operation = ARTMessageOperation(clientId: "appender-client", descriptionText: "Test append operation", metadata: ["reason": "further LLM tokens"])
+        let operation = MessageOperation(clientId: "appender-client", descriptionText: "Test append operation", metadata: ["reason": "further LLM tokens"])
 
         // RSL15a: optional params
-        let params: [String: ARTStringifiable] = ["appendParam": .withString("appendValue")]
+        let params: [String: Stringifiable] = ["appendParam": .withString("appendValue")]
 
-        var appendResult: ARTUpdateDeleteResult?
+        var appendResult: UpdateDeleteResult?
         waitUntil(timeout: testTimeout) { done in
             channel.append(messageAppend, operation: operation, params: params) { updateDeleteResult, error in
                 XCTAssertNil(error)
@@ -464,7 +464,7 @@ class MessageUpdatesDeletesTests: XCTestCase {
 
         let unwrappedAppendResult = try XCTUnwrap(appendResult)
 
-        var updatedMessage: ARTMessage?
+        var updatedMessage: Message?
 
         // Fetch the updated message (poll getMessageWithSerial until it returns the updated message)
         while updatedMessage == nil || updatedMessage!.version?.serial == publishedMessage.version?.serial {
@@ -603,7 +603,7 @@ class MessageUpdatesDeletesTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.testOptions.channelNamePrefix = nil
-        let client = ARTRealtimeClient(options: options)
+        let client = RealtimeClient(options: options)
         defer { client.close() }
         let channelName = test.uniqueChannelName(prefix: "mutable:")
         let channel = client.channels.get(channelName)
@@ -625,7 +625,7 @@ class MessageUpdatesDeletesTests: XCTestCase {
         }
 
         let publishedMessage = waitUntilHistoryBecomesAvailableOnChannel(channel)
-        var updatedMessage: ARTMessage?
+        var updatedMessage: Message?
 
         waitUntil(timeout: testTimeout) { done in
             let partialDone = AblyTests.splitDone(2, done: done)

@@ -1,5 +1,7 @@
 #import <Foundation/Foundation.h>
 
+// This enum keeps its prefix in Swift. `State` is SwiftUI's property-wrapper type, so a view
+// that imports this module alongside SwiftUI could no longer write `@State`.
 /// :nodoc:
 typedef NS_ENUM(NSUInteger, ARTState) {
     ARTStateOk = 0,
@@ -162,7 +164,7 @@ typedef CF_ENUM(NSUInteger, ARTErrorCode) {
     ARTErrorPresenceStateIsOutOfSync = 91005,
     ARTErrorMemberImplicitlyLeftPresenceChannel = 91100,
     ARTErrorUnableToApplyObjectsOperationSyncDidNotComplete = 92008
-};
+} NS_SWIFT_NAME(ErrorCode);
 
 /**
  The list of all client error codes returned under the error domain ARTAblyErrorDomain
@@ -170,24 +172,25 @@ typedef CF_ENUM(NSUInteger, ARTErrorCode) {
 typedef CF_ENUM(NSUInteger, ARTClientCodeError) {
     ARTClientCodeErrorInvalidType,
     ARTClientCodeErrorTransport,
-};
+} NS_SWIFT_NAME(ClientCodeError);
 
 NS_ASSUME_NONNULL_BEGIN
 
 /// :nodoc:
-FOUNDATION_EXPORT NSString *const ARTErrorInfoRequestIdKey;
+FOUNDATION_EXPORT NSString *const ARTErrorInfoRequestIdKey NS_SWIFT_NAME(errorInfoRequestIdKey);
 
 /// :nodoc:
-FOUNDATION_EXPORT NSString *const ARTAblyErrorDomain;
+FOUNDATION_EXPORT NSString *const ARTAblyErrorDomain NS_SWIFT_NAME(ablyErrorDomain);
 
 /// :nodoc:
-FOUNDATION_EXPORT NSString *const ARTAblyMessageNoMeansToRenewToken;
+FOUNDATION_EXPORT NSString *const ARTAblyMessageNoMeansToRenewToken NS_SWIFT_NAME(ablyMessageNoMeansToRenewToken);
 
 /**
  * A generic Ably error object that contains an Ably-specific status code, and a generic status code. Errors returned from the Ably server are compatible with the `ARTErrorInfo` structure and should result in errors that inherit from `ARTErrorInfo`.
  *
  * @see For possible `NSError.code` see Ably [error codes](https://github.com/ably/ably-common/blob/main/protocol/errors.json).
  */
+NS_SWIFT_NAME(ErrorInfo)
 @interface ARTErrorInfo : NSError
 
 /**
@@ -268,6 +271,7 @@ FOUNDATION_EXPORT NSString *const ARTAblyMessageNoMeansToRenewToken;
  * :nodoc: TODO: docstring
  * An object representing a status of an operation.
  */
+NS_SWIFT_NAME(Status)
 @interface ARTStatus : NSObject
 
 @property (nullable, readonly, nonatomic) ARTErrorInfo *errorInfo;
@@ -281,6 +285,7 @@ FOUNDATION_EXPORT NSString *const ARTAblyMessageNoMeansToRenewToken;
 @end
 
 /// :nodoc:
+NS_SWIFT_NAME(Exception)
 @interface ARTException : NSException
 @end
 

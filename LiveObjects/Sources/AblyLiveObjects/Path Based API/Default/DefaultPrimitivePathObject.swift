@@ -6,7 +6,7 @@ import AblyPubSubDevice
 ///
 /// Spec: `RTTS6c`, `RTTS6h`.
 internal final class DefaultPrimitivePathObject: DefaultPathObject, PrimitivePathObject, @unchecked Sendable {
-    internal func value() throws(ARTErrorInfo) -> Primitive? {
+    internal func value() throws(ErrorInfo) -> Primitive? {
         try ChannelConfigGuards.throwIfInvalidAccessApiConfiguration(coreSDK: coreSDK, internalQueue: internalQueue)
         // RTPO7f — path resolution fails -> nil (RTPO3c1).
         guard let resolved = try resolveValueAtCurrentPath() else {

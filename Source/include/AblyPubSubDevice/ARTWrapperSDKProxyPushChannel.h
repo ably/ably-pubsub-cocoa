@@ -9,6 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
  * - Important: This class should only be used by Ably-authored SDKs.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(WrapperSDKProxyPushChannel)
 @interface ARTWrapperSDKProxyPushChannel : NSObject <ARTPushChannelProtocol>
 
 - (instancetype)init NS_UNAVAILABLE;

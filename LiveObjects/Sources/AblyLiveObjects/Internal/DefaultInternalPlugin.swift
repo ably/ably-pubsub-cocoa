@@ -21,7 +21,7 @@ internal final class DefaultInternalPlugin: NSObject, _AblyPluginSupportPrivate.
 
     // MARK: - Channel `objects` property
 
-    /// The `pluginDataValue(forKey:channel:)` key that we use to store the value of the `ARTRealtimeChannel.objects` property.
+    /// The `pluginDataValue(forKey:channel:)` key that we use to store the value of the `RealtimeChannel.objects` property.
     private static let pluginDataKey = "LiveObjects"
 
     /// Retrieves the `RealtimeObjects` for this channel.
@@ -30,7 +30,7 @@ internal final class DefaultInternalPlugin: NSObject, _AblyPluginSupportPrivate.
     internal static func nosync_realtimeObjects(for channel: _AblyPluginSupportPrivate.RealtimeChannel, pluginAPI: _AblyPluginSupportPrivate.PluginAPIProtocol) -> InternalDefaultRealtimeObjects {
         guard let pluginData = pluginAPI.nosync_pluginDataValue(forKey: pluginDataKey, channel: channel) else {
             // InternalPlugin.prepare was not called
-            fatalError("To access LiveObjects functionality, you must pass the LiveObjects plugin in the client options when creating the ARTRealtimeClient instance: `clientOptions.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]`")
+            fatalError("To access LiveObjects functionality, you must pass the LiveObjects plugin in the client options when creating the RealtimeClient instance: `clientOptions.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]`")
         }
 
         // swiftlint:disable:next force_cast
@@ -44,7 +44,7 @@ internal final class DefaultInternalPlugin: NSObject, _AblyPluginSupportPrivate.
         let pluginLogger = pluginAPI.logger(for: channel)
         let internalQueue = pluginAPI.internalQueue(for: client)
         let callbackQueue = pluginAPI.callbackQueue(for: client)
-        let options = ARTClientOptions.castPluginPublicClientOptions(pluginAPI.options(for: client))
+        let options = ClientOptions.castPluginPublicClientOptions(pluginAPI.options(for: client))
 
         let garbageCollectionOptions = options.garbageCollectionOptions ?? {
             if let latestConnectionDetails = pluginAPI.nosync_latestConnectionDetails(for: client), let gracePeriod = latestConnectionDetails.objectsGCGracePeriod {
@@ -70,7 +70,7 @@ internal final class DefaultInternalPlugin: NSObject, _AblyPluginSupportPrivate.
 
         // Seed the RTO20c1 siteCode from the latest connection details at engine creation, through the
         // same `nosync_setSiteCode` path that the CONNECTED `ProtocolMessage` handler
-        // (`nosync_onConnected`) uses. That handler (`ARTRealtimeClient.m`
+        // (`nosync_onConnected`) uses. That handler (`RealtimeClient.m`
         // `nosync_onConnectedWithConnectionDetails:`) only reaches channels that already exist at
         // CONNECTED time; a channel created *after* connect (the normal `connect → channels.get(name)`
         // flow) would otherwise never receive a siteCode, leaving `publishAndApply` unable to apply
@@ -176,11 +176,11 @@ internal final class DefaultInternalPlugin: NSObject, _AblyPluginSupportPrivate.
     }
 
     internal func nosync_onChannelStateChanged(_ channel: _AblyPluginSupportPrivate.RealtimeChannel, toState state: _AblyPluginSupportPrivate.RealtimeChannelState, reason: (any _AblyPluginSupportPrivate.PublicErrorInfo)?) {
-        let errorReason = reason.map { ARTErrorInfo.castPluginPublicErrorInfo($0) }
+        let errorReason = reason.map { ErrorInfo.castPluginPublicErrorInfo($0) }
         nosync_realtimeObjects(for: channel).nosync_onChannelStateChanged(toState: state, reason: errorReason)
     }
 
-    internal func nosync_onConnected(withConnectionDetails connectionDetails: (any ConnectionDetailsProtocol)?, channel: any RealtimeChannel) {
+    internal func nosync_onConnected(withConnectionDetails connectionDetails: (any ConnectionDetailsProtocol)?, channel: any _AblyPluginSupportPrivate.RealtimeChannel) {
         let realtimeObjects = nosync_realtimeObjects(for: channel)
 
         let gracePeriod = connectionDetails?.objectsGCGracePeriod?.doubleValue ?? InternalDefaultRealtimeObjects.GarbageCollectionOptions.defaultGracePeriod
@@ -197,7 +197,7 @@ internal final class DefaultInternalPlugin: NSObject, _AblyPluginSupportPrivate.
         channel: _AblyPluginSupportPrivate.RealtimeChannel,
         client: _AblyPluginSupportPrivate.RealtimeClient,
         pluginAPI: PluginAPIProtocol,
-        callback: @escaping @Sendable (Result<PublishResult, ARTErrorInfo>) -> Void,
+        callback: @escaping @Sendable (Result<PublishResult, ErrorInfo>) -> Void,
     ) {
         let objectMessageBoxes: [ObjectMessageBox<ProtocolTypes.OutboundObjectMessage>] = objectMessages.map { .init(objectMessage: $0) }
         let internalQueue = pluginAPI.internalQueue(for: client)
@@ -209,7 +209,7 @@ internal final class DefaultInternalPlugin: NSObject, _AblyPluginSupportPrivate.
             dispatchPrecondition(condition: .onQueue(internalQueue))
 
             if let error {
-                callback(.failure(ARTErrorInfo.castPluginPublicErrorInfo(error)))
+                callback(.failure(ErrorInfo.castPluginPublicErrorInfo(error)))
             } else {
                 guard let pluginPublishResult else {
                     preconditionFailure("Got nil publishResult and nil error")

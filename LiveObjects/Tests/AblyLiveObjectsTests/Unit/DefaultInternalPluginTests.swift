@@ -34,7 +34,7 @@ struct DefaultInternalPluginTests {
     final class MockPluginAPI: NSObject, _AblyPluginSupportPrivate.PluginAPIProtocol, @unchecked Sendable {
         let internalQueue: DispatchQueue
         let callbackQueue: DispatchQueue
-        let clientOptions: ARTClientOptions
+        let clientOptions: ClientOptions
         let connectionDetails: (any _AblyPluginSupportPrivate.ConnectionDetailsProtocol)?
         let channelName: String
 
@@ -44,7 +44,7 @@ struct DefaultInternalPluginTests {
         init(
             internalQueue: DispatchQueue,
             callbackQueue: DispatchQueue,
-            clientOptions: ARTClientOptions = ARTClientOptions(),
+            clientOptions: ClientOptions = ClientOptions(),
             connectionDetails: (any _AblyPluginSupportPrivate.ConnectionDetailsProtocol)?,
             channelName: String = "test-channel"
         ) {

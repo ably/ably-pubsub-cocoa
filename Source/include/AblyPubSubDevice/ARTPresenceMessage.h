@@ -26,16 +26,17 @@ typedef NS_ENUM(NSUInteger, ARTPresenceAction) {
      * An already present member has updated their member data. Being notified of member data updates can be very useful, for example, it can be used to update the status of a user when they are typing a message.
      */
     ARTPresenceUpdate
-};
+} NS_SWIFT_NAME(PresenceAction);
 
 /// :nodoc:
-NSString *_Nonnull ARTPresenceActionToStr(ARTPresenceAction action);
+NSString *_Nonnull ARTPresenceActionToStr(ARTPresenceAction action) NS_SWIFT_NAME(presenceActionToStr(_:));
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Contains an individual presence update sent to, or received from, Ably.
  */
+NS_SWIFT_NAME(PresenceMessage)
 @interface ARTPresenceMessage : ARTBaseMessage
 
 /**

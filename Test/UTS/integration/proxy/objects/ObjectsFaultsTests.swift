@@ -244,7 +244,7 @@ final class ObjectsFaultsTests: ProxyTestCase {
                     Issue.record("expected the pending set operation to fail with 92008 (RTO20e1)")
                 } catch {
                     // Assertions
-                    let errorInfo = try #require(error as? ARTErrorInfo) // Task erases the typed throw
+                    let errorInfo = try #require(error as? ErrorInfo) // Task erases the typed throw
                     #expect(errorInfo.code == 92008)
                     #expect(errorInfo.statusCode == 400)
                     // RTO20e1: cause is set to RealtimeChannel.errorReason — the injected channel ERROR
@@ -324,7 +324,7 @@ extension ObjectsFaultsTests {
     /// The spec's proxied clients use `key: api_key` directly, but the proxy serves plain ws
     /// (`tls: false`) and basic auth is TLS-only (RSA1), so `proxyClientOptions` substitutes a
     /// locally-signed TokenRequest — the standard proxy-tier adaptation.
-    func objectsProxyClientOptions(for app: SandboxApp, through session: ProxySession) -> ARTClientOptions {
+    func objectsProxyClientOptions(for app: SandboxApp, through session: ProxySession) -> ClientOptions {
         let options = proxyClientOptions(for: app, through: session)
         options.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]
         options.autoConnect = false

@@ -234,11 +234,11 @@ internal extension WireValue {
     ///
     /// - Throws: `ConversionError.dataCannotBeConvertedToJSONValue` if `WireValue` represents binary data.
     var toJSONValue: JSONValue {
-        get throws(ARTErrorInfo) {
-            let neverExtended = try toExtendedJSONValue.map(number: { (number: NSNumber) throws(ARTErrorInfo) -> Double in
+        get throws(ErrorInfo) {
+            let neverExtended = try toExtendedJSONValue.map(number: { (number: NSNumber) throws(ErrorInfo) -> Double in
                 // art_doubleValue: an inbound WireValue's numbers are as JSON decoded them
                 number.art_doubleValue
-            }, extra: { (extra: ExtraValue) throws(ARTErrorInfo) -> Never in
+            }, extra: { (extra: ExtraValue) throws(ErrorInfo) -> Never in
                 switch extra {
                 case .data:
                     throw ConversionError.dataCannotBeConvertedToJSONValue.toARTErrorInfo()

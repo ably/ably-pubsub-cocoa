@@ -10,13 +10,14 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// A key for the `ARTClientOptions.plugins` property.
-typedef NSString *ARTPluginName NS_TYPED_EXTENSIBLE_ENUM;
+typedef NSString *ARTPluginName NS_TYPED_EXTENSIBLE_ENUM NS_SWIFT_NAME(PluginName);
 /// Set this key in `ARTClientOptions.plugins` to `AblyLiveObjects.Plugin.self` after adding this package's `AblyLiveObjects` product to your target and importing the `AblyLiveObjects` module, in order to enable LiveObjects functionality.
 extern const ARTPluginName ARTPluginNameLiveObjects;
 
 /**
  * Passes additional client-specific properties to the HTTP client or the Realtime client.
  */
+NS_SWIFT_NAME(ClientOptions)
 @interface ARTClientOptions : ARTAuthOptions
 
 /**

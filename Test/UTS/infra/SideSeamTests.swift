@@ -14,8 +14,8 @@ struct SideSeamTests {
 
     private static let deviceAgentName = "ably-pubsub-device"
 
-    private func makeClient() -> ARTRealtimeClient {
-        let options = ARTClientOptions(key: "appId.keyId:keySecret")
+    private func makeClient() -> RealtimeClient {
+        let options = ClientOptions(key: "appId.keyId:keySecret")
         options.autoConnect = false
         return makeRealtimeForSide(options: options)
     }
@@ -32,7 +32,7 @@ struct SideSeamTests {
             #expect(declared == nil, "core mode built a client carrying the device declaration")
         case .device:
             #expect(
-                declared == ARTClientInformationAgentNotVersioned,
+                declared == clientInformationAgentNotVersioned,
                 "device mode built a client without the device declaration — the suite is silently repeating the core run"
             )
         }

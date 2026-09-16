@@ -1,7 +1,7 @@
 import AblyPubSubDevice
 
 /// The default implementation of the public ``RealtimeObject`` entry point, backing
-/// ``ARTRealtimeChannel/object``.
+/// ``RealtimeChannel/object``.
 ///
 /// This is largely a wrapper around ``InternalDefaultRealtimeObjects``. The `Public` prefix
 /// expresses the contrast with that internal type, per the documented memory-management policy (the
@@ -23,7 +23,7 @@ internal final class PublicDefaultRealtimeObject: RealtimeObject {
 
     // MARK: - `RealtimeObject` protocol
 
-    internal func get() async throws(ARTErrorInfo) -> any LiveMapPathObject {
+    internal func get() async throws(ErrorInfo) -> any LiveMapPathObject {
         // RTO23a — object_subscribe mode guard.
         try ChannelConfigGuards.throwIfMissingObjectSubscribeMode(coreSDK: coreSDK, internalQueue: proxied.internalQueue)
         // RTO23e / RTL33 — ensure the channel is usable: RTL33a (already ATTACHED/SUSPENDED),

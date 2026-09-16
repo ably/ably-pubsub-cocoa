@@ -8,8 +8,8 @@ import AblyLiveObjects
 
 /// Client options for a realtime client wired straight to the nonprod sandbox (no proxy), with the
 /// LiveObjects plugin installed (accessing `channel.object` without it is a programmer error).
-func objectsClientOptions(key: String, useBinaryProtocol: Bool) -> ARTClientOptions {
-    let options = ARTClientOptions(key: key)
+func objectsClientOptions(key: String, useBinaryProtocol: Bool) -> ClientOptions {
+    let options = ClientOptions(key: key)
     options.realtimeHost = SandboxApp.sandboxHost
     options.restHost = SandboxApp.sandboxHost
     options.useBinaryProtocol = useBinaryProtocol
@@ -19,10 +19,10 @@ func objectsClientOptions(key: String, useBinaryProtocol: Bool) -> ARTClientOpti
 }
 
 /// A channel with the object modes (defaults to OBJECT_SUBSCRIBE + OBJECT_PUBLISH).
-func objectsChannel(_ client: ARTRealtimeClient,
+func objectsChannel(_ client: RealtimeClient,
                     _ name: String,
-                    modes: ARTChannelMode = [.objectSubscribe, .objectPublish]) -> ARTRealtimeChannel {
-    let options = ARTRealtimeChannelOptions()
+                    modes: ChannelMode = [.objectSubscribe, .objectPublish]) -> RealtimeChannel {
+    let options = RealtimeChannelOptions()
     options.modes = modes
     return client.channels.get(name, options: options)
 }

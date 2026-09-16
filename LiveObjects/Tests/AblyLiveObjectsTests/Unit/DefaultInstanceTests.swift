@@ -201,7 +201,7 @@ struct DefaultInstanceTests {
             Issue.record("Expected .liveCounter")
             return
         }
-        #expect(throws: ARTErrorInfo.self) {
+        #expect(throws: ErrorInfo.self) {
             _ = try counterInstance.value
         }
 
@@ -209,12 +209,12 @@ struct DefaultInstanceTests {
             Issue.record("Expected .primitive")
             return
         }
-        #expect(throws: ARTErrorInfo.self) {
+        #expect(throws: ErrorInfo.self) {
             _ = try primitive.value
         }
 
         // The convenience accessors delegate to `value`, so they must propagate the same error.
-        #expect(throws: ARTErrorInfo.self) {
+        #expect(throws: ErrorInfo.self) {
             _ = try primitive.stringValue
         }
     }

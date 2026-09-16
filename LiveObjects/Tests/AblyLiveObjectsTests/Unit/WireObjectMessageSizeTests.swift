@@ -266,7 +266,7 @@ struct WireObjectMessageSizeTests {
         let message2 = ProtocolTypes.OutboundObjectMessage(clientId: String(repeating: "b", count: 5 * 1024))
         #expect(message2.size == 5 * 1024)
 
-        let error = try await #require(throws: ARTErrorInfo.self) {
+        let error = try await #require(throws: ErrorInfo.self) {
             try await realtimeObjects.testsOnly_publish(objectMessages: [message1, message2], coreSDK: coreSDK)
         }
 
@@ -307,7 +307,7 @@ struct WireObjectMessageSizeTests {
         let message = ProtocolTypes.OutboundObjectMessage(clientId: String(repeating: "a", count: 3 * 1024))
         #expect(message.size == 3 * 1024)
 
-        let error = try await #require(throws: ARTErrorInfo.self) {
+        let error = try await #require(throws: ErrorInfo.self) {
             try await realtimeObjects.testsOnly_publish(objectMessages: [message], coreSDK: coreSDK)
         }
 

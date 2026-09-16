@@ -9,6 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  The protocol upon which the `ARTPushDeviceRegistrations` is implemented.
  */
+NS_SWIFT_NAME(PushDeviceRegistrationsProtocol)
 @protocol ARTPushDeviceRegistrationsProtocol
 
 /// :nodoc:
@@ -62,6 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @see See `ARTPushDeviceRegistrationsProtocol` for details.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(PushDeviceRegistrations)
 @interface ARTPushDeviceRegistrations : NSObject <ARTPushDeviceRegistrationsProtocol>
 
 @end

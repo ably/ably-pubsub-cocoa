@@ -326,7 +326,7 @@ struct DefaultPathObjectTests {
         await #expect { () async throws in
             try await root.get(key: "cnt").asLiveMap().set(key: "k", value: .primitive(.string("v")))
         } throws: { error in
-            (error as? ARTErrorInfo)?.code == 92007
+            (error as? ErrorInfo)?.code == 92007
         }
     }
 
@@ -338,15 +338,15 @@ struct DefaultPathObjectTests {
         let fixture = Self.makeFixture(channelState: .detached)
         let root = Self.rootPathObject(fixture)
 
-        #expect(throws: ARTErrorInfo.self) {
+        #expect(throws: ErrorInfo.self) {
             _ = try root.exists()
         }
-        #expect(throws: ARTErrorInfo.self) {
+        #expect(throws: ErrorInfo.self) {
             _ = try root.get(key: "s").type()
         }
 
         // The convenience accessors delegate to `value()`, so they must propagate the same error.
-        #expect(throws: ARTErrorInfo.self) {
+        #expect(throws: ErrorInfo.self) {
             _ = try root.get(key: "s").asPrimitive().stringValue()
         }
     }
@@ -357,7 +357,7 @@ struct DefaultPathObjectTests {
         let fixture = Self.makeFixture(channelState: .suspended)
         let root = Self.rootPathObject(fixture)
 
-        await #expect(throws: ARTErrorInfo.self) {
+        await #expect(throws: ErrorInfo.self) {
             try await root.set(key: "k", value: .primitive(.string("v")))
         }
     }
@@ -372,7 +372,7 @@ struct DefaultPathObjectTests {
         fixture.coreSDK.setObjectChannelModes([.objectPublish])
         let root = Self.rootPathObject(fixture)
 
-        let error = try #require(throws: ARTErrorInfo.self) {
+        let error = try #require(throws: ErrorInfo.self) {
             _ = try root.exists()
         }
         #expect(error.code == 40024)
@@ -388,7 +388,7 @@ struct DefaultPathObjectTests {
         fixture.coreSDK.setObjectChannelModes([.objectSubscribe])
         let root = Self.rootPathObject(fixture)
 
-        let error = try await #require(throws: ARTErrorInfo.self) {
+        let error = try await #require(throws: ErrorInfo.self) {
             try await root.set(key: "k", value: .primitive(.string("v")))
         }
         #expect(error.code == 40024)
@@ -402,7 +402,7 @@ struct DefaultPathObjectTests {
         fixture.coreSDK.setObjectChannelModes([])
         let root = Self.rootPathObject(fixture)
 
-        let error = try #require(throws: ARTErrorInfo.self) {
+        let error = try #require(throws: ErrorInfo.self) {
             _ = try root.get(key: "s").type()
         }
         #expect(error.code == 40024)
@@ -422,7 +422,7 @@ struct DefaultPathObjectTests {
 
         // Absent: throws 40024.
         let withoutMode = MockCoreSDK(channelState: .attached, objectChannelModes: [.objectPublish], internalQueue: internalQueue)
-        let error = try #require(throws: ARTErrorInfo.self) {
+        let error = try #require(throws: ErrorInfo.self) {
             try ChannelConfigGuards.throwIfMissingObjectSubscribeMode(coreSDK: withoutMode, internalQueue: internalQueue)
         }
         #expect(error.code == 40024)
@@ -437,7 +437,7 @@ struct DefaultPathObjectTests {
         fixture.coreSDK.setEchoMessages(false)
         let root = Self.rootPathObject(fixture)
 
-        let error = try await #require(throws: ARTErrorInfo.self) {
+        let error = try await #require(throws: ErrorInfo.self) {
             try await root.set(key: "k", value: .primitive(.string("v")))
         }
         #expect(error.code == 40000)
@@ -454,7 +454,7 @@ struct DefaultPathObjectTests {
         fixture.coreSDK.setEchoMessages(false)
         let root = Self.rootPathObject(fixture)
 
-        let error = try await #require(throws: ARTErrorInfo.self) {
+        let error = try await #require(throws: ErrorInfo.self) {
             try await root.set(key: "k", value: .primitive(.string("v")))
         }
         #expect(error.code == 40000)
@@ -475,16 +475,16 @@ struct DefaultPathObjectTests {
         }
 
         // Inactive connection: the connection's own error is surfaced (before the channel-state check).
-        let connectionError = ARTErrorInfo.create(withCode: 80002, status: 400, message: "Connection is suspended")
+        let connectionError = ErrorInfo.create(withCode: 80002, status: 400, message: "Connection is suspended")
         let inactive = MockCoreSDK(channelState: .attached, connectionStateError: connectionError, internalQueue: internalQueue)
-        let error = try #require(throws: ARTErrorInfo.self) {
+        let error = try #require(throws: ErrorInfo.self) {
             try ChannelConfigGuards.throwIfUnpublishableState(coreSDK: inactive, internalQueue: internalQueue)
         }
         #expect(error.code == 80002)
 
         // Active connection but FAILED channel: the channel-state check fires.
         let failedChannel = MockCoreSDK(channelState: .failed, internalQueue: internalQueue)
-        #expect(throws: ARTErrorInfo.self) {
+        #expect(throws: ErrorInfo.self) {
             try ChannelConfigGuards.throwIfUnpublishableState(coreSDK: failedChannel, internalQueue: internalQueue)
         }
     }
@@ -503,7 +503,7 @@ struct DefaultPathObjectTests {
         }
         for invalid in [0, -1] {
             #expect { try ChannelConfigGuards.validateSubscriptionDepth(invalid) } throws: { error in
-                (error as? ARTErrorInfo)?.code == 40003
+                (error as? ErrorInfo)?.code == 40003
             }
         }
     }
@@ -554,7 +554,7 @@ private final class SeededRealtimeObjects: InternalRealtimeObjectsProtocol {
     func nosync_publishAndApply(
         objectMessages: [ProtocolTypes.OutboundObjectMessage],
         coreSDK: CoreSDK,
-        callback: @escaping @Sendable (Result<Void, ARTErrorInfo>) -> Void,
+        callback: @escaping @Sendable (Result<Void, ErrorInfo>) -> Void,
     ) {
         mutex.withLock { _captured = objectMessages }
         callback(.success(()))

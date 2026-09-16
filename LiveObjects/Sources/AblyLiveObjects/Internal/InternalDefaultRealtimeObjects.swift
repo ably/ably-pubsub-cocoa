@@ -11,7 +11,7 @@ internal protocol InternalRealtimeObjectsProtocol: LiveMapObjectsPoolDelegate {
     func nosync_publishAndApply(
         objectMessages: [ProtocolTypes.OutboundObjectMessage],
         coreSDK: CoreSDK,
-        callback: @escaping @Sendable (Result<Void, ARTErrorInfo>) -> Void,
+        callback: @escaping @Sendable (Result<Void, ErrorInfo>) -> Void,
     )
 
     /// The channel's path-subscription registry. Used by ``DefaultPathObject`` to register path
@@ -154,7 +154,7 @@ internal final class InternalDefaultRealtimeObjects: Sendable, InternalRealtimeO
         // makes this a no-op beyond the (already-idempotent) GC cancellation.
         //
         // deinit must NOT reuse the blocking `dispose()`: ARC may run this deinit *on* the internal
-        // queue (e.g. when the owning `ARTRealtimeChannel` is deallocated during client/channel
+        // queue (e.g. when the owning `RealtimeChannel` is deallocated during client/channel
         // teardown, which happens on that queue), and `dispose()`'s `withSync` asserts `.notOnQueue`
         // (`ably_syncNoDeadlock`) — so a blocking teardown from deinit would trap (SIGTRAP). Instead,
         // use a non-blocking teardown that cancels via structured cancellation and never sync-hops
@@ -238,7 +238,7 @@ internal final class InternalDefaultRealtimeObjects: Sendable, InternalRealtimeO
     private static func nosync_dispose(
         _ mutableState: inout MutableState,
         register: PathObjectSubscriptionRegister,
-        reason: ARTErrorInfo? = nil,
+        reason: ErrorInfo? = nil,
     ) {
         // Fail any pending publishAndApply / get() sync waiters (RTO20e1 path).
         mutableState.nosync_drainPublishAndApplySyncWaiters(
@@ -260,8 +260,8 @@ internal final class InternalDefaultRealtimeObjects: Sendable, InternalRealtimeO
 
     // MARK: - Internal methods that power RealtimeObjects conformance
 
-    internal func getRoot(coreSDK: CoreSDK) async throws(ARTErrorInfo) -> InternalDefaultLiveMap {
-        let state = try mutableStateMutex.withSync { mutableState throws(ARTErrorInfo) in
+    internal func getRoot(coreSDK: CoreSDK) async throws(ErrorInfo) -> InternalDefaultLiveMap {
+        let state = try mutableStateMutex.withSync { mutableState throws(ErrorInfo) in
             // RTO1b: If the channel is in the DETACHED or FAILED state, the library should indicate an error with code 90001
             try coreSDK.nosync_validateChannelStateForAccessAPI(operationDescription: "getRoot")
 
@@ -299,8 +299,8 @@ internal final class InternalDefaultRealtimeObjects: Sendable, InternalRealtimeO
     ///
     /// Unlike the internal `getRoot()` (the old RTO1 API, which registers its `.synced` listener in a
     /// separate queue hop), this keeps check-and-register atomic.
-    internal func ensureSynced() async throws(ARTErrorInfo) {
-        try await withCheckedContinuation { (continuation: CheckedContinuation<Result<Void, ARTErrorInfo>, Never>) in
+    internal func ensureSynced() async throws(ErrorInfo) {
+        try await withCheckedContinuation { (continuation: CheckedContinuation<Result<Void, ErrorInfo>, Never>) in
             mutableStateMutex.withSync { mutableState in
                 // Atomic with the registration below (same queue block): if already synced, resume now.
                 if mutableState.state.toObjectsSyncState == .synced {
@@ -327,10 +327,10 @@ internal final class InternalDefaultRealtimeObjects: Sendable, InternalRealtimeO
         }.get()
     }
 
-    internal func createMap(entries: [String: InternalLiveMapValue], coreSDK: CoreSDK) async throws(ARTErrorInfo) -> InternalDefaultLiveMap {
-        try await withCheckedContinuation { (continuation: CheckedContinuation<Result<InternalDefaultLiveMap, ARTErrorInfo>, _>) in
-            do throws(ARTErrorInfo) {
-                try mutableStateMutex.withSync { _ throws(ARTErrorInfo) in
+    internal func createMap(entries: [String: InternalLiveMapValue], coreSDK: CoreSDK) async throws(ErrorInfo) -> InternalDefaultLiveMap {
+        try await withCheckedContinuation { (continuation: CheckedContinuation<Result<InternalDefaultLiveMap, ErrorInfo>, _>) in
+            do throws(ErrorInfo) {
+                try mutableStateMutex.withSync { _ throws(ErrorInfo) in
                     // RTO26
                     try coreSDK.nosync_validateChannelStateForWriteAPI(operationDescription: "RealtimeObjects.createMap")
 
@@ -378,15 +378,15 @@ internal final class InternalDefaultRealtimeObjects: Sendable, InternalRealtimeO
         }.get()
     }
 
-    internal func createMap(coreSDK: CoreSDK) async throws(ARTErrorInfo) -> InternalDefaultLiveMap {
+    internal func createMap(coreSDK: CoreSDK) async throws(ErrorInfo) -> InternalDefaultLiveMap {
         // RTLMV4e2
         try await createMap(entries: [:], coreSDK: coreSDK)
     }
 
-    internal func createCounter(count: Double, coreSDK: CoreSDK) async throws(ARTErrorInfo) -> InternalDefaultLiveCounter {
-        try await withCheckedContinuation { (continuation: CheckedContinuation<Result<InternalDefaultLiveCounter, ARTErrorInfo>, _>) in
-            do throws(ARTErrorInfo) {
-                try mutableStateMutex.withSync { _ throws(ARTErrorInfo) in
+    internal func createCounter(count: Double, coreSDK: CoreSDK) async throws(ErrorInfo) -> InternalDefaultLiveCounter {
+        try await withCheckedContinuation { (continuation: CheckedContinuation<Result<InternalDefaultLiveCounter, ErrorInfo>, _>) in
+            do throws(ErrorInfo) {
+                try mutableStateMutex.withSync { _ throws(ErrorInfo) in
                     // RTO26
                     try coreSDK.nosync_validateChannelStateForWriteAPI(operationDescription: "RealtimeObjects.createCounter")
 
@@ -440,7 +440,7 @@ internal final class InternalDefaultRealtimeObjects: Sendable, InternalRealtimeO
         }.get()
     }
 
-    internal func createCounter(coreSDK: CoreSDK) async throws(ARTErrorInfo) -> InternalDefaultLiveCounter {
+    internal func createCounter(coreSDK: CoreSDK) async throws(ErrorInfo) -> InternalDefaultLiveCounter {
         // RTLCV4b1
         try await createCounter(count: 0, coreSDK: coreSDK)
     }
@@ -499,7 +499,7 @@ internal final class InternalDefaultRealtimeObjects: Sendable, InternalRealtimeO
         }
     }
 
-    internal func nosync_onChannelStateChanged(toState state: _AblyPluginSupportPrivate.RealtimeChannelState, reason: ARTErrorInfo?) {
+    internal func nosync_onChannelStateChanged(toState state: _AblyPluginSupportPrivate.RealtimeChannelState, reason: ErrorInfo?) {
         mutableStateMutex.withoutSync { mutableState in
             mutableState.nosync_onChannelStateChanged(
                 toState: state,
@@ -553,7 +553,7 @@ internal final class InternalDefaultRealtimeObjects: Sendable, InternalRealtimeO
     // MARK: - Sending `OBJECT` ProtocolMessage
 
     /// The Ably default maximum message size, in bytes, used as a fallback when the connection has not
-    /// negotiated one. Matches the core SDK's `ARTDefault.maxMessageSize`.
+    /// negotiated one. Matches the core SDK's `Default.maxMessageSize`.
     private static let defaultMaxMessageSize = 65536
 
     /// RTO15d: Validates that the total size of `objectMessages` (each calculated per OM3) does not
@@ -566,7 +566,7 @@ internal final class InternalDefaultRealtimeObjects: Sendable, InternalRealtimeO
     /// did not send a limit.
     ///
     /// Must be called on the internal queue (it reads the `nosync_` connection-details accessor).
-    internal static func ensureMessageSizeWithinLimit(_ objectMessages: [ProtocolTypes.OutboundObjectMessage], coreSDK: CoreSDK) throws(ARTErrorInfo) { // internal for AblyLiveObjectsTesting
+    internal static func ensureMessageSizeWithinLimit(_ objectMessages: [ProtocolTypes.OutboundObjectMessage], coreSDK: CoreSDK) throws(ErrorInfo) { // internal for AblyLiveObjectsTesting
         let maximumAllowedSize = coreSDK.nosync_maxMessageSize ?? defaultMaxMessageSize
         let totalSize = objectMessages.reduce(0) { $0 + $1.size }
         if totalSize > maximumAllowedSize {
@@ -580,7 +580,7 @@ internal final class InternalDefaultRealtimeObjects: Sendable, InternalRealtimeO
     internal func nosync_publishAndApply(
         objectMessages: [ProtocolTypes.OutboundObjectMessage],
         coreSDK: CoreSDK,
-        callback: @escaping @Sendable (Result<Void, ARTErrorInfo>) -> Void,
+        callback: @escaping @Sendable (Result<Void, ErrorInfo>) -> Void,
     ) {
         nosync_publishAndApply(objectMessages: objectMessages, coreSDK: coreSDK) { _, result in
             callback(result)
@@ -599,11 +599,11 @@ internal final class InternalDefaultRealtimeObjects: Sendable, InternalRealtimeO
     private func nosync_publishAndApply(
         objectMessages: [ProtocolTypes.OutboundObjectMessage],
         coreSDK: CoreSDK,
-        mutableStateCallback: @escaping @Sendable (inout MutableState, Result<Void, ARTErrorInfo>) -> Void,
+        mutableStateCallback: @escaping @Sendable (inout MutableState, Result<Void, ErrorInfo>) -> Void,
     ) {
         // RTO15d: Reject the publish before contacting the core SDK if the total ObjectMessage size
         // exceeds maxMessageSize.
-        do throws(ARTErrorInfo) {
+        do throws(ErrorInfo) {
             try Self.ensureMessageSizeWithinLimit(objectMessages, coreSDK: coreSDK)
         } catch {
             mutableStateMutex.withoutSync { mutableState in
@@ -797,7 +797,7 @@ internal final class InternalDefaultRealtimeObjects: Sendable, InternalRealtimeO
             case synced
             case channelStateFailed(
                 state: _AblyPluginSupportPrivate.RealtimeChannelState,
-                reason: ARTErrorInfo?,
+                reason: ErrorInfo?,
             )
         }
 
@@ -1212,7 +1212,7 @@ internal final class InternalDefaultRealtimeObjects: Sendable, InternalRealtimeO
         ///   clear is performed.
         internal mutating func nosync_onChannelStateChanged(
             toState state: _AblyPluginSupportPrivate.RealtimeChannelState,
-            reason: ARTErrorInfo?,
+            reason: ErrorInfo?,
             logger: Logger,
         ) {
             switch state {

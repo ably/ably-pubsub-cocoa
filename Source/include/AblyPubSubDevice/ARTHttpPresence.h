@@ -10,6 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  The protocol upon which the `ARTHttpPresence` is implemented.
  */
+NS_SWIFT_NAME(HttpPresenceProtocol)
 @protocol ARTHttpPresenceProtocol
 
 /// :nodoc: TODO: docstring
@@ -50,6 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @see See `ARTHttpPresenceProtocol` for details.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(HttpPresence)
 @interface ARTHttpPresence : ARTPresence <ARTHttpPresenceProtocol>
 @end
 

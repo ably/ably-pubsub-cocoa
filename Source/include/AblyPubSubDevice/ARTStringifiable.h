@@ -4,6 +4,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 /// :nodoc:
+NS_SWIFT_NAME(Stringifiable)
 @interface ARTStringifiable : NSObject
 
 - (instancetype)init UNAVAILABLE_ATTRIBUTE;

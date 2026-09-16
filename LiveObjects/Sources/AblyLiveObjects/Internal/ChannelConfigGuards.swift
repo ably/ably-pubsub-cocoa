@@ -9,9 +9,9 @@ import AblyPubSubDevice
 internal enum ChannelConfigGuards {
     /// Validates the access (read/subscribe) API preconditions: the channel must be attachable (not
     /// DETACHED/FAILED) and configured with the `object_subscribe` mode. Spec: RTO25.
-    internal static func throwIfInvalidAccessApiConfiguration(coreSDK: CoreSDK, internalQueue: DispatchQueue) throws(ARTErrorInfo) {
+    internal static func throwIfInvalidAccessApiConfiguration(coreSDK: CoreSDK, internalQueue: DispatchQueue) throws(ErrorInfo) {
         // Check order: channel state, then `object_subscribe` mode.
-        let error = internalQueue.ably_syncNoDeadlock { () -> ARTErrorInfo? in
+        let error = internalQueue.ably_syncNoDeadlock { () -> ErrorInfo? in
             // RTO25b — channel state (reuses the engine's node-accessor check).
             nosync_channelStateError(coreSDK: coreSDK, notIn: [.detached, .failed], operationDescription: "access API")
                 // RTO25a / RTO2a2 — `object_subscribe` mode.
@@ -26,9 +26,9 @@ internal enum ChannelConfigGuards {
     /// `RealtimeObject.get()` (RTO23a). Unlike the access methods, `get()` delegates channel-state
     /// handling to the ensure-attached procedure (RTL33), so it must not pre-empt that with a state
     /// gate. Spec: RTO23a.
-    internal static func throwIfMissingObjectSubscribeMode(coreSDK: CoreSDK, internalQueue: DispatchQueue) throws(ARTErrorInfo) {
+    internal static func throwIfMissingObjectSubscribeMode(coreSDK: CoreSDK, internalQueue: DispatchQueue) throws(ErrorInfo) {
         // The `object_subscribe` mode only (no channel-state check).
-        let error = internalQueue.ably_syncNoDeadlock { () -> ARTErrorInfo? in
+        let error = internalQueue.ably_syncNoDeadlock { () -> ErrorInfo? in
             nosync_missingChannelModeError(coreSDK: coreSDK, requiredMode: .objectSubscribe, modeName: "object_subscribe")
         }
         if let error {
@@ -39,9 +39,9 @@ internal enum ChannelConfigGuards {
     /// Validates the write (mutation) API preconditions: message echo must be enabled, the channel
     /// must be usable (not DETACHED/FAILED/SUSPENDED) and configured with the `object_publish` mode.
     /// Spec: RTO26.
-    internal static func throwIfInvalidWriteApiConfiguration(coreSDK: CoreSDK, internalQueue: DispatchQueue) throws(ARTErrorInfo) {
+    internal static func throwIfInvalidWriteApiConfiguration(coreSDK: CoreSDK, internalQueue: DispatchQueue) throws(ErrorInfo) {
         // Check order: echoMessages, then channel state, then `object_publish` mode.
-        let error = internalQueue.ably_syncNoDeadlock { () -> ARTErrorInfo? in
+        let error = internalQueue.ably_syncNoDeadlock { () -> ErrorInfo? in
             // RTO26c — `echoMessages` must be enabled.
             nosync_echoMessagesDisabledError(coreSDK: coreSDK)
                 // RTO26b — channel state (reuses the engine's node-accessor check).
@@ -61,7 +61,7 @@ internal enum ChannelConfigGuards {
     /// - **RTL33b** — INITIALIZED / DETACHED / DETACHING / ATTACHING: implicitly attach (per RTL4, via
     ///   the `CoreSDK.nosync_attach` plugin bridge) and await completion. A single attach resolves the
     ///   in-flight ATTACHING/DETACHING cases per RTL4h, so one call covers all four states. The
-    ///   `ARTErrorInfo` that caused an attach failure is propagated (RTL33b1).
+    ///   `ErrorInfo` that caused an attach failure is propagated (RTL33b1).
     /// - **RTL33c** — FAILED (and any unknown state): reject with code 90001, statusCode 400.
     ///
     /// The state read and the attach initiation happen in a **single** internal-queue block, so no
@@ -69,8 +69,8 @@ internal enum ChannelConfigGuards {
     /// (lost-wakeup discipline).
     ///
     /// Spec: RTO23e, RTL33.
-    internal static func ensureActiveChannel(coreSDK: CoreSDK, internalQueue: DispatchQueue) async throws(ARTErrorInfo) {
-        let result: Result<Void, ARTErrorInfo> = await withCheckedContinuation { continuation in
+    internal static func ensureActiveChannel(coreSDK: CoreSDK, internalQueue: DispatchQueue) async throws(ErrorInfo) {
+        let result: Result<Void, ErrorInfo> = await withCheckedContinuation { continuation in
             internalQueue.async {
                 let state = coreSDK.nosync_channelState
 
@@ -79,7 +79,7 @@ internal enum ChannelConfigGuards {
                     operationDescription: "get",
                     channelState: state,
                 )
-                let invalidStateFailure: Result<Void, ARTErrorInfo> = .failure(invalidStateError.toARTErrorInfo())
+                let invalidStateFailure: Result<Void, ErrorInfo> = .failure(invalidStateError.toARTErrorInfo())
 
                 switch state {
                 case .attached, .suspended:
@@ -113,9 +113,9 @@ internal enum ChannelConfigGuards {
     /// channel-state portion is RTO26b.
     /// Note: currently unused in the write path — the core SDK's publish enforces RTL6c itself — and
     /// retained (with tests) for parity should a pre-publish gate be wanted.
-    internal static func throwIfUnpublishableState(coreSDK: CoreSDK, internalQueue: DispatchQueue) throws(ARTErrorInfo) {
+    internal static func throwIfUnpublishableState(coreSDK: CoreSDK, internalQueue: DispatchQueue) throws(ErrorInfo) {
         // Check order: connection active, then channel state (FAILED/SUSPENDED).
-        let error = internalQueue.ably_syncNoDeadlock { () -> ARTErrorInfo? in
+        let error = internalQueue.ably_syncNoDeadlock { () -> ErrorInfo? in
             // The connection must be in a publishable (active) state; if not, surface the connection's
             // own state error: the connection's `errorReason`, or the core SDK's inactive-connection
             // error when it has none (RTL6c4).
@@ -130,7 +130,7 @@ internal enum ChannelConfigGuards {
     /// RTPO19c1a — validates a subscription `depth` (throws 40003 for a non-positive value). The
     /// shipped Swift `init(depth:)` is non-throwing and frozen, so the check lives here, to be called
     /// from `subscribe(options:listener:)` once path subscriptions are wired up.
-    internal static func validateSubscriptionDepth(_ depth: Int?) throws(ARTErrorInfo) {
+    internal static func validateSubscriptionDepth(_ depth: Int?) throws(ErrorInfo) {
         if let depth, depth <= 0 {
             throw LiveObjectsError.invalidInput(message: "Subscription depth must be a positive integer, got \(depth)").toARTErrorInfo()
         }
@@ -139,7 +139,7 @@ internal enum ChannelConfigGuards {
     // MARK: - Private on-queue checks
 
     // The following helpers read `nosync_` core-SDK accessors (each guard wraps its checks in a single
-    // `ably_syncNoDeadlock` hop). Each returns the relevant `ARTErrorInfo` if the check fails, or `nil`
+    // `ably_syncNoDeadlock` hop). Each returns the relevant `ErrorInfo` if the check fails, or `nil`
     // if it passes — so a guard can chain them with `??` for short-circuiting evaluation in check
     // order.
 
@@ -148,7 +148,7 @@ internal enum ChannelConfigGuards {
         coreSDK: CoreSDK,
         notIn invalidStates: [_AblyPluginSupportPrivate.RealtimeChannelState],
         operationDescription: String,
-    ) -> ARTErrorInfo? {
+    ) -> ErrorInfo? {
         let currentState = coreSDK.nosync_channelState
         if invalidStates.contains(currentState) {
             let error = LiveObjectsError.objectsOperationFailedInvalidChannelState(
@@ -166,7 +166,7 @@ internal enum ChannelConfigGuards {
         coreSDK: CoreSDK,
         requiredMode: _AblyPluginSupportPrivate.ChannelMode,
         modeName: String,
-    ) -> ARTErrorInfo? {
+    ) -> ErrorInfo? {
         if !coreSDK.nosync_objectChannelModes.contains(requiredMode) {
             return LiveObjectsError.channelModeRequired(mode: modeName).toARTErrorInfo()
         }
@@ -174,7 +174,7 @@ internal enum ChannelConfigGuards {
     }
 
     /// RTO26c — the `echoMessages` client-option check.
-    private static func nosync_echoMessagesDisabledError(coreSDK: CoreSDK) -> ARTErrorInfo? {
+    private static func nosync_echoMessagesDisabledError(coreSDK: CoreSDK) -> ErrorInfo? {
         if !coreSDK.echoMessages {
             return LiveObjectsError.echoMessagesDisabled.toARTErrorInfo()
         }

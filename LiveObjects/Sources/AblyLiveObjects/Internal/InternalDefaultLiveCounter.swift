@@ -57,16 +57,16 @@ internal final class InternalDefaultLiveCounter: Sendable {
 
     // MARK: - Internal methods that back LiveCounter conformance
 
-    internal func value(coreSDK: CoreSDK) throws(ARTErrorInfo) -> Double {
-        try mutableStateMutex.withSync { mutableState throws(ARTErrorInfo) in
+    internal func value(coreSDK: CoreSDK) throws(ErrorInfo) -> Double {
+        try mutableStateMutex.withSync { mutableState throws(ErrorInfo) in
             try mutableState.nosync_value(coreSDK: coreSDK)
         }
     }
 
-    internal func increment(amount: Double, coreSDK: CoreSDK, realtimeObjects: any InternalRealtimeObjectsProtocol) async throws(ARTErrorInfo) {
-        try await withCheckedContinuation { (continuation: CheckedContinuation<Result<Void, ARTErrorInfo>, _>) in
-            do throws(ARTErrorInfo) {
-                try mutableStateMutex.withSync { mutableState throws(ARTErrorInfo) in
+    internal func increment(amount: Double, coreSDK: CoreSDK, realtimeObjects: any InternalRealtimeObjectsProtocol) async throws(ErrorInfo) {
+        try await withCheckedContinuation { (continuation: CheckedContinuation<Result<Void, ErrorInfo>, _>) in
+            do throws(ErrorInfo) {
+                try mutableStateMutex.withSync { mutableState throws(ErrorInfo) in
                     // RTLC12e1
                     if !amount.isFinite {
                         throw LiveObjectsError.counterIncrementAmountInvalid(amount: amount).toARTErrorInfo()
@@ -99,14 +99,14 @@ internal final class InternalDefaultLiveCounter: Sendable {
         }.get()
     }
 
-    internal func decrement(amount: Double, coreSDK: CoreSDK, realtimeObjects: any InternalRealtimeObjectsProtocol) async throws(ARTErrorInfo) {
+    internal func decrement(amount: Double, coreSDK: CoreSDK, realtimeObjects: any InternalRealtimeObjectsProtocol) async throws(ErrorInfo) {
         // RTLC13b
         try await increment(amount: -amount, coreSDK: coreSDK, realtimeObjects: realtimeObjects)
     }
 
     @discardableResult
-    internal func subscribe(listener: @escaping LiveObjectUpdateCallback<DefaultLiveCounterUpdate>, coreSDK: CoreSDK) throws(ARTErrorInfo) -> any SubscribeResponse {
-        try mutableStateMutex.withSync { mutableState throws(ARTErrorInfo) in
+    internal func subscribe(listener: @escaping LiveObjectUpdateCallback<DefaultLiveCounterUpdate>, coreSDK: CoreSDK) throws(ErrorInfo) -> any SubscribeResponse {
+        try mutableStateMutex.withSync { mutableState throws(ErrorInfo) in
             // swiftlint:disable:next trailing_closure
             try mutableState.liveObjectMutableState.nosync_subscribe(listener: listener, coreSDK: coreSDK, updateSelfLater: { [weak self] action in
                 guard let self else {
@@ -471,7 +471,7 @@ internal final class InternalDefaultLiveCounter: Sendable {
             data = 0
         }
 
-        internal func nosync_value(coreSDK: CoreSDK) throws(ARTErrorInfo) -> Double {
+        internal func nosync_value(coreSDK: CoreSDK) throws(ErrorInfo) -> Double {
             // RTO25: If the channel is in the DETACHED or FAILED state, the library should indicate an error with code 90001
             try coreSDK.nosync_validateChannelStateForAccessAPI(operationDescription: "LiveCounter.value")
 

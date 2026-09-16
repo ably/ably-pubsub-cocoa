@@ -199,7 +199,7 @@ Test/UTS/
 │   │   ├── MockTimeProvider.swift       #     virtual clock + virtual timers (deterministic time)
 │   │   ├── ProtocolMessage.swift        #     Sendable server-message factories (.connected/.attached/…)
 │   │   ├── Captured.swift               #     thread-safe captured_* collector (Swift 6 safe)
-│   │   ├── CapturingLog.swift           #     ARTLog recording log lines for assertions
+│   │   ├── CapturingLog.swift           #     Log recording log lines for assertions
 │   │   └── NoOpReachability.swift       #     disables OS network monitoring in unit tests
 │   │
 │   └── integration/                     #   INTEGRATION infra (real backend) — see §11
@@ -241,7 +241,7 @@ together in `infra/Utils.kt`).
 ## 5. How a Test Reaches the SDK: the hook points
 
 A test can only mock transports because the SDK exposes **pluggable seams** on
-`ARTClientOptions.testOptions` (an `ARTTestClientOptions`, reachable via `import AblyPubSubDevice.Private` —
+`ClientOptions.testOptions` (an `ARTTestClientOptions`, reachable via `import AblyPubSubDevice.Private` —
 the cocoa analogue of ably-java's `DebugOptions`):
 
 | Seam | Type | Mock installed there |
@@ -250,7 +250,7 @@ the cocoa analogue of ably-java's `DebugOptions`):
 | `testOptions.httpExecutor` | `ARTHTTPExecuting` | `MockHTTPClient` |
 | `testOptions.timeProvider` | `ARTTimeProvider` | `MockTimeProvider` |
 | `testOptions.reachabilityClass` | `ARTReachability` class | `NoOpReachability` |
-| `options.logHandler` | `ARTLog` | `CapturingLog` (when a test asserts on log output) |
+| `options.logHandler` | `Log` | `CapturingLog` (when a test asserts on log output) |
 
 So the recipe is:
 
@@ -398,7 +398,7 @@ keep a *local* collector — the spec's pattern — while staying race-free.
 
 ### 6.7 `CapturingLog.swift` — asserting on log output
 
-An `ARTLog` that records every message the SDK logs (regardless of `logLevel`, and keeping the
+A `Log` that records every message the SDK logs (regardless of `logLevel`, and keeping the
 console quiet). Install via `options.logHandler`; assert with
 `contains(level: .error, message: "substring")`. Used by specs like RTN16f1 ("an error is logged").
 
@@ -441,7 +441,7 @@ real socket, while every byte is intercepted in-process and surfaced to the test
   │       │ client.connect()                        ▲ awaitConnectionState(client, .connected)│
   │       ▼                                         │                                         │
   │  ┌─────────────────────────────┐  testOptions.transportFactory                            │
-  │  │ ARTRealtimeClient + the REAL       │ ────────▶ MockWebSocketTransportFactory                 │
+  │  │ RealtimeClient + the REAL       │ ────────▶ MockWebSocketTransportFactory                 │
   │  │ ARTWebSocketTransport        │                   │ creates one per connection attempt  │
   │  └──────────┬──────────────────┘                    ▼                                     │
   │             │ send(frame) ─────────────▶ ┌────────────────────┐                           │
@@ -520,7 +520,7 @@ fake-timer-driven SUSPENDED, `queryParams`/`sentMessages` as the two inspection 
 
 **File:** `unit/rest/TimeTests.swift`
 **Tier:** Unit (mocked HTTP, no network).
-**Spec area:** RSC16 — `ARTHttpClient.time()`.
+**Spec area:** RSC16 — `HttpClient.time()`.
 
 Five tests (`// UTS: rest/unit/RSC16/…`): the returned `Date` matches the server's millisecond
 timestamp; the request is a `GET /time` (asserted via `PendingHTTPRequest.url`/`method`); no
@@ -590,7 +590,7 @@ UTS_SIDE=device swift test --filter UTS.ConnectionRecoveryTests
 ```
 
 `UTS_SIDE` picks which entry point the suite reaches the SDK through: `core` (the default) uses
-`ARTRealtimeClient(options:)`, `device` uses `PubSubDevice.createClient(options:)`. The specs are the same
+`RealtimeClient(options:)`, `device` uses `PubSubDevice.createClient(options:)`. The specs are the same
 either way. The factory has tests of its own, but they check only that it stamps the declaring agent
 and leaves the caller's options untouched; they barely use the client it returns. Running the specs
 through it is what puts that client to work, and so shows the factory to be a faithful pass-through
@@ -598,7 +598,7 @@ and not merely a correct stamp. Every realtime client in
 every tier is built by `makeRealtimeForSide` in [`infra/Side.swift`](infra/Side.swift), so there is
 one seam to keep honest; `SideSeamTests` asserts the routing directly, because a broken seam would
 otherwise leave the suite quietly repeating the core run and reporting it as coverage. HTTP clients
-are deliberately not routed through it — the device package exposes no HTTP door, so `ARTHttpClient` is
+are deliberately not routed through it — the device package exposes no HTTP door, so `HttpClient` is
 the only way to build a stateless client in either mode. An unrecognised value aborts the run
 rather than falling back to `core`.
 
@@ -768,14 +768,14 @@ The options point the **real** transport at the sandbox host (no proxy in betwee
 explicit hosts auto-disables fallback hosts (REC2c2), so there's nothing else to configure:
 
 ```swift
-let publisherOptions = ARTClientOptions(key: app.defaultKey)
+let publisherOptions = ClientOptions(key: app.defaultKey)
 publisherOptions.realtimeHost = SandboxApp.sandboxHost   // sandbox.realtime.ably-nonprod.net
 publisherOptions.restHost = SandboxApp.sandboxHost
 publisherOptions.useBinaryProtocol = useBinaryProtocol
 publisherOptions.autoConnect = false
 ```
 
-(Plain `ARTClientOptions` with no `installMock` — TLS stays on, so basic key auth works here,
+(Plain `ClientOptions` with no `installMock` — TLS stays on, so basic key auth works here,
 and the SDK drives its real `ARTWebSocketTransport` instead of a `MockWebSocket`.)
 
 #### 11.4.3 Protocol variants — the parameterised-test pattern
@@ -853,12 +853,12 @@ try await withProxySession(rules: []) { app, session in
    (`proxyClientOptions(for:through:)` packages this wiring; the test inlines it to count):
 
    ```swift
-   let authCallbackInvocations = Captured<ARTTokenParams>()
-   let signerOptions = ARTClientOptions(key: app.defaultKey)
+   let authCallbackInvocations = Captured<TokenParams>()
+   let signerOptions = ClientOptions(key: app.defaultKey)
    signerOptions.restHost = SandboxApp.sandboxHost
-   let tokenSigner = ARTHttpClient(options: signerOptions)
+   let tokenSigner = HttpClient(options: signerOptions)
 
-   let options = ARTClientOptions()
+   let options = ClientOptions()
    options.authCallback = { params, callback in
        authCallbackInvocations.append(params)
        tokenSigner.auth.createTokenRequest(params, options: nil) { tokenRequest, error in
@@ -923,7 +923,7 @@ imperative fault injection** via `triggerAction`, real-network waiting with `pol
                  │  tls=false, JSON)                          │                                  ▼
                  ▼                                            │
         ┌──────────────────┐    ws/http (plain)    ┌──────────┴───────────┐    ws/http (TLS)   ┌───────────────────────────┐
-        │   ARTRealtimeClient     │ ◀──────────────────▶ │       uts-proxy       │ ◀───────────────▶ │   Ably sandbox             │
+        │   RealtimeClient     │ ◀──────────────────▶ │       uts-proxy       │ ◀───────────────▶ │   Ably sandbox             │
         │  (REAL transport) │      data plane      │  • forwards traffic   │                   │   sandbox.realtime.        │
         └──────────────────┘                       │  • applies rules      │                   │   ably-nonprod.net         │
                  ▲                                 │  • records event log  │                   └───────────────────────────┘
@@ -963,7 +963,7 @@ counterpart.
 
 ## 12. Quick Reference / Cheat-Sheet
 
-**The seams that make unit tests possible** (`ARTClientOptions.testOptions`, via
+**The seams that make unit tests possible** (`ClientOptions.testOptions`, via
 `import AblyPubSubDevice.Private`): `transportFactory` (WS) · `httpExecutor` (HTTP) · `timeProvider` (time) ·
 `reachabilityClass` (network monitor) — plus `options.logHandler` (log assertions).
 
@@ -1038,7 +1038,7 @@ non-compliant → gate the spec-correct assertion behind `RUN_DEVIATIONS` and re
 | `infra/unit/MockTimeProvider.swift` | `init(initialWallClockMilliseconds:)`, `advanceTime(byMilliseconds:)`, `pendingScheduledCount`, `cancelAllScheduled()`; implements `wallClockNow`, `continuousClockNow`, `schedule(after:queue:block:)` | Virtual clocks + recorded timers; `advanceTime` drains SDK queues, fires due blocks, and settles cascades. |
 | `infra/unit/ProtocolMessage.swift` | `.connected(…)`, `.attached(…)`, `.error(…)`, `.ack(…)`, `.closed()`; `.connectedMessage` (default CONNECTED); `makeProtocolMessage()` | `Sendable` server→client message descriptions, materialised at delivery time. |
 | `infra/unit/Captured.swift` | `append`, `all`, `count`, `first`, subscript | Thread-safe local collector for the spec's `captured_*` pattern (Swift 6 race-free). |
-| `infra/unit/CapturingLog.swift` | `entries`, `contains(level:message:)` | `ARTLog` recording everything regardless of `logLevel`; install via `options.logHandler`. |
+| `infra/unit/CapturingLog.swift` | `entries`, `contains(level:message:)` | `Log` recording everything regardless of `logLevel`; install via `options.logHandler`. |
 | `infra/unit/NoOpReachability.swift` | (`ARTReachability` conformance) | Never reports network changes; keeps OS monitoring out of unit tests. |
 
 ### Infrastructure — `infra/integration/`
@@ -1049,7 +1049,7 @@ non-compliant → gate the spec-correct assertion behind `RUN_DEVIATIONS` and re
 | `infra/integration/proxy/ProxyTestCase.swift` | `withProxySession(rules:) { }`, `proxyClientOptions(for:through:)` | Base case for proxy suites (extends `IntegrationTestCase`): ensureProxy + app + session lifecycle; token-auth options wired through the proxy. **macOS-only**. |
 | `infra/integration/SandboxApp.swift` | `SandboxApp.create()`, `delete()`, `appId`, `defaultKey`, `keys`; `SandboxApp.sandboxHost` | Provisions/tears down a throwaway sandbox app from ably-common's `test-app-setup.json`; owns the upstream sandbox host constant. |
 | `infra/integration/proxy/ProxyManager.swift` | `ProxyManager.shared.ensureProxy(timeout:)`, `stopProxy()`, `ProxyManager.controlPort` (10100); `UTS_PROXY_LOCAL_PATH` override | Syncs (downloads, checksum-verifies, caches at `~/.cache/uts-proxy/<version>/`) and launches the pinned `uts-proxy` release; `atexit` reaper. **macOS-only** (`#if os(macOS)`). |
-| `infra/integration/proxy/ProxySession.swift` | `ProxySession.create(rules:port:timeoutMs:realtimeHost:restHost:)`, `addRules`, `triggerAction`, `getLog() -> [ProxyEvent]`, `close`, `sessionId`, `proxyPort`, `proxyHost`; `ProxyEvent`; `ProxyRule` + `wsConnectRule`/`wsFrameToClientRule`/`wsFrameToServerRule`/`httpRequestRule`; `ARTClientOptions.connectThroughProxy(_:)` | Typed client for the proxy control REST API + client wiring. **macOS-only**. |
+| `infra/integration/proxy/ProxySession.swift` | `ProxySession.create(rules:port:timeoutMs:realtimeHost:restHost:)`, `addRules`, `triggerAction`, `getLog() -> [ProxyEvent]`, `close`, `sessionId`, `proxyPort`, `proxyHost`; `ProxyEvent`; `ProxyRule` + `wsConnectRule`/`wsFrameToClientRule`/`wsFrameToServerRule`/`httpRequestRule`; `ClientOptions.connectThroughProxy(_:)` | Typed client for the proxy control REST API + client wiring. **macOS-only**. |
 
 ### Tests and docs
 

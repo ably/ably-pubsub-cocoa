@@ -8,6 +8,7 @@
  * Creates and destroys `ARTHttpChannel` and `ARTRealtimeChannel` objects.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(Channels)
 @interface ARTChannels<ChannelType> : NSObject
 
 /**

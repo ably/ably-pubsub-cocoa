@@ -6,16 +6,16 @@ import AblyPubSubDevice
 /// This provides us with a mockable interface to ably-cocoa, and it also allows internal components and their tests not to need to worry about some of the boring details of how we bridge Swift types to `_AblyPluginSupportPrivate`'s Objective-C API (i.e. boxing).
 internal protocol CoreSDK: AnyObject, Sendable {
     /// Implements the internal `#publish` method of RTO15.
-    func nosync_publish(objectMessages: [ProtocolTypes.OutboundObjectMessage], callback: @escaping @Sendable (Result<PublishResult, ARTErrorInfo>) -> Void)
+    func nosync_publish(objectMessages: [ProtocolTypes.OutboundObjectMessage], callback: @escaping @Sendable (Result<PublishResult, ErrorInfo>) -> Void)
 
     /// Implements the server time fetch of RTO16, including the storing and usage of the local clock offset.
-    func nosync_fetchServerTime(callback: @escaping @Sendable (Result<Date, ARTErrorInfo>) -> Void)
+    func nosync_fetchServerTime(callback: @escaping @Sendable (Result<Date, ErrorInfo>) -> Void)
 
     // testsOnly_ residual: protocol requirement — a foreign module cannot add requirements; see Test/AblyLiveObjectsTesting/README.md
     /// Replaces the implementation of ``nosync_publish(objectMessages:callback:)``.
     ///
     /// Used by integration tests, for example to disable `ObjectMessage` publishing so that a test can verify that a behaviour is not a side effect of an `ObjectMessage` sent by the SDK.
-    func testsOnly_overridePublish(with newImplementation: @escaping ([ProtocolTypes.OutboundObjectMessage]) async throws(ARTErrorInfo) -> PublishResult)
+    func testsOnly_overridePublish(with newImplementation: @escaping ([ProtocolTypes.OutboundObjectMessage]) async throws(ErrorInfo) -> PublishResult)
 
     /// Returns the current state of the Realtime channel that this wraps.
     var nosync_channelState: _AblyPluginSupportPrivate.RealtimeChannelState { get }
@@ -35,7 +35,7 @@ internal protocol CoreSDK: AnyObject, Sendable {
     /// The error that makes the client's connection unpublishable, or `nil` if the connection is in a
     /// publishable (active) state. Spec: RTO15b (the publish adheres to the RTL6c connection-state
     /// conditions).
-    var nosync_connectionStateError: ARTErrorInfo? { get }
+    var nosync_connectionStateError: ErrorInfo? { get }
 
     /// RTO15d: The connection's negotiated `maxMessageSize`, read from the latest `CONNECTED`
     /// `ProtocolMessage`'s `connectionDetails`. `nil` when the core SDK has no connection details yet or
@@ -44,9 +44,9 @@ internal protocol CoreSDK: AnyObject, Sendable {
 
     /// Initiates an implicit attach (RTL33b) on the wrapped Realtime channel, used by the
     /// *ensure-active-channel* procedure of `RealtimeObject.get()` (RTO23e / RTL33). The callback
-    /// receives `nil` on success, or the `ARTErrorInfo` that caused the attach to fail (RTL33b1). The
+    /// receives `nil` on success, or the `ErrorInfo` that caused the attach to fail (RTL33b1). The
     /// callback fires on the internal queue.
-    func nosync_attach(callback: @escaping @Sendable (ARTErrorInfo?) -> Void)
+    func nosync_attach(callback: @escaping @Sendable (ErrorInfo?) -> Void)
 }
 
 internal final class DefaultCoreSDK: CoreSDK {
@@ -62,7 +62,7 @@ internal final class DefaultCoreSDK: CoreSDK {
     ///
     /// This enables the `testsOnly_overridePublish(with:)` test hook.
     ///
-    /// - Note: This should be `throws(ARTErrorInfo)` but that causes a compilation error of "Runtime support for typed throws function types is only available in macOS 15.0.0 or newer".
+    /// - Note: This should be `throws(ErrorInfo)` but that causes a compilation error of "Runtime support for typed throws function types is only available in macOS 15.0.0 or newer".
     private nonisolated(unsafe) var overriddenPublishImplementation: (([ProtocolTypes.OutboundObjectMessage]) async throws -> PublishResult)?
 
     internal init(
@@ -79,7 +79,7 @@ internal final class DefaultCoreSDK: CoreSDK {
 
     // MARK: - CoreSDK conformance
 
-    internal func nosync_publish(objectMessages: [ProtocolTypes.OutboundObjectMessage], callback: @escaping @Sendable (Result<PublishResult, ARTErrorInfo>) -> Void) {
+    internal func nosync_publish(objectMessages: [ProtocolTypes.OutboundObjectMessage], callback: @escaping @Sendable (Result<PublishResult, ErrorInfo>) -> Void) {
         logger.log("nosync_publish(objectMessages: \(LoggingUtilities.formatObjectMessagesForLogging(objectMessages)))", level: .debug)
 
         let overriddenImplementation = mutex.withLock {
@@ -92,8 +92,8 @@ internal final class DefaultCoreSDK: CoreSDK {
                     let publishResult = try await overriddenImplementation(objectMessages)
                     queue.async { callback(.success(publishResult)) }
                 } catch {
-                    guard let artErrorInfo = error as? ARTErrorInfo else {
-                        preconditionFailure("Expected ARTErrorInfo, got \(error)")
+                    guard let artErrorInfo = error as? ErrorInfo else {
+                        preconditionFailure("Expected ErrorInfo, got \(error)")
                     }
                     queue.async { callback(.failure(artErrorInfo)) }
                 }
@@ -112,20 +112,20 @@ internal final class DefaultCoreSDK: CoreSDK {
     }
 
     // testsOnly_ residual: production-embedded instrumentation — cannot move to AblyLiveObjectsTesting; see Test/AblyLiveObjectsTesting/README.md
-    internal func testsOnly_overridePublish(with newImplementation: @escaping ([ProtocolTypes.OutboundObjectMessage]) async throws(ARTErrorInfo) -> PublishResult) {
+    internal func testsOnly_overridePublish(with newImplementation: @escaping ([ProtocolTypes.OutboundObjectMessage]) async throws(ErrorInfo) -> PublishResult) {
         mutex.withLock {
             overriddenPublishImplementation = newImplementation
         }
     }
 
-    internal func nosync_fetchServerTime(callback: @escaping @Sendable (Result<Date, ARTErrorInfo>) -> Void) {
+    internal func nosync_fetchServerTime(callback: @escaping @Sendable (Result<Date, ErrorInfo>) -> Void) {
         let internalQueue = pluginAPI.internalQueue(for: client)
 
         pluginAPI.nosync_fetchServerTime(for: client) { serverTime, error in
             dispatchPrecondition(condition: .onQueue(internalQueue))
 
             if let error {
-                callback(.failure(ARTErrorInfo.castPluginPublicErrorInfo(error)))
+                callback(.failure(ErrorInfo.castPluginPublicErrorInfo(error)))
             } else {
                 guard let serverTime else {
                     preconditionFailure("nosync_fetchServerTime gave nil serverTime and nil error")
@@ -149,12 +149,12 @@ internal final class DefaultCoreSDK: CoreSDK {
 
     internal var echoMessages: Bool {
         // The plugin API exposes client options as an opaque marker protocol; cast to the concrete
-        // `ARTClientOptions` (the only conformer) to read `echoMessages`.
-        ARTClientOptions.castPluginPublicClientOptions(pluginAPI.options(for: client)).echoMessages
+        // `ClientOptions` (the only conformer) to read `echoMessages`.
+        ClientOptions.castPluginPublicClientOptions(pluginAPI.options(for: client)).echoMessages
     }
 
-    internal var nosync_connectionStateError: ARTErrorInfo? {
-        pluginAPI.nosync_connectionStateError(for: client).map { ARTErrorInfo.castPluginPublicErrorInfo($0) }
+    internal var nosync_connectionStateError: ErrorInfo? {
+        pluginAPI.nosync_connectionStateError(for: client).map { ErrorInfo.castPluginPublicErrorInfo($0) }
     }
 
     internal var nosync_maxMessageSize: Int? {
@@ -168,10 +168,10 @@ internal final class DefaultCoreSDK: CoreSDK {
         return maxMessageSize > 0 ? maxMessageSize : nil
     }
 
-    internal func nosync_attach(callback: @escaping @Sendable (ARTErrorInfo?) -> Void) {
+    internal func nosync_attach(callback: @escaping @Sendable (ErrorInfo?) -> Void) {
         logger.log("nosync_attach()", level: .debug)
         pluginAPI.nosync_attach(channel) { error in
-            callback(error.map { ARTErrorInfo.castPluginPublicErrorInfo($0) })
+            callback(error.map { ErrorInfo.castPluginPublicErrorInfo($0) })
         }
     }
 }
@@ -192,30 +192,30 @@ internal final class DefaultCoreSDK: CoreSDK {
 /// are not shared between them (`ChannelConfigGuards` keeps its own on-queue channel-state check).
 internal extension CoreSDK {
     /// RTO25b — the *access API* channel-state precondition for read operations (map get/size/entries,
-    /// counter value, subscribe): throws an `ARTErrorInfo` with code 90001 and statusCode 400 when the
+    /// counter value, subscribe): throws an `ErrorInfo` with code 90001 and statusCode 400 when the
     /// channel is in the `DETACHED` or `FAILED` state (`SUSPENDED` is permitted for reads).
     ///
     /// - Parameter operationDescription: A description of the operation, used in the error message.
-    func nosync_validateChannelStateForAccessAPI(operationDescription: String) throws(ARTErrorInfo) {
+    func nosync_validateChannelStateForAccessAPI(operationDescription: String) throws(ErrorInfo) {
         try nosync_validateChannelState(notIn: [.detached, .failed], operationDescription: operationDescription)
     }
 
     /// RTO26b — the *write API* channel-state precondition for mutation operations (map set/remove,
-    /// counter increment/decrement, createMap/createCounter): throws an `ARTErrorInfo` with code 90001
+    /// counter increment/decrement, createMap/createCounter): throws an `ErrorInfo` with code 90001
     /// and statusCode 400 when the channel is in the `DETACHED`, `FAILED`, or `SUSPENDED` state.
     ///
     /// - Parameter operationDescription: A description of the operation, used in the error message.
-    func nosync_validateChannelStateForWriteAPI(operationDescription: String) throws(ARTErrorInfo) {
+    func nosync_validateChannelStateForWriteAPI(operationDescription: String) throws(ErrorInfo) {
         try nosync_validateChannelState(notIn: [.detached, .failed, .suspended], operationDescription: operationDescription)
     }
 
-    /// Throws an `ARTErrorInfo` with code 90001 and statusCode 400 if the channel is currently in any
+    /// Throws an `ErrorInfo` with code 90001 and statusCode 400 if the channel is currently in any
     /// of `invalidStates`. Shared implementation for the RTO25b/RTO26b helpers above; call those named
     /// helpers from operation call sites rather than this generic one.
     private func nosync_validateChannelState(
         notIn invalidStates: [_AblyPluginSupportPrivate.RealtimeChannelState],
         operationDescription: String,
-    ) throws(ARTErrorInfo) {
+    ) throws(ErrorInfo) {
         let currentChannelState = nosync_channelState
         if invalidStates.contains(currentChannelState) {
             throw LiveObjectsError.objectsOperationFailedInvalidChannelState(

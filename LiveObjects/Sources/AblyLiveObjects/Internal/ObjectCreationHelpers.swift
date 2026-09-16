@@ -181,7 +181,7 @@ internal enum ObjectCreationHelpers {
         liveCounter: LiveCounter,
         coreSDK: CoreSDK,
         internalQueue: DispatchQueue,
-    ) async throws(ARTErrorInfo) -> EvaluationResult {
+    ) async throws(ErrorInfo) -> EvaluationResult {
         // RTLCV4a: validate the initial count is finite up front (before any object ID is generated)
         if !liveCounter.count.isFinite {
             throw LiveObjectsError.counterInitialValueInvalid(value: liveCounter.count).toARTErrorInfo()
@@ -204,7 +204,7 @@ internal enum ObjectCreationHelpers {
         liveMap: LiveMap,
         coreSDK: CoreSDK,
         internalQueue: DispatchQueue,
-    ) async throws(ARTErrorInfo) -> EvaluationResult {
+    ) async throws(ErrorInfo) -> EvaluationResult {
         // RTLMV4a/b/c: entries is a `[String: LiveMapValue]?`, keys are `String`, and each value is the
         // closed `LiveMapValue` enum, so "entries is a Dict", "keys are String", and "values are of an
         // expected type" (including RTLMV4c1: a live graph object cannot be a value) are all satisfied
@@ -247,8 +247,8 @@ internal enum ObjectCreationHelpers {
     ///
     /// `CoreSDK.nosync_fetchServerTime` must be invoked on the internal queue (the underlying core-SDK
     /// call asserts this), so we hop onto `internalQueue` before calling it.
-    private static func fetchServerTime(coreSDK: CoreSDK, internalQueue: DispatchQueue) async throws(ARTErrorInfo) -> Date {
-        let result: Result<Date, ARTErrorInfo> = await withCheckedContinuation { continuation in
+    private static func fetchServerTime(coreSDK: CoreSDK, internalQueue: DispatchQueue) async throws(ErrorInfo) -> Date {
+        let result: Result<Date, ErrorInfo> = await withCheckedContinuation { continuation in
             internalQueue.async {
                 coreSDK.nosync_fetchServerTime { continuation.resume(returning: $0) }
             }

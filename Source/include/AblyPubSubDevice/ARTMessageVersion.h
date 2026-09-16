@@ -6,6 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Contains version information for a message, including operation metadata.
  */
+NS_SWIFT_NAME(MessageVersion)
 @interface ARTMessageVersion : NSObject
 
 /// The serial of the message version.

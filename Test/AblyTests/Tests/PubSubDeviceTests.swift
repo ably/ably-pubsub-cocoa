@@ -18,11 +18,11 @@ class PubSubDeviceTests: XCTestCase {
         defer { client.dispose(); client.close() }
 
         let agents = try XCTUnwrap(client.internal.options.agents)
-        XCTAssertEqual(agents[deviceAgentName], ARTClientInformationAgentNotVersioned)
+        XCTAssertEqual(agents[deviceAgentName], clientInformationAgentNotVersioned)
 
         // The identifier is emitted as a bare token; a version on it would say
         // nothing, since the SDK entry beside it already carries one.
-        let identifier = ARTClientInformation.agentIdentifier(withAdditionalAgents: agents)
+        let identifier = ClientInformation.agentIdentifier(withAdditionalAgents: agents)
         XCTAssertTrue(identifier.contains(" \(deviceAgentName)") || identifier.hasPrefix("\(deviceAgentName) "))
         XCTAssertFalse(identifier.contains("\(deviceAgentName)/"))
     }
@@ -51,7 +51,7 @@ class PubSubDeviceTests: XCTestCase {
 
         let agents = try XCTUnwrap(client.internal.options.agents)
         XCTAssertEqual(agents["some-wrapper"], "1.2.3")
-        XCTAssertEqual(agents[deviceAgentName], ARTClientInformationAgentNotVersioned)
+        XCTAssertEqual(agents[deviceAgentName], clientInformationAgentNotVersioned)
     }
 
     func test__004__createClient__the_declaration_wins_over_a_caller_entry_of_the_same_name() throws {
@@ -64,7 +64,7 @@ class PubSubDeviceTests: XCTestCase {
         defer { client.dispose(); client.close() }
 
         let agents = try XCTUnwrap(client.internal.options.agents)
-        XCTAssertEqual(agents[deviceAgentName], ARTClientInformationAgentNotVersioned)
+        XCTAssertEqual(agents[deviceAgentName], clientInformationAgentNotVersioned)
     }
 
     func test__005__createClient__carries_over_the_rest_of_the_options() throws {
@@ -88,7 +88,7 @@ class PubSubDeviceTests: XCTestCase {
         defer { client.dispose(); client.close() }
 
         XCTAssertEqual(client.internal.options.key, "fake:key")
-        XCTAssertEqual(client.internal.options.agents?[deviceAgentName], ARTClientInformationAgentNotVersioned)
+        XCTAssertEqual(client.internal.options.agents?[deviceAgentName], clientInformationAgentNotVersioned)
     }
 
     func test__007__createClient__accepts_a_token() throws {
@@ -96,7 +96,7 @@ class PubSubDeviceTests: XCTestCase {
         defer { client.dispose(); client.close() }
 
         XCTAssertEqual(client.internal.options.token, "fake_token")
-        XCTAssertEqual(client.internal.options.agents?[deviceAgentName], ARTClientInformationAgentNotVersioned)
+        XCTAssertEqual(client.internal.options.agents?[deviceAgentName], clientInformationAgentNotVersioned)
     }
 
     // MARK: - What reaches the wire
@@ -168,12 +168,12 @@ class PubSubDeviceTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
         options.autoConnect = false
 
-        let client = ARTRealtimeClient(options: options)
+        let client = RealtimeClient(options: options)
         defer { client.dispose(); client.close() }
 
         XCTAssertNil(client.internal.options.agents?[deviceAgentName])
 
-        let identifier = ARTClientInformation.agentIdentifier(withAdditionalAgents: client.internal.options.agents)
+        let identifier = ClientInformation.agentIdentifier(withAdditionalAgents: client.internal.options.agents)
         XCTAssertFalse(identifier.contains(deviceAgentName))
     }
 
@@ -192,11 +192,11 @@ class PubSubDeviceTests: XCTestCase {
         let expected = [
             "ably-pubsub-cocoa/2.0.0",
             deviceAgentName,
-            ARTDefault.platformAgent(),
+            Default.platformAgent(),
         ].sorted().joined(separator: " ")
 
         XCTAssertEqual(
-            ARTClientInformation.agentIdentifier(withAdditionalAgents: client.internal.options.agents),
+            ClientInformation.agentIdentifier(withAdditionalAgents: client.internal.options.agents),
             expected
         )
     }

@@ -4,25 +4,25 @@ import Nimble
 import XCTest
 
 private let encoder = ARTJsonLikeEncoder(delegate: ARTJsonEncoder(), timeProvider: SystemTimeProvider())
-private let subject: ARTStatsConnectionTypes? = {
+private let subject: StatsConnectionTypes? = {
     let data: [[String: Any]] = [
         ["connections": ["tls": ["opened": 5], "all": ["peak": 10]]],
     ]
     let rawData = try! JSONUtility.serialize(data)
-    let stats = try! encoder.decodeStats(rawData)[0] as? ARTStats
+    let stats = try! encoder.decodeStats(rawData)[0] as? Stats
     return stats?.connections
 }()
 
-private let channelsTestsSubject: ARTStatsResourceCount? = {
+private let channelsTestsSubject: StatsResourceCount? = {
     let data: [[String: Any]] = [
         ["channels": ["opened": 5, "peak": 10]],
     ]
     let rawData = try! JSONUtility.serialize(data)
-    let stats = try! encoder.decodeStats(rawData)[0] as? ARTStats
+    let stats = try! encoder.decodeStats(rawData)[0] as? Stats
     return stats?.channels
 }()
 
-private let pushTestsSubject: ARTStatsPushCount? = {
+private let pushTestsSubject: StatsPushCount? = {
     let data: [[String: Any]] = [
         ["push":
             [
@@ -37,24 +37,24 @@ private let pushTestsSubject: ARTStatsPushCount? = {
             ] as [String : Any]],
     ]
     let rawData = try! JSONUtility.serialize(data)
-    let stats = try! encoder.decodeStats(rawData)[0] as? ARTStats
+    let stats = try! encoder.decodeStats(rawData)[0] as? Stats
     return stats?.pushes
 }()
 
-private let inProgressTestsStats: ARTStats? = {
+private let inProgressTestsStats: Stats? = {
     let data: [[String: Any]] = [
         ["inProgress": "2004-02-01:05:06"],
     ]
     let rawData = try! JSONUtility.serialize(data)
-    return try! encoder.decodeStats(rawData)[0] as? ARTStats
+    return try! encoder.decodeStats(rawData)[0] as? Stats
 }()
 
-private let countTestStats: ARTStats? = {
+private let countTestStats: Stats? = {
     let data: [[String: Any]] = [
         ["count": 55],
     ]
     let rawData = try! JSONUtility.serialize(data)
-    return try! encoder.decodeStats(rawData)[0] as? ARTStats
+    return try! encoder.decodeStats(rawData)[0] as? Stats
 }()
 
 class StatsTests: XCTestCase {
@@ -83,13 +83,13 @@ class StatsTests: XCTestCase {
             [attribute: ["messages": ["count": 5], "all": ["data": 10]]],
         ]
         let rawData = try! JSONUtility.serialize(data)
-        let stats = try! encoder.decodeStats(rawData)[0] as? ARTStats
-        let subject = stats?.value(forKey: attribute) as? ARTStatsMessageTypes
+        let stats = try! encoder.decodeStats(rawData)[0] as? Stats
+        let subject = stats?.value(forKey: attribute) as? StatsMessageTypes
 
         func test__should_return_a_MessagesTypes_object() {
             contextBeforeEach?()
 
-            expect(subject).to(beAnInstanceOf(ARTStatsMessageTypes.self))
+            expect(subject).to(beAnInstanceOf(StatsMessageTypes.self))
 
             contextAfterEach?()
         }
@@ -188,13 +188,13 @@ class StatsTests: XCTestCase {
             ]],
         ]
         let rawData = try! JSONUtility.serialize(data)
-        let stats = try! encoder.decodeStats(rawData)[0] as? ARTStats
-        let subject = stats?.value(forKey: direction) as? ARTStatsMessageTraffic
+        let stats = try! encoder.decodeStats(rawData)[0] as? Stats
+        let subject = stats?.value(forKey: direction) as? StatsMessageTraffic
 
         func test__should_return_a_MessageTraffic_object() {
             contextBeforeEach?()
 
-            expect(subject).to(beAnInstanceOf(ARTStatsMessageTraffic.self))
+            expect(subject).to(beAnInstanceOf(StatsMessageTraffic.self))
 
             contextAfterEach?()
         }
@@ -262,7 +262,7 @@ class StatsTests: XCTestCase {
     // TS4
 
     func test__015__Stats__connections__should_return_a_ConnectionTypes_object() {
-        expect(subject).to(beAnInstanceOf(ARTStatsConnectionTypes.self))
+        expect(subject).to(beAnInstanceOf(StatsConnectionTypes.self))
     }
 
     func test__016__Stats__connections__should_return_value_for_tls_opened_counts() {
@@ -281,7 +281,7 @@ class StatsTests: XCTestCase {
     // TS9
 
     func test__019__Stats__channels__should_return_a_ResourceCount_object() {
-        expect(channelsTestsSubject).to(beAnInstanceOf(ARTStatsResourceCount.self))
+        expect(channelsTestsSubject).to(beAnInstanceOf(StatsResourceCount.self))
     }
 
     func test__020__Stats__channels__should_return_value_for_opened_counts() {
@@ -309,13 +309,13 @@ class StatsTests: XCTestCase {
             [requestType: ["succeeded": 5, "failed": 10]],
         ]
         let rawData = try! JSONUtility.serialize(data)
-        let stats = try! encoder.decodeStats(rawData)[0] as? ARTStats
-        let subject = stats?.value(forKey: requestType) as? ARTStatsRequestCount
+        let stats = try! encoder.decodeStats(rawData)[0] as? Stats
+        let subject = stats?.value(forKey: requestType) as? StatsRequestCount
 
         func test__should_return_a_RequestCount_object() {
             contextBeforeEach?()
 
-            expect(subject).to(beAnInstanceOf(ARTStatsRequestCount.self))
+            expect(subject).to(beAnInstanceOf(StatsRequestCount.self))
 
             contextAfterEach?()
         }
@@ -383,7 +383,7 @@ class StatsTests: XCTestCase {
             ["intervalId": "2004-02-01:05:06"],
         ]
         let rawData = try! JSONUtility.serialize(data)
-        let stats = try! encoder.decodeStats(rawData)[0] as? ARTStats
+        let stats = try! encoder.decodeStats(rawData)[0] as? Stats
 
         let dateComponents = NSDateComponents()
         dateComponents.year = 2004
@@ -398,8 +398,8 @@ class StatsTests: XCTestCase {
         XCTAssertEqual(stats?.intervalTime(), expected)
     }
 
-    func test__030__Stats__push__should_return_a_ARTStatsPushCount_object() {
-        expect(pushTestsSubject).to(beAnInstanceOf(ARTStatsPushCount.self))
+    func test__030__Stats__push__should_return_a_StatsPushCount_object() {
+        expect(pushTestsSubject).to(beAnInstanceOf(StatsPushCount.self))
     }
 
     func test__031__Stats__push__should_return_value_for_messages_count() {

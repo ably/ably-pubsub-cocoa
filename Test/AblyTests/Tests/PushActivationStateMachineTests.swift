@@ -4,7 +4,7 @@ import AblyTesting
 import Nimble
 import XCTest
 
-private var rest: ARTHttpClient!
+private var rest: HttpClient!
 private var httpExecutor: MockHTTPExecutor!
 private var storage: MockDeviceStorage!
 private var initialStateMachine: ARTPushActivationStateMachine!
@@ -36,7 +36,7 @@ class PushActivationStateMachineTests: XCTestCase {
         // Start from a clean on-disk device storage
         AblyTests.clearOnDiskDeviceStorage()
 
-        rest = ARTHttpClient(key: "xxxx:xxxx")
+        rest = HttpClient(key: "xxxx:xxxx")
         httpExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = httpExecutor
         storage = MockDeviceStorage()
@@ -119,8 +119,8 @@ class PushActivationStateMachineTests: XCTestCase {
     func test__014__Activation_state_machine__State_NotActivated__on_Event_CalledActivate__local_device__should_have_a_generated_id() {
         beforeEach__Activation_state_machine__State_NotActivated()
 
-        let options = ARTClientOptions(key: "xxxx:xxxx")
-        let rest = ARTHttpClient(options: options)
+        let options = ClientOptions(key: "xxxx:xxxx")
+        let rest = HttpClient(options: options)
         rest.internal.storage = storage
         let stateMachine = ARTPushActivationStateMachine(rest: rest.internal, delegate: StateMachineDelegate(), logger: .init(core: MockInternalLogCore()))
 
@@ -132,8 +132,8 @@ class PushActivationStateMachineTests: XCTestCase {
     func test__015__Activation_state_machine__State_NotActivated__on_Event_CalledActivate__local_device__should_have_a_generated_secret() throws {
         beforeEach__Activation_state_machine__State_NotActivated()
 
-        let options = ARTClientOptions(key: "xxxx:xxxx")
-        let rest = ARTHttpClient(options: options)
+        let options = ClientOptions(key: "xxxx:xxxx")
+        let rest = HttpClient(options: options)
         rest.internal.storage = storage
         let stateMachine = ARTPushActivationStateMachine(rest: rest.internal, delegate: StateMachineDelegate(), logger: .init(core: MockInternalLogCore()))
 
@@ -149,9 +149,9 @@ class PushActivationStateMachineTests: XCTestCase {
     func test__016__Activation_state_machine__State_NotActivated__on_Event_CalledActivate__local_device__should_have_a_clientID_if_the_client_is_identified() {
         beforeEach__Activation_state_machine__State_NotActivated()
 
-        let options = ARTClientOptions(key: "xxxx:xxxx")
+        let options = ClientOptions(key: "xxxx:xxxx")
         options.clientId = "deviceClient"
-        let rest = ARTHttpClient(options: options)
+        let rest = HttpClient(options: options)
         rest.internal.storage = storage
 
         let stateMachine = ARTPushActivationStateMachine(rest: rest.internal, delegate: StateMachineDelegate(), logger: .init(core: MockInternalLogCore()))
@@ -285,14 +285,14 @@ class PushActivationStateMachineTests: XCTestCase {
         stateMachine.delegate = delegate
 
         waitUntil(timeout: testTimeout) { done in
-            let simulatedError = NSError(domain: ARTAblyErrorDomain, code: 1234, userInfo: nil)
+            let simulatedError = NSError(domain: ablyErrorDomain, code: 1234, userInfo: nil)
             let partialDone = AblyTests.splitDone(3, done: done)
             stateMachine.transitions = { event, _, currentState in
                 if event is ARTPushActivationEventGotPushDeviceDetails {
                     expect(currentState).to(beAKindOf(ARTPushActivationStateWaitingForDeviceRegistration.self))
                     partialDone()
                 } else if let event = event as? ARTPushActivationEventGettingDeviceRegistrationFailed {
-                    XCTAssertEqual(event.error.domain, ARTAblyErrorDomain)
+                    XCTAssertEqual(event.error.domain, ablyErrorDomain)
                     XCTAssertEqual(event.error.code, simulatedError.code)
                     stateMachine.transitions = nil
                     partialDone()
@@ -370,7 +370,7 @@ class PushActivationStateMachineTests: XCTestCase {
         let delegate = StateMachineDelegate()
         stateMachine.delegate = delegate
 
-        let simulatedError = NSError(domain: ARTAblyErrorDomain, code: 1234, userInfo: nil)
+        let simulatedError = NSError(domain: ablyErrorDomain, code: 1234, userInfo: nil)
         httpExecutor.simulateIncomingErrorOnNextRequest(simulatedError)
 
         waitUntil(timeout: testTimeout) { done in
@@ -380,7 +380,7 @@ class PushActivationStateMachineTests: XCTestCase {
                     expect(currentState).to(beAKindOf(ARTPushActivationStateWaitingForDeviceRegistration.self))
                     partialDone()
                 } else if let event = event as? ARTPushActivationEventGettingDeviceRegistrationFailed {
-                    XCTAssertEqual(event.error.domain, ARTAblyErrorDomain)
+                    XCTAssertEqual(event.error.domain, ablyErrorDomain)
                     XCTAssertEqual(event.error.code, simulatedError.code)
                     stateMachine.transitions = nil
                     partialDone()
@@ -442,7 +442,7 @@ class PushActivationStateMachineTests: XCTestCase {
     func test__019__Activation_state_machine__State_WaitingForPushDeviceDetails__on_Event_GettingPushDeviceDetailsFailed() {
         beforeEach__Activation_state_machine__State_WaitingForPushDeviceDetails()
 
-        let expectedError = ARTErrorInfo(domain: ARTAblyErrorDomain, code: 1234, userInfo: nil)
+        let expectedError = ErrorInfo(domain: ablyErrorDomain, code: 1234, userInfo: nil)
 
         let delegate = StateMachineDelegate()
         stateMachine.delegate = delegate
@@ -514,7 +514,7 @@ class PushActivationStateMachineTests: XCTestCase {
         }
         defer { hookDevice.remove() }
 
-        let testIdentityTokenDetails = ARTDeviceIdentityTokenDetails(
+        let testIdentityTokenDetails = DeviceIdentityTokenDetails(
             token: "123456",
             issued: Date(),
             expires: Date.distantFuture,
@@ -533,12 +533,12 @@ class PushActivationStateMachineTests: XCTestCase {
     func test__029__Activation_state_machine__State_WaitingForDeviceRegistration__on_Event_GettingDeviceRegistrationFailed() {
         beforeEach__Activation_state_machine__State_WaitingForDeviceRegistration()
 
-        let expectedError = ARTErrorInfo(domain: ARTAblyErrorDomain, code: 1234, userInfo: nil)
+        let expectedError = ErrorInfo(domain: ablyErrorDomain, code: 1234, userInfo: nil)
 
         var activatedCallbackCalled = false
         let hook = stateMachine.testSuite_getArgument(from: NSSelectorFromString("callActivatedCallback:"), at: 0, callback: { arg0 in
             activatedCallbackCalled = true
-            guard let error = arg0 as? ARTErrorInfo else {
+            guard let error = arg0 as? ErrorInfo else {
                 fail("Error is missing"); return
             }
             XCTAssertEqual(error, expectedError)
@@ -696,7 +696,7 @@ class PushActivationStateMachineTests: XCTestCase {
                 updatedCallbackCalled = true
             }
 
-            let testIdentityTokenDetails = ARTDeviceIdentityTokenDetails(
+            let testIdentityTokenDetails = DeviceIdentityTokenDetails(
                 token: "123456",
                 issued: Date(),
                 expires: Date.distantFuture,
@@ -720,12 +720,12 @@ class PushActivationStateMachineTests: XCTestCase {
         func test__on_Event_SyncRegistrationFailed() {
             beforeEach()
 
-            let expectedError = ARTErrorInfo(domain: ARTAblyErrorDomain, code: 1234, userInfo: nil)
+            let expectedError = ErrorInfo(domain: ablyErrorDomain, code: 1234, userInfo: nil)
 
             var updatedCallbackCalled = false
             let hook = stateMachine.testSuite_getArgument(from: NSSelectorFromString("callUpdatedCallback:"), at: 0, callback: { arg0 in
                 updatedCallbackCalled = true
-                guard let error = arg0 as? ARTErrorInfo else {
+                guard let error = arg0 as? ErrorInfo else {
                     fail("Error is missing"); return
                 }
                 XCTAssertEqual(error, expectedError)
@@ -884,9 +884,9 @@ class PushActivationStateMachineTests: XCTestCase {
     func test__054__Activation_state_machine__State_WaitingForDeregistration__on_Event_Deregistered() {
         storage = MockDeviceStorage(startWith: ARTPushActivationStateWaitingForDeregistration(machine: initialStateMachine, logger: .init(core: MockInternalLogCore())))
 
-        let options = ARTClientOptions(key: "xxxx:xxxx")
+        let options = ClientOptions(key: "xxxx:xxxx")
         options.clientId = "client1"
-        let rest = ARTHttpClient(options: options)
+        let rest = HttpClient(options: options)
         rest.internal.storage = storage
         stateMachine = ARTPushActivationStateMachine(rest: rest.internal, delegate: StateMachineDelegate(), logger: .init(core: MockInternalLogCore()))
 
@@ -917,8 +917,8 @@ class PushActivationStateMachineTests: XCTestCase {
         XCTAssertNil(stateMachine.rest.device.push.recipient["push"])
 
         XCTAssertNil(storage.object(forKey: ARTDeviceIdentityTokenKey))
-        XCTAssertNil(ARTLocalDevice.apnsDeviceToken(ofType: ARTAPNSDeviceDefaultTokenType, from: storage))
-        XCTAssertNil(ARTLocalDevice.apnsDeviceToken(ofType: ARTAPNSDeviceLocationTokenType, from: storage))
+        XCTAssertNil(LocalDevice.apnsDeviceToken(ofType: ARTAPNSDeviceDefaultTokenType, from: storage))
+        XCTAssertNil(LocalDevice.apnsDeviceToken(ofType: ARTAPNSDeviceLocationTokenType, from: storage))
 
         // Should be replaced with `nil` checks after issue https://github.com/ably/specification/issues/180 resolved
         XCTAssertNotNil(stateMachine.rest.device.id)
@@ -931,12 +931,12 @@ class PushActivationStateMachineTests: XCTestCase {
     func test__055__Activation_state_machine__State_WaitingForDeregistration__on_Event_DeregistrationFailed() {
         beforeEach__Activation_state_machine__State_WaitingForDeregistration()
 
-        let expectedError = ARTErrorInfo(domain: ARTAblyErrorDomain, code: 1234, userInfo: nil)
+        let expectedError = ErrorInfo(domain: ablyErrorDomain, code: 1234, userInfo: nil)
 
         var deactivatedCallbackCalled = false
         let hook = stateMachine.testSuite_getArgument(from: NSSelectorFromString("callDeactivatedCallback:"), at: 0, callback: { arg0 in
             deactivatedCallbackCalled = true
-            guard let error = arg0 as? ARTErrorInfo else {
+            guard let error = arg0 as? ErrorInfo else {
                 fail("Error is missing"); return
             }
             XCTAssertEqual(error, expectedError)
@@ -952,9 +952,9 @@ class PushActivationStateMachineTests: XCTestCase {
     func test__056__Activation_state_machine__should_be_possible_to_activate_and_deactivate_and_then_activate_again_with_different_clientId() {
         beforeEach__Activation_state_machine__State_NotActivated()
 
-        let options1 = ARTClientOptions(key: "xxxx:xxxx")
+        let options1 = ClientOptions(key: "xxxx:xxxx")
         options1.clientId = "client1"
-        let rest1 = ARTHttpClient(options: options1)
+        let rest1 = HttpClient(options: options1)
         httpExecutor = MockHTTPExecutor()
         rest1.internal.httpExecutor = httpExecutor
         rest1.internal.storage = storage
@@ -986,9 +986,9 @@ class PushActivationStateMachineTests: XCTestCase {
 
         XCTAssertNil(rest1.device.clientId) // after deactivation, RSH3g2a
 
-        let options2 = ARTClientOptions(key: "xxxx:xxxx")
+        let options2 = ClientOptions(key: "xxxx:xxxx")
         options2.clientId = "client2"
-        let rest2 = ARTHttpClient(options: options2)
+        let rest2 = HttpClient(options: options2)
         rest2.internal.storage = storage
         rest2.internal.httpExecutor = httpExecutor
 
@@ -1074,23 +1074,23 @@ class PushActivationStateMachineTests: XCTestCase {
         func test__the_local_device_has_id_and_deviceIdentityToken__emits_a_SyncRegistrationFailed_event_with_code_61002_if_client_IDs_don_t_match() {
             contextBeforeEach?()
 
-            let options = ARTClientOptions(key: "xxxx:xxxx")
+            let options = ClientOptions(key: "xxxx:xxxx")
             options.clientId = "deviceClient"
-            let rest = ARTHttpClient(options: options)
+            let rest = HttpClient(options: options)
             rest.internal.storage = storage
             rest.internal.setupLocalDevice_nosync()
 
             XCTAssertEqual(rest.device.clientId, "deviceClient")
 
-            let newOptions = ARTClientOptions(key: "xxxx:xxxx")
+            let newOptions = ClientOptions(key: "xxxx:xxxx")
             newOptions.clientId = "instanceClient"
-            let newRest = ARTHttpClient(options: newOptions)
+            let newRest = HttpClient(options: newOptions)
             newRest.internal.storage = storage
             let stateMachine = ARTPushActivationStateMachine(rest: newRest.internal, delegate: StateMachineDelegate(), logger: .init(core: MockInternalLogCore()))
 
             storage.simulateOnNextRead(string: testDeviceId, for: ARTDeviceIdKey)
 
-            let testDeviceIdentityTokenDetails = ARTDeviceIdentityTokenDetails(token: "xxxx-xxxx-xxx", issued: Date(), expires: Date.distantFuture, capability: "", clientId: "deviceClient")
+            let testDeviceIdentityTokenDetails = DeviceIdentityTokenDetails(token: "xxxx-xxxx-xxx", issued: Date(), expires: Date.distantFuture, capability: "", clientId: "deviceClient")
             stateMachine.rest.device.setAndPersistIdentityTokenDetails(testDeviceIdentityTokenDetails)
             defer { stateMachine.rest.device.setAndPersistIdentityTokenDetails(nil) }
 
@@ -1112,7 +1112,7 @@ class PushActivationStateMachineTests: XCTestCase {
 
             storage.simulateOnNextRead(string: testDeviceId, for: ARTDeviceIdKey)
 
-            let testDeviceIdentityTokenDetails = ARTDeviceIdentityTokenDetails(token: "xxxx-xxxx-xxx", issued: Date(), expires: Date.distantFuture, capability: "", clientId: "")
+            let testDeviceIdentityTokenDetails = DeviceIdentityTokenDetails(token: "xxxx-xxxx-xxx", issued: Date(), expires: Date.distantFuture, capability: "", clientId: "")
             stateMachine.rest.device.setAndPersistIdentityTokenDetails(testDeviceIdentityTokenDetails)
         }
 
@@ -1254,14 +1254,14 @@ class PushActivationStateMachineTests: XCTestCase {
             stateMachine.delegate = delegate
 
             waitUntil(timeout: testTimeout) { done in
-                let simulatedError = NSError(domain: ARTAblyErrorDomain, code: 1234, userInfo: nil)
+                let simulatedError = NSError(domain: ablyErrorDomain, code: 1234, userInfo: nil)
                 let partialDone = AblyTests.splitDone(3, done: done)
                 stateMachine.transitions = { event, _, currentState in
                     if event is ARTPushActivationEventCalledDeactivate {
                         expect(currentState).to(beAKindOf(ARTPushActivationStateWaitingForDeregistration.self))
                         partialDone()
                     } else if let event = event as? ARTPushActivationEventDeregistrationFailed {
-                        XCTAssertEqual(event.error.domain, ARTAblyErrorDomain)
+                        XCTAssertEqual(event.error.domain, ablyErrorDomain)
                         XCTAssertEqual(event.error.code, simulatedError.code)
                         stateMachine.transitions = nil
                         partialDone()
@@ -1335,7 +1335,7 @@ class PushActivationStateMachineTests: XCTestCase {
             let delegate = StateMachineDelegate()
             stateMachine.delegate = delegate
 
-            let testIdentityTokenDetails = ARTDeviceIdentityTokenDetails(
+            let testIdentityTokenDetails = DeviceIdentityTokenDetails(
                 token: "123456",
                 issued: Date(),
                 expires: Date.distantFuture,
@@ -1392,7 +1392,7 @@ class PushActivationStateMachineTests: XCTestCase {
             let delegate = StateMachineDelegate()
             stateMachine.delegate = delegate
 
-            let simulatedError = NSError(domain: ARTAblyErrorDomain, code: 1234, userInfo: nil)
+            let simulatedError = NSError(domain: ablyErrorDomain, code: 1234, userInfo: nil)
             httpExecutor.simulateIncomingErrorOnNextRequest(simulatedError)
 
             waitUntil(timeout: testTimeout) { done in
@@ -1402,7 +1402,7 @@ class PushActivationStateMachineTests: XCTestCase {
                         expect(currentState).to(beAKindOf(ARTPushActivationStateWaitingForDeregistration.self))
                         partialDone()
                     } else if let event = event as? ARTPushActivationEventDeregistrationFailed {
-                        XCTAssertEqual(event.error.domain, ARTAblyErrorDomain)
+                        XCTAssertEqual(event.error.domain, ablyErrorDomain)
                         XCTAssertEqual(event.error.code, simulatedError.code)
                         stateMachine.transitions = nil
                         partialDone()
@@ -1440,42 +1440,42 @@ class PushActivationStateMachineTests: XCTestCase {
     }
 }
 
-class StateMachineDelegate: NSObject, ARTPushRegistererDelegate {
-    var onDidActivateAblyPush: ((ARTErrorInfo?) -> Void)?
-    var onDidUpdateAblyPush: ((ARTErrorInfo?) -> Void)?
-    var onDidDeactivateAblyPush: ((ARTErrorInfo?) -> Void)?
-    var onDidAblyPushRegistrationFail: ((ARTErrorInfo?) -> Void)?
+class StateMachineDelegate: NSObject, PushRegistererDelegate {
+    var onDidActivateAblyPush: ((ErrorInfo?) -> Void)?
+    var onDidUpdateAblyPush: ((ErrorInfo?) -> Void)?
+    var onDidDeactivateAblyPush: ((ErrorInfo?) -> Void)?
+    var onDidAblyPushRegistrationFail: ((ErrorInfo?) -> Void)?
 
-    func didActivateAblyPush(_ error: ARTErrorInfo?) {
+    func didActivateAblyPush(_ error: ErrorInfo?) {
         onDidActivateAblyPush?(error)
     }
 
-    func didUpdateAblyPush(_ error: ARTErrorInfo?) {
+    func didUpdateAblyPush(_ error: ErrorInfo?) {
         onDidUpdateAblyPush?(error)
     }
 
-    func didDeactivateAblyPush(_ error: ARTErrorInfo?) {
+    func didDeactivateAblyPush(_ error: ErrorInfo?) {
         onDidDeactivateAblyPush?(error)
     }
 
-    func didAblyPushRegistrationFail(_ error: ARTErrorInfo?) {
+    func didAblyPushRegistrationFail(_ error: ErrorInfo?) {
         onDidAblyPushRegistrationFail?(error)
     }
 }
 
-typealias ARTDeviceId = String
+typealias DeviceId = String
 
 class StateMachineDelegateCustomCallbacks: StateMachineDelegate {
-    var onPushCustomRegister: ((ARTErrorInfo?, ARTDeviceDetails?) -> NSError?)?
-    var onPushCustomRegisterIdentity: ((ARTErrorInfo?, ARTDeviceDetails?) throws -> ARTDeviceIdentityTokenDetails)?
-    var onPushCustomDeregister: ((ARTErrorInfo?, ARTDeviceId?) -> NSError?)?
+    var onPushCustomRegister: ((ErrorInfo?, DeviceDetails?) -> NSError?)?
+    var onPushCustomRegisterIdentity: ((ErrorInfo?, DeviceDetails?) throws -> DeviceIdentityTokenDetails)?
+    var onPushCustomDeregister: ((ErrorInfo?, DeviceId?) -> NSError?)?
 
-    func ablyPushCustomRegister(_ error: ARTErrorInfo?, deviceDetails: ARTDeviceDetails?, callback: @escaping (ARTDeviceIdentityTokenDetails?, ARTErrorInfo?) -> Void) {
+    func ablyPushCustomRegister(_ error: ErrorInfo?, deviceDetails: DeviceDetails?, callback: @escaping (DeviceIdentityTokenDetails?, ErrorInfo?) -> Void) {
         var registerError: NSError?
-        var identity: ARTDeviceIdentityTokenDetails?
+        var identity: DeviceIdentityTokenDetails?
         if let register = onPushCustomRegister {
             registerError = register(error, deviceDetails)
-            identity = ARTDeviceIdentityTokenDetails(token: "123456", issued: Date(), expires: Date.distantFuture, capability: "", clientId: "")
+            identity = DeviceIdentityTokenDetails(token: "123456", issued: Date(), expires: Date.distantFuture, capability: "", clientId: "")
         } else {
             do {
                 identity = try onPushCustomRegisterIdentity!(error, deviceDetails)
@@ -1484,14 +1484,14 @@ class StateMachineDelegateCustomCallbacks: StateMachineDelegate {
             }
         }
         delay(0) {
-            callback(identity, registerError == nil ? nil : ARTErrorInfo.create(from: registerError!))
+            callback(identity, registerError == nil ? nil : ErrorInfo.create(from: registerError!))
         }
     }
 
-    func ablyPushCustomDeregister(_ error: ARTErrorInfo?, deviceId: String?, callback: ((ARTErrorInfo?) -> Void)? = nil) {
+    func ablyPushCustomDeregister(_ error: ErrorInfo?, deviceId: String?, callback: ((ErrorInfo?) -> Void)? = nil) {
         let error = onPushCustomDeregister?(error, deviceId)
         delay(0) {
-            callback?(error == nil ? nil : ARTErrorInfo.create(from: error!))
+            callback?(error == nil ? nil : ErrorInfo.create(from: error!))
         }
     }
 }

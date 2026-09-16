@@ -10,13 +10,13 @@ import ObjectiveC.NSObject
 /// import AblyPubSubDevice
 /// import AblyLiveObjects
 ///
-/// let clientOptions = ARTClientOptions(key: /* <insert your Ably API key here> */)
+/// let clientOptions = ClientOptions(key: /* <insert your Ably API key here> */)
 /// clientOptions.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]
 ///
 /// let realtime = PubSubDevice.createClient(options: clientOptions)
 ///
 /// // Fetch a channel, specifying the `.objectPublish` and `.objectSubscribe` modes
-/// let channelOptions = ARTRealtimeChannelOptions()
+/// let channelOptions = RealtimeChannelOptions()
 /// channelOptions.modes = [.objectPublish, .objectSubscribe]
 /// let channel = realtime.channels.get("myChannel", options: channelOptions)
 ///

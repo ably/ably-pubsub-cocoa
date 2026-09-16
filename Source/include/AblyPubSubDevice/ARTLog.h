@@ -12,9 +12,10 @@ typedef NS_ENUM(NSUInteger, ARTLogLevel) {
     ARTLogLevelWarn,
     ARTLogLevelError,
     ARTLogLevelNone
-};
+} NS_SWIFT_NAME(LogLevel);
 
 /// :nodoc:
+NS_SWIFT_NAME(Log)
 @interface ARTLog : NSObject
 
 @property (nonatomic) ARTLogLevel logLevel;

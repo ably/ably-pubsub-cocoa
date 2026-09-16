@@ -82,7 +82,7 @@ internal struct LiveObjectMutableState<Update: Sendable> {
     internal typealias UpdateLiveObject = @Sendable (_ action: (inout Self) -> Void) -> Void
 
     @discardableResult
-    internal mutating func nosync_subscribe(listener: @escaping LiveObjectUpdateCallback<Update>, coreSDK: CoreSDK, updateSelfLater: @escaping UpdateLiveObject) throws(ARTErrorInfo) -> any AblyLiveObjects.SubscribeResponse {
+    internal mutating func nosync_subscribe(listener: @escaping LiveObjectUpdateCallback<Update>, coreSDK: CoreSDK, updateSelfLater: @escaping UpdateLiveObject) throws(ErrorInfo) -> any AblyLiveObjects.SubscribeResponse {
         // RTO25
         try coreSDK.nosync_validateChannelStateForAccessAPI(operationDescription: "subscribe")
 

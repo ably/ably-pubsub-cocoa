@@ -14,8 +14,8 @@ private var receivedBar: Int?
 private var receivedBarOnce: Int?
 private var receivedAll: Int?
 private var receivedAllOnce: Int?
-private weak var listenerFoo1: ARTEventListener?
-private weak var listenerAll: ARTEventListener?
+private weak var listenerFoo1: EventListener?
+private weak var listenerAll: EventListener?
 private let data = ["test": "test"]
 private let extras = ["push": ["key": "value"]]
 private let clientId = "clientId"
@@ -70,12 +70,12 @@ class UtilitiesTests: XCTestCase {
         let pm = ARTProtocolMessage()
         pm.action = .message
         pm.channel = "foo"
-        pm.messages = [ARTMessage(name: "status", data: NSDate(), clientId: "user")]
+        pm.messages = [Message(name: "status", data: NSDate(), clientId: "user")]
         var result: Data?
         expect { result = try jsonEncoder.encode(pm) }.to(throwError { error in
             let e = error as NSError
-            XCTAssertEqual(e.domain, ARTAblyErrorDomain)
-            XCTAssertEqual(e.code, Int(ARTClientCodeError.invalidType.rawValue))
+            XCTAssertEqual(e.domain, ablyErrorDomain)
+            XCTAssertEqual(e.code, Int(ClientCodeError.invalidType.rawValue))
             expect(e.localizedDescription).to(contain("Invalid type in JSON write"))
         })
         XCTAssertNil(result)
@@ -110,7 +110,7 @@ class UtilitiesTests: XCTestCase {
         beforeEach__Utilities__JSON_Encoder()
 
         let options = try AblyTests.commonAppSetup(for: test)
-        let realtime = ARTRealtimeClient(options: options)
+        let realtime = RealtimeClient(options: options)
         defer { realtime.close() }
         let channel = realtime.channels.get(test.uniqueChannelName())
         waitUntil(timeout: testTimeout) { done in
@@ -124,7 +124,7 @@ class UtilitiesTests: XCTestCase {
             }
         }
         waitUntil(timeout: testTimeout) { done in
-            channel.publish([ARTMessage(name: nil, data: NSDate()), ARTMessage(name: nil, data: NSDate())]) { error in
+            channel.publish([Message(name: nil, data: NSDate()), Message(name: nil, data: NSDate())]) { error in
                 guard let error = error else {
                     fail("Error shouldn't be nil"); done(); return
                 }
@@ -140,7 +140,7 @@ class UtilitiesTests: XCTestCase {
         beforeEach__Utilities__JSON_Encoder()
 
         let options = try AblyTests.commonAppSetup(for: test)
-        let realtime = ARTRealtimeClient(options: options)
+        let realtime = RealtimeClient(options: options)
         defer { realtime.close() }
         let channel = realtime.channels.get(test.uniqueChannelName())
 
@@ -180,7 +180,7 @@ class UtilitiesTests: XCTestCase {
         beforeEach__Utilities__JSON_Encoder()
 
         let options = try AblyTests.commonAppSetup(for: test)
-        let rest = ARTHttpClient(options: options)
+        let rest = HttpClient(options: options)
         let channel = rest.channels.get(test.uniqueChannelName())
         waitUntil(timeout: testTimeout) { done in
             channel.publish("test", data: NSDate()) { error in
@@ -193,7 +193,7 @@ class UtilitiesTests: XCTestCase {
             }
         }
         waitUntil(timeout: testTimeout) { done in
-            channel.publish([ARTMessage(name: nil, data: NSDate()), ARTMessage(name: nil, data: NSDate())]) { error in
+            channel.publish([Message(name: nil, data: NSDate()), Message(name: nil, data: NSDate())]) { error in
                 guard let error = error else {
                     fail("Error shouldn't be nil"); done(); return
                 }
@@ -209,7 +209,7 @@ class UtilitiesTests: XCTestCase {
         beforeEach__Utilities__JSON_Encoder()
 
         let options = try AblyTests.commonAppSetup(for: test)
-        let rest = ARTHttpClient(options: options)
+        let rest = HttpClient(options: options)
         let testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
         rest.internal.httpExecutor = testHTTPExecutor
         let channel = rest.channels.get(test.uniqueChannelName())
@@ -236,7 +236,7 @@ class UtilitiesTests: XCTestCase {
         beforeEach__Utilities__JSON_Encoder()
 
         let options = try AblyTests.commonAppSetup(for: test)
-        let rest = ARTHttpClient(options: options)
+        let rest = HttpClient(options: options)
         let testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
         rest.internal.httpExecutor = testHTTPExecutor
 
@@ -252,8 +252,8 @@ class UtilitiesTests: XCTestCase {
         let request = URLRequest(url: URL(string: "https://www.example.com")!)
         waitUntil(timeout: testTimeout) { done in
             rest.internal.execute(request, wrapperSDKAgents:nil, completion: { response, _, error in
-                guard let error = error as? ARTErrorInfo else {
-                    fail("Should be ARTErrorInfo"); done(); return
+                guard let error = error as? ErrorInfo else {
+                    fail("Should be ErrorInfo"); done(); return
                 }
                 XCTAssertTrue(error.code == 40400)
                 XCTAssertTrue(error.statusCode == 404)
@@ -268,7 +268,7 @@ class UtilitiesTests: XCTestCase {
         beforeEach__Utilities__JSON_Encoder()
 
         let options = try AblyTests.commonAppSetup(for: test)
-        let rest = ARTHttpClient(options: options)
+        let rest = HttpClient(options: options)
         let testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
         rest.internal.httpExecutor = testHTTPExecutor
 
@@ -287,8 +287,8 @@ class UtilitiesTests: XCTestCase {
         let request = URLRequest(url: URL(string: "https://www.example.com")!)
         waitUntil(timeout: testTimeout) { done in
             rest.internal.execute(request, wrapperSDKAgents:nil, completion: { response, _, error in
-                guard let error = error as? ARTErrorInfo else {
-                    fail("Should be ARTErrorInfo"); done(); return
+                guard let error = error as? ErrorInfo else {
+                    fail("Should be ErrorInfo"); done(); return
                 }
                 XCTAssertTrue(error.code == 40400)
                 XCTAssertTrue(error.statusCode == 404)
@@ -508,7 +508,7 @@ class UtilitiesTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.logLevel = .verbose
-        let realtime = ARTRealtimeClient(options: options)
+        let realtime = RealtimeClient(options: options)
         defer { realtime.close() }
         let channel = realtime.channels.get(test.uniqueChannelName())
 
@@ -527,22 +527,22 @@ class UtilitiesTests: XCTestCase {
     }
 
     func test__022__Utilities__maxMessageSize__calculates_maxMessageSize_of_a_Message_with_name_and_data() {
-        let message = ARTMessage(name: "this is name", data: data)
+        let message = Message(name: "this is name", data: data)
         let expectedSize = "{\"test\":\"test\"}".count + message.name!.count
         XCTAssertEqual(message.messageSize(), expectedSize)
     }
 
     func test__023__Utilities__maxMessageSize__calculates_maxMessageSize_of_a_Message_with_name__data_and_extras() {
-        let message = ARTMessage(name: "this is name", data: data)
-        message.extras = extras as ARTJsonCompatible
+        let message = Message(name: "this is name", data: data)
+        message.extras = extras as JsonCompatible
         let expectedSize = "{\"test\":\"test\"}".count + "{\"push\":{\"key\":\"value\"}}".count + message.name!.count
         XCTAssertEqual(message.messageSize(), expectedSize)
     }
 
     func test__024__Utilities__maxMessageSize__calculates_maxMessageSize_of_a_Message_with_name__data__clientId_and_extras() {
-        let message = ARTMessage(name: "this is name", data: data)
+        let message = Message(name: "this is name", data: data)
         message.clientId = clientId
-        message.extras = extras as ARTJsonCompatible
+        message.extras = extras as JsonCompatible
         let expectedSize = "{\"test\":\"test\"}".count + "{\"push\":{\"key\":\"value\"}}".count + clientId.count + message.name!.count
         XCTAssertEqual(message.messageSize(), expectedSize)
     }
@@ -554,17 +554,17 @@ class UtilitiesTests: XCTestCase {
     // 😊 is 4 UTF-8 bytes / 2 UTF-16 code units.
     func test__027__Utilities__maxMessageSize__measures_unicode_fields_per_documented_accounting() {
         // name (7) + clientId (7) + string data (7), all UTF-8 byte lengths.
-        let message = ARTMessage(name: "你😊", data: "你😊")
+        let message = Message(name: "你😊", data: "你😊")
         message.clientId = "你😊"
         XCTAssertEqual(message.messageSize(), 21)
 
         // extras: {"k":"你😊"} is 11 UTF-16 code units (versus 15 UTF-8 bytes).
-        let messageWithExtras = ARTMessage(name: nil, data: "")
-        messageWithExtras.extras = ["k": "你😊"] as ARTJsonCompatible
+        let messageWithExtras = Message(name: nil, data: "")
+        messageWithExtras.extras = ["k": "你😊"] as JsonCompatible
         XCTAssertEqual(messageWithExtras.messageSize(), 11)
 
         // object data: {"k":"你😊"} JSON-stringified is 11 UTF-16 code units.
-        let messageWithJSONData = ARTMessage(name: nil, data: ["k": "你😊"])
+        let messageWithJSONData = Message(name: nil, data: ["k": "你😊"])
         XCTAssertEqual(messageWithJSONData.messageSize(), 11)
     }
 
@@ -770,13 +770,13 @@ class UtilitiesTests: XCTestCase {
         beforeEach__Utilities__JSON_Encoder()
 
         // Create a message with version and annotations
-        let message = ARTMessage()
+        let message = Message()
         message.action = .create
         message.serial = "123"
         message.timestamp = Date(timeIntervalSince1970: 1234512340)
 
         // Create version with all fields
-        let version = ARTMessageVersion()
+        let version = MessageVersion()
         version.serial = "124"
         version.timestamp = Date(timeIntervalSince1970: 1234512345)
         version.clientId = "testClient"
@@ -785,7 +785,7 @@ class UtilitiesTests: XCTestCase {
         message.version = version
 
         // Create annotations with summary
-        let annotations = ARTMessageAnnotations()
+        let annotations = MessageAnnotations()
         annotations.summary = ["count": 5, "type": "test"]
         message.annotations = annotations
 

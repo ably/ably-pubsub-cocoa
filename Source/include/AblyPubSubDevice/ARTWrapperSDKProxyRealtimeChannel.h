@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
  * - Important: This class should only be used by Ably-authored SDKs.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(WrapperSDKProxyRealtimeChannel)
 @interface ARTWrapperSDKProxyRealtimeChannel : NSObject <ARTRealtimeChannelProtocol>
 
 - (instancetype)init NS_UNAVAILABLE;

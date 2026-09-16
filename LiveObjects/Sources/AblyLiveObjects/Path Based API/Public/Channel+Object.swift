@@ -1,7 +1,7 @@
 internal import _AblyPluginSupportPrivate
 import AblyPubSubDevice
 
-public extension ARTRealtimeChannel {
+public extension AblyPubSubDevice.RealtimeChannel {
     /// The ``RealtimeObject`` for this channel — the entry point into the LiveObjects API.
     ///
     /// From here, ``RealtimeObject/get()`` returns a ``LiveMapPathObject`` rooted at the channel's

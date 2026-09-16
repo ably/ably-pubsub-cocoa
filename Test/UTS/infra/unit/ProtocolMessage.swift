@@ -77,7 +77,7 @@ struct ProtocolMessage: Sendable {
             message.channelSerial = channelSerial
         case let .error(code, statusCode, text):
             message.action = .error
-            message.error = ARTErrorInfo.create(withCode: code, status: statusCode, message: text)
+            message.error = ErrorInfo.create(withCode: code, status: statusCode, message: text)
         case let .ack(msgSerial, count):
             message.action = .ack
             message.msgSerial = NSNumber(value: msgSerial)

@@ -6,6 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Contains the result of an update or delete message operation.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(UpdateDeleteResult)
 @interface ARTUpdateDeleteResult : NSObject
 
 /**

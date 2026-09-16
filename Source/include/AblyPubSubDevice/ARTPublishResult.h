@@ -8,6 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Contains the result of a publish operation.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(PublishResult)
 @interface ARTPublishResult : NSObject
 
 /**

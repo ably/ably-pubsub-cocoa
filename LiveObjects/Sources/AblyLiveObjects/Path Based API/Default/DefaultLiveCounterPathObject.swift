@@ -9,7 +9,7 @@ import AblyPubSubDevice
 internal final class DefaultLiveCounterPathObject: DefaultPathObject, LiveCounterPathObject, @unchecked Sendable {
     // MARK: - Read (RTTS6b)
 
-    internal func value() throws(ARTErrorInfo) -> Double? {
+    internal func value() throws(ErrorInfo) -> Double? {
         try ChannelConfigGuards.throwIfInvalidAccessApiConfiguration(coreSDK: coreSDK, internalQueue: internalQueue)
         guard let resolved = try resolveValueAtCurrentPath(), case let .liveCounter(counterNode) = resolved else {
             return nil // RTTS6b
@@ -20,13 +20,13 @@ internal final class DefaultLiveCounterPathObject: DefaultPathObject, LiveCounte
 
     // MARK: - Writes (RTPO17, RTPO18)
 
-    internal func increment(amount: Double) async throws(ARTErrorInfo) {
+    internal func increment(amount: Double) async throws(ErrorInfo) {
         let counterNode = try resolvedCounterNodeForWrite(operation: "increment") // RTPO17b/c/e
         // RTPO17d -> RTLC12.
         try await counterNode.increment(amount: amount, coreSDK: coreSDK, realtimeObjects: channelObject)
     }
 
-    internal func decrement(amount: Double) async throws(ARTErrorInfo) {
+    internal func decrement(amount: Double) async throws(ErrorInfo) {
         let counterNode = try resolvedCounterNodeForWrite(operation: "decrement") // RTPO18b/c/e
         // RTPO18d -> RTLC13.
         try await counterNode.decrement(amount: amount, coreSDK: coreSDK, realtimeObjects: channelObject)
@@ -36,7 +36,7 @@ internal final class DefaultLiveCounterPathObject: DefaultPathObject, LiveCounte
 
     /// Runs the write-API guard, resolves the path (throwing 92005 when unresolved, RTPO3c2) and
     /// narrows to the backing counter node (throwing 92007 on a type mismatch, RTPO17e/RTPO18e).
-    private func resolvedCounterNodeForWrite(operation: String) throws(ARTErrorInfo) -> InternalDefaultLiveCounter {
+    private func resolvedCounterNodeForWrite(operation: String) throws(ErrorInfo) -> InternalDefaultLiveCounter {
         try ChannelConfigGuards.throwIfInvalidWriteApiConfiguration(coreSDK: coreSDK, internalQueue: internalQueue) // RTO26
         guard let resolved = try resolveValueAtCurrentPath() else {
             throw LiveObjectsError.pathNotResolved(path: path).toARTErrorInfo() // RTPO3c2

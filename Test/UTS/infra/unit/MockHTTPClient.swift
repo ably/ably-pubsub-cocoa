@@ -26,7 +26,7 @@ final class MockHTTPClient: NSObject, ARTHTTPExecuting, Sendable {
 
     // MARK: ARTHTTPExecuting
 
-    func execute(_ request: URLRequest, completion callback: ((HTTPURLResponse?, Data?, Error?) -> Void)? = nil) -> (ARTCancellable & NSObjectProtocol)? {
+    func execute(_ request: URLRequest, completion callback: ((HTTPURLResponse?, Data?, Error?) -> Void)? = nil) -> (Cancellable & NSObjectProtocol)? {
         // Connection phase — fail the request if the connection handler rejects it.
         if let connectionError = onConnectionAttempt?(PendingHTTPConnection(request: request)) {
             callback?(nil, nil, connectionError)
@@ -151,6 +151,6 @@ private final class DelayedCompletionBox: @unchecked Sendable {
 
 /// No-op cancellable returned by `MockHTTPClient.execute` (the response is delivered synchronously, so
 /// there's nothing to cancel).
-private final class NoopCancellable: NSObject, ARTCancellable {
+private final class NoopCancellable: NSObject, Cancellable {
     func cancel() {}
 }

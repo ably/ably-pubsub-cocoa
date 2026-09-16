@@ -114,7 +114,7 @@ struct InternalLiveCounterApiTests {
             try await fixture.root.get(key: "score").asLiveCounter().increment(amount: .nan)
             Issue.record("expected increment(NaN) to throw 40003")
         } catch {
-            // Assertions — typed throws: `error` is already an ARTErrorInfo.
+            // Assertions — typed throws: `error` is already an ErrorInfo.
             #expect(error.code == 40003)
         }
     }

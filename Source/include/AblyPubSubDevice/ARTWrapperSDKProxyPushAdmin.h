@@ -12,6 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
  * - Important: This class should only be used by Ably-authored SDKs.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(WrapperSDKProxyPushAdmin)
 @interface ARTWrapperSDKProxyPushAdmin : NSObject <ARTPushAdminProtocol>
 
 - (instancetype)init NS_UNAVAILABLE;

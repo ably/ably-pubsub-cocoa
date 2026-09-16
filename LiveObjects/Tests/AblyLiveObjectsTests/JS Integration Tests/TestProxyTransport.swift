@@ -9,7 +9,7 @@ class TestProxyTransportFactory: RealtimeTransportFactory {
 
     var transportCreatedEvent: ((ARTRealtimeTransport) -> Void)?
 
-    func transport(withRest rest: ARTHttpClientInternal, options: ARTClientOptions, resumeKey: String?, logger: InternalLog) -> ARTRealtimeTransport {
+    func transport(withRest rest: ARTHttpClientInternal, options: ClientOptions, resumeKey: String?, logger: InternalLog) -> ARTRealtimeTransport {
         let webSocketFactory = WebSocketFactory()
 
         let testProxyTransport = TestProxyTransport(
@@ -64,7 +64,7 @@ class TestProxyTransport: ARTWebSocketTransport, @unchecked Sendable {
         return _factory
     }
 
-    init(factory: TestProxyTransportFactory, rest: ARTHttpClientInternal, options: ARTClientOptions, resumeKey: String?, logger: InternalLog, webSocketFactory: WebSocketFactory) {
+    init(factory: TestProxyTransportFactory, rest: ARTHttpClientInternal, options: ClientOptions, resumeKey: String?, logger: InternalLog, webSocketFactory: WebSocketFactory) {
         _factory = factory
         super.init(rest: rest, options: options, resumeKey: resumeKey, logger: logger, webSocketFactory: webSocketFactory)
     }
@@ -101,7 +101,7 @@ class TestProxyTransport: ARTWebSocketTransport, @unchecked Sendable {
     fileprivate(set) var rawDataSent = [Data]()
     fileprivate(set) var rawDataReceived = [Data]()
 
-    private var replacingAcksWithNacks: ARTErrorInfo?
+    private var replacingAcksWithNacks: ErrorInfo?
 
     var ignoreWebSocket = false
     var ignoreSends = false
@@ -170,7 +170,7 @@ class TestProxyTransport: ARTWebSocketTransport, @unchecked Sendable {
         callbackAfterIncomingMessageModifier = callback
     }
 
-    func enableReplaceAcksWithNacks(with errorInfo: ARTErrorInfo) {
+    func enableReplaceAcksWithNacks(with errorInfo: ErrorInfo) {
         queue.sync {
             self.replacingAcksWithNacks = errorInfo
         }
@@ -186,7 +186,7 @@ class TestProxyTransport: ARTWebSocketTransport, @unchecked Sendable {
         setBeforeIncomingMessageModifier { protocolMessage in
             if protocolMessage.action == .connected {
                 protocolMessage.action = .disconnected
-                protocolMessage.error = .create(withCode: Int(ARTErrorCode.tokenRevoked.rawValue), status: 401, message: "Test token revokation")
+                protocolMessage.error = .create(withCode: Int(ErrorCode.tokenRevoked.rawValue), status: 401, message: "Test token revokation")
             }
             return protocolMessage
         }
@@ -288,7 +288,7 @@ class TestProxyTransport: ARTWebSocketTransport, @unchecked Sendable {
         }
     }
 
-    override func setupWebSocket(_ params: [String: URLQueryItem], with options: ARTClientOptions, resumeKey: String?) -> URL {
+    override func setupWebSocket(_ params: [String: URLQueryItem], with options: ClientOptions, resumeKey: String?) -> URL {
         let url = super.setupWebSocket(params, with: options, resumeKey: resumeKey)
         lastUrl = url
         return url

@@ -21,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  The protocol upon which the `ARTRealtimeChannel` is implemented. Also embeds `ARTEventEmitter`.
  */
+NS_SWIFT_NAME(RealtimeChannelProtocol)
 @protocol ARTRealtimeChannelProtocol <ARTChannelProtocol>
 
 /**
@@ -165,6 +166,7 @@ ART_EMBED_INTERFACE_EVENT_EMITTER(ARTChannelEvent, ARTChannelStateChange *)
 /**
  * Describes the properties of the channel state.
  */
+NS_SWIFT_NAME(ChannelProperties)
 @interface ARTChannelProperties : NSObject
 /**
  * Starts unset when a channel is instantiated, then updated with the `channelSerial` from each `ARTChannelEventAttached` event that matches the channel. Used as the value for `ARTRealtimeHistoryQuery.untilAttach`.
@@ -185,6 +187,7 @@ ART_EMBED_INTERFACE_EVENT_EMITTER(ARTChannelEvent, ARTChannelStateChange *)
  * Also implements `ARTEventEmitter` interface and emits `ARTChannelEvent` events, where a `ARTChannelEvent` is either a `ARTRealtimeChannelState` or an `ARTChannelEvent.ARTChannelEventUpdate`.
  */
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(RealtimeChannel)
 @interface ARTRealtimeChannel : NSObject <ARTRealtimeChannelProtocol>
 
 /**

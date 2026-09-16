@@ -156,7 +156,7 @@ final class ObjectsSyncTests: IntegrationTestCase {
 extension ObjectsSyncTests {
     /// Awaits the channel detach acknowledgement (the spec's `AWAIT channel.detach()`), recording
     /// an issue on error.
-    private func awaitDetach(_ channel: ARTRealtimeChannel,
+    private func awaitDetach(_ channel: RealtimeChannel,
                              sourceLocation: SourceLocation = #_sourceLocation) async {
         let failure: String? = await withCheckedContinuation { continuation in
             channel.detach { error in
@@ -171,7 +171,7 @@ extension ObjectsSyncTests {
 
     /// Awaits the channel attach acknowledgement (the spec's `AWAIT channel.attach()`), recording
     /// an issue on error.
-    private func awaitAttach(_ channel: ARTRealtimeChannel,
+    private func awaitAttach(_ channel: RealtimeChannel,
                              sourceLocation: SourceLocation = #_sourceLocation) async {
         let failure: String? = await withCheckedContinuation { continuation in
             channel.attach { error in

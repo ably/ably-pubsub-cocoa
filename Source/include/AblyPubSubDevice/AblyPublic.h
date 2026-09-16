@@ -22,7 +22,7 @@
 #import <AblyPubSubDevice/ARTHttpChannel.h>
 #import <AblyPubSubDevice/ARTHttpPresence.h>
 #import <AblyPubSubDevice/ARTHttpAnnotations.h>
-#import <AblyPubSubDevice/ARTRealtime.h>
+#import <AblyPubSubDevice/ARTRealtimeClient.h>
 #import <AblyPubSubDevice/ARTPubSubDevice.h>
 #import <AblyPubSubDevice/ARTRealtimeChannel.h>
 #import <AblyPubSubDevice/ARTRealtimeChannelOptions.h>

@@ -7,7 +7,7 @@
 @protocol ARTHTTPExecuting;
 @protocol ARTDeviceStorage;
 @class ARTInternalLog;
-@class ARTRealtimeInternal;
+@class ARTRealtimeClientInternal;
 @class ARTAuthInternal;
 @protocol ARTContinuousClockInstant;
 @protocol ARTTimeProvider;
@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
 
 @property (nonatomic, readonly) ARTClientOptions *options;
-@property (nonatomic, weak, nullable) ARTRealtimeInternal *realtime; // weak because realtime owns self
+@property (nonatomic, weak, nullable) ARTRealtimeClientInternal *realtime; // weak because realtime owns self
 @property (readonly, nonatomic) id<ARTEncoder> defaultEncoder;
 @property (readonly, nonatomic) NSString *defaultEncoding; //Content-Type
 @property (readonly, nonatomic) NSDictionary<NSString *, id<ARTEncoder>> *encoders;
@@ -67,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly, nonatomic) ARTHTTPExecutor *http;
 @property (readwrite, nonatomic) int fallbackCount;
 
-- (instancetype)initWithOptions:(ARTClientOptions *)options realtime:(ARTRealtimeInternal *_Nullable)realtime logger:(ARTInternalLog *)logger;
+- (instancetype)initWithOptions:(ARTClientOptions *)options realtime:(ARTRealtimeClientInternal *_Nullable)realtime logger:(ARTInternalLog *)logger;
 
 - (nullable NSObject<ARTCancellable> *)_timeWithWrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
                                                       completion:(ARTDateTimeCallback)callback;

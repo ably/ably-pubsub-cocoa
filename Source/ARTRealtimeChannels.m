@@ -2,7 +2,7 @@
 #import "ARTRealtimeChannels+Private.h"
 #import "ARTChannels+Private.h"
 #import "ARTRealtimeChannel+Private.h"
-#import "ARTRealtime+Private.h"
+#import "ARTRealtimeClient+Private.h"
 #import "ARTClientOptions+Private.h"
 #import "ARTRealtimePresence+Private.h"
 #import "ARTClientOptions+TestConfiguration.h"
@@ -14,7 +14,7 @@
     ARTQueuedDealloc *_dealloc;
 }
 
-- (instancetype)initWithInternal:(ARTRealtimeChannelsInternal *)internal realtimeInternal:(ARTRealtimeInternal *)realtimeInternal queuedDealloc:(ARTQueuedDealloc *)dealloc {
+- (instancetype)initWithInternal:(ARTRealtimeChannelsInternal *)internal realtimeInternal:(ARTRealtimeClientInternal *)realtimeInternal queuedDealloc:(ARTQueuedDealloc *)dealloc {
     self = [super init];
     if (self) {
         _internal = internal;
@@ -55,7 +55,7 @@
 @interface ARTRealtimeChannelsInternal ()
 
 @property (nonatomic, readonly) ARTInternalLog *logger;
-@property (weak, nonatomic) ARTRealtimeInternal *realtime; // weak because realtime owns self
+@property (weak, nonatomic) ARTRealtimeClientInternal *realtime; // weak because realtime owns self
 
 @end
 
@@ -67,7 +67,7 @@
     dispatch_queue_t _userQueue;
 }
 
-- (instancetype)initWithRealtime:(ARTRealtimeInternal *)realtime logger:(ARTInternalLog *)logger {
+- (instancetype)initWithRealtime:(ARTRealtimeClientInternal *)realtime logger:(ARTInternalLog *)logger {
     if (self = [super init]) {
         _realtime = realtime;
         _userQueue = _realtime.rest.userQueue;

@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_END
     [self.underlyingPush deactivate];
 }
 
-+ (void)didFailToRegisterForLocationNotificationsWithError:(nonnull NSError *)error realtime:(nonnull ARTRealtime *)realtime {
++ (void)didFailToRegisterForLocationNotificationsWithError:(nonnull NSError *)error realtime:(nonnull ARTRealtimeClient *)realtime {
     [ARTPush didFailToRegisterForLocationNotificationsWithError:error realtime:realtime];
 }
 
@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_END
     [ARTPush didFailToRegisterForLocationNotificationsWithError:error rest:rest];
 }
 
-+ (void)didFailToRegisterForRemoteNotificationsWithError:(nonnull NSError *)error realtime:(nonnull ARTRealtime *)realtime {
++ (void)didFailToRegisterForRemoteNotificationsWithError:(nonnull NSError *)error realtime:(nonnull ARTRealtimeClient *)realtime {
     [ARTPush didFailToRegisterForRemoteNotificationsWithError:error realtime:realtime];
 }
 
@@ -55,7 +55,7 @@ NS_ASSUME_NONNULL_END
     [ARTPush didFailToRegisterForRemoteNotificationsWithError:error rest:rest];
 }
 
-+ (void)didRegisterForLocationNotificationsWithDeviceToken:(nonnull NSData *)deviceToken realtime:(nonnull ARTRealtime *)realtime {
++ (void)didRegisterForLocationNotificationsWithDeviceToken:(nonnull NSData *)deviceToken realtime:(nonnull ARTRealtimeClient *)realtime {
     [ARTPush didRegisterForLocationNotificationsWithDeviceToken:deviceToken realtime:realtime];
 }
 
@@ -63,7 +63,7 @@ NS_ASSUME_NONNULL_END
     [ARTPush didRegisterForLocationNotificationsWithDeviceToken:deviceToken rest:rest];
 }
 
-+ (void)didRegisterForRemoteNotificationsWithDeviceToken:(nonnull NSData *)deviceToken realtime:(nonnull ARTRealtime *)realtime {
++ (void)didRegisterForRemoteNotificationsWithDeviceToken:(nonnull NSData *)deviceToken realtime:(nonnull ARTRealtimeClient *)realtime {
     [ARTPush didRegisterForRemoteNotificationsWithDeviceToken:deviceToken realtime:realtime];
 }
 

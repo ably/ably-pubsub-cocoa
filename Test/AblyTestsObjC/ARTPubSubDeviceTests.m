@@ -1,6 +1,6 @@
 @import XCTest;
 @import AblyPubSubDevice;
-// For ARTRealtime.internal, to read back the options the client was built with.
+// For ARTRealtimeClient.internal, to read back the options the client was built with.
 @import AblyPubSubDevice.Private;
 
 @interface ARTPubSubDeviceTests : XCTestCase
@@ -14,9 +14,9 @@
     ARTClientOptions *const options = [[ARTClientOptions alloc] initWithKey:@"xxxx:xxxx"];
     options.autoConnect = NO;
 
-    ARTRealtime *const client = [ARTPubSubDevice createClientWithOptions:options];
+    ARTRealtimeClient *const client = [ARTPubSubDevice createClientWithOptions:options];
 
-    XCTAssertTrue([client isKindOfClass:[ARTRealtime class]]);
+    XCTAssertTrue([client isKindOfClass:[ARTRealtimeClient class]]);
     XCTAssertEqual(client.internal.options.agents[@"ably-pubsub-device"], ARTClientInformationAgentNotVersioned);
     XCTAssertNil(options.agents);
 
@@ -24,7 +24,7 @@
 }
 
 - (void)test_createClientWithKey_declares_the_device_agent {
-    ARTRealtime *const client = [ARTPubSubDevice createClientWithKey:@"xxxx:xxxx"];
+    ARTRealtimeClient *const client = [ARTPubSubDevice createClientWithKey:@"xxxx:xxxx"];
 
     XCTAssertEqualObjects(client.internal.options.key, @"xxxx:xxxx");
     XCTAssertEqual(client.internal.options.agents[@"ably-pubsub-device"], ARTClientInformationAgentNotVersioned);

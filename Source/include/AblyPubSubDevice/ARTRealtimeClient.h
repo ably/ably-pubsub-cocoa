@@ -25,7 +25,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- This protocol contains the non-initializer instance methods provided by the `ARTRealtime` client class.
+ This protocol contains the non-initializer instance methods provided by the `ARTRealtimeClient` client class.
  */
 @protocol ARTRealtimeInstanceMethodsProtocol <NSObject>
 
@@ -99,7 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /**
- The protocol upon which the top level object `ARTRealtime` is implemented.
+ The protocol upon which the top level object `ARTRealtimeClient` is implemented.
  */
 @protocol ARTRealtimeProtocol <ARTRealtimeInstanceMethodsProtocol>
 
@@ -107,21 +107,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
- * Constructs an `ARTRealtime` object using an Ably `ARTClientOptions` object.
+ * Constructs an `ARTRealtimeClient` object using an Ably `ARTClientOptions` object.
  *
  * @param options An `ARTClientOptions` object.
  */
 - (instancetype)initWithOptions:(ARTClientOptions *)options;
 
 /**
- * Constructs an `ARTRealtime` object using an Ably API key.
+ * Constructs an `ARTRealtimeClient` object using an Ably API key.
  *
  * @param key The Ably API key used to validate the client.
  */
 - (instancetype)initWithKey:(NSString *)key;
 
 /**
- * Constructs an `ARTRealtime` object using an Ably token string.
+ * Constructs an `ARTRealtimeClient` object using an Ably token string.
  *
  * @param token The Ably token string used to validate the client.
  */
@@ -133,7 +133,7 @@ NS_ASSUME_NONNULL_BEGIN
  * A client that extends the functionality of the `ARTHttpClient` and provides additional realtime-specific features.
  */
 NS_SWIFT_SENDABLE
-@interface ARTRealtime : NSObject <ARTRealtimeProtocol>
+@interface ARTRealtimeClient : NSObject <ARTRealtimeProtocol>
 
 /**
  * An `ARTConnection` object.

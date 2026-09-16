@@ -14,7 +14,7 @@ class HttpClientPresenceTests: XCTestCase {
         let channelName = test.uniqueChannelName()
         let channel = client.channels.get(channelName)
 
-        var disposable = [ARTRealtime]()
+        var disposable = [ARTRealtimeClient]()
         defer {
             for clientItem in disposable {
                 clientItem.dispose()
@@ -90,7 +90,7 @@ class HttpClientPresenceTests: XCTestCase {
         let client = ARTHttpClient(options: options)
         let channel = client.channels.get(channelName)
 
-        let realtime = ARTRealtime(options: options)
+        let realtime = ARTRealtimeClient(options: options)
         defer { realtime.close() }
         let realtimeChannel = realtime.channels.get(channelName)
 
@@ -126,7 +126,7 @@ class HttpClientPresenceTests: XCTestCase {
         let channelName = test.uniqueChannelName()
         let channel = client.channels.get(channelName)
 
-        var disposable = [ARTRealtime]()
+        var disposable = [ARTRealtimeClient]()
         defer {
             for clientItem in disposable {
                 clientItem.dispose()
@@ -171,7 +171,7 @@ class HttpClientPresenceTests: XCTestCase {
         let channelName = test.uniqueChannelName()
         let channel = client.channels.get(channelName)
 
-        var realtime: ARTRealtime!
+        var realtime: ARTRealtimeClient!
         defer { realtime.dispose(); realtime.close() }
 
         let expectedData = "online"
@@ -231,7 +231,7 @@ class HttpClientPresenceTests: XCTestCase {
         let channelName = test.uniqueChannelName()
         let channel = client.channels.get(channelName)
 
-        var disposable = [ARTRealtime]()
+        var disposable = [ARTRealtimeClient]()
         defer {
             for clientItem in disposable {
                 clientItem.dispose()
@@ -286,7 +286,7 @@ class HttpClientPresenceTests: XCTestCase {
         let channelName = test.uniqueChannelName()
         let channel = client.channels.get(channelName)
 
-        var realtime: ARTRealtime!
+        var realtime: ARTRealtimeClient!
         defer { realtime.dispose(); realtime.close() }
         realtime = AblyTests.addMembersSequentiallyToChannel(channelName, members: 1, options: options)
 
@@ -322,7 +322,7 @@ class HttpClientPresenceTests: XCTestCase {
         let channelName = test.uniqueChannelName()
         let channel = client.channels.get(channelName)
 
-        var disposable = [ARTRealtime]()
+        var disposable = [ARTRealtimeClient]()
         defer {
             for clientItem in disposable {
                 clientItem.dispose()
@@ -369,7 +369,7 @@ class HttpClientPresenceTests: XCTestCase {
         let channelName = test.uniqueChannelName()
         let channel = client.channels.get(channelName)
 
-        var disposable = [ARTRealtime]()
+        var disposable = [ARTRealtimeClient]()
         defer {
             for clientItem in disposable {
                 clientItem.dispose()
@@ -453,7 +453,7 @@ class HttpClientPresenceTests: XCTestCase {
             channel.publish(nil, data: expectedData) { _ in done() }
         }
 
-        let realtime = ARTRealtime(options: options)
+        let realtime = ARTRealtimeClient(options: options)
         defer { realtime.dispose(); realtime.close() }
         waitUntil(timeout: testTimeout) { done in
             let partialDone = AblyTests.splitDone(2, done: done)

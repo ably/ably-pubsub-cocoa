@@ -1,5 +1,5 @@
 #import "ARTRealtimeAnnotations+Private.h"
-#import "ARTRealtime+Private.h"
+#import "ARTRealtimeClient+Private.h"
 #import "ARTChannel+Private.h"
 #import "ARTRealtimeChannel+Private.h"
 #import "ARTStatus.h"
@@ -95,7 +95,7 @@
 
 @implementation ARTRealtimeAnnotationsInternal {
     __weak ARTRealtimeChannelInternal *_channel; // weak because channel owns self
-    __weak ARTRealtimeInternal *_realtime;
+    __weak ARTRealtimeClientInternal *_realtime;
     dispatch_queue_t _userQueue;
     ARTEventEmitter<ARTEvent *, ARTAnnotation *> *_eventEmitter;
 }

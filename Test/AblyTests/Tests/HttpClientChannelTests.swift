@@ -387,7 +387,7 @@ class HttpClientChannelTests: XCTestCase {
         let expectedClientId = options.clientId
         let rest = ARTHttpClient(options: options)
         options.clientId = "client-realtime"
-        let realtime = ARTRealtime(options: options)
+        let realtime = ARTRealtimeClient(options: options)
 
         let chanelName = test.uniqueChannelName(prefix: "ch1")
 
@@ -420,7 +420,7 @@ class HttpClientChannelTests: XCTestCase {
         let expectedClientId = options.clientId!
         let rest = ARTHttpClient(options: options)
         options.clientId = "client-realtime"
-        let realtime = ARTRealtime(options: options)
+        let realtime = ARTRealtimeClient(options: options)
 
         let chanelName = test.uniqueChannelName(prefix: "ch1")
 
@@ -451,7 +451,7 @@ class HttpClientChannelTests: XCTestCase {
         let expectedClientId = "client-rest"
         let options = try AblyTests.commonAppSetup(for: test)
         let rest = ARTHttpClient(options: options)
-        let realtime = ARTRealtime(options: options)
+        let realtime = ARTRealtimeClient(options: options)
 
         let chanelName = test.uniqueChannelName(prefix: "ch1")
 
@@ -483,7 +483,7 @@ class HttpClientChannelTests: XCTestCase {
         options.clientId = "client-rest"
         let rest = ARTHttpClient(options: options)
         options.clientId = "client-realtime"
-        let realtime = ARTRealtime(options: options)
+        let realtime = ARTRealtimeClient(options: options)
 
         let chanelName = test.uniqueChannelName(prefix: "ch1")
 
@@ -1659,7 +1659,7 @@ class HttpClientChannelTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
         options.clientId = "Client 1"
         let rest = ARTHttpClient(options: options)
-        let realtime = ARTRealtime(options: options)
+        let realtime = ARTRealtimeClient(options: options)
         let channelName = test.uniqueChannelName()
         let channelOptions = ARTRealtimeChannelOptions()
         channelOptions.modes = [

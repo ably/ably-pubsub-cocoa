@@ -4,7 +4,7 @@
 //
 
 #import <AblyPubSubDevice/ARTRealtimeChannels.h>
-#import "ARTRealtime+Private.h"
+#import "ARTRealtimeClient+Private.h"
 #import "ARTQueuedDealloc.h"
 
 @class ARTRealtimeChannelInternal;
@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (ARTRealtimeChannelInternal *)get:(NSString *)name options:(ARTRealtimeChannelOptions *)options;
 - (id<NSFastEnumeration>)copyIntoIteratorWithMapper:(ARTRealtimeChannel *(^)(ARTRealtimeChannelInternal *))mapper;
 
-- (instancetype)initWithRealtime:(ARTRealtimeInternal *)realtime logger:(ARTInternalLog *)logger;
+- (instancetype)initWithRealtime:(ARTRealtimeClientInternal *)realtime logger:(ARTInternalLog *)logger;
 
 @property (readonly, getter=getNosyncIterable) id<NSFastEnumeration> nosyncIterable;
 @property (nonatomic, readonly, getter=getCollection) NSMutableDictionary<NSString *, ARTRealtimeChannelInternal *> *collection;
@@ -34,9 +34,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface ARTRealtimeChannels ()
 
 @property (nonatomic, readonly) ARTRealtimeChannelsInternal *internal;
-@property (nonatomic, readonly) ARTRealtimeInternal *realtimeInternal;
+@property (nonatomic, readonly) ARTRealtimeClientInternal *realtimeInternal;
 
-- (instancetype)initWithInternal:(ARTRealtimeChannelsInternal *)internal realtimeInternal:(ARTRealtimeInternal *)realtimeInternal queuedDealloc:(ARTQueuedDealloc *)dealloc;
+- (instancetype)initWithInternal:(ARTRealtimeChannelsInternal *)internal realtimeInternal:(ARTRealtimeClientInternal *)realtimeInternal queuedDealloc:(ARTQueuedDealloc *)dealloc;
 
 @end
 

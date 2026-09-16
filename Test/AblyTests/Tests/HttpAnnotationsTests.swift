@@ -12,7 +12,7 @@ class HttpAnnotationsTests: XCTestCase {
         options.testOptions.channelNamePrefix = nil
 
         // Create realtime client
-        let realtimeClient = ARTRealtime(options: options)
+        let realtimeClient = ARTRealtimeClient(options: options)
         defer { realtimeClient.dispose(); realtimeClient.close() }
 
         // Create rest client
@@ -165,7 +165,7 @@ class HttpAnnotationsTests: XCTestCase {
         options.idempotentRestPublishing = true // for visibility, true by default
 
         // Create realtime client
-        let realtimeClient = ARTRealtime(options: options)
+        let realtimeClient = ARTRealtimeClient(options: options)
         defer { realtimeClient.dispose(); realtimeClient.close() }
 
         // Create rest client
@@ -337,7 +337,7 @@ class HttpAnnotationsTests: XCTestCase {
 
         // Realtime client only to publish the message that gets annotated, since the
         // annotation needs a message serial.
-        let realtimeClient = ARTRealtime(options: options)
+        let realtimeClient = ARTRealtimeClient(options: options)
         defer { realtimeClient.dispose(); realtimeClient.close() }
 
         let restClient = ARTHttpClient(options: options)

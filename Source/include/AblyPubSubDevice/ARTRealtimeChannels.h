@@ -1,6 +1,6 @@
 #import <AblyPubSubDevice/ARTChannels.h>
 #import <AblyPubSubDevice/ARTRealtimeChannel.h>
-#import <AblyPubSubDevice/ARTRealtime.h>
+#import <AblyPubSubDevice/ARTRealtimeClient.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

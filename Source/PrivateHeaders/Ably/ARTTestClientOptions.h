@@ -8,7 +8,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- Provides an interface for injecting additional configuration into `ARTHttpClient` or `ARTRealtime` instances.
+ Provides an interface for injecting additional configuration into `ARTHttpClient` or `ARTRealtimeClient` instances.
 
  This is for anything that test code wishes to be able to configure but which should not be part of the public API of these classes. It can also be used for exposing additional debugging options to be used in Ably-authored applications.
  */
@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) id<ARTTimeProvider> timeProvider;
 
 /**
- The class used to instantiate the `ARTReachability` implementation that `ARTRealtime` uses to monitor network state. Tests install a no-op or controllable implementation here. Initial value is `ARTOSReachability`.
+ The class used to instantiate the `ARTReachability` implementation that `ARTRealtimeClient` uses to monitor network state. Tests install a no-op or controllable implementation here. Initial value is `ARTOSReachability`.
  */
 @property (nonatomic) Class reachabilityClass;
 

@@ -58,7 +58,7 @@ To check formatting and code quality, run `swift run --package-path BuildTool Bu
 
 ### Memory management
 
-We follow an approach to memory management that is broadly similar to that of ably-cocoa: we keep all of the internal components of the SDK alive as long as the user is holding a strong reference to any object vended by the public API of the SDK. This means that, for example, a user can use LiveObjects functionality by maintaining only a reference to the root `LiveMap`; even if they relinquish their references to, say, the `ARTRealtime` or `ARTRealtimeChannel` instance, they will continue to receive events from the `LiveMap` and they will be able to use its methods.
+We follow an approach to memory management that is broadly similar to that of ably-cocoa: we keep all of the internal components of the SDK alive as long as the user is holding a strong reference to any object vended by the public API of the SDK. This means that, for example, a user can use LiveObjects functionality by maintaining only a reference to the root `LiveMap`; even if they relinquish their references to, say, the `ARTRealtimeClient` or `ARTRealtimeChannel` instance, they will continue to receive events from the `LiveMap` and they will be able to use its methods.
 
 We achieve this by vending a set of public types which maintain strong references to all of the internal components of the SDK which are needed in order for the public type to function correctly. For example, the public `PublicDefaultLiveMap` type wraps an `InternalDefaultLiveMap`, and holds strong references to the `CoreSDK` object, which in turn holds the following sequence of strong references: `CoreSDK` → `RealtimeClient` → `RealtimeChannel` → `InternalDefaultRealtimeObjects`, thus ensuring that:
 
@@ -83,8 +83,8 @@ The `Public…` classes all follow the same pattern and are not very interesting
 Since this is an extension of ably-cocoa, we follow the same threading approach:
 
 1. The public API can be interacted with from any thread, including synchronous methods such as getters
-2. Callbacks passed to the public API are invoked on the same queue as used by the `ARTRealtime` instance (the `dispatchQueue` client option)
-3. Synchronisation of mutable state is performed using the same internal serial dispatch queue as is used by the `ARTRealtime` instance (the `internalDispatchQueue` client option)
+2. Callbacks passed to the public API are invoked on the same queue as used by the `ARTRealtimeClient` instance (the `dispatchQueue` client option)
+3. Synchronisation of mutable state is performed using the same internal serial dispatch queue as is used by the `ARTRealtimeClient` instance (the `internalDispatchQueue` client option)
 
 We follow the same naming convention as in ably-cocoa whereby if a method's name contains `nosync` then it must be called on the internal dispatch queue. This allows us to avoid deadlocks that would result from attempting to call `DispatchQueue.sync { … }` when already on the internal queue.
 

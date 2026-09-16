@@ -102,7 +102,7 @@ The SDK ships a privacy manifest (`PrivacyInfo.xcprivacy`), which Xcode merges i
 // Initialize Ably Realtime client
 let clientOptions = ARTClientOptions(key: "your-ably-api-key")
 clientOptions.clientId = "me"
-let realtime = ARTRealtime(options: clientOptions)
+let realtime = ARTRealtimeClient(options: clientOptions)
 
 // Wait for connection to be established
 realtime.connection.on { stateChange in

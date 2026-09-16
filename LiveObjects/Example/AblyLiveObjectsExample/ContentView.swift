@@ -7,10 +7,10 @@ struct ContentView: View {
     @StateObject private var viewModel2: LiveCounterViewModel
     @StateObject private var taskViewModel1: TaskBoardViewModel
     @StateObject private var taskViewModel2: TaskBoardViewModel
-    private let realtime1: ARTRealtime
-    private let realtime2: ARTRealtime
+    private let realtime1: ARTRealtimeClient
+    private let realtime2: ARTRealtimeClient
 
-    init(realtime1: ARTRealtime, realtime2: ARTRealtime) {
+    init(realtime1: ARTRealtimeClient, realtime2: ARTRealtimeClient) {
         _viewModel1 = StateObject(wrappedValue: LiveCounterViewModel(realtime: realtime1))
         _viewModel2 = StateObject(wrappedValue: LiveCounterViewModel(realtime: realtime2))
         _taskViewModel1 = StateObject(wrappedValue: TaskBoardViewModel(realtime: realtime1))

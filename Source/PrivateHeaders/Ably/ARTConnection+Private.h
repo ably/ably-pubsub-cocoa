@@ -5,7 +5,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class ARTRealtimeInternal;
+@class ARTRealtimeClientInternal;
 @class ARTInternalLog;
 
 @interface ARTConnectionRecoveryKey : NSObject
@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly, nonatomic) ARTRealtimeConnectionState state;
 @property (nullable, readonly, nonatomic) ARTErrorInfo *errorReason;
 
-- (instancetype)initWithRealtime:(ARTRealtimeInternal *)realtime logger:(ARTInternalLog *)logger;
+- (instancetype)initWithRealtime:(ARTRealtimeClientInternal *)realtime logger:(ARTInternalLog *)logger;
 
 - (nullable NSString *)id_nosync;
 - (nullable NSString *)key_nosync;
@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSString *)createRecoveryKey_nosync;
 
 @property (readonly, nonatomic) ARTEventEmitter<ARTEvent *, ARTConnectionStateChange *> *eventEmitter;
-@property(weak, nonatomic) ARTRealtimeInternal* realtime; // weak because realtime owns self
+@property(weak, nonatomic) ARTRealtimeClientInternal* realtime; // weak because realtime owns self
 
 - (void)setId:(NSString *_Nullable)newId;
 - (void)setKey:(NSString *_Nullable)key;

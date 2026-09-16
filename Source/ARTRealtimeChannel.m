@@ -2,7 +2,7 @@
 #import "ARTChannel+Private.h"
 #import "ARTDataQuery+Private.h"
 
-#import "ARTRealtime+Private.h"
+#import "ARTRealtimeClient+Private.h"
 #import "ARTMessage.h"
 #import "ARTBaseMessage+Private.h"
 #import "ARTAuth.h"
@@ -63,7 +63,7 @@
     });
 }
 
-- (instancetype)initWithInternal:(ARTRealtimeChannelInternal *)internal realtimeInternal:(ARTRealtimeInternal *)realtimeInternal queuedDealloc:(ARTQueuedDealloc *)dealloc {
+- (instancetype)initWithInternal:(ARTRealtimeChannelInternal *)internal realtimeInternal:(ARTRealtimeClientInternal *)realtimeInternal queuedDealloc:(ARTQueuedDealloc *)dealloc {
     self = [super init];
     if (self) {
         _internal = internal;
@@ -305,7 +305,7 @@ NS_ASSUME_NONNULL_END
     ARTChannelMode _modes;
 }
 
-- (instancetype)initWithRealtime:(ARTRealtimeInternal *)realtime andName:(NSString *)name withOptions:(ARTRealtimeChannelOptions *)options logger:(ARTInternalLog *)logger {
+- (instancetype)initWithRealtime:(ARTRealtimeClientInternal *)realtime andName:(NSString *)name withOptions:(ARTRealtimeChannelOptions *)options logger:(ARTInternalLog *)logger {
     self = [super initWithName:name andOptions:options rest:realtime.rest logger:logger];
     if (self) {
         _realtime = realtime;

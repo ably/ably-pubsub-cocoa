@@ -30,7 +30,7 @@ internal final class DefaultInternalPlugin: NSObject, _AblyPluginSupportPrivate.
     internal static func nosync_realtimeObjects(for channel: _AblyPluginSupportPrivate.RealtimeChannel, pluginAPI: _AblyPluginSupportPrivate.PluginAPIProtocol) -> InternalDefaultRealtimeObjects {
         guard let pluginData = pluginAPI.nosync_pluginDataValue(forKey: pluginDataKey, channel: channel) else {
             // InternalPlugin.prepare was not called
-            fatalError("To access LiveObjects functionality, you must pass the LiveObjects plugin in the client options when creating the ARTRealtime instance: `clientOptions.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]`")
+            fatalError("To access LiveObjects functionality, you must pass the LiveObjects plugin in the client options when creating the ARTRealtimeClient instance: `clientOptions.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]`")
         }
 
         // swiftlint:disable:next force_cast
@@ -70,7 +70,7 @@ internal final class DefaultInternalPlugin: NSObject, _AblyPluginSupportPrivate.
 
         // Seed the RTO20c1 siteCode from the latest connection details at engine creation, through the
         // same `nosync_setSiteCode` path that the CONNECTED `ProtocolMessage` handler
-        // (`nosync_onConnected`) uses. That handler (`ARTRealtime.m`
+        // (`nosync_onConnected`) uses. That handler (`ARTRealtimeClient.m`
         // `nosync_onConnectedWithConnectionDetails:`) only reaches channels that already exist at
         // CONNECTED time; a channel created *after* connect (the normal `connect → channels.get(name)`
         // flow) would otherwise never receive a siteCode, leaving `publishAndApply` unable to apply

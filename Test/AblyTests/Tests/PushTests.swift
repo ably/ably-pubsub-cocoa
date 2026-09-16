@@ -253,7 +253,7 @@ class PushTests: XCTestCase {
     // RSH8
     func test__008__LocalDevice__has_a_device_method_that_returns_a_LocalDevice() {
         let _: ARTLocalDevice = ARTHttpClient(key: "fake:key").device
-        let _: ARTLocalDevice = ARTRealtime(key: "fake:key").device
+        let _: ARTLocalDevice = ARTRealtimeClient(key: "fake:key").device
     }
 
     // RSH8a
@@ -295,7 +295,7 @@ class PushTests: XCTestCase {
             }
         }
 
-        let realtime = ARTRealtime(options: options)
+        let realtime = ARTRealtimeClient(options: options)
         let storage = MockDeviceStorage()
         realtime.internal.rest.storage = storage
 
@@ -319,7 +319,7 @@ class PushTests: XCTestCase {
         options.autoConnect = false
         options.testOptions.transportFactory = TestProxyTransportFactory()
 
-        let realtime = ARTRealtime(options: options)
+        let realtime = ARTRealtimeClient(options: options)
         let storage = MockDeviceStorage()
         realtime.internal.rest.storage = storage
 
@@ -361,7 +361,7 @@ class PushTests: XCTestCase {
             }
         }
 
-        let realtime = ARTRealtime(options: options)
+        let realtime = ARTRealtimeClient(options: options)
         let mockHttpExecutor = MockHTTPExecutor()
         realtime.internal.rest.httpExecutor = mockHttpExecutor
 

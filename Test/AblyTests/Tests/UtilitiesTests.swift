@@ -110,7 +110,7 @@ class UtilitiesTests: XCTestCase {
         beforeEach__Utilities__JSON_Encoder()
 
         let options = try AblyTests.commonAppSetup(for: test)
-        let realtime = ARTRealtime(options: options)
+        let realtime = ARTRealtimeClient(options: options)
         defer { realtime.close() }
         let channel = realtime.channels.get(test.uniqueChannelName())
         waitUntil(timeout: testTimeout) { done in
@@ -140,7 +140,7 @@ class UtilitiesTests: XCTestCase {
         beforeEach__Utilities__JSON_Encoder()
 
         let options = try AblyTests.commonAppSetup(for: test)
-        let realtime = ARTRealtime(options: options)
+        let realtime = ARTRealtimeClient(options: options)
         defer { realtime.close() }
         let channel = realtime.channels.get(test.uniqueChannelName())
 
@@ -508,7 +508,7 @@ class UtilitiesTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.logLevel = .verbose
-        let realtime = ARTRealtime(options: options)
+        let realtime = ARTRealtimeClient(options: options)
         defer { realtime.close() }
         let channel = realtime.channels.get(test.uniqueChannelName())
 

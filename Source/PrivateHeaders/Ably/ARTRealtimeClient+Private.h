@@ -1,4 +1,4 @@
-#import <AblyPubSubDevice/ARTRealtime.h>
+#import <AblyPubSubDevice/ARTRealtimeClient.h>
 #import <AblyPubSubDevice/ARTEventEmitter.h>
 #import <AblyPubSubDevice/ARTTypes.h>
 #import "ARTMessageSendStatus.h"
@@ -23,19 +23,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ARTRealtime ()
+@interface ARTRealtimeClient ()
 
-@property (nonatomic, readonly) ARTRealtimeInternal *internal;
+@property (nonatomic, readonly) ARTRealtimeClientInternal *internal;
 
-- (void)internalAsync:(void (^)(ARTRealtimeInternal *))use;
-- (void)internalSync:(void (^)(ARTRealtimeInternal *))use;
+- (void)internalAsync:(void (^)(ARTRealtimeClientInternal *))use;
+- (void)internalSync:(void (^)(ARTRealtimeClientInternal *))use;
 
 @end
 
 #ifdef ABLY_SUPPORTS_PLUGINS
-@interface ARTRealtimeInternal : NSObject <APRealtimeClient>
+@interface ARTRealtimeClientInternal : NSObject <APRealtimeClient>
 #else
-@interface ARTRealtimeInternal : NSObject
+@interface ARTRealtimeClientInternal : NSObject
 #endif
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -84,7 +84,7 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
 
 @end
 
-@interface ARTRealtimeInternal () <ARTRealtimeTransportDelegate, ARTAuthDelegate>
+@interface ARTRealtimeClientInternal () <ARTRealtimeTransportDelegate, ARTAuthDelegate>
 
 @property (readonly, nonatomic) ARTEventEmitter<ARTEvent *, ARTConnectionStateChange *> *internalEventEmitter;
 @property (readonly, nonatomic) ARTEventEmitter<ARTEvent *, NSNull *> *connectedEventEmitter;
@@ -100,8 +100,8 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
 
 @end
 
-/// ARTRealtimeInternal private methods that are used for internal testing.
-@interface ARTRealtimeInternal ()
+/// ARTRealtimeClientInternal private methods that are used for internal testing.
+@interface ARTRealtimeClientInternal ()
 
 @property (readwrite, nonatomic) ARTHttpClientInternal *rest;
 @property (readonly, nullable) id<ARTRealtimeTransport> transport;
@@ -131,7 +131,7 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
 
 @end
 
-@interface ARTRealtimeInternal (Private)
+@interface ARTRealtimeClientInternal (Private)
 
 - (BOOL)isActive;
 

@@ -34,7 +34,7 @@ jobs:
     #
     # The `side` dimension runs the suite twice per platform, once per entry
     # point. The `core` leg uses the default Ably test plan, and builds clients
-    # with ARTRealtime(options:). The `device` leg uses the UTSDevice plan,
+    # with ARTRealtimeClient(options:). The `device` leg uses the UTSDevice plan,
     # whose configuration sets UTS_SIDE=device, and builds them with
     # PubSubDevice.createClient(options:) instead.
     #

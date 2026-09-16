@@ -1,7 +1,7 @@
 #import "ARTEventEmitter+Private.h"
 
-#import "ARTRealtime.h"
-#import "ARTRealtime+Private.h"
+#import "ARTRealtimeClient.h"
+#import "ARTRealtimeClient+Private.h"
 #import "ARTRealtimeChannel.h"
 #import "ARTGCD.h"
 #import "ARTInternalLog.h"

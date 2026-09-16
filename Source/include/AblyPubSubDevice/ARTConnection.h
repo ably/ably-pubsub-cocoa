@@ -2,7 +2,7 @@
 
 #import <AblyPubSubDevice/ARTTypes.h>
 
-@class ARTRealtime;
+@class ARTRealtimeClient;
 @class ARTEventEmitter;
 @class ARTConnectionRecoveryKey;
 

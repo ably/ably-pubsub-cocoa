@@ -5,7 +5,7 @@ import AblyPubSubDevice
 /// Helper for creating ably-cocoa objects, for use in integration tests.
 enum ClientHelper {
     /// Creates a sandbox Realtime client with LiveObjects support.
-    static func realtimeWithObjects(options: PartialClientOptions = .init()) async throws -> ARTRealtime {
+    static func realtimeWithObjects(options: PartialClientOptions = .init()) async throws -> ARTRealtimeClient {
         let clientOptions = try await Sandbox.clientOptions()
         clientOptions.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]
 
@@ -29,7 +29,7 @@ enum ClientHelper {
             clientOptions.garbageCollectionOptions = garbageCollectionOptions
         }
 
-        return ARTRealtime(options: clientOptions)
+        return ARTRealtimeClient(options: clientOptions)
     }
 
     /// An ably-cocoa logger that adds a given prefix to all emitted log messages.

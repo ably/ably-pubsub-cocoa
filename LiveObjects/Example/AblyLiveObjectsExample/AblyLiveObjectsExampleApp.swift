@@ -4,10 +4,10 @@ import SwiftUI
 
 @main
 struct AblyLiveObjectsExampleApp: App {
-    private func getRealtime() -> ARTRealtime {
+    private func getRealtime() -> ARTRealtimeClient {
         let clientOptions = ARTClientOptions(key: Secrets.ablyAPIKey)
         clientOptions.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]
-        return ARTRealtime(options: clientOptions)
+        return ARTRealtimeClient(options: clientOptions)
     }
 
     var body: some Scene {

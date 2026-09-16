@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 
-@class ARTRealtime;
+@class ARTRealtimeClient;
 @class ARTEventEmitter;
 
 NS_ASSUME_NONNULL_BEGIN

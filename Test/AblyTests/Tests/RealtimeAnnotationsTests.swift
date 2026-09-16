@@ -14,7 +14,7 @@ class RealtimeAnnotationsTests: XCTestCase {
         options.testOptions.channelNamePrefix = nil
 
         // Create realtime client
-        let realtimeClient = ARTRealtime(options: options)
+        let realtimeClient = ARTRealtimeClient(options: options)
         defer { realtimeClient.dispose(); realtimeClient.close() }
 
         // Channel name and options
@@ -171,7 +171,7 @@ class RealtimeAnnotationsTests: XCTestCase {
         options.testOptions.channelNamePrefix = nil
 
         // Create realtime client
-        let realtimeClient = ARTRealtime(options: options)
+        let realtimeClient = ARTRealtimeClient(options: options)
         defer { realtimeClient.dispose(); realtimeClient.close() }
 
         // Channel name and options
@@ -232,7 +232,7 @@ class RealtimeAnnotationsTests: XCTestCase {
     // RTAN4d, RTL7g
     func test__annotations_subscribe_should_implicitly_attach_the_channel_if_options_attachOnSubscribe_is_true() throws {
         let test = Test()
-        let client = ARTRealtime(options: try AblyTests.commonAppSetup(for: test))
+        let client = ARTRealtimeClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.dispose(); client.close() }
         let channel = client.channels.get(test.uniqueChannelName())
 
@@ -258,7 +258,7 @@ class RealtimeAnnotationsTests: XCTestCase {
     // RTAN4d, RTL7h
     func test__annotations_subscribe_should_not_implicitly_attach_the_channel_if_options_attachOnSubscribe_is_false() throws {
         let test = Test()
-        let client = ARTRealtime(options: try AblyTests.commonAppSetup(for: test))
+        let client = ARTRealtimeClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.dispose(); client.close() }
 
         let channelOptions = ARTRealtimeChannelOptions()
@@ -282,7 +282,7 @@ class RealtimeAnnotationsTests: XCTestCase {
     // RTAN4d, RTL7g
     func test__annotations_subscribe_should_result_in_an_error_if_channel_is_in_the_FAILED_state_and_options_attachOnSubscribe_is_true() throws {
         let test = Test()
-        let client = ARTRealtime(options: try AblyTests.commonAppSetup(for: test))
+        let client = ARTRealtimeClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.dispose(); client.close() }
 
         let channel = client.channels.get(test.uniqueChannelName())
@@ -304,7 +304,7 @@ class RealtimeAnnotationsTests: XCTestCase {
     // RTAN4d, RTL7g
     func test__annotations_subscribe_should_not_result_in_an_error_if_channel_is_in_the_FAILED_state_and_options_attachOnSubscribe_is_false() throws {
         let test = Test()
-        let client = ARTRealtime(options: try AblyTests.commonAppSetup(for: test))
+        let client = ARTRealtimeClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.dispose(); client.close() }
 
         let channelOptions = ARTRealtimeChannelOptions()
@@ -333,7 +333,7 @@ class RealtimeAnnotationsTests: XCTestCase {
         options.testOptions.channelNamePrefix = nil
 
         // Create realtime client
-        let realtimeClient = ARTRealtime(options: options)
+        let realtimeClient = ARTRealtimeClient(options: options)
         defer { realtimeClient.dispose(); realtimeClient.close() }
 
         // Channel name and options

@@ -8,7 +8,7 @@ class AblyHelper: NSObject, ObservableObject {
 
     private var locationManager: CLLocationManager!
 
-    private(set) var realtime: ARTRealtime!
+    private(set) var realtime: ARTRealtimeClient!
 
     private let key = "" // Your API Key from your app's dashboard
 
@@ -30,7 +30,7 @@ class AblyHelper: NSObject, ObservableObject {
         let options = ARTClientOptions(key: key)
         options.clientId = "basic-apns-example"
         options.pushRegistererDelegate = self
-        self.realtime = ARTRealtime(options: options)
+        self.realtime = ARTRealtimeClient(options: options)
         UNUserNotificationCenter.current().delegate = self
         locationManager = CLLocationManager()
         locationManager.delegate = self

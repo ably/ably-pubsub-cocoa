@@ -441,7 +441,7 @@ real socket, while every byte is intercepted in-process and surfaced to the test
   │       │ client.connect()                        ▲ awaitConnectionState(client, .connected)│
   │       ▼                                         │                                         │
   │  ┌─────────────────────────────┐  testOptions.transportFactory                            │
-  │  │ ARTRealtime + the REAL       │ ────────▶ MockWebSocketTransportFactory                 │
+  │  │ ARTRealtimeClient + the REAL       │ ────────▶ MockWebSocketTransportFactory                 │
   │  │ ARTWebSocketTransport        │                   │ creates one per connection attempt  │
   │  └──────────┬──────────────────┘                    ▼                                     │
   │             │ send(frame) ─────────────▶ ┌────────────────────┐                           │
@@ -590,7 +590,7 @@ UTS_SIDE=device swift test --filter UTS.ConnectionRecoveryTests
 ```
 
 `UTS_SIDE` picks which entry point the suite reaches the SDK through: `core` (the default) uses
-`ARTRealtime(options:)`, `device` uses `PubSubDevice.createClient(options:)`. The specs are the same
+`ARTRealtimeClient(options:)`, `device` uses `PubSubDevice.createClient(options:)`. The specs are the same
 either way. The factory has tests of its own, but they check only that it stamps the declaring agent
 and leaves the caller's options untouched; they barely use the client it returns. Running the specs
 through it is what puts that client to work, and so shows the factory to be a faithful pass-through
@@ -923,7 +923,7 @@ imperative fault injection** via `triggerAction`, real-network waiting with `pol
                  │  tls=false, JSON)                          │                                  ▼
                  ▼                                            │
         ┌──────────────────┐    ws/http (plain)    ┌──────────┴───────────┐    ws/http (TLS)   ┌───────────────────────────┐
-        │   ARTRealtime     │ ◀──────────────────▶ │       uts-proxy       │ ◀───────────────▶ │   Ably sandbox             │
+        │   ARTRealtimeClient     │ ◀──────────────────▶ │       uts-proxy       │ ◀───────────────▶ │   Ably sandbox             │
         │  (REAL transport) │      data plane      │  • forwards traffic   │                   │   sandbox.realtime.        │
         └──────────────────┘                       │  • applies rules      │                   │   ably-nonprod.net         │
                  ▲                                 │  • records event log  │                   └───────────────────────────┘

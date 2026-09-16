@@ -1,6 +1,6 @@
 #import "ARTConnection+Private.h"
 #import "ARTDefault.h"
-#import "ARTRealtime+Private.h"
+#import "ARTRealtimeClient+Private.h"
 #import "ARTEventEmitter+Private.h"
 #import "ARTQueuedDealloc.h"
 #import "ARTRealtimeChannels+Private.h"
@@ -104,7 +104,7 @@
     ARTErrorInfo *_errorReason;
 }
 
-- (instancetype)initWithRealtime:(ARTRealtimeInternal *)realtime logger:(ARTInternalLog *)logger {
+- (instancetype)initWithRealtime:(ARTRealtimeClientInternal *)realtime logger:(ARTInternalLog *)logger {
     if (self = [super init]) {
         _eventEmitter = [[ARTPublicEventEmitter alloc] initWithRest:realtime.rest logger:logger];
         _realtime = realtime;

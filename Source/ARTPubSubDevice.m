@@ -27,15 +27,15 @@ static NSString *const ARTPubSubDeviceAgentName = @"ably-pubsub-device";
     return newOptions;
 }
 
-+ (ARTRealtime *)createClientWithOptions:(ARTClientOptions *)options {
-    return [[ARTRealtime alloc] initWithOptions:[self optionsDeclaringDevice:options]];
++ (ARTRealtimeClient *)createClientWithOptions:(ARTClientOptions *)options {
+    return [[ARTRealtimeClient alloc] initWithOptions:[self optionsDeclaringDevice:options]];
 }
 
-+ (ARTRealtime *)createClientWithKey:(NSString *)key {
++ (ARTRealtimeClient *)createClientWithKey:(NSString *)key {
     return [self createClientWithOptions:[[ARTClientOptions alloc] initWithKey:key]];
 }
 
-+ (ARTRealtime *)createClientWithToken:(NSString *)token {
++ (ARTRealtimeClient *)createClientWithToken:(NSString *)token {
     return [self createClientWithOptions:[[ARTClientOptions alloc] initWithToken:token]];
 }
 

@@ -193,7 +193,7 @@ class WrapperSDKProxyTests: XCTestCase {
         let test = Test()
 
         let options = try AblyTests.commonAppSetup(for: test)
-        let realtime = ARTRealtime(options: options)
+        let realtime = ARTRealtimeClient(options: options)
         defer { realtime.dispose(); realtime.close() }
 
         let testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
@@ -240,7 +240,7 @@ class WrapperSDKProxyTests: XCTestCase {
 
         let options = try AblyTests.commonAppSetup(for: test)
         options.testOptions.channelNamePrefix = nil // so that we can just use `channelName` in the `request` call below
-        let realtime = ARTRealtime(options: options)
+        let realtime = ARTRealtimeClient(options: options)
         defer { realtime.dispose(); realtime.close() }
 
         let testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
@@ -335,7 +335,7 @@ class WrapperSDKProxyTests: XCTestCase {
         // Given: a wrapper SDK proxy client
 
         let options = try AblyTests.commonAppSetup(for: test)
-        let realtime = ARTRealtime(options: options)
+        let realtime = ARTRealtimeClient(options: options)
         defer { realtime.dispose(); realtime.close() }
 
         let testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))

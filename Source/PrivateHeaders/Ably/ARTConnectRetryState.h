@@ -8,7 +8,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- Maintains the state that an `ARTRealtime` instance needs in order to determine the duration to wait before retrying a connection. Wraps a sequence of `ARTRetrySequence` objects.
+ Maintains the state that an `ARTRealtimeClient` instance needs in order to determine the duration to wait before retrying a connection. Wraps a sequence of `ARTRetrySequence` objects.
  */
 NS_SWIFT_NAME(ConnectRetryState)
 @interface ARTConnectRetryState: NSObject

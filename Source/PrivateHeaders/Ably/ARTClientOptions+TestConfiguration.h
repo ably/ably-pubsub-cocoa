@@ -6,7 +6,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- Provides an interface for injecting additional configuration into `ARTHttpClient` or `ARTRealtime` instances.
+ Provides an interface for injecting additional configuration into `ARTHttpClient` or `ARTRealtimeClient` instances.
 
  This is for anything that test code wishes to be able to configure but which should not be part of the public API of these classes.
  */

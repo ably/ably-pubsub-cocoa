@@ -8,7 +8,7 @@
 #import <AblyPubSubDevice/ARTRealtimeChannel.h>
 #import <AblyPubSubDevice/ARTEventEmitter.h>
 #import "ARTMessageSendStatus.h"
-#import "ARTRealtime+Private.h"
+#import "ARTRealtimeClient+Private.h"
 #import "ARTQueuedDealloc.h"
 #import "ARTPushChannel+Private.h"
 
@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)shouldAttach;
 - (BOOL)isAnnotationSubscribeGranted;
 
-@property (readonly, weak, nonatomic) ARTRealtimeInternal *realtime; // weak because realtime owns self
+@property (readonly, weak, nonatomic) ARTRealtimeClientInternal *realtime; // weak because realtime owns self
 @property (readonly, nonatomic) ARTHttpChannelInternal *restChannel;
 @property (readwrite, nonatomic, nullable) NSString *attachSerial;
 @property (readwrite, nonatomic, nullable) NSString *channelSerial; // CP2b
@@ -69,7 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (readwrite, nonatomic) BOOL attachResume;
 
-- (instancetype)initWithRealtime:(ARTRealtimeInternal *)realtime andName:(NSString *)name withOptions:(ARTRealtimeChannelOptions *)options logger:(ARTInternalLog *)logger;
+- (instancetype)initWithRealtime:(ARTRealtimeClientInternal *)realtime andName:(NSString *)name withOptions:(ARTRealtimeChannelOptions *)options logger:(ARTInternalLog *)logger;
 
 - (void)proceedAttachDetachWithParams:(ARTAttachRequestParams *)params;
 
@@ -166,12 +166,12 @@ ART_EMBED_INTERFACE_EVENT_EMITTER(ARTChannelEvent, ARTChannelStateChange *)
 @interface ARTRealtimeChannel ()
 
 @property (nonatomic, readonly) ARTRealtimeChannelInternal *internal;
-@property (nonatomic, readonly) ARTRealtimeInternal *realtimeInternal;
+@property (nonatomic, readonly) ARTRealtimeClientInternal *realtimeInternal;
 
 - (void)internalAsync:(void (^)(ARTRealtimeChannelInternal *))use;
 - (void)internalSync:(void (^)(ARTRealtimeChannelInternal *))use;
 
-- (instancetype)initWithInternal:(ARTRealtimeChannelInternal *)internal realtimeInternal:(ARTRealtimeInternal *)realtimeInternal queuedDealloc:(ARTQueuedDealloc *)dealloc;
+- (instancetype)initWithInternal:(ARTRealtimeChannelInternal *)internal realtimeInternal:(ARTRealtimeClientInternal *)realtimeInternal queuedDealloc:(ARTQueuedDealloc *)dealloc;
 
 @end
 

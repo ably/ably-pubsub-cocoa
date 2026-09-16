@@ -37,7 +37,7 @@ final class LiveCounterViewModel: ObservableObject {
 
     private var subscriptions: [String: any Subscription] = [:]
 
-    init(realtime: ARTRealtime) {
+    init(realtime: ARTRealtimeClient) {
         // Use URL parameters or default channel name
         let channelName = "live-objects-counter"
         let channelOptions = ARTRealtimeChannelOptions()

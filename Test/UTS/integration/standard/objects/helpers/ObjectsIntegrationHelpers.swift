@@ -19,7 +19,7 @@ func objectsClientOptions(key: String, useBinaryProtocol: Bool) -> ARTClientOpti
 }
 
 /// A channel with the object modes (defaults to OBJECT_SUBSCRIBE + OBJECT_PUBLISH).
-func objectsChannel(_ client: ARTRealtime,
+func objectsChannel(_ client: ARTRealtimeClient,
                     _ name: String,
                     modes: ARTChannelMode = [.objectSubscribe, .objectPublish]) -> ARTRealtimeChannel {
     let options = ARTRealtimeChannelOptions()

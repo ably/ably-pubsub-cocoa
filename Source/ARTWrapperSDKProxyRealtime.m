@@ -2,13 +2,13 @@
 #import "ARTWrapperSDKProxyRealtimeChannels+Private.h"
 #import "ARTWrapperSDKProxyPush+Private.h"
 #import "ARTWrapperSDKProxyOptions.h"
-#import "ARTRealtime+Private.h"
+#import "ARTRealtimeClient+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ARTWrapperSDKProxyRealtime ()
 
-@property (nonatomic, readonly) ARTRealtime *underlyingRealtime;
+@property (nonatomic, readonly) ARTRealtimeClient *underlyingRealtime;
 @property (nonatomic, readonly) ARTWrapperSDKProxyOptions *proxyOptions;
 
 @end
@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_END
 
 @implementation ARTWrapperSDKProxyRealtime
 
-- (instancetype)initWithRealtime:(ARTRealtime *)realtime
+- (instancetype)initWithRealtime:(ARTRealtimeClient *)realtime
                     proxyOptions:(ARTWrapperSDKProxyOptions *)proxyOptions {
     if (self = [super init]) {
         _underlyingRealtime = realtime;

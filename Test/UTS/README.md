@@ -602,14 +602,16 @@ are deliberately not routed through it — the device package exposes no HTTP do
 the only way to build a stateless client in either mode. An unrecognised value aborts the run
 rather than falling back to `core`.
 
-**Where CI runs them:** there is currently **no UTS-specific CI job** — the UTS target runs as part
-of the full test suite (the `ably-cocoa` scheme driven by the fastlane lanes in
-`.github/workflows/uts.yaml`, which already has sandbox network access). A dedicated
-fast PR-gate step running just the unit suites (e.g. in `check-spm.yaml`, mirroring ably-java's
-`runUtsUnitTests` gate in its `check.yml`) is a cheap improvement worth making — the
-unit/integration split now runs on suite selection rather than env vars, so the lanes only need
-different `--filter` lists (ably-java splits the same way with `runUtsUnitTests` /
-`runUtsIntegrationTests`).
+**Where CI runs them:** [`.github/workflows/uts.yaml`](../../.github/workflows/uts.yaml). Its
+lanes pass `suite:uts`, which fastlane turns into `-only-testing:UTS`. The workflow has the
+sandbox network access the integration tier needs. It runs on every pull request and on pushes
+to `main` and `integration/**`, and it can be dispatched by hand.
+
+There are six legs: iOS, tvOS and macOS, each twice, once per `UTS_SIDE` value. Every leg runs
+all tiers, including the sandbox-network integration tier and, on macOS, the proxy tier.
+
+The SDK's own suites run in `integration-test.yaml`, whose lanes pass `suite:sdk`. That selection
+skips this target.
 
 Notes:
 - `ProxyManager` **advises** running proxy suites from one test process at a time — they share the

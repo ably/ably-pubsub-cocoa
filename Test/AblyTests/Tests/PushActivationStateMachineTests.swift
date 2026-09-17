@@ -1,5 +1,6 @@
 #if os(iOS)
 import AblyPubSubDevice
+import AblyPubSubDevice.Private
 import AblyTesting
 import Nimble
 import XCTest

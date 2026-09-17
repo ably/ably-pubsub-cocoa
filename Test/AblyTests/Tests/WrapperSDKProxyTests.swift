@@ -1,4 +1,5 @@
 import AblyPubSubDevice
+import AblyPubSubDevice.Private
 import XCTest
 import Nimble
 

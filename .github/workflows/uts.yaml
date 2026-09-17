@@ -127,14 +127,14 @@ jobs:
             echo "Static Analyzer found some issues. HTML report will be available in Artifacts section. Failing build."
             exit 1
           fi
-      
+
       - name: Upload Static Analyzer Reports
         if: ${{ failure() && steps.analyzer-output.outcome == 'failure' }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: static-analyzer-reports-${{ matrix.lane }}-${{ matrix.side }}
           path: ./derived_data/**/report-*.html
-      
+
       - name: Upload Xcodebuild Logs
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

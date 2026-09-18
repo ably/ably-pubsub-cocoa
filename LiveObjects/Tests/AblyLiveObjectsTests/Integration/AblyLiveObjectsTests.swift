@@ -1,7 +1,7 @@
 import _AblyPluginSupportPrivate
 @testable import AblyLiveObjects
 @testable import AblyLiveObjectsTesting
-import AblyPubSubDevice
+import AblyPubSubDevice.Private
 import Testing
 
 @Suite(.tags(.integration), .serialized)
@@ -22,6 +22,32 @@ struct AblyLiveObjectsTests {
         // Then
 
         // Check that the `channel.object` property works and gives the internal type we expect
+        #expect(channel.object is PublicDefaultRealtimeObject)
+    }
+
+    /// An application reaches Ably through `PubSubDevice.createClient(options:)`, which builds its
+    /// client from a copy of the caller's options. This checks that a client built that way still
+    /// resolves the plugin, so `channel.object` gives the same type it does for a client built
+    /// through the initializer.
+    @Test
+    func objectsPropertyOnAClientFromTheDeviceFactory() async throws {
+        // Given
+
+        let clientOptions = ClientOptions(key: "foo:bar")
+        clientOptions.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]
+        // Don't need to connect
+        clientOptions.autoConnect = false
+
+        let realtime = PubSubDevice.createClient(options: clientOptions)
+
+        let channel = realtime.channels.get("someChannel")
+
+        // Then
+
+        // A client built without the plugin traps on `channel.object`, so check that the copy
+        // carried it before reaching for the property: losing it should fail this test rather
+        // than kill the test process.
+        try #require(realtime.internal.options.plugins?[.liveObjects] != nil)
         #expect(channel.object is PublicDefaultRealtimeObject)
     }
 

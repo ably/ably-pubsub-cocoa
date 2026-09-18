@@ -200,4 +200,23 @@ class PubSubDeviceTests: XCTestCase {
             expected
         )
     }
+
+    // MARK: - The LiveObjects plugin
+
+    // The factory works by copying the caller's options, and the plugin hook is the one
+    // entry whose loss would be invisible here and fatal in the application: a client
+    // built without it traps on first access to `channel.object`.
+    func test__011__createClient__carries_over_the_plugins() throws {
+        let test = Test()
+        let options = try AblyTests.commonAppSetup(for: test)
+        options.autoConnect = false
+        options.plugins = [.liveObjects: PluginAPITests.MockLiveObjectsPlugin.self]
+
+        let client = PubSubDevice.createClient(options: options)
+        defer { client.dispose(); client.close() }
+
+        let plugins = try XCTUnwrap(client.internal.options.plugins)
+        XCTAssertEqual(plugins.count, 1)
+        XCTAssertTrue(plugins[.liveObjects] as AnyObject === PluginAPITests.MockLiveObjectsPlugin.self as AnyObject)
+    }
 }

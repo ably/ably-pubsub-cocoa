@@ -127,7 +127,7 @@ final class LocalDeviceStorageTests: XCTestCase {
     // MARK: RSH3h ordering
 
     // RSH3h (the device is loaded *by* the state machine, not by the caller):
-    // a RealtimeClient *without* a clientId doesn't load the device as a side effect
+    // a PubSubClient *without* a clientId doesn't load the device as a side effect
     // of construction (a clientId would, via `Auth setLocalDeviceClientId_nosync:`),
     // so it stays unloaded until the activation state machine is created.
     func test_RSH3h_stateMachineConstructionLoadsTheDeviceWhenNotPreloaded() {
@@ -136,7 +136,7 @@ final class LocalDeviceStorageTests: XCTestCase {
         // No clientId, and don't connect — nothing loads the device.
         let options = ClientOptions(key: "fake:key")
         options.autoConnect = false
-        let realtime = RealtimeClient(options: options)
+        let realtime = PubSubClient(options: options)
         defer { realtime.close() }
 
         let rest = realtime.internal.rest

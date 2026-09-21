@@ -212,7 +212,7 @@ class AblyTests {
     }
 
     struct RealtimeTestEnvironment {
-        let client: RealtimeClient
+        let client: PubSubClient
         let transportFactory: TestProxyTransportFactory
     }
 
@@ -224,7 +224,7 @@ class AblyTests {
         let transportFactory = TestProxyTransportFactory()
         transportFactory.transportCreatedEvent = event
         modifiedOptions.testOptions.transportFactory = transportFactory
-        let realtime = RealtimeClient(options: modifiedOptions)
+        let realtime = PubSubClient(options: modifiedOptions)
         realtime.internal.setReachabilityClass(TestReachability.self)
         if autoConnect {
             realtime.connect()
@@ -236,8 +236,8 @@ class AblyTests {
         return ProcessInfo.processInfo.globallyUniqueString
     }
 
-    class func addMembersSequentiallyToChannel(_ channelName: String, members: Int = 1, startFrom: Int = 1, data: AnyObject? = nil, options: ClientOptions) -> RealtimeClient {
-        let client = RealtimeClient(options: options)
+    class func addMembersSequentiallyToChannel(_ channelName: String, members: Int = 1, startFrom: Int = 1, data: AnyObject? = nil, options: ClientOptions) -> PubSubClient {
+        let client = PubSubClient(options: options)
         let channel = client.channels.get(channelName)
 
         waitUntil(timeout: testTimeout) { done in
@@ -257,8 +257,8 @@ class AblyTests {
         return client
     }
 
-    class func addMembersSequentiallyToChannel(_ channelName: String, members: Int = 1, startFrom: Int = 1, data: AnyObject? = nil, options: ClientOptions, done: @escaping ()->()) -> RealtimeClient {
-        let client = RealtimeClient(options: options)
+    class func addMembersSequentiallyToChannel(_ channelName: String, members: Int = 1, startFrom: Int = 1, data: AnyObject? = nil, options: ClientOptions, done: @escaping ()->()) -> PubSubClient {
+        let client = PubSubClient(options: options)
         let channel = client.channels.get(channelName)
 
         class Total {
@@ -479,7 +479,7 @@ class PublishTestMessage {
         }
     }
 
-    init(client: RealtimeClient, channelName: String, failOnError: Bool = true, completion: ((ErrorInfo?) -> Void)? = nil) {
+    init(client: PubSubClient, channelName: String, failOnError: Bool = true, completion: ((ErrorInfo?) -> Void)? = nil) {
         let complete: (ErrorInfo?) -> Void = { errorInfo in
             // ErrorInfo to NSError
             self.error = errorInfo
@@ -526,13 +526,13 @@ class PublishTestMessage {
 
 /// Realtime - Publish message with callback
 /// (publishes if connection state changes to CONNECTED and channel state changes to ATTACHED)
-@discardableResult func publishFirstTestMessage(_ realtime: RealtimeClient, channelName: String, completion: Optional<(ErrorInfo?)->()>) -> PublishTestMessage {
+@discardableResult func publishFirstTestMessage(_ realtime: PubSubClient, channelName: String, completion: Optional<(ErrorInfo?)->()>) -> PublishTestMessage {
     return PublishTestMessage(client: realtime, channelName: channelName, failOnError: false, completion: completion)
 }
 
 /// Realtime - Publish message
 /// (publishes if connection state changes to CONNECTED and channel state changes to ATTACHED)
-@discardableResult func publishFirstTestMessage(_ realtime: RealtimeClient, channelName: String, failOnError: Bool = true) -> PublishTestMessage {
+@discardableResult func publishFirstTestMessage(_ realtime: PubSubClient, channelName: String, failOnError: Bool = true) -> PublishTestMessage {
     return PublishTestMessage(client: realtime, channelName: channelName, failOnError: failOnError)
 }
 
@@ -1711,7 +1711,7 @@ extension String {
 
 }
 
-extension RealtimeClient {
+extension PubSubClient {
 
     var transportFactory: TestProxyTransportFactory? {
         self.internal.options.testOptions.transportFactory as? TestProxyTransportFactory
@@ -2102,8 +2102,8 @@ protocol ARTHasInternal {
     func unwrapAsync(_: @escaping (Internal) -> ())
 }
 
-extension RealtimeClient: ARTHasInternal {
-    typealias Internal = ARTRealtimeClientInternal
+extension PubSubClient: ARTHasInternal {
+    typealias Internal = ARTPubSubClientInternal
     func unwrapAsync(_ use: @escaping (Internal) -> ()) {
         self.internalAsync(use)
     }

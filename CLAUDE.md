@@ -56,9 +56,9 @@ All SDK source is in `Source/`, written entirely in Objective-C:
 - `Source/SocketRocket/` — Vendored WebSocket implementation.
 - `Source/include/module.modulemap` — Module map defining the public and private module interfaces.
 
-Key classes follow the `ART` prefix convention: `ARTRealtimeClient`, `ARTHttpClient`, `ARTAuth`, `ARTChannel`, `ARTConnection`, `ARTPresence`, `ARTPush`.
+Key classes follow the `ART` prefix convention: `ARTPubSubClient`, `ARTHttpClient`, `ARTAuth`, `ARTChannel`, `ARTConnection`, `ARTPresence`, `ARTPush`.
 
-Swift sees these names without the prefix: `RealtimeClient`, `HttpClient`, `Auth` and so on. Every declaration in the module's public headers carries an `NS_SWIFT_NAME` that strips `ART`, so a new public declaration needs one too. Objective-C keeps the prefix everywhere.
+Swift sees these names without the prefix: `PubSubClient`, `HttpClient`, `Auth` and so on. Every declaration in the module's public headers carries an `NS_SWIFT_NAME` that strips `ART`, so a new public declaration needs one too. Objective-C keeps the prefix everywhere.
 
 The private headers were not swept. Most of them keep the prefix in Swift as well, so a test reaching internals through `import AblyPubSubDevice.Private` writes `ARTProtocolMessage`. Some carry an `NS_SWIFT_NAME` of their own, though — `InternalLog`, `WebSocketFactory` and `SystemTimeProvider` among them — so read the header rather than assuming either spelling.
 

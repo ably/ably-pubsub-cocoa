@@ -168,7 +168,7 @@ class PubSubDeviceTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
         options.autoConnect = false
 
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         XCTAssertNil(client.internal.options.agents?[deviceAgentName])

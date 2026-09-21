@@ -18,8 +18,8 @@ class ObjectLifetimesTests: XCTestCase {
     }
 
     func test__001__ObjectLifetimes__user_code_releases_public_object__the_object_s_internal_child_s_back_reference_is_released_too() {
-        var realtime: RealtimeClient? = RealtimeClient(options: options)
-        weak var internalRealtime: ARTRealtimeClientInternal? = realtime!.internal
+        var realtime: PubSubClient? = PubSubClient(options: options)
+        weak var internalRealtime: ARTPubSubClientInternal? = realtime!.internal
         weak var internalConn: ARTConnectionInternal? = realtime!.connection.internal
         weak var internalRest: ARTHttpClientInternal? = realtime!.internal.rest
 
@@ -46,7 +46,7 @@ class ObjectLifetimesTests: XCTestCase {
     }
 
     func test__002__ObjectLifetimes__user_code_holds_only_reference_to_public_object_s_public_child__still_can_access_parent_s_internal_object() {
-        let conn = RealtimeClient(options: options).connection
+        let conn = PubSubClient(options: options).connection
 
         waitUntil(timeout: testTimeout) { done in
             conn.ping { _ in
@@ -56,7 +56,7 @@ class ObjectLifetimesTests: XCTestCase {
     }
 
     func test__003__ObjectLifetimes__user_code_holds_only_reference_to_public_object_s_public_child__when_it_s_released__schedules_async_release_of_parent_s_internal_object_in_internal_queue() {
-        var conn: Connection? = RealtimeClient(options: options).connection
+        var conn: Connection? = PubSubClient(options: options).connection
         weak var weakConn = conn!.internal_nosync
 
         waitUntil(timeout: testTimeout) { done in
@@ -81,7 +81,7 @@ class ObjectLifetimesTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
 
-        var client: RealtimeClient? = RealtimeClient(options: options)
+        var client: PubSubClient? = PubSubClient(options: options)
 
         weak var weakClient = client!.internal
         XCTAssertNotNil(weakClient)
@@ -103,7 +103,7 @@ class ObjectLifetimesTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
 
-        var client: RealtimeClient? = RealtimeClient(options: options)
+        var client: PubSubClient? = PubSubClient(options: options)
         weak var weakClient = client!.internal
 
         var channel: RealtimeChannel? = client!.channels.get(test.uniqueChannelName())

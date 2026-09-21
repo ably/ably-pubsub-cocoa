@@ -1,6 +1,6 @@
 #import <AblyPubSubDevice/ARTPubSubDevice.h>
 #import <AblyPubSubDevice/ARTClientInformation.h>
-#import "ARTRealtimeClient+Private.h"
+#import "ARTPubSubClient+Private.h"
 
 /**
  * The agent entry that declares a client is running on an end user's device.
@@ -28,15 +28,15 @@ static NSString *const ARTPubSubDeviceAgentName = @"ably-pubsub-device";
     return newOptions;
 }
 
-+ (ARTRealtimeClient *)createClientWithOptions:(ARTClientOptions *)options {
-    return [[ARTRealtimeClient alloc] initWithOptions:[self optionsDeclaringDevice:options]];
++ (ARTPubSubClient *)createClientWithOptions:(ARTClientOptions *)options {
+    return [[ARTPubSubClient alloc] initWithOptions:[self optionsDeclaringDevice:options]];
 }
 
-+ (ARTRealtimeClient *)createClientWithKey:(NSString *)key {
++ (ARTPubSubClient *)createClientWithKey:(NSString *)key {
     return [self createClientWithOptions:[[ARTClientOptions alloc] initWithKey:key]];
 }
 
-+ (ARTRealtimeClient *)createClientWithToken:(NSString *)token {
++ (ARTPubSubClient *)createClientWithToken:(NSString *)token {
     return [self createClientWithOptions:[[ARTClientOptions alloc] initWithToken:token]];
 }
 

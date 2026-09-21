@@ -85,7 +85,7 @@ In CI:
 - [`integration-test.yaml`](.github/workflows/integration-test.yaml) runs the Fastlane lanes with `suite:sdk`, which builds the `ably-cocoa` scheme against [`Test/Ably.xctestplan`](Test/Ably.xctestplan) and passes `-skip-testing:UTS`, so it covers `AblyTests` and `AblyTestsObjC` on all three platforms.
 - [`uts.yaml`](.github/workflows/uts.yaml) runs the same lanes with `suite:uts` (`-only-testing:UTS`), covering the `UTS` target alone on all three platforms. It is the **only** place CI executes that target's tests, and therefore where the ported LiveObjects `objects` unit specs run.
 
-  Each platform runs twice, once per entry point. The `core` leg uses the default `Ably` test plan, and builds clients with `RealtimeClient(options:)`. The `device` leg uses [`Test/UTSDevice.xctestplan`](Test/UTSDevice.xctestplan), whose configuration sets `UTS_SIDE=device`, and builds them with `PubSubDevice.createClient(options:)` instead. [`Test/UTS/README.md`](Test/UTS/README.md) documents the seam.
+  Each platform runs twice, once per entry point. The `core` leg uses the default `Ably` test plan, and builds clients with `PubSubClient(options:)`. The `device` leg uses [`Test/UTSDevice.xctestplan`](Test/UTSDevice.xctestplan), whose configuration sets `UTS_SIDE=device`, and builds them with `PubSubDevice.createClient(options:)` instead. [`Test/UTS/README.md`](Test/UTS/README.md) documents the seam.
 
   Test plans are declared in `.swiftpm/xcode/xcshareddata/xcschemes/ably-cocoa.xcscheme`. A plan is also how an environment variable reaches the test process under `xcodebuild`, where neither a plain export nor a `TEST_RUNNER_`-prefixed build setting does. Under `swift test` no plan is needed, because the test binary inherits the environment.
 

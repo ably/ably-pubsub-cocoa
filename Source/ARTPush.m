@@ -15,7 +15,7 @@
 #import "ARTPushAdmin+Private.h"
 #import "ARTLocalDevice+Private.h"
 #import "ARTDeviceStorage.h"
-#import "ARTRealtimeClient+Private.h"
+#import "ARTPubSubClient+Private.h"
 #import "ARTInternalLog.h"
 #import "ARTGCD.h"
 
@@ -38,20 +38,20 @@
 
 #if TARGET_OS_IOS
 
-+ (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken realtime:(ARTRealtimeClient *)realtime; {
-    return [ARTPushInternal didRegisterForRemoteNotificationsWithDeviceToken:deviceToken realtime:realtime];
++ (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken pubsub:(ARTPubSubClient *)pubsub; {
+    return [ARTPushInternal didRegisterForRemoteNotificationsWithDeviceToken:deviceToken pubsub:pubsub];
 }
 
-+ (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error realtime:(ARTRealtimeClient *)realtime; {
-    return [ARTPushInternal didFailToRegisterForRemoteNotificationsWithError:error realtime:realtime];
++ (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error pubsub:(ARTPubSubClient *)pubsub; {
+    return [ARTPushInternal didFailToRegisterForRemoteNotificationsWithError:error pubsub:pubsub];
 }
 
-+ (void)didRegisterForLocationNotificationsWithDeviceToken:(NSData *)deviceToken realtime:(ARTRealtimeClient *)realtime; {
-    return [ARTPushInternal didRegisterForLocationNotificationsWithDeviceToken:deviceToken realtime:realtime];
++ (void)didRegisterForLocationNotificationsWithDeviceToken:(NSData *)deviceToken pubsub:(ARTPubSubClient *)pubsub; {
+    return [ARTPushInternal didRegisterForLocationNotificationsWithDeviceToken:deviceToken pubsub:pubsub];
 }
 
-+ (void)didFailToRegisterForLocationNotificationsWithError:(NSError *)error realtime:(ARTRealtimeClient *)realtime; {
-    return [ARTPushInternal didFailToRegisterForLocationNotificationsWithError:error realtime:realtime];
++ (void)didFailToRegisterForLocationNotificationsWithError:(NSError *)error pubsub:(ARTPubSubClient *)pubsub; {
+    return [ARTPushInternal didFailToRegisterForLocationNotificationsWithError:error pubsub:pubsub];
 }
 
 - (void)registerPushToStartToken:(NSData *)token {
@@ -118,7 +118,7 @@
             __block id extendedLifetimeRest = _rest;
 
             if (!extendedLifetimeRest) {
-                // My understanding is that this shouldn't be possible: either getActivationMachine is being invoked as a result of a user's interaction with an ARTPush public method, in which case our ARTQueuedDealloc mechanism should have kept _rest alive, or it's being invoked _by_ _rest (upon fetching a token) or it's being invoked by ARTRealtimeClientInternal, which is keeping _rest alive.
+                // My understanding is that this shouldn't be possible: either getActivationMachine is being invoked as a result of a user's interaction with an ARTPush public method, in which case our ARTQueuedDealloc mechanism should have kept _rest alive, or it's being invoked _by_ _rest (upon fetching a token) or it's being invoked by ARTPubSubClientInternal, which is keeping _rest alive.
                 ARTLogWarn(_logger, @"_rest has already been deallocated in getActivationMachine:, skipping creation of machine and calling callback with nil");
                 callbackWithUnlock(nil);
                 return;
@@ -174,9 +174,9 @@
     [rest setAndPersistAPNSDeviceTokenData:deviceTokenData tokenType:ARTAPNSDeviceDefaultTokenType];
 }
 
-+ (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken realtime:(ARTRealtimeClient *)realtime {
-    [realtime internalAsync:^(ARTRealtimeClientInternal *realtime) {
-        [ARTPushInternal didRegisterForRemoteNotificationsWithDeviceToken:deviceToken restInternal:realtime.rest];
++ (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken pubsub:(ARTPubSubClient *)pubsub {
+    [pubsub internalAsync:^(ARTPubSubClientInternal *pubsub) {
+        [ARTPushInternal didRegisterForRemoteNotificationsWithDeviceToken:deviceToken restInternal:pubsub.rest];
     }];
 }
 
@@ -193,9 +193,9 @@
     }];
 }
 
-+ (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error realtime:(ARTRealtimeClient *)realtime {
-    [realtime internalAsync:^(ARTRealtimeClientInternal *realtime) {
-        [ARTPushInternal didFailToRegisterForRemoteNotificationsWithError:error restInternal:realtime.rest];
++ (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error pubsub:(ARTPubSubClient *)pubsub {
+    [pubsub internalAsync:^(ARTPubSubClientInternal *pubsub) {
+        [ARTPushInternal didFailToRegisterForRemoteNotificationsWithError:error restInternal:pubsub.rest];
     }];
 }
 
@@ -210,9 +210,9 @@
     [rest setAndPersistAPNSDeviceTokenData:deviceTokenData tokenType:ARTAPNSDeviceLocationTokenType];
 }
 
-+ (void)didRegisterForLocationNotificationsWithDeviceToken:(NSData *)deviceToken realtime:(ARTRealtimeClient *)realtime {
-    [realtime internalAsync:^(ARTRealtimeClientInternal *realtime) {
-        [ARTPushInternal didRegisterForLocationNotificationsWithDeviceToken:deviceToken restInternal:realtime.rest];
++ (void)didRegisterForLocationNotificationsWithDeviceToken:(NSData *)deviceToken pubsub:(ARTPubSubClient *)pubsub {
+    [pubsub internalAsync:^(ARTPubSubClientInternal *pubsub) {
+        [ARTPushInternal didRegisterForLocationNotificationsWithDeviceToken:deviceToken restInternal:pubsub.rest];
     }];
 }
 
@@ -229,9 +229,9 @@
     }];
 }
 
-+ (void)didFailToRegisterForLocationNotificationsWithError:(NSError *)error realtime:(ARTRealtimeClient *)realtime {
-    [realtime internalAsync:^(ARTRealtimeClientInternal *realtime) {
-        [ARTPushInternal didFailToRegisterForLocationNotificationsWithError:error restInternal:realtime.rest];
++ (void)didFailToRegisterForLocationNotificationsWithError:(NSError *)error pubsub:(ARTPubSubClient *)pubsub {
+    [pubsub internalAsync:^(ARTPubSubClientInternal *pubsub) {
+        [ARTPushInternal didFailToRegisterForLocationNotificationsWithError:error restInternal:pubsub.rest];
     }];
 }
 

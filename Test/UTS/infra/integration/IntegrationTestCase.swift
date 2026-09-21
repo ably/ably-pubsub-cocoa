@@ -30,14 +30,14 @@ class IntegrationTestCase {
         }
     }
 
-    /// Builds a real (unmocked) `RealtimeClient` from `options`, runs `body`, then always closes the
+    /// Builds a real (unmocked) `PubSubClient` from `options`, runs `body`, then always closes the
     /// client and waits for CLOSED.
-    func withRealtimeClient(_ options: ClientOptions, _ body: (RealtimeClient) async throws -> Void) async throws {
+    func withRealtimeClient(_ options: ClientOptions, _ body: (PubSubClient) async throws -> Void) async throws {
         let client = makeRealtimeForSide(options: options)
         try await runThenCleanUp(client, body: body) { client in
             // Per the specs' common cleanup: only close from a state that can reach CLOSED.
             // close() never transitions out of FAILED (terminal) or INITIALIZED (never
-            // connected) — see RealtimeClient `_close` — so awaiting CLOSED there would burn the
+            // connected) — see PubSubClient `_close` — so awaiting CLOSED there would burn the
             // timeout and record a spurious failure after the body passed.
             let state = client.connection.state
             if state != .failed, state != .initialized {

@@ -227,7 +227,7 @@ class PushAdminTests: XCTestCase {
     func test__002__publish__should_publish_successfully() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        let realtime = RealtimeClient(options: options)
+        let realtime = PubSubClient(options: options)
         defer { realtime.dispose(); realtime.close() }
         let channel = realtime.channels.get("pushenabled:\(test.uniqueChannelName())") // works with pure test.uniqueChannelName() as well
         let publishObject = ["transportType": "ablyChannel",
@@ -260,7 +260,7 @@ class PushAdminTests: XCTestCase {
 
     func test__003__publish__should_fail_with_a_bad_recipient() throws {
         let test = Test()
-        let realtime = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let realtime = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { realtime.dispose(); realtime.close() }
         let channel = realtime.channels.get("pushenabled:\(test.uniqueChannelName())") // works with pure test.uniqueChannelName() as well
 
@@ -288,7 +288,7 @@ class PushAdminTests: XCTestCase {
 
     func test__004__publish__should_fail_with_an_empty_recipient() throws {
         let test = Test()
-        let realtime = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let realtime = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { realtime.dispose(); realtime.close() }
         let channel = realtime.channels.get("pushenabled:\(test.uniqueChannelName())") // works with pure test.uniqueChannelName() as well
 
@@ -315,7 +315,7 @@ class PushAdminTests: XCTestCase {
 
     func test__005__publish__should_fail_with_an_empty_payload() throws {
         let test = Test()
-        let realtime = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let realtime = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { realtime.dispose(); realtime.close() }
         let channel = realtime.channels.get("pushenabled:\(test.uniqueChannelName())") // works with pure test.uniqueChannelName() as well
 
@@ -344,7 +344,7 @@ class PushAdminTests: XCTestCase {
 
     func test__006__Device_Registrations__get__should_return_a_device() throws {
         let test = Test()
-        let realtime = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let realtime = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { realtime.dispose(); realtime.close() }
         waitUntil(timeout: testTimeout) { done in
             realtime.push.admin.deviceRegistrations.get("testDeviceDetails") { device, error in
@@ -360,7 +360,7 @@ class PushAdminTests: XCTestCase {
 
     func test__007__Device_Registrations__get__should_not_return_a_device_if_it_doesnt_exist() throws {
         let test = Test()
-        let realtime = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let realtime = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { realtime.dispose(); realtime.close() }
         waitUntil(timeout: testTimeout) { done in
             realtime.push.admin.deviceRegistrations.get("madeup") { device, error in
@@ -377,7 +377,7 @@ class PushAdminTests: XCTestCase {
 
     func test__008__Device_Registrations__get__push_device_authentication__should_include_DeviceIdentityToken_HTTP_header() throws {
         let test = Test()
-        let realtime = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let realtime = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { realtime.dispose(); realtime.close() }
         realtime.internal.rest.httpExecutor = mockHttpExecutor
 
@@ -407,7 +407,7 @@ class PushAdminTests: XCTestCase {
 
     func test__009__Device_Registrations__get__push_device_authentication__should_include_DeviceSecret_HTTP_header() throws {
         let test = Test()
-        let realtime = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let realtime = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { realtime.dispose(); realtime.close() }
         realtime.internal.rest.httpExecutor = mockHttpExecutor
 
@@ -427,7 +427,7 @@ class PushAdminTests: XCTestCase {
 
     func test__010__Device_Registrations__list__should_list_devices_by_id() throws {
         let test = Test()
-        let realtime = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let realtime = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { realtime.dispose(); realtime.close() }
         waitUntil(timeout: testTimeout) { done in
             realtime.push.admin.deviceRegistrations.list(["deviceId": "testDeviceDetails"]) { result, error in
@@ -443,7 +443,7 @@ class PushAdminTests: XCTestCase {
 
     func test__011__Device_Registrations__list__should_list_devices_by_client_id() throws {
         let test = Test()
-        let realtime = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let realtime = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { realtime.dispose(); realtime.close() }
         waitUntil(timeout: testTimeout) { done in
             realtime.push.admin.deviceRegistrations.list(["clientId": "clientA"]) { result, error in
@@ -459,7 +459,7 @@ class PushAdminTests: XCTestCase {
 
     func test__012__Device_Registrations__list__should_list_devices_sorted() throws {
         let test = Test()
-        let realtime = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let realtime = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { realtime.dispose(); realtime.close() }
         waitUntil(timeout: testTimeout) { done in
             realtime.push.admin.deviceRegistrations.list(["direction": "forwards"]) { result, error in
@@ -475,7 +475,7 @@ class PushAdminTests: XCTestCase {
 
     func test__013__Device_Registrations__list__should_return_an_empty_list_when_id_does_not_exist() throws {
         let test = Test()
-        let realtime = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let realtime = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { realtime.dispose(); realtime.close() }
         waitUntil(timeout: testTimeout) { done in
             realtime.push.admin.deviceRegistrations.list(["deviceId": "madeup"]) { result, error in
@@ -495,7 +495,7 @@ class PushAdminTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.pushFullWait = true
-        let realtime = RealtimeClient(options: options)
+        let realtime = PubSubClient(options: options)
         defer { realtime.dispose(); realtime.close() }
         realtime.internal.rest.httpExecutor = mockHttpExecutor
         waitUntil(timeout: testTimeout) { done in
@@ -518,7 +518,7 @@ class PushAdminTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.pushFullWait = true
-        let realtime = RealtimeClient(options: options)
+        let realtime = PubSubClient(options: options)
         defer { realtime.dispose(); realtime.close() }
         realtime.internal.rest.httpExecutor = mockHttpExecutor
         waitUntil(timeout: testTimeout) { done in
@@ -539,7 +539,7 @@ class PushAdminTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.pushFullWait = true
-        let realtime = RealtimeClient(options: options)
+        let realtime = PubSubClient(options: options)
         defer { realtime.dispose(); realtime.close() }
         realtime.internal.rest.httpExecutor = mockHttpExecutor
 
@@ -573,7 +573,7 @@ class PushAdminTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.pushFullWait = true
-        let realtime = RealtimeClient(options: options)
+        let realtime = PubSubClient(options: options)
         defer { realtime.dispose(); realtime.close() }
         realtime.internal.rest.httpExecutor = mockHttpExecutor
 
@@ -597,7 +597,7 @@ class PushAdminTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.pushFullWait = true
-        let realtime = RealtimeClient(options: options)
+        let realtime = PubSubClient(options: options)
         defer { realtime.dispose(); realtime.close() }
 
         let params = [
@@ -673,7 +673,7 @@ class PushAdminTests: XCTestCase {
     func test__019__Channel_Subscriptions__save__should_add_a_subscription() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        let realtime = RealtimeClient(options: options)
+        let realtime = PubSubClient(options: options)
         defer { realtime.dispose(); realtime.close() }
         let testProxyHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
         realtime.internal.rest.httpExecutor = testProxyHTTPExecutor
@@ -694,7 +694,7 @@ class PushAdminTests: XCTestCase {
 
     func test__020__Channel_Subscriptions__save__should_update_a_subscription() throws {
         let test = Test()
-        let realtime = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let realtime = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { realtime.dispose(); realtime.close() }
         let updateSubscription = PushChannelSubscription(clientId: subscription.clientId!, channel: "pushenabled:foo")
         waitUntil(timeout: testTimeout) { done in
@@ -707,7 +707,7 @@ class PushAdminTests: XCTestCase {
 
     func test__021__Channel_Subscriptions__save__should_fail_with_a_bad_recipient() throws {
         let test = Test()
-        let realtime = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let realtime = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { realtime.dispose(); realtime.close() }
         let invalidSubscription = PushChannelSubscription(deviceId: "madeup", channel: "pushenabled:foo")
         waitUntil(timeout: testTimeout) { done in
@@ -724,7 +724,7 @@ class PushAdminTests: XCTestCase {
 
     func test__022__Channel_Subscriptions__save__push_device_authentication__should_include_DeviceIdentityToken_HTTP_header() throws {
         let test = Test()
-        let realtime = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let realtime = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { realtime.dispose(); realtime.close() }
         realtime.internal.rest.httpExecutor = mockHttpExecutor
 
@@ -757,7 +757,7 @@ class PushAdminTests: XCTestCase {
 
     func test__023__Channel_Subscriptions__save__push_device_authentication__should_include_DeviceSecret_HTTP_header() throws {
         let test = Test()
-        let realtime = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let realtime = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { realtime.dispose(); realtime.close() }
         realtime.internal.rest.httpExecutor = mockHttpExecutor
 
@@ -780,7 +780,7 @@ class PushAdminTests: XCTestCase {
 
     func test__024__Channel_Subscriptions__list__should_receive_a_list_of_subscriptions() throws {
         let test = Test()
-        let realtime = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let realtime = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { realtime.dispose(); realtime.close() }
         waitUntil(timeout: testTimeout) { done in
             realtime.push.admin.channelSubscriptions.save(subscription) { error in
@@ -801,7 +801,7 @@ class PushAdminTests: XCTestCase {
 
     func test__025__Channel_Subscriptions__listChannels__should_receive_a_list_of_subscriptions() throws {
         let test = Test()
-        let realtime = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let realtime = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { realtime.dispose(); realtime.close() }
         waitUntil(timeout: testTimeout) { done in
             realtime.push.admin.channelSubscriptions.listChannels { result, error in
@@ -820,7 +820,7 @@ class PushAdminTests: XCTestCase {
     func test__026__Channel_Subscriptions__remove__should_remove_a_subscription() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        let realtime = RealtimeClient(options: options)
+        let realtime = PubSubClient(options: options)
         defer { realtime.dispose(); realtime.close() }
         let testProxyHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
         realtime.internal.rest.httpExecutor = testProxyHTTPExecutor
@@ -852,7 +852,7 @@ class PushAdminTests: XCTestCase {
 
     func test__027__Channel_Subscriptions__remove__push_device_authentication__should_include_DeviceIdentityToken_HTTP_header() throws {
         let test = Test()
-        let realtime = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let realtime = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { realtime.dispose(); realtime.close() }
         realtime.internal.rest.httpExecutor = mockHttpExecutor
 
@@ -885,7 +885,7 @@ class PushAdminTests: XCTestCase {
 
     func test__028__Channel_Subscriptions__remove__push_device_authentication__should_include_DeviceSecret_HTTP_header() throws {
         let test = Test()
-        let realtime = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let realtime = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { realtime.dispose(); realtime.close() }
         realtime.internal.rest.httpExecutor = mockHttpExecutor
 
@@ -910,7 +910,7 @@ class PushAdminTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.pushFullWait = true
-        let realtime = RealtimeClient(options: options)
+        let realtime = PubSubClient(options: options)
         defer { realtime.dispose(); realtime.close() }
 
         let params = [
@@ -966,7 +966,7 @@ class PushAdminTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.pushFullWait = true
-        let realtime = RealtimeClient(options: options)
+        let realtime = PubSubClient(options: options)
         defer { realtime.dispose(); realtime.close() }
 
         let params = [
@@ -1012,7 +1012,7 @@ class PushAdminTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.pushFullWait = true
-        let realtime = RealtimeClient(options: options)
+        let realtime = PubSubClient(options: options)
         defer { realtime.dispose(); realtime.close() }
 
         let params = [
@@ -1056,7 +1056,7 @@ class PushAdminTests: XCTestCase {
 
     func test__032__Channel_Subscriptions__removeWhere__should_not_remove_by_inexistent_deviceId() throws {
         let test = Test()
-        let realtime = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let realtime = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { realtime.dispose(); realtime.close() }
 
         let params = [

@@ -12,7 +12,7 @@ struct DefaultInternalPluginTests {
 
     /// An empty marker conformer for `RealtimeChannel`.
     final class StubChannel: NSObject, _AblyPluginSupportPrivate.RealtimeChannel {}
-    /// An empty marker conformer for `RealtimeClient`.
+    /// An empty marker conformer for `PubSubClient`.
     final class StubClient: NSObject, _AblyPluginSupportPrivate.RealtimeClient {}
     /// An empty marker conformer for `Logger`.
     final class StubLogger: NSObject, _AblyPluginSupportPrivate.Logger {}

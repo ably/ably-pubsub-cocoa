@@ -17,7 +17,7 @@
 #import <AblyPubSubDevice/ARTMessage.h>
 #import <AblyPubSubDevice/ARTPresence.h>
 #import <AblyPubSubDevice/ARTPresenceMessage.h>
-#import <AblyPubSubDevice/ARTRealtimeClient.h>
+#import <AblyPubSubDevice/ARTPubSubClient.h>
 #import <AblyPubSubDevice/ARTPubSubDevice.h>
 #import <AblyPubSubDevice/ARTRealtimeChannel.h>
 #import <AblyPubSubDevice/ARTRealtimeChannelOptions.h>

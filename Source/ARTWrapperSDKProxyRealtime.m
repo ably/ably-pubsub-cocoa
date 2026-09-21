@@ -2,13 +2,13 @@
 #import "ARTWrapperSDKProxyRealtimeChannels+Private.h"
 #import "ARTWrapperSDKProxyPush+Private.h"
 #import "ARTWrapperSDKProxyOptions.h"
-#import "ARTRealtimeClient+Private.h"
+#import "ARTPubSubClient+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ARTWrapperSDKProxyRealtime ()
 
-@property (nonatomic, readonly) ARTRealtimeClient *underlyingRealtime;
+@property (nonatomic, readonly) ARTPubSubClient *underlyingRealtime;
 @property (nonatomic, readonly) ARTWrapperSDKProxyOptions *proxyOptions;
 
 @end
@@ -17,14 +17,14 @@ NS_ASSUME_NONNULL_END
 
 @implementation ARTWrapperSDKProxyRealtime
 
-- (instancetype)initWithRealtime:(ARTRealtimeClient *)realtime
-                    proxyOptions:(ARTWrapperSDKProxyOptions *)proxyOptions {
+- (instancetype)initWithPubSub:(ARTPubSubClient *)pubsub
+                  proxyOptions:(ARTWrapperSDKProxyOptions *)proxyOptions {
     if (self = [super init]) {
-        _underlyingRealtime = realtime;
+        _underlyingRealtime = pubsub;
         _proxyOptions = proxyOptions;
-        _channels = [[ARTWrapperSDKProxyRealtimeChannels alloc] initWithChannels:realtime.channels
+        _channels = [[ARTWrapperSDKProxyRealtimeChannels alloc] initWithChannels:pubsub.channels
                                                                     proxyOptions:proxyOptions];
-        _push = [[ARTWrapperSDKProxyPush alloc] initWithPush:realtime.push
+        _push = [[ARTWrapperSDKProxyPush alloc] initWithPush:pubsub.push
                                                 proxyOptions:proxyOptions];
     }
 

@@ -19,7 +19,7 @@ func objectsClientOptions(key: String, useBinaryProtocol: Bool) -> ClientOptions
 }
 
 /// A channel with the object modes (defaults to OBJECT_SUBSCRIBE + OBJECT_PUBLISH).
-func objectsChannel(_ client: RealtimeClient,
+func objectsChannel(_ client: PubSubClient,
                     _ name: String,
                     modes: ChannelMode = [.objectSubscribe, .objectPublish]) -> RealtimeChannel {
     let options = RealtimeChannelOptions()

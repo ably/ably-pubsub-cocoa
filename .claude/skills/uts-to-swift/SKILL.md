@@ -964,7 +964,7 @@ generated tests — integration suites run ungated (they just need network; see 
 
 Suites subclass `IntegrationTestCase` and wrap the scenario in the scoped-resource methods:
 `withSandboxApp { app in … }` provisions a throwaway sandbox app and always deletes it;
-`withRealtimeClient(options) { client in … }` builds a real `RealtimeClient` and always closes it (waiting
+`withRealtimeClient(options) { client in … }` builds a real `PubSubClient` and always closes it (waiting
 for CLOSED).
 
 **Client wiring** — point both transports at the sandbox host; TLS stays on, so the plain sandbox key

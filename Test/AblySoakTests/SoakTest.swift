@@ -46,7 +46,7 @@ class SoakTest: XCTestCase {
                 options.dispatchQueue = queue
                 options.internalDispatchQueue = internalQueue
                 options.testOptions.transportFactory = SoakTestRealtimeTransportFactory()
-                let realtime = RealtimeClient(options: options)
+                let realtime = PubSubClient(options: options)
                 realtime.internal.setReachabilityClass(SoakTestReachability.self)
 
                 realtime.connection.on { stateChange in
@@ -97,7 +97,7 @@ final class SyncValue<T> {
     }
 }
 
-func realtimeOperations(realtime: RealtimeClient, queue: DispatchQueue, shouldStop: @escaping () -> Bool) {
+func realtimeOperations(realtime: PubSubClient, queue: DispatchQueue, shouldStop: @escaping () -> Bool) {
     if shouldStop() {
         return
     }
@@ -125,7 +125,7 @@ func realtimeOperations(realtime: RealtimeClient, queue: DispatchQueue, shouldSt
     }
 }
 
-func channelsOperations(realtime: RealtimeClient, queue: DispatchQueue) {
+func channelsOperations(realtime: PubSubClient, queue: DispatchQueue) {
     queue.afterSeconds(between: 0.1 ... 1.0) {
         if realtime.connection.state == .closed {
             return

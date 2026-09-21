@@ -64,7 +64,7 @@ func pollUntil(_ description: String,
 /// terminal, so the expected state can no longer arrive; waiting out the timeout just hides the
 /// cause).
 @discardableResult
-func awaitState(_ client: RealtimeClient,
+func awaitState(_ client: PubSubClient,
                 _ expected: RealtimeConnectionState,
                 timeout: TimeInterval = 15,
                 sourceLocation: SourceLocation = #_sourceLocation) async -> Bool {

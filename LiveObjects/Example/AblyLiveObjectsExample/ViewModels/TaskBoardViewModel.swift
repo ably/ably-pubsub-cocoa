@@ -14,10 +14,10 @@ final class TaskBoardViewModel: ObservableObject {
 
     private var subscriptions: [String: any Subscription] = [:]
 
-    init(realtime: RealtimeClient, channelName: String = "objects-live-map") {
+    init(client: PubSubClient, channelName: String = "objects-live-map") {
         let channelOptions = RealtimeChannelOptions()
         channelOptions.modes = [.objectPublish, .objectSubscribe]
-        channel = realtime.channels.get(channelName, options: channelOptions)
+        channel = client.channels.get(channelName, options: channelOptions)
         object = channel.object
 
         Task {

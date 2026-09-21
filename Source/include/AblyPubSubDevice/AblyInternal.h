@@ -5,7 +5,7 @@
 #import <AblyPubSubDevice/ARTHttpChannels.h>
 #import <AblyPubSubDevice/ARTHttpPresence.h>
 #import <AblyPubSubDevice/ARTHttpAnnotations.h>
-#import <AblyPubSubDevice/ARTRealtimeClient+WrapperSDKProxy.h>
+#import <AblyPubSubDevice/ARTPubSubClient+WrapperSDKProxy.h>
 #import <AblyPubSubDevice/ARTWrapperSDKProxyOptions.h>
 #import <AblyPubSubDevice/ARTWrapperSDKProxyRealtime.h>
 #import <AblyPubSubDevice/ARTWrapperSDKProxyRealtimeChannels.h>

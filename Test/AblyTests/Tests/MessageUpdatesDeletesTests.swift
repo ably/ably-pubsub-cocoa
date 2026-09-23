@@ -10,7 +10,7 @@ class MessageUpdatesDeletesTests: XCTestCase {
 
     private enum TestEnvironment {
         case rest(client: HttpClient, testHTTPExecutor: TestProxyHTTPExecutor, channelName: String)
-        case realtime(client: RealtimeClient, testHTTPExecutor: TestProxyHTTPExecutor, channelName: String)
+        case realtime(client: PubSubClient, testHTTPExecutor: TestProxyHTTPExecutor, channelName: String)
 
         var channel: ChannelProtocol {
             switch self {
@@ -21,7 +21,7 @@ class MessageUpdatesDeletesTests: XCTestCase {
             }
         }
 
-        var realtimeClient: RealtimeClient? {
+        var realtimeClient: PubSubClient? {
             switch self {
             case .rest(_, _, _):
                 return nil
@@ -51,7 +51,7 @@ class MessageUpdatesDeletesTests: XCTestCase {
         static func realtime(_ test: Test) throws -> TestEnvironment {
             let options = try AblyTests.commonAppSetup(for: test)
             options.testOptions.channelNamePrefix = nil
-            let client = RealtimeClient(options: options)
+            let client = PubSubClient(options: options)
             let testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
             client.internal.rest.httpExecutor = testHTTPExecutor
             let channelName = test.uniqueChannelName(prefix: "mutable:")
@@ -603,7 +603,7 @@ class MessageUpdatesDeletesTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.testOptions.channelNamePrefix = nil
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.close() }
         let channelName = test.uniqueChannelName(prefix: "mutable:")
         let channel = client.channels.get(channelName)

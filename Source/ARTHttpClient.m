@@ -26,7 +26,7 @@
 #import "ARTTokenDetails.h"
 #import "ARTDefault.h"
 #import "ARTGCD.h"
-#import "ARTRealtimeClient+Private.h"
+#import "ARTPubSubClient+Private.h"
 #import "ARTPush.h"
 #import "ARTPush+Private.h"
 #import "ARTLocalDevice+Private.h"
@@ -163,7 +163,7 @@ NS_ASSUME_NONNULL_END
     return [self initWithOptions:options realtime:nil logger:logger];
 }
 
-- (instancetype)initWithOptions:(ARTClientOptions *)options realtime:(ARTRealtimeClientInternal *_Nullable)realtime logger:(ARTInternalLog *)logger {
+- (instancetype)initWithOptions:(ARTClientOptions *)options realtime:(ARTPubSubClientInternal *_Nullable)realtime logger:(ARTInternalLog *)logger {
     self = [super init];
     if (self) {
         NSAssert(options, @"ARTHttpClient: No options provided");

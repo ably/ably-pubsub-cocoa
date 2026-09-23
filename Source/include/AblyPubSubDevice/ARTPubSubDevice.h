@@ -1,4 +1,4 @@
-#import <AblyPubSubDevice/ARTRealtimeClient.h>
+#import <AblyPubSubDevice/ARTPubSubClient.h>
 #import <AblyPubSubDevice/ARTClientOptions.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
  * traffic counts toward the total, the connection must carry a `clientId`, and that `clientId` is
  * subject to a concurrency limit.
  *
- * The returned object is an `ARTRealtimeClient`, and it behaves like any other client of that
+ * The returned object is an `ARTPubSubClient`, and it behaves like any other client of that
  * class, so all of the Ably Pub/Sub documentation applies to it unchanged.
  */
 NS_SWIFT_NAME(PubSubDevice)
@@ -30,7 +30,7 @@ NS_SWIFT_NAME(PubSubDevice)
  *
  * @return A realtime client that declares it is running on an end user's device.
  */
-+ (ARTRealtimeClient *)createClientWithOptions:(ARTClientOptions *)options NS_SWIFT_NAME(createClient(options:));
++ (ARTPubSubClient *)createClientWithOptions:(ARTClientOptions *)options NS_SWIFT_NAME(createClient(options:));
 
 /**
  * Creates a client that authenticates with an API key.
@@ -42,7 +42,7 @@ NS_SWIFT_NAME(PubSubDevice)
  *
  * @return A realtime client that declares it is running on an end user's device.
  */
-+ (ARTRealtimeClient *)createClientWithKey:(NSString *)key NS_SWIFT_NAME(createClient(key:));
++ (ARTPubSubClient *)createClientWithKey:(NSString *)key NS_SWIFT_NAME(createClient(key:));
 
 /**
  * Creates a client that authenticates with an existing token.
@@ -51,7 +51,7 @@ NS_SWIFT_NAME(PubSubDevice)
  *
  * @return A realtime client that declares it is running on an end user's device.
  */
-+ (ARTRealtimeClient *)createClientWithToken:(NSString *)token NS_SWIFT_NAME(createClient(token:));
++ (ARTPubSubClient *)createClientWithToken:(NSString *)token NS_SWIFT_NAME(createClient(token:));
 
 @end
 

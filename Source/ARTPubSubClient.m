@@ -1,10 +1,10 @@
 //
-//  ARTRealtimeClient.m
+//  ARTPubSubClient.m
 //
 //
 
-#import "ARTRealtimeClient+Private.h"
-#import "ARTRealtimeClient+WrapperSDKProxy.h"
+#import "ARTPubSubClient+Private.h"
+#import "ARTPubSubClient+WrapperSDKProxy.h"
 
 #import "ARTRealtimeChannel+Private.h"
 #import "ARTStatus.h"
@@ -65,19 +65,19 @@
 
 @end
 
-#pragma mark - ARTRealtimeClient implementation
+#pragma mark - ARTPubSubClient implementation
 
-@implementation ARTRealtimeClient {
+@implementation ARTPubSubClient {
     ARTQueuedDealloc *_dealloc;
 }
 
-- (void)internalAsync:(void (^)(ARTRealtimeClientInternal * _Nonnull))use {
+- (void)internalAsync:(void (^)(ARTPubSubClientInternal * _Nonnull))use {
     art_dispatch_async(_internal.queue, ^{
         use(self->_internal);
     });
 }
 
-- (void)internalSync:(void (^)(ARTRealtimeClientInternal * _Nonnull))use {
+- (void)internalSync:(void (^)(ARTPubSubClientInternal * _Nonnull))use {
     art_dispatch_sync(_internal.queue, ^{
         use(self->_internal);
     });
@@ -88,7 +88,7 @@
 }
 
 - (ARTRealtimeChannels *)channels {
-    return [[ARTRealtimeChannels alloc] initWithInternal:_internal.channels realtimeInternal:_internal queuedDealloc:_dealloc];
+    return [[ARTRealtimeChannels alloc] initWithInternal:_internal.channels pubsubInternal:_internal queuedDealloc:_dealloc];
 }
 
 - (ARTAuth *)auth {
@@ -116,7 +116,7 @@
 - (instancetype)initWithOptions:(ARTClientOptions *)options {
     self = [super init];
     if (self) {
-        _internal = [[ARTRealtimeClientInternal alloc] initWithOptions:options];
+        _internal = [[ARTPubSubClientInternal alloc] initWithOptions:options];
         [self initCommon];
     }
     return self;
@@ -125,7 +125,7 @@
 - (instancetype)initWithKey:(NSString *)key {
     self = [super init];
     if (self) {
-        _internal = [[ARTRealtimeClientInternal alloc] initWithKey:key];
+        _internal = [[ARTPubSubClientInternal alloc] initWithKey:key];
         [self initCommon];
     }
     return self;
@@ -134,7 +134,7 @@
 - (instancetype)initWithToken:(NSString *)token {
     self = [super init];
     if (self) {
-        _internal = [[ARTRealtimeClientInternal alloc] initWithToken:token];
+        _internal = [[ARTPubSubClientInternal alloc] initWithToken:token];
         [self initCommon];
     }
     return self;
@@ -178,10 +178,10 @@
 
 @end
 
-@implementation ARTRealtimeClient (WrapperSDKProxy)
+@implementation ARTPubSubClient (WrapperSDKProxy)
 
 - (ARTWrapperSDKProxyRealtime *)createWrapperSDKProxyWithOptions:(ARTWrapperSDKProxyOptions *)options {
-    return [[ARTWrapperSDKProxyRealtime alloc] initWithRealtime:self
+    return [[ARTWrapperSDKProxyRealtime alloc] initWithPubSub:self
                                                    proxyOptions:options];
 
 }
@@ -190,7 +190,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ARTRealtimeClientInternal ()
+@interface ARTPubSubClientInternal ()
 
 @property (nonatomic, readonly) ARTConnectRetryState *connectRetryState;
 @property (nonatomic, readonly) ARTInternalLog *logger;
@@ -211,7 +211,7 @@ typedef NS_ENUM(NSUInteger, ARTNetworkState) {
     ARTNetworkStateIsUnreachable
 };
 
-@implementation ARTRealtimeClientInternal {
+@implementation ARTPubSubClientInternal {
     BOOL _resuming;
     BOOL _renewingToken;
     NSTimeInterval _immediateReconnectionDelay;
@@ -235,7 +235,7 @@ typedef NS_ENUM(NSUInteger, ARTNetworkState) {
 - (instancetype)initWithOptions:(ARTClientOptions *)options {
     self = [super init];
     if (self) {
-        NSAssert(options, @"ARTRealtimeClient: No options provided");
+        NSAssert(options, @"ARTPubSubClient: No options provided");
 
         _logger = [[ARTInternalLog alloc] initWithClientOptions:options];
         _timeProvider = options.testOptions.timeProvider;
@@ -245,7 +245,7 @@ typedef NS_ENUM(NSUInteger, ARTNetworkState) {
         _internalEventEmitter = [[ARTInternalEventEmitter alloc] initWithQueue:_rest.queue timeProvider:_timeProvider];
         _connectedEventEmitter = [[ARTInternalEventEmitter alloc] initWithQueue:_rest.queue timeProvider:_timeProvider];
         _pingEventEmitter = [[ARTInternalEventEmitter alloc] initWithQueue:_rest.queue timeProvider:_timeProvider];
-        _channels = [[ARTRealtimeChannelsInternal alloc] initWithRealtime:self logger:self.logger];
+        _channels = [[ARTRealtimeChannelsInternal alloc] initWithPubSub:self logger:self.logger];
         _transport = nil;
         _networkState = ARTNetworkStateIsUnknown;
         _reachabilityClass = options.testOptions.reachabilityClass;
@@ -254,7 +254,7 @@ typedef NS_ENUM(NSUInteger, ARTNetworkState) {
         _pendingMessages = [NSMutableArray array];
         _pendingMessageStartSerial = 0;
         _pendingAuthorizations = [NSMutableArray array];
-        _connection = [[ARTConnectionInternal alloc] initWithRealtime:self logger:self.logger];
+        _connection = [[ARTConnectionInternal alloc] initWithPubSub:self logger:self.logger];
         _connectionStateTtl = [ARTDefault connectionStateTtl];
         _immediateReconnectionDelay = 0.1;
         const id<ARTRetryDelayCalculator> connectRetryDelayCalculator = [[ARTBackoffRetryDelayCalculator alloc] initWithInitialRetryTimeout:options.disconnectedRetryTimeout
@@ -619,9 +619,9 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
         _reachability = [[_reachabilityClass alloc] initWithLogger:self.logger queue:_queue];
     }
     if (active) {
-        __weak ARTRealtimeClientInternal *weakSelf = self;
+        __weak ARTPubSubClientInternal *weakSelf = self;
         [_reachability listenForHost:[_transport host] callback:^(BOOL reachable) {
-            ARTRealtimeClientInternal *strongSelf = weakSelf;
+            ARTPubSubClientInternal *strongSelf = weakSelf;
             if (!strongSelf) return;
 
             ARTNetworkState previousState = strongSelf->_networkState;

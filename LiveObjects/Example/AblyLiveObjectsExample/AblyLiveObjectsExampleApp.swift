@@ -4,7 +4,7 @@ import SwiftUI
 
 @main
 struct AblyLiveObjectsExampleApp: App {
-    private func getRealtime() -> RealtimeClient {
+    private func getClient() -> PubSubClient {
         let clientOptions = ClientOptions(key: Secrets.ablyAPIKey)
         clientOptions.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]
         return PubSubDevice.createClient(options: clientOptions)
@@ -13,10 +13,10 @@ struct AblyLiveObjectsExampleApp: App {
     var body: some Scene {
         WindowGroup {
             #if os(macOS)
-                ContentView(realtime1: getRealtime(), realtime2: getRealtime())
+                ContentView(client1: getClient(), client2: getClient())
                     .frame(width: 400, height: 700, alignment: .center)
             #else
-                ContentView(realtime1: getRealtime(), realtime2: getRealtime())
+                ContentView(client1: getClient(), client2: getClient())
             #endif
         }
         #if os(macOS)

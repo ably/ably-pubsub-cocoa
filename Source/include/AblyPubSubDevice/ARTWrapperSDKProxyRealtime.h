@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import <AblyPubSubDevice/ARTRealtimeClient.h>
+#import <AblyPubSubDevice/ARTPubSubClient.h>
 
 @class ARTConnection;
 @class ARTWrapperSDKProxyRealtimeChannels;
@@ -9,7 +9,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * An object which wraps an instance of `ARTRealtimeClient` and provides a similar API. It allows Ably-authored wrapper SDKs to send analytics information so that Ably can track the usage of the wrapper SDK.
+ * An object which wraps an instance of `ARTPubSubClient` and provides a similar API. It allows Ably-authored wrapper SDKs to send analytics information so that Ably can track the usage of the wrapper SDK.
  *
  * - Important: This class should only be used by Ably-authored SDKs.
  */

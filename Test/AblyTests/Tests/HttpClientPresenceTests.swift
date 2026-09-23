@@ -15,7 +15,7 @@ class HttpClientPresenceTests: XCTestCase {
         let channelName = test.uniqueChannelName()
         let channel = client.channels.get(channelName)
 
-        var disposable = [RealtimeClient]()
+        var disposable = [PubSubClient]()
         defer {
             for clientItem in disposable {
                 clientItem.dispose()
@@ -91,7 +91,7 @@ class HttpClientPresenceTests: XCTestCase {
         let client = HttpClient(options: options)
         let channel = client.channels.get(channelName)
 
-        let realtime = RealtimeClient(options: options)
+        let realtime = PubSubClient(options: options)
         defer { realtime.close() }
         let realtimeChannel = realtime.channels.get(channelName)
 
@@ -127,7 +127,7 @@ class HttpClientPresenceTests: XCTestCase {
         let channelName = test.uniqueChannelName()
         let channel = client.channels.get(channelName)
 
-        var disposable = [RealtimeClient]()
+        var disposable = [PubSubClient]()
         defer {
             for clientItem in disposable {
                 clientItem.dispose()
@@ -172,7 +172,7 @@ class HttpClientPresenceTests: XCTestCase {
         let channelName = test.uniqueChannelName()
         let channel = client.channels.get(channelName)
 
-        var realtime: RealtimeClient!
+        var realtime: PubSubClient!
         defer { realtime.dispose(); realtime.close() }
 
         let expectedData = "online"
@@ -232,7 +232,7 @@ class HttpClientPresenceTests: XCTestCase {
         let channelName = test.uniqueChannelName()
         let channel = client.channels.get(channelName)
 
-        var disposable = [RealtimeClient]()
+        var disposable = [PubSubClient]()
         defer {
             for clientItem in disposable {
                 clientItem.dispose()
@@ -287,7 +287,7 @@ class HttpClientPresenceTests: XCTestCase {
         let channelName = test.uniqueChannelName()
         let channel = client.channels.get(channelName)
 
-        var realtime: RealtimeClient!
+        var realtime: PubSubClient!
         defer { realtime.dispose(); realtime.close() }
         realtime = AblyTests.addMembersSequentiallyToChannel(channelName, members: 1, options: options)
 
@@ -323,7 +323,7 @@ class HttpClientPresenceTests: XCTestCase {
         let channelName = test.uniqueChannelName()
         let channel = client.channels.get(channelName)
 
-        var disposable = [RealtimeClient]()
+        var disposable = [PubSubClient]()
         defer {
             for clientItem in disposable {
                 clientItem.dispose()
@@ -370,7 +370,7 @@ class HttpClientPresenceTests: XCTestCase {
         let channelName = test.uniqueChannelName()
         let channel = client.channels.get(channelName)
 
-        var disposable = [RealtimeClient]()
+        var disposable = [PubSubClient]()
         defer {
             for clientItem in disposable {
                 clientItem.dispose()
@@ -454,7 +454,7 @@ class HttpClientPresenceTests: XCTestCase {
             channel.publish(nil, data: expectedData) { _ in done() }
         }
 
-        let realtime = RealtimeClient(options: options)
+        let realtime = PubSubClient(options: options)
         defer { realtime.dispose(); realtime.close() }
         waitUntil(timeout: testTimeout) { done in
             let partialDone = AblyTests.splitDone(2, done: done)

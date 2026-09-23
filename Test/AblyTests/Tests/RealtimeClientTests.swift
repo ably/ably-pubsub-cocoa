@@ -35,7 +35,7 @@ class RealtimeClientTests: XCTestCase {
     }
 
     enum AblyManager {
-        static let sharedClient = RealtimeClient(options: { $0.autoConnect = false; return $0 }(ClientOptions(key: "xxxx:xxxx")))
+        static let sharedClient = PubSubClient(options: { $0.autoConnect = false; return $0 }(ClientOptions(key: "xxxx:xxxx")))
     }
 
     // G4
@@ -65,7 +65,7 @@ class RealtimeClientTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test) // Same as Rest
         options.clientId = "client_string"
 
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.close() }
 
         waitUntil(timeout: testTimeout) { done in
@@ -105,7 +105,7 @@ class RealtimeClientTests: XCTestCase {
         options.clientId = "client_string"
 
         // First connection
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.close() }
 
         waitUntil(timeout: testTimeout) { done in
@@ -131,7 +131,7 @@ class RealtimeClientTests: XCTestCase {
         client.connection.off()
 
         // New connection
-        let newClient = RealtimeClient(options: options)
+        let newClient = PubSubClient(options: options)
         defer { newClient.close() }
 
         waitUntil(timeout: testTimeout) { done in
@@ -158,7 +158,7 @@ class RealtimeClientTests: XCTestCase {
         let options = ClientOptions(key: "secret:key")
         options.realtimeHost = "fake.ably.io"
         options.autoConnect = false
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         waitUntil(timeout: testTimeout.multiplied(by: 3)) { done in
@@ -210,7 +210,7 @@ class RealtimeClientTests: XCTestCase {
             "v": .init(string: "v12.34"),
         ]
 
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         waitUntil(timeout: testTimeout) { done in
@@ -245,7 +245,7 @@ class RealtimeClientTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.autoConnect = false
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         expect(client.connection).to(beAKindOf(Connection.self))
     }
 
@@ -255,7 +255,7 @@ class RealtimeClientTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
         options.autoConnect = false
 
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         let channelName = test.uniqueChannelName()
@@ -271,7 +271,7 @@ class RealtimeClientTests: XCTestCase {
     func test__020__RealtimeClient__Auth_object__should_provide_access_to_the_Auth_object() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.close() }
         XCTAssertEqual(client.auth.internal.options.key, options.key)
     }
@@ -281,7 +281,7 @@ class RealtimeClientTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.clientId = "client_string"
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.close() }
 
         waitUntil(timeout: testTimeout) { done in
@@ -306,7 +306,7 @@ class RealtimeClientTests: XCTestCase {
     // RTC5a
     func test__022__RealtimeClient__stats__should_present_an_async_interface() throws {
         let test = Test()
-        let client = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.close() }
         // Async
         waitUntil(timeout: testTimeout) { done in
@@ -323,7 +323,7 @@ class RealtimeClientTests: XCTestCase {
     // RTC5b
     func test__023__RealtimeClient__stats__should_accept_all_the_same_params_as_RestClient() throws {
         let test = Test()
-        let client = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.close() }
         var paginatedResult: PaginatedResult<AnyObject>?
         waitUntil(timeout: testTimeout) { done in
@@ -368,7 +368,7 @@ class RealtimeClientTests: XCTestCase {
     // RTC6a
     func test__024__RealtimeClient__time__should_present_an_async_interface() throws {
         let test = Test()
-        let client = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.close() }
         // Async
         waitUntil(timeout: testTimeout) { done in
@@ -386,7 +386,7 @@ class RealtimeClientTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
         options.suspendedRetryTimeout = 6.0
 
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.close() }
 
         var start: NSDate?
@@ -438,7 +438,7 @@ class RealtimeClientTests: XCTestCase {
         options.autoConnect = false
         options.useTokenAuth = true
         options.testOptions.transportFactory = TestProxyTransportFactory()
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         waitUntil(timeout: testTimeout) { done in
@@ -496,7 +496,7 @@ class RealtimeClientTests: XCTestCase {
         let testToken = try getTestToken(for: test)
         options.token = testToken
         options.testOptions.transportFactory = TestProxyTransportFactory()
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         waitUntil(timeout: testTimeout) { done in
@@ -557,7 +557,7 @@ class RealtimeClientTests: XCTestCase {
         let testToken = try getTestToken(for: test, capability: "{\"test\":[\"subscribe\"]}")
         options.token = testToken
         options.testOptions.transportFactory = TestProxyTransportFactory()
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         waitUntil(timeout: testTimeout) { done in
@@ -649,7 +649,7 @@ class RealtimeClientTests: XCTestCase {
         let testToken = try getTestToken(for: test)
         options.token = testToken
         options.testOptions.transportFactory = TestProxyTransportFactory()
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         let channel = client.channels.get(test.uniqueChannelName())
@@ -711,7 +711,7 @@ class RealtimeClientTests: XCTestCase {
         options.clientId = "ios"
         options.useTokenAuth = true
         options.testOptions.transportFactory = TestProxyTransportFactory()
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         waitUntil(timeout: testTimeout) { done in
@@ -760,7 +760,7 @@ class RealtimeClientTests: XCTestCase {
         let options = try AblyTests.clientOptions(for: test)
         let testToken = try getTestToken(for: test)
         options.token = testToken
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         waitUntil(timeout: testTimeout) { done in
@@ -804,7 +804,7 @@ class RealtimeClientTests: XCTestCase {
         options.autoConnect = false
         options.useTokenAuth = true
         options.testOptions.transportFactory = TestProxyTransportFactory()
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         waitUntil(timeout: testTimeout) { done in
@@ -839,7 +839,7 @@ class RealtimeClientTests: XCTestCase {
         options.autoConnect = false
         options.useTokenAuth = true
         options.testOptions.transportFactory = TestProxyTransportFactory()
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         var connections = 0
@@ -896,7 +896,7 @@ class RealtimeClientTests: XCTestCase {
         options.autoConnect = false
         let testToken = try getTestToken(for: test)
         options.token = testToken
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         waitUntil(timeout: testTimeout) { done in
@@ -927,7 +927,7 @@ class RealtimeClientTests: XCTestCase {
         options.autoConnect = false
         options.useTokenAuth = true
         options.testOptions.transportFactory = TestProxyTransportFactory()
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         waitUntil(timeout: testTimeout) { done in
@@ -978,7 +978,7 @@ class RealtimeClientTests: XCTestCase {
         options.autoConnect = false
         options.useTokenAuth = true
         options.testOptions.transportFactory = TestProxyTransportFactory()
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         waitUntil(timeout: testTimeout) { done in
@@ -1020,7 +1020,7 @@ class RealtimeClientTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
         options.autoConnect = false
         options.useTokenAuth = true
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         waitUntil(timeout: testTimeout) { done in
@@ -1066,7 +1066,7 @@ class RealtimeClientTests: XCTestCase {
         let testToken = try getTestToken(for: test)
         options.token = testToken
         options.testOptions.transportFactory = TestProxyTransportFactory()
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         waitUntil(timeout: testTimeout) { done in
@@ -1122,7 +1122,7 @@ class RealtimeClientTests: XCTestCase {
         let testToken = try getTestToken(for: test)
         options.token = testToken
         options.testOptions.transportFactory = TestProxyTransportFactory()
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         waitUntil(timeout: testTimeout) { done in
@@ -1178,7 +1178,7 @@ class RealtimeClientTests: XCTestCase {
         let testToken = try getTestToken(for: test)
         options.token = testToken
         options.testOptions.transportFactory = TestProxyTransportFactory()
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         waitUntil(timeout: testTimeout) { done in
@@ -1234,7 +1234,7 @@ class RealtimeClientTests: XCTestCase {
         let testToken = try getTestToken(for: test)
         options.token = testToken
         options.testOptions.transportFactory = TestProxyTransportFactory()
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         waitUntil(timeout: testTimeout) { done in
@@ -1287,7 +1287,7 @@ class RealtimeClientTests: XCTestCase {
         let test = Test()
         waitUntil(timeout: testTimeout) { done in
             URLSession.shared.dataTask(with: URL(string: "https://ably.com")!) { _, _, _ in
-                let realtime: RealtimeClient
+                let realtime: PubSubClient
 
                 do {
                     realtime = .init(options: try AblyTests.commonAppSetup(for: test))
@@ -1358,7 +1358,7 @@ class RealtimeClientTests: XCTestCase {
 
     func test__007__RealtimeClient__transport_should_guarantee_the_incoming_message_order() throws {
         let test = Test()
-        let realtime = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let realtime = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { realtime.dispose(); realtime.close() }
         waitUntil(timeout: testTimeout) { done in
             realtime.connection.on(.connected) { _ in
@@ -1397,8 +1397,8 @@ class RealtimeClientTests: XCTestCase {
     func test__008__RealtimeClient__subscriber_should_receive_messages_in_the_same_order_in_which_they_have_been_sent() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        let realtime1 = RealtimeClient(options: options)
-        let realtime2 = RealtimeClient(options: options)
+        let realtime1 = PubSubClient(options: options)
+        let realtime2 = PubSubClient(options: options)
         defer {
             realtime1.dispose(); realtime1.close()
             realtime2.dispose(); realtime2.close()
@@ -1464,7 +1464,7 @@ class RealtimeClientTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.autoConnect = false
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         client.connect()
@@ -1482,7 +1482,7 @@ class RealtimeClientTests: XCTestCase {
     func test__011__RealtimeClient__should_never_register_any_message_and_channel_listeners_for_internal_use_with_the_public_EventEmitter() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         let channel = client.channels.get(test.uniqueChannelName())
@@ -1518,7 +1518,7 @@ class RealtimeClientTests: XCTestCase {
     func test__012__RealtimeClient__moves_to_DISCONNECTED_on_an_unexpected_normal_WebSocket_close() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         let channelName = test.uniqueChannelName()
@@ -1546,7 +1546,7 @@ class RealtimeClientTests: XCTestCase {
     func test__041__If_the_total_size_of_message_s__exceeds_the_maxMessageSize__the_client_library_should_reject_the_publish_and_indicate_an_error() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         let channel = client.channels.get(test.uniqueChannelName())
         let messages = buildMessagesThatExceedMaxMessageSize()
         defer { client.dispose(); client.close() }
@@ -1566,7 +1566,7 @@ class RealtimeClientTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.clientId = clientId
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         let channel = client.channels.get(test.uniqueChannelName())
         defer { client.dispose(); client.close() }
 
@@ -1584,7 +1584,7 @@ class RealtimeClientTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.clientId = clientId
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         let channel = client.channels.get(test.uniqueChannelName())
         defer { client.dispose(); client.close() }
 
@@ -1602,7 +1602,7 @@ class RealtimeClientTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.clientId = clientId
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         let channel = client.channels.get(test.uniqueChannelName())
         defer { client.dispose(); client.close() }
 
@@ -1620,7 +1620,7 @@ class RealtimeClientTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.clientId = clientId
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         let channel = client.channels.get(test.uniqueChannelName())
         defer { client.dispose(); client.close() }
 
@@ -1638,7 +1638,7 @@ class RealtimeClientTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.clientId = clientId
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         let channel = client.channels.get(test.uniqueChannelName())
         defer { client.dispose(); client.close() }
 
@@ -1658,7 +1658,7 @@ class RealtimeClientTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
         options.autoConnect = false
         options.token = try getTestToken(for: test, clientId: "tester")
-        let realtime = RealtimeClient(options: options)
+        let realtime = PubSubClient(options: options)
         defer { realtime.dispose(); realtime.close() }
         XCTAssertNil(realtime.auth.clientId)
 

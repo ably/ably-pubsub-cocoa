@@ -2,7 +2,7 @@
 #import <AblyPubSubDevice/ARTTypes.h>
 
 @class ARTHttpClient;
-@class ARTRealtimeClient;
+@class ARTPubSubClient;
 @class ARTPushAdmin;
 @class ARTDeviceDetails;
 @class ARTDeviceIdentityTokenDetails;
@@ -69,18 +69,18 @@ NS_SWIFT_NAME(PushProtocol)
 // Push Registration token
 
 /// See [iOS push notifications tutorial](https://ably.com/tutorials/ios-push-notifications#step7-register-push-ably) for details.
-+ (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken realtime:(ARTRealtimeClient *)realtime;
++ (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken pubsub:(ARTPubSubClient *)pubsub;
 
 /// See [iOS push notifications tutorial](https://ably.com/tutorials/ios-push-notifications#step7-register-push-ably) for details.
-+ (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error realtime:(ARTRealtimeClient *)realtime;
++ (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error pubsub:(ARTPubSubClient *)pubsub;
 
 // Location Push Registration token
 
 /// Registers location device token within Ably service. You obtain it by calling `CLLocationManager.startMonitoringLocationPushes(completion:)`.
-+ (void)didRegisterForLocationNotificationsWithDeviceToken:(NSData *)deviceToken realtime:(ARTRealtimeClient *)realtime;
++ (void)didRegisterForLocationNotificationsWithDeviceToken:(NSData *)deviceToken pubsub:(ARTPubSubClient *)pubsub;
 
 /// Call this method if you got an error calling `CLLocationManager.startMonitoringLocationPushes(completion:)`.
-+ (void)didFailToRegisterForLocationNotificationsWithError:(NSError *)error realtime:(ARTRealtimeClient *)realtime;
++ (void)didFailToRegisterForLocationNotificationsWithError:(NSError *)error pubsub:(ARTPubSubClient *)pubsub;
 
 // Live Activity push-to-start token
 

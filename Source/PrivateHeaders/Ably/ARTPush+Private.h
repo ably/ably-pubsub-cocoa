@@ -30,19 +30,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken rest:(ARTHttpClient *)rest;
 
-+ (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken realtime:(ARTRealtimeClient *)realtime;
++ (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken pubsub:(ARTPubSubClient *)pubsub;
 
 + (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error rest:(ARTHttpClient *)rest;
 
-+ (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error realtime:(ARTRealtimeClient *)realtime;
++ (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error pubsub:(ARTPubSubClient *)pubsub;
 
 + (void)didRegisterForLocationNotificationsWithDeviceToken:(NSData *)deviceToken rest:(ARTHttpClient *)rest;
 
-+ (void)didRegisterForLocationNotificationsWithDeviceToken:(NSData *)deviceToken realtime:(ARTRealtimeClient *)realtime;
++ (void)didRegisterForLocationNotificationsWithDeviceToken:(NSData *)deviceToken pubsub:(ARTPubSubClient *)pubsub;
 
 + (void)didFailToRegisterForLocationNotificationsWithError:(NSError *)error rest:(ARTHttpClient *)rest;
 
-+ (void)didFailToRegisterForLocationNotificationsWithError:(NSError *)error realtime:(ARTRealtimeClient *)realtime;
++ (void)didFailToRegisterForLocationNotificationsWithError:(NSError *)error pubsub:(ARTPubSubClient *)pubsub;
 
 - (void)registerPushToStartToken:(NSData *)token;
 

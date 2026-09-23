@@ -1,4 +1,4 @@
-#import <AblyPubSubDevice/ARTRealtimeClient.h>
+#import <AblyPubSubDevice/ARTPubSubClient.h>
 #import <AblyPubSubDevice/ARTEventEmitter.h>
 #import <AblyPubSubDevice/ARTTypes.h>
 #import "ARTMessageSendStatus.h"
@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 ///
 /// Applications use `+[ARTPubSubDevice createClientWithOptions:]`, which declares that the
 /// client runs on an end user's device. These initializers are for the SDK and its tests.
-@interface ARTRealtimeClient (Construction)
+@interface ARTPubSubClient (Construction)
 
 - (instancetype)initWithOptions:(ARTClientOptions *)options;
 - (instancetype)initWithKey:(NSString *)key;
@@ -35,19 +35,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface ARTRealtimeClient ()
+@interface ARTPubSubClient ()
 
-@property (nonatomic, readonly) ARTRealtimeClientInternal *internal;
+@property (nonatomic, readonly) ARTPubSubClientInternal *internal;
 
-- (void)internalAsync:(void (^)(ARTRealtimeClientInternal *))use;
-- (void)internalSync:(void (^)(ARTRealtimeClientInternal *))use;
+- (void)internalAsync:(void (^)(ARTPubSubClientInternal *))use;
+- (void)internalSync:(void (^)(ARTPubSubClientInternal *))use;
 
 @end
 
 #ifdef ABLY_SUPPORTS_PLUGINS
-@interface ARTRealtimeClientInternal : NSObject <APRealtimeClient>
+@interface ARTPubSubClientInternal : NSObject <APRealtimeClient>
 #else
-@interface ARTRealtimeClientInternal : NSObject
+@interface ARTPubSubClientInternal : NSObject
 #endif
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -96,7 +96,7 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
 
 @end
 
-@interface ARTRealtimeClientInternal () <ARTRealtimeTransportDelegate, ARTAuthDelegate>
+@interface ARTPubSubClientInternal () <ARTRealtimeTransportDelegate, ARTAuthDelegate>
 
 @property (readonly, nonatomic) ARTEventEmitter<ARTEvent *, ARTConnectionStateChange *> *internalEventEmitter;
 @property (readonly, nonatomic) ARTEventEmitter<ARTEvent *, NSNull *> *connectedEventEmitter;
@@ -112,8 +112,8 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
 
 @end
 
-/// ARTRealtimeClientInternal private methods that are used for internal testing.
-@interface ARTRealtimeClientInternal ()
+/// ARTPubSubClientInternal private methods that are used for internal testing.
+@interface ARTPubSubClientInternal ()
 
 @property (readwrite, nonatomic) ARTHttpClientInternal *rest;
 @property (readonly, nullable) id<ARTRealtimeTransport> transport;
@@ -143,7 +143,7 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
 
 @end
 
-@interface ARTRealtimeClientInternal (Private)
+@interface ARTPubSubClientInternal (Private)
 
 - (BOOL)isActive;
 

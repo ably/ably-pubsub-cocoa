@@ -37,12 +37,12 @@ final class LiveCounterViewModel: ObservableObject {
 
     private var subscriptions: [String: any Subscription] = [:]
 
-    init(realtime: RealtimeClient) {
+    init(client: PubSubClient) {
         // Use URL parameters or default channel name
         let channelName = "live-objects-counter"
         let channelOptions = RealtimeChannelOptions()
         channelOptions.modes = [.objectPublish, .objectSubscribe]
-        channel = realtime.channels.get(channelName, options: channelOptions)
+        channel = client.channels.get(channelName, options: channelOptions)
         object = channel.object
 
         Task {

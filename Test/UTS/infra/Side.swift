@@ -14,7 +14,7 @@ import AblyPubSubDevice
 /// fallback would turn a mistyped CI leg into a second copy of the core run and report it as
 /// coverage.
 enum UTSSide: String, Sendable {
-    /// Today's constructors, `RealtimeClient(options:)`.
+    /// Today's constructors, `PubSubClient(options:)`.
     case core
     /// `AblyPubSubDevice`'s factory, the entry point an app uses.
     case device
@@ -37,10 +37,10 @@ enum UTSSide: String, Sendable {
 ///
 /// HTTP clients are deliberately not routed through this: the device package exposes no HTTP door,
 /// so `HttpClient` is the only entry point for a stateless client in either mode.
-func makeRealtimeForSide(options: ClientOptions) -> RealtimeClient {
+func makeRealtimeForSide(options: ClientOptions) -> PubSubClient {
     switch UTSSide.current {
     case .core:
-        return RealtimeClient(options: options)
+        return PubSubClient(options: options)
     case .device:
         return PubSubDevice.createClient(options: options)
     }

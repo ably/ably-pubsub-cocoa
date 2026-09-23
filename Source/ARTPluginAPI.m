@@ -41,11 +41,11 @@ static ARTRealtimeChannelInternal *_internalRealtimeChannel(id<APRealtimeChannel
     return (ARTRealtimeChannelInternal *)pluginRealtimeChannel;
 }
 
-static ARTRealtimeClientInternal *_internalRealtimeClient(id<APRealtimeClient> pluginRealtimeClient) {
-    if (![pluginRealtimeClient isKindOfClass:[ARTRealtimeClientInternal class]]) {
-        [NSException raise:NSInternalInconsistencyException format:@"Expected ARTRealtimeClientInternal, got %@", pluginRealtimeClient];
+static ARTPubSubClientInternal *_internalRealtimeClient(id<APRealtimeClient> pluginRealtimeClient) {
+    if (![pluginRealtimeClient isKindOfClass:[ARTPubSubClientInternal class]]) {
+        [NSException raise:NSInternalInconsistencyException format:@"Expected ARTPubSubClientInternal, got %@", pluginRealtimeClient];
     }
-    return (ARTRealtimeClientInternal *)pluginRealtimeClient;
+    return (ARTPubSubClientInternal *)pluginRealtimeClient;
 }
 
 static ARTInternalLog *_internalLogger(id<APLogger> pluginLogger) {
@@ -212,7 +212,7 @@ static ARTLogLevel _convertPluginLogLevel(APLogLevel pluginLogLevel) {
 }
 
 - (id<APPublicErrorInfo>)nosync_connectionStateErrorForClient:(id<APRealtimeClient>)client {
-    ARTRealtimeClientInternal *internalRealtimeClient = _internalRealtimeClient(client);
+    ARTPubSubClientInternal *internalRealtimeClient = _internalRealtimeClient(client);
     dispatch_assert_queue(internalRealtimeClient.queue);
 
     // Object publishing must meet the same connection-state preconditions as message publishing
@@ -250,14 +250,14 @@ static ARTLogLevel _convertPluginLogLevel(APLogLevel pluginLogLevel) {
 
 - (void)nosync_fetchServerTimeForClient:(id<APRealtimeClient>)client
                              completion:(void (^)(NSDate * _Nullable, id<APPublicErrorInfo> _Nullable))completion {
-    ARTRealtimeClientInternal *internalRealtimeClient = _internalRealtimeClient(client);
+    ARTPubSubClientInternal *internalRealtimeClient = _internalRealtimeClient(client);
     dispatch_assert_queue(internalRealtimeClient.queue);
 
     [internalRealtimeClient.auth fetchServerTimeWithCompletion:completion];
 }
 
 - (id<APConnectionDetailsProtocol>)nosync_latestConnectionDetailsForClient:(id<APRealtimeClient>)client {
-    ARTRealtimeClientInternal *internalRealtimeClient = _internalRealtimeClient(client);
+    ARTPubSubClientInternal *internalRealtimeClient = _internalRealtimeClient(client);
     dispatch_assert_queue(internalRealtimeClient.queue);
 
     return internalRealtimeClient.latestConnectionDetails;

@@ -15,7 +15,7 @@ struct AblyLiveObjectsTests {
         // Don't need to connect
         clientOptions.autoConnect = false
 
-        let realtime = RealtimeClient(options: clientOptions)
+        let realtime = PubSubClient(options: clientOptions)
 
         let channel = realtime.channels.get("someChannel")
 
@@ -58,7 +58,7 @@ struct AblyLiveObjectsTests {
         clientOptions.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]
         clientOptions.useBinaryProtocol = useBinaryProtocol
 
-        let realtime = RealtimeClient(options: clientOptions)
+        let realtime = PubSubClient(options: clientOptions)
         defer { realtime.close() }
 
         // 1. Create a Map on a channel using the REST API.

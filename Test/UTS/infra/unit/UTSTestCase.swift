@@ -28,7 +28,7 @@ class UTSTestCase {
 
     private var installedWebSocketProvider: MockWebSocketProvider?
     private var installedMockHTTPClient: MockHTTPClient?
-    private var clients: [RealtimeClient] = []
+    private var clients: [PubSubClient] = []
 
     // MARK: Enable fake timers
 
@@ -54,11 +54,11 @@ class UTSTestCase {
 
     // MARK: Client construction
 
-    /// Builds a `RealtimeClient` wired to the currently installed `MockWebSocketProvider` and the
+    /// Builds a `PubSubClient` wired to the currently installed `MockWebSocketProvider` and the
     /// shared `MockTimeProvider`. A provider must be installed first via `installMock(_:)`. Like the
     /// UTS specs, this leaves the SDK's `autoConnect` default (`true`) in place; tests that need to
     /// control connection timing set `options.autoConnect = false` in the `configure` closure.
-    func makeRealtime(configure: (ClientOptions) -> Void = { _ in }, sourceLocation: SourceLocation = #_sourceLocation) -> RealtimeClient {
+    func makeRealtime(configure: (ClientOptions) -> Void = { _ in }, sourceLocation: SourceLocation = #_sourceLocation) -> PubSubClient {
         guard let wsProvider = installedWebSocketProvider else {
             Issue.record("No MockWebSocketProvider installed — call installMock(_:) before makeRealtime()", sourceLocation: sourceLocation)
             fatalError("No MockWebSocketProvider installed")
@@ -122,7 +122,7 @@ class UTSTestCase {
     // MARK: AWAIT_STATE
 
     /// Waits until `client.connection.state == expected` (UTS `AWAIT_STATE`).
-    func awaitConnectionState(_ client: RealtimeClient,
+    func awaitConnectionState(_ client: PubSubClient,
                               _ expected: RealtimeConnectionState,
                               timeout: TimeInterval = defaultAwaitTimeout,
                               sourceLocation: SourceLocation = #_sourceLocation) {
@@ -175,7 +175,7 @@ class UTSTestCase {
     }
 
     /// Closes a client (UTS `CLOSE_CLIENT`).
-    func closeClient(_ client: RealtimeClient) {
+    func closeClient(_ client: PubSubClient) {
         client.close()
     }
 

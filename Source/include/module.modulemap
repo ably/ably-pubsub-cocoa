@@ -18,7 +18,7 @@ module AblyPubSubDevice {
         header "../PrivateHeaders/Ably/ARTDataQuery+Private.h"
         header "../PrivateHeaders/Ably/ARTDefault+Private.h"
         header "../PrivateHeaders/Ably/ARTEventEmitter+Private.h"
-        header "../PrivateHeaders/Ably/ARTRealtimeClient+Private.h"
+        header "../PrivateHeaders/Ably/ARTPubSubClient+Private.h"
         header "../PrivateHeaders/Ably/ARTRealtimeChannel+Private.h"
         header "../PrivateHeaders/Ably/ARTRealtimeChannels+Private.h"
         header "../PrivateHeaders/Ably/ARTHttpClient+Private.h"

@@ -388,7 +388,7 @@ class HttpClientChannelTests: XCTestCase {
         let expectedClientId = options.clientId
         let rest = HttpClient(options: options)
         options.clientId = "client-realtime"
-        let realtime = RealtimeClient(options: options)
+        let realtime = PubSubClient(options: options)
 
         let chanelName = test.uniqueChannelName(prefix: "ch1")
 
@@ -421,7 +421,7 @@ class HttpClientChannelTests: XCTestCase {
         let expectedClientId = options.clientId!
         let rest = HttpClient(options: options)
         options.clientId = "client-realtime"
-        let realtime = RealtimeClient(options: options)
+        let realtime = PubSubClient(options: options)
 
         let chanelName = test.uniqueChannelName(prefix: "ch1")
 
@@ -452,7 +452,7 @@ class HttpClientChannelTests: XCTestCase {
         let expectedClientId = "client-rest"
         let options = try AblyTests.commonAppSetup(for: test)
         let rest = HttpClient(options: options)
-        let realtime = RealtimeClient(options: options)
+        let realtime = PubSubClient(options: options)
 
         let chanelName = test.uniqueChannelName(prefix: "ch1")
 
@@ -484,7 +484,7 @@ class HttpClientChannelTests: XCTestCase {
         options.clientId = "client-rest"
         let rest = HttpClient(options: options)
         options.clientId = "client-realtime"
-        let realtime = RealtimeClient(options: options)
+        let realtime = PubSubClient(options: options)
 
         let chanelName = test.uniqueChannelName(prefix: "ch1")
 
@@ -1660,7 +1660,7 @@ class HttpClientChannelTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
         options.clientId = "Client 1"
         let rest = HttpClient(options: options)
-        let realtime = RealtimeClient(options: options)
+        let realtime = PubSubClient(options: options)
         let channelName = test.uniqueChannelName()
         let channelOptions = RealtimeChannelOptions()
         channelOptions.modes = [

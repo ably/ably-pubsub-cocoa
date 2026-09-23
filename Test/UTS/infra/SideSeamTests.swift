@@ -14,7 +14,7 @@ struct SideSeamTests {
 
     private static let deviceAgentName = "ably-pubsub-device"
 
-    private func makeClient() -> RealtimeClient {
+    private func makeClient() -> PubSubClient {
         let options = ClientOptions(key: "appId.keyId:keySecret")
         options.autoConnect = false
         return makeRealtimeForSide(options: options)

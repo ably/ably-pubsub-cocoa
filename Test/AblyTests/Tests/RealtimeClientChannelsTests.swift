@@ -22,7 +22,7 @@ class RealtimeClientChannelsTests: XCTestCase {
     // RTS2
     func test__001__Channels__should_exist_methods_to_check_if_a_channel_exists_or_iterate_through_the_existing_channels() throws {
         let test = Test()
-        let client = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.dispose(); client.close() }
         var disposable = [String]()
 
@@ -49,7 +49,7 @@ class RealtimeClientChannelsTests: XCTestCase {
     func test__002__Channels__get__should_create_a_new_Channel_if_none_exists_or_return_the_existing_one() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        let client = RealtimeClient(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         XCTAssertEqual(client.channels.internal.collection.count, 0)
@@ -65,7 +65,7 @@ class RealtimeClientChannelsTests: XCTestCase {
     // RTS3b
     func test__003__Channels__get__should_be_possible_to_specify_a_ChannelOptions() throws {
         let test = Test()
-        let client = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.dispose(); client.close() }
         let options = RealtimeChannelOptions()
         let channel = client.channels.get(test.uniqueChannelName(), options: options)
@@ -75,7 +75,7 @@ class RealtimeClientChannelsTests: XCTestCase {
     // RTS3c
     func test__004__Channels__get__accessing_an_existing_Channel_with_options_should_update_the_options_and_then_return_the_object() throws {
         let test = Test()
-        let client = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.dispose(); client.close() }
         let channelName = test.uniqueChannelName()
         XCTAssertNil(client.channels.get(channelName).options)
@@ -88,7 +88,7 @@ class RealtimeClientChannelsTests: XCTestCase {
 
     func test__005__Channels__release__should_release_a_channel() throws {
         let test = Test()
-        let client = RealtimeClient(options: try AblyTests.commonAppSetup(for: test))
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.dispose(); client.close() }
 
         let channelName = test.uniqueChannelName()

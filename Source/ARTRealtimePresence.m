@@ -1,5 +1,5 @@
 #import "ARTRealtimePresence+Private.h"
-#import "ARTRealtimeClient+Private.h"
+#import "ARTPubSubClient+Private.h"
 #import "ARTChannel+Private.h"
 #import "ARTRealtimeChannel+Private.h"
 #import "ARTPresenceMessage.h"
@@ -177,7 +177,7 @@ typedef NS_ENUM(NSUInteger, ARTPresenceSyncState) {
 
 @implementation ARTRealtimePresenceInternal {
     __weak ARTRealtimeChannelInternal *_channel; // weak because channel owns self
-    __weak ARTRealtimeClientInternal *_realtime;
+    __weak ARTPubSubClientInternal *_realtime;
     dispatch_queue_t _userQueue;
     NSMutableArray<ARTQueuedMessage *> *_pendingPresence;
     ARTEventEmitter<ARTEvent *, ARTPresenceMessage *> *_eventEmitter;

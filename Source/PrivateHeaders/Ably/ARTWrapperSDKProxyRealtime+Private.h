@@ -6,7 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ARTWrapperSDKProxyRealtime ()
 
-- (instancetype)initWithRealtime:(ARTRealtimeClient *)realtime
+- (instancetype)initWithPubSub:(ARTPubSubClient *)pubsub
                     proxyOptions:(ARTWrapperSDKProxyOptions *)proxyOptions NS_DESIGNATED_INITIALIZER;
 
 @end

@@ -43,7 +43,7 @@ The following platforms are supported:
 
 ## Installation
 
-You can install Ably for iOS and macOS through [Swift package manager](#swift-package-manager) or [install manually](#manual-install).
+You can install Ably for iOS and macOS through [Swift package manager](#swift-package-manager) or [install manually](#manual-install). Upgrading from 1.x is covered by the [migration guide](Docs/migration-guides/v2.md).
 
 > [!IMPORTANT]
 > **CocoaPods and Carthage are not supported from 2.0.** Their last releases — the `Ably` pod and the

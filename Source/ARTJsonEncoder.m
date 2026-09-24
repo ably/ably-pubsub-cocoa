@@ -22,14 +22,7 @@
 
 - (NSData *)encode:(id)obj error:(NSError **)error {
     @try {
-        NSJSONWritingOptions options;
-        if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-            options = NSJSONWritingSortedKeys;
-        }
-        else {
-            options = 0;
-        }
-        return [NSJSONSerialization dataWithJSONObject:obj options:options error:error];
+        return [NSJSONSerialization dataWithJSONObject:obj options:NSJSONWritingSortedKeys error:error];
     }
     @catch (NSException *exception) {
         if (error) {

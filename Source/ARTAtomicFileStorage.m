@@ -73,19 +73,13 @@
             return NO;
         }
 
-        NSDataWritingOptions options = NSDataWritingAtomic;
-        // `NSDataWritingFileProtectionNone` is only available on macOS 11+; on
-        // iOS/tvOS it's always available (use of `*` below). Older macOS has no
-        // data-protection concept, so skipping it there is fine.
-        if (@available(macOS 11.0, *)) {
-          // IMPORTANT; DO NOT REMOVE: We use NSDataWritingFileProtectionNone
-          // because the file must be always available to load. This is our
-          // solution to issues that we previously had when storing data as
-          // "protected until first user authentication"; there are scenarios in
-          // which iOS applications get launched before a first unlock and the
-          // LocalDevice data needs to still be loadable in these scenarios.
-          options |= NSDataWritingFileProtectionNone;
-        }
+        // IMPORTANT; DO NOT REMOVE: We use NSDataWritingFileProtectionNone
+        // because the file must be always available to load. This is our
+        // solution to issues that we previously had when storing data as
+        // "protected until first user authentication"; there are scenarios in
+        // which iOS applications get launched before a first unlock and the
+        // LocalDevice data needs to still be loadable in these scenarios.
+        NSDataWritingOptions options = NSDataWritingAtomic | NSDataWritingFileProtectionNone;
 
         NSError *writeError = nil;
         BOOL ok = [data writeToURL:_fileURL options:options error:&writeError];

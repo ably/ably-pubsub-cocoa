@@ -70,14 +70,7 @@
         // Just check the error; we don't want to actually JSON-encode this. It's more like "convert to JSON-compatible data".
         // We will store the result, though, because if we're encrypting, then yes, we need to use the JSON-encoded
         // data before encrypting.
-        NSJSONWritingOptions options;
-        if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-            options = NSJSONWritingSortedKeys;
-        }
-        else {
-            options = 0;
-        }
-        jsonEncoded = [NSJSONSerialization dataWithJSONObject:data options:options error:&error];
+        jsonEncoded = [NSJSONSerialization dataWithJSONObject:data options:NSJSONWritingSortedKeys error:&error];
         if (error) {
             return [[ARTDataEncoderOutput alloc] initWithData:data encoding:nil errorInfo:[ARTErrorInfo createFromNSError:error]];
         }

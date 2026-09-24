@@ -14,15 +14,7 @@
     if (self = [super init]) {
         _queue = queue;
         NSURLSessionConfiguration *config = [NSURLSessionConfiguration ephemeralSessionConfiguration];
-#if TARGET_OS_MACCATALYST // if (@available(iOS 13.0, macCatalyst 13.0, ... doesn't help
         config.TLSMinimumSupportedProtocolVersion = tls_protocol_version_TLSv12;
-#else
-        if (@available(iOS 13.0, macOS 10.15, tvOS 13.0, *)) {
-            config.TLSMinimumSupportedProtocolVersion = tls_protocol_version_TLSv12;
-        } else {
-            config.TLSMinimumSupportedProtocol = kTLSProtocol12;
-        }
-#endif
         _session = [NSURLSession sessionWithConfiguration:config delegate:self delegateQueue:nil];
     }
     return self;

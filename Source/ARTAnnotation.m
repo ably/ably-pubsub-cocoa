@@ -112,15 +112,8 @@
         }
         else {
             NSError *error = nil;
-            NSJSONWritingOptions options;
-            if (@available(macOS 10.15, iOS 13.0, tvOS 13.0, *)) {
-                options = NSJSONWritingWithoutEscapingSlashes; // Copied from `ARTBaseMessage.messageSize`
-            }
-            else {
-                options = 0; //no specific format
-            }
             NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self.data
-                                                               options:options
+                                                               options:NSJSONWritingWithoutEscapingSlashes // Copied from `ARTBaseMessage.messageSize`
                                                                  error:&error];
             if (!error) {
                 finalResult += [jsonData length];

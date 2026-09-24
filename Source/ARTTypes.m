@@ -448,50 +448,22 @@ NSString *ARTChannelEventToStr(ARTChannelEvent event) {
 @implementation NSObject (ARTArchive)
 
 - (nullable NSData *)art_archiveWithLogger:(nullable ARTInternalLog *)logger {
-#if TARGET_OS_MACCATALYST // if (@available(iOS 13.0, macCatalyst 13.0, ... doesn't help
     NSError *error;
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self requiringSecureCoding:false error:&error];
     if (error) {
         ARTLogError(logger, @"%@ archive failed: %@", [self class], error);
     }
     return data;
-#else
-    if (@available(macOS 10.13, iOS 11, tvOS 11, *)) {
-        NSError *error;
-        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self requiringSecureCoding:false error:&error];
-        if (error) {
-            ARTLogError(logger, @"%@ archive failed: %@", [self class], error);
-        }
-        return data;
-    }
-    else {
-        return [NSKeyedArchiver archivedDataWithRootObject:self];
-    }
-#endif
 }
 
 + (nullable id)art_unarchiveFromData:(NSData *)data withLogger:(nullable ARTInternalLog *)logger {
     NSSet* allowedTypes = [NSSet setWithArray:@[ [NSArray class], [NSDictionary class], self]];
-#if TARGET_OS_MACCATALYST
     NSError *error;
     id result = [NSKeyedUnarchiver unarchivedObjectOfClasses:allowedTypes fromData:data error:&error];
     if (error) {
         ARTLogError(logger, @"%@ unarchive failed: %@", self, error);
     }
     return result;
-#else
-    if (@available(macOS 10.13, iOS 11, tvOS 11, *)) {
-        NSError *error;
-        id result = [NSKeyedUnarchiver unarchivedObjectOfClasses:allowedTypes fromData:data error:&error];
-        if (error) {
-            ARTLogError(logger, @"%@ unarchive failed: %@", self, error);
-        }
-        return result;
-    }
-    else {
-        return [NSKeyedUnarchiver unarchiveObjectWithData:data];
-    }
-#endif
 }
 
 + (nullable id)art_unarchiveFromStorage:(id<ARTDeviceStorage>)storage

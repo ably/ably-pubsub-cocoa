@@ -5,9 +5,9 @@ import PackageDescription
 let package = Package(
     name: "ably-pubsub-cocoa",
     platforms: [
-        .macOS(.v11),
-        .iOS(.v14),
-        .tvOS(.v14)
+        .macOS(.v12),
+        .iOS(.v15),
+        .tvOS(.v15)
     ],
     products: [
         // The main SDK product.

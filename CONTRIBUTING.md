@@ -126,7 +126,7 @@ Two things about the plugin affect the repository as a whole, and so are documen
 
 ### Supported OS versions
 
-[`Package.swift`](Package.swift) declares **macOS 11, iOS 14, tvOS 14** for the whole package — the versions mandated by [ADR-114](https://ably.atlassian.net/wiki/spaces/ENG/pages/3199500291/ADR-114+Increase+Cocoa+SDK+minimum+supported+version+to+iOS+14) and the [RFC](https://ably.atlassian.net/wiki/spaces/SDKs/pages/2986147844/RFC+Deprecate+iOS+13+support+for+ably-cocoa) behind it. SwiftPM platform requirements are package-wide, so one floor applies to every product.
+[`Package.swift`](Package.swift) declares **macOS 12, iOS 15, tvOS 15** for the whole package. SwiftPM platform requirements are package-wide, so one floor applies to every product.
 
 Code that needs a newer OS than the package floor carries its own `@available` — for example `Subscriber.swift`, whose parameter packs require iOS/tvOS 17, along with every test that uses it. Note that swift-testing's `@Suite` macro rejects types marked `@available`, so a suite needing a newer OS has to annotate its test functions instead.
 

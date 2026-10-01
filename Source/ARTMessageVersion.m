@@ -6,36 +6,33 @@
 
 @implementation ARTMessageVersion
 
-- (instancetype)init {
+- (instancetype)initWithSerial:(nullable NSString *)serial
+                     timestamp:(nullable NSDate *)timestamp
+                      clientId:(nullable NSString *)clientId
+               descriptionText:(nullable NSString *)descriptionText
+                      metadata:(nullable NSDictionary<NSString *, NSString *> *)metadata {
     self = [super init];
     if (self) {
-        _serial = nil;
-        _timestamp = nil;
-        _clientId = nil;
-        _descriptionText = nil;
-        _metadata = nil;
+        _serial = [serial copy];
+        _timestamp = [timestamp copy];
+        _clientId = [clientId copy];
+        _descriptionText = [descriptionText copy];
+        _metadata = metadata ? [[NSDictionary alloc] initWithDictionary:metadata copyItems:YES] : nil;
     }
     return self;
 }
 
 - (instancetype)initWithOperation:(ARTMessageOperation *)operation {
-    self = [super init];
-    if (self) {
-        _clientId = operation.clientId;
-        _descriptionText = operation.descriptionText;
-        _metadata = operation.metadata;
-    }
-    return self;
+    return [self initWithSerial:nil
+                      timestamp:nil
+                       clientId:operation.clientId
+                descriptionText:operation.descriptionText
+                       metadata:operation.metadata];
 }
 
 - (id)copyWithZone:(NSZone *)zone {
-    ARTMessageVersion *version = [[[self class] allocWithZone:zone] init];
-    version.serial = self.serial;
-    version.timestamp = self.timestamp;
-    version.clientId = self.clientId;
-    version.descriptionText = self.descriptionText;
-    version.metadata = self.metadata;
-    return version;
+    // Immutable, so a copy can share this instance.
+    return self;
 }
 
 - (void)writeToDictionary:(NSMutableDictionary<NSString *, id> *)dictionary {
@@ -56,19 +53,28 @@
     }
 }
 
-+ (instancetype)createFromDictionary:(NSDictionary<NSString *, id> *)jsonObject {
-    ARTMessageVersion *version = [[ARTMessageVersion alloc] init];
-    version.serial = [jsonObject artString:@"serial"];
-    version.timestamp = [jsonObject artTimestamp:@"timestamp"];
-    version.clientId = [jsonObject artString:@"clientId"];
-    version.descriptionText = [jsonObject artString:@"description"];
++ (instancetype)createFromDictionary:(nullable NSDictionary<NSString *, id> *)jsonObject
+                       defaultSerial:(nullable NSString *)defaultSerial
+                    defaultTimestamp:(nullable NSDate *)defaultTimestamp {
+    return [[ARTMessageVersion alloc] initWithSerial:[jsonObject artString:@"serial"] ?: defaultSerial
+                                           timestamp:[jsonObject artTimestamp:@"timestamp"] ?: defaultTimestamp
+                                            clientId:[jsonObject artString:@"clientId"]
+                                     descriptionText:[jsonObject artString:@"description"]
+                                            metadata:[self metadataFromJSONValue:jsonObject[@"metadata"]]];
+}
 
-    id metadata = jsonObject[@"metadata"];
-    if (metadata && [metadata isKindOfClass:[NSDictionary class]]) {
-        version.metadata = metadata;
+/// Keeps only the string-to-string entries of a decoded `metadata` value, which is all that the property's type allows.
++ (nullable NSDictionary<NSString *, NSString *> *)metadataFromJSONValue:(nullable id)value {
+    if (![value isKindOfClass:[NSDictionary class]]) {
+        return nil;
     }
-
-    return version;
+    NSMutableDictionary<NSString *, NSString *> *metadata = [NSMutableDictionary dictionary];
+    [(NSDictionary *)value enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+        if ([key isKindOfClass:[NSString class]] && [obj isKindOfClass:[NSString class]]) {
+            metadata[key] = obj;
+        }
+    }];
+    return metadata;
 }
 
 - (NSString *)description {

@@ -776,18 +776,16 @@ class UtilitiesTests: XCTestCase {
         message.timestamp = Date(timeIntervalSince1970: 1234512340)
 
         // Create version with all fields
-        let version = MessageVersion()
-        version.serial = "124"
-        version.timestamp = Date(timeIntervalSince1970: 1234512345)
-        version.clientId = "testClient"
-        version.descriptionText = "test operation"
-        version.metadata = ["key": "value"]
-        message.version = version
+        message.version = MessageVersion(
+            serial: "124",
+            timestamp: Date(timeIntervalSince1970: 1234512345),
+            clientId: "testClient",
+            descriptionText: "test operation",
+            metadata: ["key": "value"]
+        )
 
         // Create annotations with summary
-        let annotations = MessageAnnotations()
-        annotations.summary = ["count": 5, "type": "test"]
-        message.annotations = annotations
+        message.annotations = MessageAnnotations(summary: ["count": 5, "type": "test"])
 
         // Encode the message
         let encodedDict = jsonEncoder.message(toDictionary: message)
@@ -801,5 +799,47 @@ class UtilitiesTests: XCTestCase {
         XCTAssertEqual(encodedVersion["description"] as? String, "test operation")
         let encodedMetadata = encodedVersion["metadata"] as! [String: Any]
         XCTAssertEqual(encodedMetadata["key"] as? String, "value")
+    }
+
+    /// TM8a
+    func test__029_Utilities__message_summary_that_is_not_an_object_decodes_as_empty() throws {
+        beforeEach__Utilities__JSON_Encoder()
+        let json = """
+        {
+            "messages": [
+                { "action": 0, "serial": "1", "annotations": { "summary": null } },
+                { "action": 0, "serial": "2", "annotations": { "summary": "unexpected" } }
+            ]
+        }
+        """
+        let pm = try jsonEncoder.decodeProtocolMessage(json.data(using: .utf8)!)
+        let messages = try XCTUnwrap(pm.messages)
+
+        for message in messages {
+            let summary = try XCTUnwrap(message.annotations?.summary)
+            XCTAssertTrue(summary.isEmpty)
+        }
+    }
+
+    func test__030_Utilities__message_version_metadata_keeps_only_string_values() throws {
+        beforeEach__Utilities__JSON_Encoder()
+        let json = """
+        {
+            "messages": [
+                {
+                    "action": 1,
+                    "serial": "123",
+                    "version": {
+                        "serial": "124",
+                        "metadata": { "reason": "typo", "count": 5, "nested": { "a": "b" } }
+                    }
+                }
+            ]
+        }
+        """
+        let pm = try jsonEncoder.decodeProtocolMessage(json.data(using: .utf8)!)
+        let message = try XCTUnwrap(pm.messages?.first)
+
+        XCTAssertEqual(message.version?.metadata, ["reason": "typo"])
     }
 }

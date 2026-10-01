@@ -31,10 +31,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)unsubscribeClientWithWrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
                                    completion:(nullable ARTCallback)callback;
 
-- (BOOL)listSubscriptions:(NSStringDictionary *)params
+- (void)listSubscriptions:(NSStringDictionary *)params
          wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
-                 callback:(ARTPaginatedPushChannelCallback)callback
-                    error:(NSError *_Nullable *_Nullable)errorPtr;
+                 callback:(ARTPaginatedPushChannelCallback)callback;
 
 @end
 

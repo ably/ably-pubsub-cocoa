@@ -167,8 +167,8 @@ NS_ASSUME_NONNULL_END
     [self.underlyingChannel detach:callback];
 }
 
-- (BOOL)history:(ARTRealtimeHistoryQuery * _Nullable)query callback:(nonnull ARTPaginatedMessagesCallback)callback error:(NSError * _Nullable __autoreleasing * _Nullable)errorPtr {
-    return [self.underlyingChannel.internal history:query wrapperSDKAgents:self.proxyOptions.agents callback:callback error:errorPtr];
+- (void)history:(ARTRealtimeHistoryQuery * _Nullable)query callback:(nonnull ARTPaginatedMessagesCallback)callback {
+    [self.underlyingChannel.internal history:query wrapperSDKAgents:self.proxyOptions.agents callback:callback];
 }
 
 - (void)off {

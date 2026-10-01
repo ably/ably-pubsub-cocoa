@@ -66,15 +66,13 @@ NS_SWIFT_NAME(PushChannelProtocol)
 /**
  * Retrieves all push subscriptions for the channel. Subscriptions can be filtered using a `params` object. Returns a `ARTPaginatedResult` object containing an array of `ARTPushChannelSubscription` objects.
  *
+ * Raises `NSInvalidArgumentException` unless `params` contains exactly one of `deviceId` and `clientId`.
+ *
  * @param params An object containing key-value pairs to filter subscriptions by. Can contain `clientId`, `deviceId` or a combination of both if `concatFilters` is set to `true`, and a `limit` on the number of subscriptions returned, up to 1,000.
  * @param callback A callback for retriving an `ARTPaginatedResult` object with an array of `ARTPushChannelSubscription` objects.
- * @param errorPtr A reference to the `NSError` object where an error information will be saved in case of failure.
- *
- * @return In case of failure returns `false` and the error information can be retrived via the `error` parameter.
  */
-- (BOOL)listSubscriptions:(NSStringDictionary *)params
-                 callback:(ARTPaginatedPushChannelCallback)callback
-                    error:(NSError *_Nullable *_Nullable)errorPtr;
+- (void)listSubscriptions:(NSStringDictionary *)params
+                 callback:(ARTPaginatedPushChannelCallback)callback;
 
 @end
 

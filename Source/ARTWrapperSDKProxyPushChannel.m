@@ -24,8 +24,8 @@ NS_ASSUME_NONNULL_END
     return self;
 }
 
-- (BOOL)listSubscriptions:(nonnull NSStringDictionary *)params callback:(nonnull ARTPaginatedPushChannelCallback)callback error:(NSError * _Nullable __autoreleasing * _Nullable)errorPtr {
-    return [self.underlyingPushChannel listSubscriptions:params callback:callback error:errorPtr];
+- (void)listSubscriptions:(nonnull NSStringDictionary *)params callback:(nonnull ARTPaginatedPushChannelCallback)callback {
+    [self.underlyingPushChannel listSubscriptions:params callback:callback];
 }
 
 - (void)subscribeClient {

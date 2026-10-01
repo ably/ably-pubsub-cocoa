@@ -1,5 +1,6 @@
 import AblyPubSubDevice
 import AblyTesting
+import AblyTestingObjC
 import Foundation
 import Nimble
 import XCTest
@@ -38,11 +39,9 @@ private func postTestStats(_ stats: [[String: Any]], for test: Test) throws -> C
 
 private func queryStats(_ client: HttpClient, _ query: StatsQuery, file: FileString = #file, line: UInt = #line) throws -> PaginatedResult<Stats> {
     let (stats, error) = try AblyTests.waitFor(timeout: testTimeout, file: file, line: line) { value in
-        expect {
-            try client.stats(query, callback: { result, err in
-                value((result, err))
-            })
-        }.toNot(throwError { _ in value(nil) })
+        client.stats(query, callback: { result, err in
+            value((result, err))
+        })
     }
     if let error {
         throw error
@@ -339,14 +338,24 @@ class HttpClientStatsTests: XCTestCase {
 
     // RSC6b1
 
-    func test__009__RestClient__stats__query__start__should_return_an_error_when_later_than_end() {
+    func test__009__RestClient__stats__query__start__should_raise_when_later_than_end() {
         let client = HttpClient(key: "fake:key")
         let query = StatsQuery()
 
         query.start = NSDate.distantFuture
         query.end = NSDate.distantPast
 
-        expect { try client.stats(query, callback: { _, _ in }) }.to(throwError())
+        XCTAssertEqual(tryInObjC { client.stats(query, callback: { _, _ in }) }?.name, .invalidArgumentException)
+    }
+
+    func test__014__RestClient__stats__query__start__should_not_raise_when_end_is_not_set() {
+        let client = HttpClient(key: "fake:key")
+        client.internal.httpExecutor = MockHTTPExecutor()
+        let query = StatsQuery()
+
+        query.start = NSDate.distantFuture
+
+        XCTAssertNil(tryInObjC { client.stats(query, callback: { _, _ in }) })
     }
 
     // RSC6b2
@@ -365,13 +374,13 @@ class HttpClientStatsTests: XCTestCase {
         XCTAssertEqual(query.limit, 100)
     }
 
-    func test__012__RestClient__stats__query__limit__should_return_an_error_when_greater_than_1000() {
+    func test__012__RestClient__stats__query__limit__should_raise_when_greater_than_1000() {
         let client = HttpClient(key: "fake:key")
         let query = StatsQuery()
 
         query.limit = 1001
 
-        expect { try client.stats(query, callback: { _, _ in }) }.to(throwError())
+        XCTAssertEqual(tryInObjC { client.stats(query, callback: { _, _ in }) }?.name, .invalidArgumentException)
     }
 
     // RSC6b4

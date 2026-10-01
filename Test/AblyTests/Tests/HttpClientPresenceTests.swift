@@ -76,10 +76,10 @@ class HttpClientPresenceTests: XCTestCase {
         XCTAssertEqual(query.limit, 100)
 
         query.limit = 1001
-        expect { try channel.presence.get(query, callback: { _, _ in }) }.to(throwError())
+        XCTAssertEqual(tryInObjC { channel.presence.get(query, callback: { _, _ in }) }?.name, .invalidArgumentException)
 
         query.limit = 1000
-        expect { try channel.presence.get(query, callback: { _, _ in }) }.toNot(throwError())
+        XCTAssertNil(tryInObjC { channel.presence.get(query, callback: { _, _ in }) })
     }
 
     // RSP3a2
@@ -105,16 +105,14 @@ class HttpClientPresenceTests: XCTestCase {
         query.clientId = "john"
 
         waitUntil(timeout: testTimeout) { done in
-            expect {
-                try channel.presence.get(query) { membersPage, error in
-                    XCTAssertNil(error)
-                    XCTAssertEqual(membersPage!.items.count, 1)
-                    let member = membersPage!.items[0]
-                    XCTAssertEqual(member.clientId, "john")
-                    XCTAssertEqual(member.data as? NSObject, "web" as NSObject?)
-                    done()
-                }
-            }.toNot(throwError())
+            channel.presence.get(query) { membersPage, error in
+                XCTAssertNil(error)
+                XCTAssertEqual(membersPage!.items.count, 1)
+                let member = membersPage!.items[0]
+                XCTAssertEqual(member.clientId, "john")
+                XCTAssertEqual(member.data as? NSObject, "web" as NSObject?)
+                done()
+            }
         }
     }
 
@@ -146,18 +144,16 @@ class HttpClientPresenceTests: XCTestCase {
         query.connectionId = disposable.last!.connection.id!
 
         waitUntil(timeout: testTimeout) { done in
-            expect {
-                try channel.presence.get(query) { membersPage, error in
-                    XCTAssertNil(error)
-                    XCTAssertEqual(membersPage!.items.count, 3)
-                    XCTAssertFalse(membersPage!.hasNext)
-                    XCTAssertTrue(membersPage!.isLast)
-                    expect(membersPage!.items).to(allPass { member in
-                        return NSRegularExpression.match(member.clientId, pattern: "^user(7|8|9)")
-                    })
-                    done()
-                }
-            }.toNot(throwError())
+            channel.presence.get(query) { membersPage, error in
+                XCTAssertNil(error)
+                XCTAssertEqual(membersPage!.items.count, 3)
+                XCTAssertFalse(membersPage!.hasNext)
+                XCTAssertTrue(membersPage!.isLast)
+                expect(membersPage!.items).to(allPass { member in
+                    return NSRegularExpression.match(member.clientId, pattern: "^user(7|8|9)")
+                })
+                done()
+            }
         }
     }
 
@@ -246,31 +242,27 @@ class HttpClientPresenceTests: XCTestCase {
         XCTAssertEqual(query.direction, QueryDirection.backwards)
 
         waitUntil(timeout: testTimeout) { done in
-            expect {
-                try channel.presence.history(query) { membersPage, error in
-                    XCTAssertNil(error)
-                    let firstMember = membersPage!.items.first!
-                    XCTAssertEqual(firstMember.clientId, "user10")
-                    let lastMember = membersPage!.items.last!
-                    XCTAssertEqual(lastMember.clientId, "user1")
-                    done()
-                }
-            }.toNot(throwError())
+            channel.presence.history(query) { membersPage, error in
+                XCTAssertNil(error)
+                let firstMember = membersPage!.items.first!
+                XCTAssertEqual(firstMember.clientId, "user10")
+                let lastMember = membersPage!.items.last!
+                XCTAssertEqual(lastMember.clientId, "user1")
+                done()
+            }
         }
 
         query.direction = .forwards
 
         waitUntil(timeout: testTimeout) { done in
-            expect {
-                try channel.presence.history(query) { membersPage, error in
-                    XCTAssertNil(error)
-                    let firstMember = membersPage!.items.first!
-                    XCTAssertEqual(firstMember.clientId, "user1")
-                    let lastMember = membersPage!.items.last!
-                    XCTAssertEqual(lastMember.clientId, "user10")
-                    done()
-                }
-            }.toNot(throwError())
+            channel.presence.history(query) { membersPage, error in
+                XCTAssertNil(error)
+                let firstMember = membersPage!.items.first!
+                XCTAssertEqual(firstMember.clientId, "user1")
+                let lastMember = membersPage!.items.last!
+                XCTAssertEqual(lastMember.clientId, "user10")
+                done()
+            }
         }
     }
 
@@ -296,22 +288,18 @@ class HttpClientPresenceTests: XCTestCase {
         query.limit = 1
 
         waitUntil(timeout: testTimeout) { done in
-            expect {
-                try channel.presence.history(query) { membersPage, error in
-                    XCTAssertNil(error)
-                    XCTAssertEqual(membersPage!.items.count, 1)
-                    XCTAssertFalse(membersPage!.hasNext)
-                    XCTAssertTrue(membersPage!.isLast)
-                    done()
-                }
-            }.toNot(throwError())
+            channel.presence.history(query) { membersPage, error in
+                XCTAssertNil(error)
+                XCTAssertEqual(membersPage!.items.count, 1)
+                XCTAssertFalse(membersPage!.hasNext)
+                XCTAssertTrue(membersPage!.isLast)
+                done()
+            }
         }
 
         query.limit = 1001
 
-        expect { try channel.presence.history(query) { _, _ in } }.to(throwError { (error: Error) in
-            XCTAssertEqual(error._code, DataQueryError.limit.rawValue)
-        })
+        XCTAssertEqual(tryInObjC { channel.presence.history(query) { _, _ in } }?.name, .invalidArgumentException)
     }
 
     // RSP3a3
@@ -342,18 +330,16 @@ class HttpClientPresenceTests: XCTestCase {
         query.connectionId = disposable.last!.connection.id!
 
         waitUntil(timeout: testTimeout) { done in
-            expect {
-                try channel.presence.get(query) { membersPage, error in
-                    XCTAssertNil(error)
-                    XCTAssertEqual(membersPage!.items.count, 3)
-                    XCTAssertFalse(membersPage!.hasNext)
-                    XCTAssertTrue(membersPage!.isLast)
-                    expect(membersPage!.items).to(allPass { member in
-                        return NSRegularExpression.match(member.clientId, pattern: "^user(7|8|9)")
-                    })
-                    done()
-                }
-            }.toNot(throwError())
+            channel.presence.get(query) { membersPage, error in
+                XCTAssertNil(error)
+                XCTAssertEqual(membersPage!.items.count, 3)
+                XCTAssertFalse(membersPage!.hasNext)
+                XCTAssertTrue(membersPage!.isLast)
+                expect(membersPage!.items).to(allPass { member in
+                    return NSRegularExpression.match(member.clientId, pattern: "^user(7|8|9)")
+                })
+                done()
+            }
         }
     }
 
@@ -407,13 +393,11 @@ class HttpClientPresenceTests: XCTestCase {
         disposable += [AblyTests.addMembersSequentiallyToChannel(channelName, members: 10, options: options)]
 
         waitUntil(timeout: testTimeout) { done in
-            expect {
-                try channel.presence.history(query) { membersPage, error in
-                    XCTAssertNil(error)
-                    XCTAssertEqual(membersPage!.items.count, 3)
-                    done()
-                }
-            }.toNot(throwError())
+            channel.presence.history(query) { membersPage, error in
+                XCTAssertNil(error)
+                XCTAssertEqual(membersPage!.items.count, 3)
+                done()
+            }
         }
     }
 
@@ -428,15 +412,11 @@ class HttpClientPresenceTests: XCTestCase {
         query.end = NSDate() as Date
         query.start = query.end!.addingTimeInterval(10.0)
 
-        expect { try channel.presence.history(query) { _, _ in } }.to(throwError { (error: Error) in
-            XCTAssertEqual(error._code, DataQueryError.timestampRange.rawValue)
-        })
+        XCTAssertEqual(tryInObjC { channel.presence.history(query) { _, _ in } }?.name, .invalidArgumentException)
 
         query.direction = .forwards
 
-        expect { try channel.presence.history(query) { _, _ in } }.to(throwError { (error: Error) in
-            XCTAssertEqual(error._code, DataQueryError.timestampRange.rawValue)
-        })
+        XCTAssertEqual(tryInObjC { channel.presence.history(query) { _, _ in } }?.name, .invalidArgumentException)
     }
 
     // RSP5

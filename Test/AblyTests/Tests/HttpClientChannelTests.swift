@@ -582,7 +582,7 @@ class HttpClientChannelTests: XCTestCase {
                 let query = DataQuery()
                 query.limit = 1
 
-                try! channel.history(query) { messages, error in
+                channel.history(query) { messages, error in
                     if let error = error {
                         fail("unexpected error \(error)")
                         done(); return
@@ -999,7 +999,7 @@ class HttpClientChannelTests: XCTestCase {
         query.direction = .forwards
         query.limit = 2
 
-        try channel.history(query) { result, error in
+        channel.history(query) { result, error in
             guard let result = result else {
                 fail("Result is empty"); return
             }
@@ -1092,7 +1092,7 @@ class HttpClientChannelTests: XCTestCase {
         }
 
         waitUntil(timeout: testTimeout) { done in
-            try! channel.history(query) { result, error in
+            channel.history(query) { result, error in
                 XCTAssertNil(error)
                 guard let result = result else {
                     fail("PaginatedResult is empty"); done()
@@ -1124,15 +1124,11 @@ class HttpClientChannelTests: XCTestCase {
         query.end = NSDate() as Date
         query.start = query.end!.addingTimeInterval(10.0)
 
-        expect { try channel.history(query) { _, _ in } }.to(throwError { (error: Error) in
-            XCTAssertEqual(error._code, DataQueryError.timestampRange.rawValue)
-        })
+        XCTAssertEqual(tryInObjC { channel.history(query) { _, _ in } }?.name, .invalidArgumentException)
 
         query.direction = .forwards
 
-        expect { try channel.history(query) { _, _ in } }.to(throwError { (error: Error) in
-            XCTAssertEqual(error._code, DataQueryError.timestampRange.rawValue)
-        })
+        XCTAssertEqual(tryInObjC { channel.history(query) { _, _ in } }?.name, .invalidArgumentException)
     }
 
     // RSL2b2
@@ -1156,7 +1152,7 @@ class HttpClientChannelTests: XCTestCase {
         }
 
         waitUntil(timeout: testTimeout) { done in
-            try! channel.history(query) { result, error in
+            channel.history(query) { result, error in
                 XCTAssertNil(error)
                 guard let result = result else {
                     fail("PaginatedResult is empty"); done()
@@ -1195,7 +1191,7 @@ class HttpClientChannelTests: XCTestCase {
         }
 
         waitUntil(timeout: testTimeout) { done in
-            try! channel.history(query) { result, error in
+            channel.history(query) { result, error in
                 XCTAssertNil(error)
                 guard let result = result else {
                     fail("PaginatedResult is empty"); done()
@@ -1226,10 +1222,10 @@ class HttpClientChannelTests: XCTestCase {
         XCTAssertEqual(query.limit, 100)
 
         query.limit = 1001
-        expect { try channel.history(query, callback: { _, _ in }) }.to(throwError())
+        XCTAssertEqual(tryInObjC { channel.history(query, callback: { _, _ in }) }?.name, .invalidArgumentException)
 
         query.limit = 1000
-        expect { try channel.history(query, callback: { _, _ in }) }.toNot(throwError())
+        XCTAssertNil(tryInObjC { channel.history(query, callback: { _, _ in }) })
     }
 
     // RSL3, RSP1

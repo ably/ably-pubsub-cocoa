@@ -22,7 +22,16 @@ static NSString *queryDirectionToString(ARTQueryDirection direction) {
     }
 }
 
-- (NSMutableArray *)asQueryItems:(NSError *_Nullable*)error {
+- (void)validate {
+    if (self.limit > 1000) {
+        [NSException raise:NSInvalidArgumentException format:@"Limit supports up to 1000 results only"];
+    }
+    if (self.start && self.end && [self.start compare:self.end] == NSOrderedDescending) {
+        [NSException raise:NSInvalidArgumentException format:@"Start must be equal to or less than end"];
+    }
+}
+
+- (NSMutableArray *)asQueryItems:(ARTErrorInfo *_Nullable *_Nullable)errorPtr {
     NSMutableArray *items = [NSMutableArray array];
 
     if (self.start) {
@@ -42,15 +51,19 @@ static NSString *queryDirectionToString(ARTQueryDirection direction) {
 
 @implementation ARTRealtimeHistoryQuery
 
-- (NSMutableArray *)asQueryItems:(NSError **)errorPtr {
+- (NSMutableArray *)asQueryItems:(ARTErrorInfo *_Nullable *_Nullable)errorPtr {
     NSMutableArray *items = [super asQueryItems:errorPtr];
-    if (*errorPtr) {
+    if (!items) {
         return nil;
     }
     if (self.untilAttach) {
         NSAssert(self.realtimeChannel, @"ARTRealtimeHistoryQuery used from outside ARTRealtimeChannel.history");
-        if (self.realtimeChannel.state_nosync != ARTRealtimeChannelAttached) {
-            *errorPtr = [NSError errorWithDomain:ARTAblyErrorDomain code:ARTRealtimeHistoryErrorNotAttached userInfo:@{NSLocalizedDescriptionKey:@"ARTRealtimeHistoryQuery: untilAttach used in channel that isn't attached"}];
+        if (self.realtimeChannel.state_nosync != ARTRealtimeChannelAttached) { // RTL10b
+            if (errorPtr) {
+                *errorPtr = [ARTErrorInfo createWithCode:ARTErrorBadRequest
+                                                  status:400
+                                                 message:[NSString stringWithFormat:@"untilAttach requires the channel to be attached, but it is %@", ARTRealtimeChannelStateToStr(self.realtimeChannel.state_nosync)]];
+            }
             return nil;
         }
         [items addObject:[NSURLQueryItem queryItemWithName:@"fromSerial" value:self.realtimeChannel.attachSerial]];

@@ -138,13 +138,12 @@ NS_SWIFT_NAME(RealtimeChannelProtocol)
 /**
  * Retrieves an `ARTPaginatedResult` object, containing an array of historical `ARTMessage` objects for the channel. If the channel is configured to persist messages, then messages can be retrieved from history for up to 72 hours in the past. If not, messages can only be retrieved from history for up to two minutes in the past.
  *
+ * Raises `NSInvalidArgumentException` if `query.limit` is greater than 1,000, or if `query.start` is later than `query.end`. If `query.untilAttach` is `true` and the channel is not attached, the callback receives an error instead.
+ *
  * @param query An `ARTRealtimeHistoryQuery` object.
  * @param callback A callback for retriving an `ARTPaginatedResult` object with an array of `ARTMessage` objects.
- * @param errorPtr A reference to the `NSError` object where an error information will be saved in case of failure.
- *
- * @return In case of failure returns `false` and the error information can be retrived via the `error` parameter.
  */
-- (BOOL)history:(ARTRealtimeHistoryQuery *_Nullable)query callback:(ARTPaginatedMessagesCallback)callback error:(NSError *_Nullable *_Nullable)errorPtr;
+- (void)history:(ARTRealtimeHistoryQuery *_Nullable)query callback:(ARTPaginatedMessagesCallback)callback;
 
 /**
  * Sets the `ARTRealtimeChannelOptions` for the channel. An optional callback may be provided to notify of the success or failure of the operation.

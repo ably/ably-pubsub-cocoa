@@ -205,19 +205,14 @@ class WrapperSDKProxyTests: XCTestCase {
         // When: We call `request(…)` on the wrapper proxy SDK client
 
         waitUntil(timeout: testTimeout) { done in
-            do {
-                try proxyClient.request(
-                    "GET",
-                    path: "/time",
-                    params: nil,
-                    body: nil,
-                    headers: nil
-                ) { response, error in
-                    XCTAssertNil(error)
-                    done()
-                }
-            } catch {
-                XCTFail("request threw error: \(error)")
+            proxyClient.request(
+                "GET",
+                path: "/time",
+                params: nil,
+                body: nil,
+                headers: nil
+            ) { response, error in
+                XCTAssertNil(error)
                 done()
             }
         }
@@ -264,51 +259,46 @@ class WrapperSDKProxyTests: XCTestCase {
         // When: We call `request(…)` on the wrapper proxy SDK client and then fetch its `first()` and `next()` pages
 
         waitUntil(timeout: testTimeout) { done in
-            do {
-                try proxyClient.request(
-                    "GET",
-                    path: "/channels/\(channelName)/messages",
-                    params: ["limit": "1"],
-                    body: nil,
-                    headers: nil
-                ) { firstPage, error in
+            proxyClient.request(
+                "GET",
+                path: "/channels/\(channelName)/messages",
+                params: ["limit": "1"],
+                body: nil,
+                headers: nil
+            ) { firstPage, error in
+                XCTAssertNil(error)
+
+                guard let firstPage else {
+                    done()
+                    return
+                }
+
+                XCTAssertEqual(firstPage.items.count, 1)
+
+                firstPage.first { firstPageAgain, error in
                     XCTAssertNil(error)
 
-                    guard let firstPage else {
+                    guard let firstPageAgain else {
                         done()
                         return
                     }
 
-                    XCTAssertEqual(firstPage.items.count, 1)
+                    XCTAssertEqual(firstPageAgain.items.count, 1)
 
-                    firstPage.first { firstPageAgain, error in
+                    firstPageAgain.next { secondPage, error in
                         XCTAssertNil(error)
 
-                        guard let firstPageAgain else {
+                        guard let secondPage else {
                             done()
                             return
                         }
 
-                        XCTAssertEqual(firstPageAgain.items.count, 1)
+                        XCTAssertEqual(secondPage.items.count, 1)
 
-                        firstPageAgain.next { secondPage, error in
-                            XCTAssertNil(error)
-
-                            guard let secondPage else {
-                                done()
-                                return
-                            }
-
-                            XCTAssertEqual(secondPage.items.count, 1)
-
-                            done()
-                        }
+                        done()
                     }
-
                 }
-            } catch {
-                XCTFail("request threw error: \(error)")
-                done()
+
             }
         }
 
@@ -395,34 +385,29 @@ class WrapperSDKProxyTests: XCTestCase {
                 let query = RealtimeHistoryQuery()
                 query.limit = 1
 
-                do {
-                    try channel.history(query) { firstPage, error in
+                channel.history(query) { firstPage, error in
+                    XCTAssertNil(error)
+
+                    guard let firstPage else {
+                        done()
+                        return
+                    }
+
+                    // This test also doubles up as a smoke test that `-first` and `-next` on a normal PaginatedResult (as opposed to an HTTPPaginatedResponse) add the SDK agent
+
+                    firstPage.first { firstPageAgain, error in
                         XCTAssertNil(error)
 
-                        guard let firstPage else {
+                        guard let firstPageAgain else {
                             done()
                             return
                         }
 
-                        // This test also doubles up as a smoke test that `-first` and `-next` on a normal PaginatedResult (as opposed to an HTTPPaginatedResponse) add the SDK agent
-
-                        firstPage.first { firstPageAgain, error in
+                        firstPageAgain.next { _, error in
                             XCTAssertNil(error)
-
-                            guard let firstPageAgain else {
-                                done()
-                                return
-                            }
-
-                            firstPageAgain.next { _, error in
-                                XCTAssertNil(error)
-                                done()
-                            }
+                            done()
                         }
                     }
-                } catch {
-                    XCTFail("history threw error \(error)")
-                    done()
                 }
             }
         }

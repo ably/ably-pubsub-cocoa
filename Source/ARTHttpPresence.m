@@ -69,16 +69,12 @@
     [_internal get:callback];
 }
 
-- (BOOL)get:(ARTPaginatedPresenceCallback)callback error:(NSError *_Nullable *_Nullable)errorPtr {
-    return [_internal get:callback error:errorPtr];
+- (void)get:(ARTPresenceQuery *)query callback:(ARTPaginatedPresenceCallback)callback {
+    [_internal get:query callback:callback];
 }
 
-- (BOOL)get:(ARTPresenceQuery *)query callback:(ARTPaginatedPresenceCallback)callback error:(NSError *_Nullable *_Nullable)errorPtr {
-    return [_internal get:query callback:callback error:errorPtr];
-}
-
-- (BOOL)history:(nullable ARTDataQuery *)query callback:(ARTPaginatedPresenceCallback)callback error:(NSError *_Nullable *_Nullable)errorPtr {
-    return [_internal history:query wrapperSDKAgents:nil callback:callback error:errorPtr];
+- (void)history:(nullable ARTDataQuery *)query callback:(ARTPaginatedPresenceCallback)callback {
+    [_internal history:query wrapperSDKAgents:nil callback:callback];
 }
 
 - (void)history:(ARTPaginatedPresenceCallback)callback {
@@ -114,14 +110,14 @@ NS_ASSUME_NONNULL_END
 }
 
 - (void)get:(ARTPaginatedPresenceCallback)callback {
-    [self get:[[ARTPresenceQuery alloc] init] callback:callback error:nil];
+    [self get:[[ARTPresenceQuery alloc] init] callback:callback];
 }
 
-- (BOOL)get:(ARTPaginatedPresenceCallback)callback error:(NSError **)errorPtr {
-    return [self get:[[ARTPresenceQuery alloc] init] callback:callback error:errorPtr];
-}
+- (void)get:(ARTPresenceQuery *)query callback:(ARTPaginatedPresenceCallback)callback {
+    if (query.limit > 1000) {
+        [NSException raise:NSInvalidArgumentException format:@"Limit supports up to 1000 results only"];
+    }
 
-- (BOOL)get:(ARTPresenceQuery *)query callback:(ARTPaginatedPresenceCallback)callback error:(NSError **)errorPtr {
     if (callback) {
         ARTPaginatedPresenceCallback userCallback = callback;
         callback = ^(ARTPaginatedResult<ARTPresenceMessage *> *m, ARTErrorInfo *e) {
@@ -129,15 +125,6 @@ NS_ASSUME_NONNULL_END
                 userCallback(m, e);
             });
         };
-    }
-
-    if (query.limit > 1000) {
-        if (errorPtr) {
-            *errorPtr = [NSError errorWithDomain:ARTAblyErrorDomain
-                                            code:ARTDataQueryErrorLimit
-                                        userInfo:@{NSLocalizedDescriptionKey:@"Limit supports up to 1000 results only"}];
-        }
-        return NO;
     }
 
     NSURLComponents *requestUrl = [NSURLComponents componentsWithString:[_channel.basePath stringByAppendingPathComponent:@"presence"]];
@@ -159,15 +146,16 @@ NS_ASSUME_NONNULL_END
 art_dispatch_async(_queue, ^{
     [ARTPaginatedResult executePaginated:self->_channel.rest withRequest:request andResponseProcessor:responseProcessor wrapperSDKAgents:nil logger:self->_logger callback:callback];
 });
-    return YES;
 }
 
 - (void)historyWithWrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
                          completion:(ARTPaginatedPresenceCallback)callback {
-    [self history:[[ARTDataQuery alloc] init] wrapperSDKAgents:wrapperSDKAgents callback:callback error:nil];
+    [self history:[[ARTDataQuery alloc] init] wrapperSDKAgents:wrapperSDKAgents callback:callback];
 }
 
-- (BOOL)history:(ARTDataQuery *)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedPresenceCallback)callback error:(NSError **)errorPtr {
+- (void)history:(ARTDataQuery *)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedPresenceCallback)callback {
+    [query validate];
+
     if (callback) {
         void (^userCallback)(ARTPaginatedResult<ARTPresenceMessage *> *result, ARTErrorInfo *error) = callback;
         callback = ^(ARTPaginatedResult<ARTPresenceMessage *> *result, ARTErrorInfo *error) {
@@ -177,31 +165,14 @@ art_dispatch_async(_queue, ^{
         };
     }
 
-    if (query.limit > 1000) {
-        if (errorPtr) {
-            *errorPtr = [NSError errorWithDomain:ARTAblyErrorDomain
-                                            code:ARTDataQueryErrorLimit
-                                        userInfo:@{NSLocalizedDescriptionKey:@"Limit supports up to 1000 results only"}];
-        }
-        return NO;
-    }
-    if ([query.start compare:query.end] == NSOrderedDescending) {
-        if (errorPtr) {
-            *errorPtr = [NSError errorWithDomain:ARTAblyErrorDomain
-                                            code:ARTDataQueryErrorTimestampRange
-                                        userInfo:@{NSLocalizedDescriptionKey:@"Start must be equal to or less than end"}];
-        }
-        return NO;
-    }
-
     NSURLComponents *requestUrl = [NSURLComponents componentsWithString:[_channel.basePath stringByAppendingPathComponent:@"presence/history"]];
-    NSError *error = nil;
+    ARTErrorInfo *error = nil;
     requestUrl.queryItems = [query asQueryItems:&error];
     if (error) {
-        if (errorPtr) {
-            *errorPtr = error;
+        if (callback) {
+            callback(nil, error);
         }
-        return NO;
+        return;
     }
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestUrl.URL];
 
@@ -221,7 +192,6 @@ art_dispatch_async(_queue, ^{
 art_dispatch_async(_queue, ^{
     [ARTPaginatedResult executePaginated:self->_channel.rest withRequest:request andResponseProcessor:responseProcessor wrapperSDKAgents:wrapperSDKAgents logger:self->_logger callback:callback];
 });
-    return YES;
 }
 
 @end

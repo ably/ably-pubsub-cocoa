@@ -579,12 +579,8 @@ extension PresenceTests {
                              query: PresenceQuery,
                              sourceLocation: SourceLocation = #_sourceLocation) async -> PaginatedResult<PresenceMessage>? {
         let (result, failure): (PaginatedResult<PresenceMessage>?, String?) = await withCheckedContinuation { continuation in
-            do {
-                try presence.get(query) { result, error in
-                    continuation.resume(returning: (result, error.map { "presence.get(query) failed: \($0)" }))
-                }
-            } catch {
-                continuation.resume(returning: (nil, "presence.get(query) threw: \(error)"))
+            presence.get(query) { result, error in
+                continuation.resume(returning: (result, error.map { "presence.get(query) failed: \($0)" }))
             }
         }
 
@@ -653,12 +649,8 @@ extension PresenceTests {
                                  query: DataQuery,
                                  sourceLocation: SourceLocation = #_sourceLocation) async -> PaginatedResult<PresenceMessage>? {
         let (result, failure): (PaginatedResult<PresenceMessage>?, String?) = await withCheckedContinuation { continuation in
-            do {
-                try presence.history(query) { result, error in
-                    continuation.resume(returning: (result, error.map { "presence.history(query) failed: \($0)" }))
-                }
-            } catch {
-                continuation.resume(returning: (nil, "presence.history(query) threw: \(error)"))
+            presence.history(query) { result, error in
+                continuation.resume(returning: (result, error.map { "presence.history(query) failed: \($0)" }))
             }
         }
 

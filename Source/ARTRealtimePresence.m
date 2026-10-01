@@ -141,8 +141,8 @@
     [_internal historyWithWrapperSDKAgents:nil completion:callback];
 }
 
-- (BOOL)history:(ARTRealtimeHistoryQuery *_Nullable)query callback:(ARTPaginatedPresenceCallback)callback error:(NSError *_Nullable *_Nullable)errorPtr {
-    return [_internal history:query wrapperSDKAgents:nil callback:callback error:errorPtr];
+- (void)history:(ARTRealtimeHistoryQuery *_Nullable)query callback:(ARTPaginatedPresenceCallback)callback {
+    [_internal history:query wrapperSDKAgents:nil callback:callback];
 }
 
 @end
@@ -281,12 +281,12 @@ art_dispatch_async(_queue, ^{
 
 - (void)historyWithWrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
                          completion:(ARTPaginatedPresenceCallback)callback {
-    [self history:[[ARTRealtimeHistoryQuery alloc] init] wrapperSDKAgents:wrapperSDKAgents callback:callback error:nil];
+    [self history:[[ARTRealtimeHistoryQuery alloc] init] wrapperSDKAgents:wrapperSDKAgents callback:callback];
 }
 
-- (BOOL)history:(ARTRealtimeHistoryQuery *)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedPresenceCallback)callback error:(NSError **)errorPtr {
+- (void)history:(ARTRealtimeHistoryQuery *)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedPresenceCallback)callback {
     query.realtimeChannel = _channel;
-    return [_channel.restChannel.presence history:query wrapperSDKAgents:wrapperSDKAgents callback:callback error:errorPtr];
+    [_channel.restChannel.presence history:query wrapperSDKAgents:wrapperSDKAgents callback:callback];
 }
 
 // RTP8

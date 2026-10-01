@@ -58,8 +58,8 @@
     return _internal.name;
 }
 
-- (BOOL)history:(nullable ARTDataQuery *)query callback:(ARTPaginatedMessagesCallback)callback error:(NSError *_Nullable *_Nullable)errorPtr {
-    return [_internal history:query wrapperSDKAgents:nil callback:callback error:errorPtr];
+- (void)history:(nullable ARTDataQuery *)query callback:(ARTPaginatedMessagesCallback)callback {
+    [_internal history:query wrapperSDKAgents:nil callback:callback];
 }
 
 - (void)status:(ARTChannelDetailsCallback)callback {
@@ -195,10 +195,12 @@
 }
 
 - (void)historyWithWrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents completion:(ARTPaginatedMessagesCallback)callback {
-    [self history:[[ARTDataQuery alloc] init] wrapperSDKAgents:wrapperSDKAgents callback:callback error:nil];
+    [self history:[[ARTDataQuery alloc] init] wrapperSDKAgents:wrapperSDKAgents callback:callback];
 }
 
-- (BOOL)history:(ARTDataQuery *)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedMessagesCallback)callback error:(NSError * __autoreleasing *)errorPtr {
+- (void)history:(ARTDataQuery *)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedMessagesCallback)callback {
+    [query validate];
+
     if (callback) {
         void (^userCallback)(ARTPaginatedResult<ARTMessage *> *result, ARTErrorInfo *error) = callback;
         callback = ^(ARTPaginatedResult<ARTMessage *> *result, ARTErrorInfo *error) {
@@ -208,35 +210,14 @@
         };
     }
 
-    __block BOOL ret;
 art_dispatch_sync(_queue, ^{
-    if (query.limit > 1000) {
-        if (errorPtr) {
-            *errorPtr = [NSError errorWithDomain:ARTAblyErrorDomain
-                                            code:ARTDataQueryErrorLimit
-                                        userInfo:@{NSLocalizedDescriptionKey:@"Limit supports up to 1000 results only"}];
-        }
-        ret = NO;
-        return;
-    }
-    if ([query.start compare:query.end] == NSOrderedDescending) {
-        if (errorPtr) {
-            *errorPtr = [NSError errorWithDomain:ARTAblyErrorDomain
-                                            code:ARTDataQueryErrorTimestampRange
-                                        userInfo:@{NSLocalizedDescriptionKey:@"Start must be equal to or less than end"}];
-        }
-        ret = NO;
-        return;
-    }
-
     NSURLComponents *componentsUrl = [NSURLComponents componentsWithString:[self->_basePath stringByAppendingPathComponent:@"messages"]];
-    NSError *error = nil;
+    ARTErrorInfo *error = nil;
     componentsUrl.queryItems = [query asQueryItems:&error];
     if (error) {
-        if (errorPtr) {
-            *errorPtr = error;
+        if (callback) {
+            callback(nil, error);
         }
-        ret = NO;
         return;
     }
 
@@ -257,9 +238,7 @@ art_dispatch_sync(_queue, ^{
 
     ARTLogDebug(self.logger, @"RS:%p C:%p (%@) stats request %@", self->_rest, self, self.name, request);
     [ARTPaginatedResult executePaginated:self->_rest withRequest:request andResponseProcessor:responseProcessor wrapperSDKAgents:wrapperSDKAgents logger:self.logger callback:callback];
-    ret = YES;
 });
-    return ret;
 }
 
 - (void)status:(ARTChannelDetailsCallback)callback {

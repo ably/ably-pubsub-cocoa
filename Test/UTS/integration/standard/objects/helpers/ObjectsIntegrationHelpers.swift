@@ -10,8 +10,7 @@ import AblyLiveObjects
 /// LiveObjects plugin installed (accessing `channel.object` without it is a programmer error).
 func objectsClientOptions(key: String, useBinaryProtocol: Bool) -> ClientOptions {
     let options = ClientOptions(key: key)
-    options.realtimeHost = SandboxApp.sandboxHost
-    options.restHost = SandboxApp.sandboxHost
+    options.endpoint = SandboxApp.sandboxEndpoint
     options.useBinaryProtocol = useBinaryProtocol
     options.autoConnect = false
     options.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]

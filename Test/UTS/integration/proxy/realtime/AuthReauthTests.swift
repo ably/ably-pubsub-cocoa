@@ -37,7 +37,7 @@ final class AuthReauthTests: ProxyTestCase {
             // test can count the authCallback invocations itself)
             let authCallbackInvocations = Captured<TokenParams>()
             let signerOptions = ClientOptions(key: app.defaultKey)
-            signerOptions.restHost = SandboxApp.sandboxHost
+            signerOptions.endpoint = SandboxApp.sandboxEndpoint
             let tokenSigner = HttpClient(options: signerOptions)
 
             let options = ClientOptions()

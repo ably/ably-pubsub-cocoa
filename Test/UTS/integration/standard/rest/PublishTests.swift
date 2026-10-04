@@ -29,7 +29,7 @@ final class PublishTests: IntegrationTestCase {
             let restrictedKey = app.keys[2]
 
             let restrictedOptions = ClientOptions(key: restrictedKey)
-            restrictedOptions.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            restrictedOptions.endpoint = SandboxApp.sandboxEndpoint
             restrictedOptions.useBinaryProtocol = useBinaryProtocol
             let restrictedClient = HttpClient(options: restrictedOptions)
             let restrictedChannel = restrictedClient.channels.get(channelName)
@@ -48,7 +48,7 @@ final class PublishTests: IntegrationTestCase {
         try await withSandboxApp { app in
             // Setup
             let options = ClientOptions(key: app.defaultKey)
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             let client = HttpClient(options: options)
             let channelName = "test-serials-\(UUID().uuidString)"
@@ -91,7 +91,7 @@ final class PublishTests: IntegrationTestCase {
         try await withSandboxApp { app in
             // Setup
             let options = ClientOptions(key: app.defaultKey)
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             let client = HttpClient(options: options)
             let channelName = "idempotent-explicit-\(UUID().uuidString)"
@@ -152,7 +152,7 @@ final class PublishTests: IntegrationTestCase {
             // Setup
             // Create a token with a specific clientId
             let keyClientOptions = ClientOptions(key: app.defaultKey)
-            keyClientOptions.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            keyClientOptions.endpoint = SandboxApp.sandboxEndpoint
             keyClientOptions.useBinaryProtocol = useBinaryProtocol
             let keyClient = HttpClient(options: keyClientOptions)
 
@@ -161,7 +161,7 @@ final class PublishTests: IntegrationTestCase {
 
             // Client using token with clientId
             let tokenClientOptions = ClientOptions(token: token)
-            tokenClientOptions.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            tokenClientOptions.endpoint = SandboxApp.sandboxEndpoint
             tokenClientOptions.useBinaryProtocol = useBinaryProtocol
             let tokenClient = HttpClient(options: tokenClientOptions)
 

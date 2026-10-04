@@ -373,7 +373,7 @@ NS_ASSUME_NONNULL_END
 
             self.currentFallbackHost = nil;
             self.prioritizedHost = nil;
-            [mutableRequest replaceHostWith:_options.restHost];
+            [mutableRequest replaceHostWith:_options.primaryDomain];
         }
     }
 
@@ -512,7 +512,7 @@ NS_ASSUME_NONNULL_END
         // Test purpose only
         return _prioritizedHost;
     }
-    return self.options.restHost;
+    return self.options.primaryDomain;
 }
 
 - (NSString *)prepareBasicAuthorisationHeader:(NSString *)key {

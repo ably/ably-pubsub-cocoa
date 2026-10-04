@@ -286,16 +286,15 @@ final class ProxySession: Sendable {
 extension ClientOptions {
     /// Routes a client through the given proxy `session`.
     ///
-    /// Sets `realtimeHost` and `restHost` to the proxy host, `port` to the session's assigned
+    /// Sets `endpoint` to the proxy host, `port` to the session's assigned
     /// port, `tls = false` (the proxy serves plain HTTP/WS; TLS is only used upstream to the
     /// sandbox), and `useBinaryProtocol = false` (the proxy can only inspect text frames — the
     /// UTS proxy specs require JSON).
     ///
-    /// Setting explicit hosts disables fallback hosts automatically (REC2c2), so no
+    /// An endpoint that is a hostname disables fallback hosts automatically (REC2c2), so no
     /// `fallbackHosts` juggling is needed.
     func connectThroughProxy(_ session: ProxySession) {
-        realtimeHost = session.proxyHost
-        restHost = session.proxyHost
+        endpoint = session.proxyHost
         port = session.proxyPort
         tls = false
         useBinaryProtocol = false

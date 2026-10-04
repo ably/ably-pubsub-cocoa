@@ -21,14 +21,17 @@ NS_SWIFT_NAME(ClientOptions)
 @interface ARTClientOptions : ARTAuthOptions
 
 /**
- * Enables a non-default Ably host to be specified. For development environments only. The default value is `rest.ably.io`.
+ * The Ably endpoint that the client connects to. The default is `main`.
+ *
+ * The value takes one of three forms:
+ *
+ * - A routing policy ID, such as `main`. The client connects to `[id].realtime.ably.net`.
+ * - A non-production routing policy ID, such as `nonprod:sandbox`. The client connects to `[id].realtime.ably-nonprod.net`.
+ * - A hostname, such as `foo.example.com`, `localhost` or an IPv6 address. The client connects to that host. It uses no fallback hosts unless `fallbackHosts` is set.
+ *
+ * A value counts as a hostname when it contains a `.` or `::`, or when it is `localhost`.
  */
-@property (readwrite, nonatomic) NSString *restHost;
-
-/**
- * Enables a non-default Ably host to be specified for realtime connections. For development environments only. The default value is `realtime.ably.io`.
- */
-@property (readwrite, nonatomic) NSString *realtimeHost;
+@property (nullable, readwrite, nonatomic, copy) NSString *endpoint;
 
 /**
  * Enables a non-default Ably port to be specified. For development environments only. The default value is 80.
@@ -39,11 +42,6 @@ NS_SWIFT_NAME(ClientOptions)
  * Enables a non-default Ably TLS port to be specified. For development environments only. The default value is 443.
  */
 @property (nonatomic) NSInteger tlsPort;
-
-/**
- * Enables a [custom environment](https://ably.com/docs/platform-customization) to be used with the Ably service.
- */
-@property (readwrite, nonatomic, nullable) NSString *environment;
 
 /**
  * When `false`, the client will use an insecure connection. The default is `true`, meaning a TLS connection will be used to connect to Ably.
@@ -140,6 +138,8 @@ NS_SWIFT_NAME(ClientOptions)
 
 /**
  * An array of fallback hosts to be used in the case of an error necessitating the use of an alternative host. If you have been provided a set of custom fallback hosts by Ably, please specify them here.
+ *
+ * When this is `nil`, the fallback hosts follow from `endpoint`. An empty array disables fallback hosts.
  */
 @property (nullable, nonatomic, copy) NSArray<NSString *> *fallbackHosts;
 

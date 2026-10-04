@@ -233,7 +233,7 @@ class PushAdminTests: XCTestCase {
         let publishObject = ["transportType": "ablyChannel",
                              "channel": channel.name,
                              "ablyKey": options.key!,
-                             "ablyUrl": "https://\(options.restHost)"]
+                             "ablyUrl": "https://\(options.restUrl().host!)"]
 
         waitUntil(timeout: testTimeout) { done in
             channel.attach { error in

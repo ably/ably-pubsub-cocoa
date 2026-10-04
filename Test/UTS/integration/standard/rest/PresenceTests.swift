@@ -23,7 +23,7 @@ final class PresenceTests: IntegrationTestCase {
         try await withSandboxApp { app in
             // Setup
             let options = ClientOptions(key: app.defaultKey)
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             let client = HttpClient(options: options)
 
@@ -42,7 +42,7 @@ final class PresenceTests: IntegrationTestCase {
         try await withSandboxApp { app in
             // Setup
             let options = ClientOptions(key: app.defaultKey)
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             let client = HttpClient(options: options)
 
@@ -67,7 +67,7 @@ final class PresenceTests: IntegrationTestCase {
         try await withSandboxApp { app in
             // Setup
             let options = ClientOptions(key: app.defaultKey)
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             let client = HttpClient(options: options)
 
@@ -94,7 +94,7 @@ final class PresenceTests: IntegrationTestCase {
         try await withSandboxApp { app in
             // Setup
             let options = ClientOptions(key: app.defaultKey)
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             let client = HttpClient(options: options)
 
@@ -119,7 +119,7 @@ final class PresenceTests: IntegrationTestCase {
         try await withSandboxApp { app in
             // Setup
             let options = ClientOptions(key: app.defaultKey)
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             let client = HttpClient(options: options)
 
@@ -142,7 +142,7 @@ final class PresenceTests: IntegrationTestCase {
         try await withSandboxApp { app in
             // Setup
             let options = ClientOptions(key: app.defaultKey)
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             let client = HttpClient(options: options)
 
@@ -165,7 +165,7 @@ final class PresenceTests: IntegrationTestCase {
         try await withSandboxApp { app in
             // Setup
             let options = ClientOptions(key: app.defaultKey)
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             let client = HttpClient(options: options)
 
@@ -173,8 +173,7 @@ final class PresenceTests: IntegrationTestCase {
 
             // Use realtime client to generate presence history
             let realtimeOptions = ClientOptions(key: app.defaultKey)
-            realtimeOptions.realtimeHost = SandboxApp.sandboxHost
-            realtimeOptions.restHost = SandboxApp.sandboxHost
+            realtimeOptions.endpoint = SandboxApp.sandboxEndpoint
             realtimeOptions.useBinaryProtocol = useBinaryProtocol
             realtimeOptions.clientId = "test-client"
             realtimeOptions.autoConnect = false
@@ -213,7 +212,7 @@ final class PresenceTests: IntegrationTestCase {
         try await withSandboxApp { app in
             // Setup
             let options = ClientOptions(key: app.defaultKey)
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             options.clientId = "test-client"
             let client = HttpClient(options: options)
@@ -222,8 +221,7 @@ final class PresenceTests: IntegrationTestCase {
 
             // Generate presence events via realtime
             let realtimeOptions = ClientOptions(key: app.defaultKey)
-            realtimeOptions.realtimeHost = SandboxApp.sandboxHost
-            realtimeOptions.restHost = SandboxApp.sandboxHost
+            realtimeOptions.endpoint = SandboxApp.sandboxEndpoint
             realtimeOptions.useBinaryProtocol = useBinaryProtocol
             realtimeOptions.clientId = "time-test-client"
             realtimeOptions.autoConnect = false
@@ -267,7 +265,7 @@ final class PresenceTests: IntegrationTestCase {
         try await withSandboxApp { app in
             // Setup
             let options = ClientOptions(key: app.defaultKey)
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             let client = HttpClient(options: options)
 
@@ -275,8 +273,7 @@ final class PresenceTests: IntegrationTestCase {
 
             // Generate ordered presence events
             let realtimeOptions = ClientOptions(key: app.defaultKey)
-            realtimeOptions.realtimeHost = SandboxApp.sandboxHost
-            realtimeOptions.restHost = SandboxApp.sandboxHost
+            realtimeOptions.endpoint = SandboxApp.sandboxEndpoint
             realtimeOptions.useBinaryProtocol = useBinaryProtocol
             realtimeOptions.clientId = "direction-client"
             realtimeOptions.autoConnect = false
@@ -319,7 +316,7 @@ final class PresenceTests: IntegrationTestCase {
         try await withSandboxApp { app in
             // Setup
             let options = ClientOptions(key: app.defaultKey)
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             let client = HttpClient(options: options)
 
@@ -327,8 +324,7 @@ final class PresenceTests: IntegrationTestCase {
 
             // Generate multiple presence events
             let realtimeOptions = ClientOptions(key: app.defaultKey)
-            realtimeOptions.realtimeHost = SandboxApp.sandboxHost
-            realtimeOptions.restHost = SandboxApp.sandboxHost
+            realtimeOptions.endpoint = SandboxApp.sandboxEndpoint
             realtimeOptions.useBinaryProtocol = useBinaryProtocol
             realtimeOptions.clientId = "limit-client"
             realtimeOptions.autoConnect = false
@@ -370,7 +366,7 @@ final class PresenceTests: IntegrationTestCase {
         try await withSandboxApp { app in
             // Setup
             let options = ClientOptions(key: app.defaultKey)
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             let client = HttpClient(options: options)
 
@@ -392,7 +388,7 @@ final class PresenceTests: IntegrationTestCase {
         try await withSandboxApp { app in
             // Setup
             let options = ClientOptions(key: app.defaultKey)
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             let client = HttpClient(options: options)
 
@@ -414,7 +410,7 @@ final class PresenceTests: IntegrationTestCase {
         try await withSandboxApp { app in
             // Setup
             let options = ClientOptions(key: app.defaultKey)
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             let client = HttpClient(options: options)
 
@@ -443,7 +439,7 @@ final class PresenceTests: IntegrationTestCase {
         try await withSandboxApp { app in
             // Setup
             let options = ClientOptions(key: app.defaultKey)
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             let client = HttpClient(options: options)
 
@@ -451,8 +447,7 @@ final class PresenceTests: IntegrationTestCase {
 
             // Generate presence event with JSON data
             let realtimeOptions = ClientOptions(key: app.defaultKey)
-            realtimeOptions.realtimeHost = SandboxApp.sandboxHost
-            realtimeOptions.restHost = SandboxApp.sandboxHost
+            realtimeOptions.endpoint = SandboxApp.sandboxEndpoint
             realtimeOptions.useBinaryProtocol = useBinaryProtocol
             realtimeOptions.clientId = "decode-client"
             realtimeOptions.autoConnect = false
@@ -485,7 +480,7 @@ final class PresenceTests: IntegrationTestCase {
         try await withSandboxApp { app in
             // Setup
             let options = ClientOptions(key: app.defaultKey)
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             let client = HttpClient(options: options)
 
@@ -522,7 +517,7 @@ final class PresenceTests: IntegrationTestCase {
         try await withSandboxApp { _ in
             // Setup
             let options = ClientOptions(key: "invalid.key:secret")
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             let client = HttpClient(options: options)
 
@@ -543,7 +538,7 @@ final class PresenceTests: IntegrationTestCase {
             let restrictedKey = app.keys[3]
 
             let options = ClientOptions(key: restrictedKey)
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             let client = HttpClient(options: options)
 

@@ -153,10 +153,10 @@ class RealtimeClientTests: XCTestCase {
         newClient.connection.off()
     }
 
-    // RTC1d
-    func test__017__RealtimeClient__options__should_modify_the_realtime_endpoint_host_if_realtimeHost_is_assigned() {
+    // RTC1d, REC1b2
+    func test__017__RealtimeClient__options__should_connect_to_the_endpoint_if_it_is_a_hostname() {
         let options = ClientOptions(key: "secret:key")
-        options.realtimeHost = "fake.ably.io"
+        options.endpoint = "fake.ably.io"
         options.autoConnect = false
         let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
@@ -179,22 +179,17 @@ class RealtimeClientTests: XCTestCase {
         }
     }
 
-    // RTC1e
-    func test__018__RealtimeClient__options__should_modify_both_the_REST_and_realtime_endpoint_if_environment_string_is_assigned() throws {
-        let test = Test()
-        let options = try AblyTests.commonAppSetup(for: test)
+    // RTC1e, REC1b3, REC1b4
+    func test__018__RealtimeClient__options__should_modify_both_the_REST_and_realtime_host_if_endpoint_is_assigned() {
+        let options = ClientOptions(key: "xxxx:xxxx")
 
-        let oldRestHost = options.restHost
-        let oldRealtimeHost = options.realtimeHost
+        options.endpoint = "test"
+        XCTAssertEqual(options.restUrl().host, "test.realtime.ably.net")
+        XCTAssertEqual(options.realtimeUrl().host, "test.realtime.ably.net")
 
-        // Change REST and realtime endpoint hosts
-        options.environment = "test"
-
-        XCTAssertEqual(options.restHost, "test-rest.ably.io")
-        XCTAssertEqual(options.realtimeHost, "test-realtime.ably.io")
-        // Extra care
-        XCTAssertEqual(oldRestHost, "\(getEnvironment())-rest.ably.io")
-        XCTAssertEqual(oldRealtimeHost, "\(getEnvironment())-realtime.ably.io")
+        options.endpoint = "nonprod:test"
+        XCTAssertEqual(options.restUrl().host, "test.realtime.ably-nonprod.net")
+        XCTAssertEqual(options.realtimeUrl().host, "test.realtime.ably-nonprod.net")
     }
 
     // RTC1f

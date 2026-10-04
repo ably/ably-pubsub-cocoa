@@ -128,7 +128,7 @@ class AblyTests {
         if let testApplication {
             app = testApplication
         } else {
-            let request = NSMutableURLRequest(url: URL(string: "https://\(options.restHost):\(options.tlsPort)/apps")!)
+            let request = NSMutableURLRequest(url: options.restUrl().appendingPathComponent("apps"))
             request.httpMethod = "POST"
             request.httpBody = try JSONUtility.encode(appSetupModel.postApps)
 
@@ -178,7 +178,7 @@ class AblyTests {
 
     class func clientOptions(for test: Test, debug: Bool = false, key: String? = nil, requestToken: Bool = false) throws -> ClientOptions {
         let options = ClientOptions()
-        options.environment = getEnvironment()
+        options.endpoint = getEndpoint()
         if debug {
             options.logLevel = .verbose
         }
@@ -731,6 +731,11 @@ func getKeys(for test: Test) throws -> Dictionary<String, String> {
 
 public func delay(_ seconds: TimeInterval, closure: @escaping () -> Void) {
     DispatchQueue.main.asyncAfter(deadline: .now() + seconds, execute: closure)
+}
+
+/// The endpoint the integration tests run against: the nonprod routing policy named by `ABLY_ENV`.
+public func getEndpoint() -> String {
+    "nonprod:\(getEnvironment())"
 }
 
 public func getEnvironment() -> String {

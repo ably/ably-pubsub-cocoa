@@ -192,7 +192,7 @@ art_dispatch_sync(_queue, ^{
 - (NSInteger)maxMessageSize {
     if (_maxMessageSize)
         return _maxMessageSize;
-    return _realtime.options.isProductionEnvironment ? [ARTDefault maxProductionMessageSize] : [ARTDefault maxSandboxMessageSize];
+    return _realtime.options.hasNonprodEndpoint ? [ARTDefault maxSandboxMessageSize] : [ARTDefault maxProductionMessageSize];
 }
 
 - (ARTRealtimeConnectionState)state_nosync {

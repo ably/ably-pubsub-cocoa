@@ -1522,20 +1522,12 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
 - (BOOL)shouldRetryWithFallbackForError:(ARTRealtimeTransportError *)error options:(ARTClientOptions *)options {
     if ((error.type == ARTRealtimeTransportErrorTypeBadResponse && error.badResponseCode >= 500 && error.badResponseCode <= 504) ||
          error.type == ARTRealtimeTransportErrorTypeHostUnreachable || error.type == ARTRealtimeTransportErrorTypeTimeout) {
-        // RTN17b1
-        if (!(options.hasCustomRealtimeHost || options.hasCustomPort || options.hasCustomTlsPort)) {
-            return YES;
-        }
-
-        // RTN17b2
+        // An explicit `fallbackHosts` array applies even when it is empty. The caller then finds no host to try and fails the connection.
         if (options.fallbackHosts) {
             return YES;
         }
-
-        // RSC15g2
-        if (options.hasEnvironmentDifferentThanProduction) {
-            return YES;
-        }
+        // RTN17g
+        return [ARTFallbackHosts hostsFromOptions:options].count > 0;
     }
     return NO;
 }

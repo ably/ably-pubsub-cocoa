@@ -25,6 +25,10 @@ static NSInteger _maxSandboxMessageSize = 16384;
     return ARTDefault_endpoint;
 }
 
++ (NSURL *)connectivityCheckUrl {
+    return [NSURL URLWithString:@"https://internet-up.ably-realtime.com/is-the-internet-up.txt"];
+}
+
 + (NSArray<NSString *> *)fallbackHostsForRoutingPolicyId:(NSString *)routingPolicyId domain:(NSString *)domain {
     return [@[@"a", @"b", @"c", @"d", @"e"] artMap:^NSString *(NSString *letter) {
         return [NSString stringWithFormat:@"%@.%@.fallback.%@", routingPolicyId, letter, domain];

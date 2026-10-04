@@ -34,6 +34,13 @@ NS_SWIFT_NAME(ClientOptions)
 @property (nullable, readwrite, nonatomic, copy) NSString *endpoint;
 
 /**
+ * The URL the client requests to check that the internet connection works, before it tries a fallback host. The default is `https://internet-up.ably-realtime.com/is-the-internet-up.txt`.
+ *
+ * Set it only if the default URL can't be reached from your network. The URL must respond with status 200 and the body `yes`.
+ */
+@property (nullable, readwrite, nonatomic, copy) NSURL *connectivityCheckUrl;
+
+/**
  * Enables a non-default Ably port to be specified. For development environments only. The default value is 80.
  */
 @property (nonatomic) NSInteger port;

@@ -146,6 +146,7 @@ static BOOL ARTEndpointIsHostname(NSString *endpoint) {
     options.port = self.port;
     options.tlsPort = self.tlsPort;
     options.endpoint = self.endpoint;
+    options.connectivityCheckUrl = self.connectivityCheckUrl;
     options.queueMessages = self.queueMessages;
     options.echoMessages = self.echoMessages;
     options.recover = self.recover;

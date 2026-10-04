@@ -4365,6 +4365,58 @@ class RealtimeClientConnectionTests: XCTestCase {
         }
     }
 
+    private func checkInternetIsUp(options: ClientOptions, responseBody: String) -> (isUp: Bool, requestedURL: URL?) {
+        options.autoConnect = false
+        let client = PubSubClient(options: options)
+        defer { client.dispose(); client.close() }
+
+        let internalLog = InternalLog(clientOptions: options)
+        let mockHTTP = MockHTTP(logger: internalLog)
+        mockHTTP.setSuccessResponse(data: responseBody.data(using: .utf8), contentType: "text/plain")
+        let testHttpExecutor = TestProxyHTTPExecutor(http: mockHTTP, logger: internalLog)
+        client.internal.rest.httpExecutor = testHttpExecutor
+
+        var isUp = false
+        waitUntil(timeout: testTimeout) { done in
+            client.internal.rest.internetIsUp { result in
+                isUp = result
+                done()
+            }
+        }
+        return (isUp, testHttpExecutor.requests.first?.url)
+    }
+
+    // REC3a
+    func test__093b__Connection__Host_Fallback__connectivity_check_requests_the_default_URL() {
+        let result = checkInternetIsUp(options: ClientOptions(key: "xxxx:xxxx"), responseBody: "yes\n")
+
+        XCTAssertTrue(result.isUp)
+        XCTAssertEqual(result.requestedURL, URL(string: "https://internet-up.ably-realtime.com/is-the-internet-up.txt"))
+    }
+
+    // REC3b, RTN17j
+    func test__093c__Connection__Host_Fallback__connectivity_check_requests_ClientOptions_connectivityCheckUrl() {
+        let options = ClientOptions(key: "xxxx:xxxx")
+        let customURL = URL(string: "https://connectivity.example.test/check")!
+        options.connectivityCheckUrl = customURL
+
+        // A body without a trailing newline still counts as "yes".
+        let result = checkInternetIsUp(options: options, responseBody: "yes")
+
+        XCTAssertTrue(result.isUp)
+        XCTAssertEqual(result.requestedURL, customURL)
+    }
+
+    // RTN17j
+    func test__093d__Connection__Host_Fallback__connectivity_check_fails_unless_the_body_is_yes() {
+        let options = ClientOptions(key: "xxxx:xxxx")
+        options.connectivityCheckUrl = URL(string: "https://connectivity.example.test/check")!
+
+        let result = checkInternetIsUp(options: options, responseBody: "no")
+
+        XCTAssertFalse(result.isUp)
+    }
+
     func test__094__Connection__Host_Fallback__should_retry_custom_fallback_hosts_in_random_order_after_checkin_if_an_internet_connection_is_available() {
         let test = Test()
         let hostPrefixes = Array("fghij")

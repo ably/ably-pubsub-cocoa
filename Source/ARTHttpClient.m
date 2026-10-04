@@ -15,7 +15,7 @@
 #import "ARTPresenceMessage.h"
 #import "ARTHTTPExecutor.h"
 #import "ARTClientOptions+Private.h"
-#import "ARTDefault.h"
+#import "ARTDefault+Private.h"
 #import "ARTStats.h"
 #import "ARTFallback+Private.h"
 #import "ARTFallbackHosts.h"
@@ -648,7 +648,7 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
 }
 
 - (NSObject<ARTCancellable> *)internetIsUp:(void (^)(BOOL isUp)) cb {
-    NSURL *requestUrl = [NSURL URLWithString:@"https://internet-up.ably-realtime.com/is-the-internet-up.txt"];
+    NSURL *const requestUrl = _options.connectivityCheckUrl ?: [ARTDefault connectivityCheckUrl]; // REC3
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestUrl];
     request.HTTPMethod = @"GET";
 
@@ -657,8 +657,10 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
             cb(NO);
             return;
         }
-        NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        cb(response.statusCode == 200 && str && [str isEqualToString:@"yes\n"]);
+        // RTN17j
+        NSString *const str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSString *const trimmed = [str stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        cb(response.statusCode == 200 && [trimmed isEqualToString:@"yes"]);
     }];
 }
 

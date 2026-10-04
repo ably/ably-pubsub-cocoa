@@ -1522,10 +1522,6 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
 - (BOOL)shouldRetryWithFallbackForError:(ARTRealtimeTransportError *)error options:(ARTClientOptions *)options {
     if ((error.type == ARTRealtimeTransportErrorTypeBadResponse && error.badResponseCode >= 500 && error.badResponseCode <= 504) ||
          error.type == ARTRealtimeTransportErrorTypeHostUnreachable || error.type == ARTRealtimeTransportErrorTypeTimeout) {
-        // An explicit `fallbackHosts` array applies even when it is empty. The caller then finds no host to try and fails the connection.
-        if (options.fallbackHosts) {
-            return YES;
-        }
         // RTN17g
         return [ARTFallbackHosts hostsFromOptions:options].count > 0;
     }
@@ -1693,15 +1689,11 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
             NSArray *hosts = [ARTFallbackHosts hostsFromOptions:clientOptions];
             _fallbacks = [[ARTFallback alloc] initWithFallbackHosts:hosts shuffleArray:clientOptions.testOptions.shuffleArray];
         }
-        if (_fallbacks) {
-            if (_fallbacks.isEmpty) {
-                _fallbacks = nil;
-                ARTLogVerbose(self.logger, @"R:%p No fallback hosts left, will try primary one again...", self);
-            }
-            [self performTransitionToDisconnectedOrSuspendedWithParams:params]; // RTN14d, RTN17j
-        } else {
-            [self performTransitionToState:ARTRealtimeFailed withParams:params];
+        if (!_fallbacks || _fallbacks.isEmpty) {
+            _fallbacks = nil;
+            ARTLogVerbose(self.logger, @"R:%p No fallback hosts left, will try primary one again...", self);
         }
+        [self performTransitionToDisconnectedOrSuspendedWithParams:params]; // RTN14d, RTN17j
     } else {
         [self performTransitionToDisconnectedOrSuspendedWithParams:params];
     }

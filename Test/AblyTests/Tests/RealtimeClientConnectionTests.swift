@@ -4436,15 +4436,15 @@ class RealtimeClientConnectionTests: XCTestCase {
         XCTAssertEqual(resultFallbackHosts, expectedFallbackHosts)
     }
 
+    // TO3k6, RTN17g, RTN14d
     func test__095__Connection__Host_Fallback__won_t_use_fallback_hosts_feature_if_an_empty_array_is_provided() {
-        let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
         options.autoConnect = false
         options.fallbackHosts = []
         let transportFactory = TestProxyTransportFactory()
         options.testOptions.transportFactory = transportFactory
         let client = PubSubClient(options: options)
-        let channel = client.channels.get(test.uniqueChannelName())
+        defer { client.dispose(); client.close() }
 
         let testHttpExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
         client.internal.rest.httpExecutor = testHttpExecutor
@@ -4459,16 +4459,21 @@ class RealtimeClientConnectionTests: XCTestCase {
             urlConnections.append(url)
         }
 
-        client.connect()
-        defer { client.dispose(); client.close() }
-
+        // An empty array turns fallbacks off, so the failed attempt is retried later instead of failing the connection.
         waitUntil(timeout: testTimeout) { done in
-            channel.publish(nil, data: "message") { _ in
+            client.connection.once(.failed) { stateChange in
+                fail("Connection should not fail: \(String(describing: stateChange.reason))")
                 done()
             }
+            client.connection.once(.disconnected) { _ in
+                done()
+            }
+            client.connect()
         }
 
-        XCTAssertEqual(urlConnections.count, 1)
+        XCTAssertEqual(client.connection.state, .disconnected)
+        XCTAssertEqual(urlConnections.map(\.host), [options.primaryDomain])
+        XCTAssertFalse(testHttpExecutor.requests.contains { $0.url?.host == "internet-up.ably-realtime.com" })
     }
 
     // RTN17e

@@ -460,7 +460,7 @@ class HttpClientTests: XCTestCase {
         XCTAssertTrue(authOptions == options)
     }
 
-    // RSC12
+    // RSC25, TO3k8
     func test__003__RestClient__REST_endpoint_host_should_be_configurable_in_the_Client_constructor_with_the_option_endpoint() throws {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
@@ -679,10 +679,6 @@ class HttpClientTests: XCTestCase {
     }
 
     // RSC15
-
-    // TO3k7
-
-    // RSC15b
 
     // RSC15b1
     func test__055__RestClient__Host_Fallback__Fallback_behavior__should_be_applied_when_endpoint__port_and_tlsPort_has_not_been_set_to_an_explicit_value() throws {
@@ -1238,6 +1234,7 @@ class HttpClientTests: XCTestCase {
         XCTAssertEqual(resultFallbackHosts, expectedFallbackHosts)
     }
 
+    // RSC15j
     func test__072__RestClient__Host_Fallback__retry_hosts_in_random_order__all_fallback_requests_headers_should_contain__Host__header_with_fallback_host_address() {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")

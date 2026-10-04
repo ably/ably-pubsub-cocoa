@@ -153,7 +153,7 @@ class RealtimeClientTests: XCTestCase {
         newClient.connection.off()
     }
 
-    // RTC1d, REC1b2
+    // REC1b2
     func test__017__RealtimeClient__options__should_connect_to_the_endpoint_if_it_is_a_hostname() {
         let options = ClientOptions(key: "secret:key")
         options.endpoint = "fake.ably.io"
@@ -179,7 +179,7 @@ class RealtimeClientTests: XCTestCase {
         }
     }
 
-    // RTC1e, REC1b3, REC1b4
+    // REC1b3, REC1b4
     func test__018__RealtimeClient__options__should_modify_both_the_REST_and_realtime_host_if_endpoint_is_assigned() {
         let options = ClientOptions(key: "xxxx:xxxx")
 

@@ -759,7 +759,7 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
             break;
         }
         case ARTRealtimeSuspended: {
-            _fallbacks = nil; // RTN17a - "must always prefer the default endpoint", thus resetting fallbacks to start connection sequence again with the default endpoint
+            _fallbacks = nil; // RTN17i - "must always prefer the primary domain", thus resetting fallbacks to start connection sequence again with the primary domain
             [_connectionRetryFromDisconnectedListener stopTimer];
             _connectionRetryFromDisconnectedListener = nil;
             [self.auth cancelAuthorization:nil];
@@ -773,7 +773,7 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
             break;
         }
         case ARTRealtimeConnected: {
-            _fallbacks = nil; // RTN17a
+            _fallbacks = nil; // RTN17i
             _connectionLostAt = nil;
             self.options.recover = nil; // RTN16k
             [self resendPendingMessagesWithResumed:params.resumed]; // RTN19a1
@@ -1499,7 +1499,7 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
     NSString *host = [_fallbacks popFallbackHost];
     if (host != nil) {
         ARTLogDebug(self.logger, @"R:%p checking internet connection and then retrying realtime at %@", self, host);
-        [self.rest internetIsUp:^void(BOOL isUp) { // RTN17c
+        [self.rest internetIsUp:^void(BOOL isUp) { // RTN17j
             if (!isUp) {
                 ARTErrorInfo *const errorInfo = [ARTErrorInfo createWithCode:0 message:@"no Internet connection"];
                 ARTConnectionStateChangeParams *const params = [[ARTConnectionStateChangeParams alloc] initWithErrorInfo:errorInfo];

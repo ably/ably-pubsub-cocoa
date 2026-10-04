@@ -4028,7 +4028,7 @@ class RealtimeClientConnectionTests: XCTestCase {
         XCTAssertEqual(urlConnections.count, 1)
     }
 
-    // RTN17b
+    // RTN17g, REC2c2
     func test__087__Connection__Host_Fallback__failing_connections_with_custom_endpoint_should_result_in_time_outs() {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
@@ -4068,7 +4068,7 @@ class RealtimeClientConnectionTests: XCTestCase {
         XCTAssertEqual(urlConnections.count, 1)
     }
 
-    // RTN17b2
+    // REC2a2, RTN17h
     func test__089__Connection__Host_Fallback__applies_when_an_array_of_ClientOptions_fallbackHosts_is_provided() {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
@@ -4110,7 +4110,6 @@ class RealtimeClientConnectionTests: XCTestCase {
         }
     }
 
-    // RTN17b3
     // RTN17f
 
     func test__097__Connection__Host_Fallback__should_use_an_alternative_host_when___hostUnreachable() {
@@ -4185,8 +4184,7 @@ class RealtimeClientConnectionTests: XCTestCase {
         XCTAssertTrue(data.urlConnections.allSatisfy { url in NSRegularExpression.match(url.absoluteString, pattern: "//main.realtime.ably.net") })
     }
 
-    // RTN17a
-    // RTN17b1
+    // RTN17i
     private func _test__091__Connection__Host_Fallback__every_connection_is_first_attempted_to_the_primary_host(endpoint: String?, test: Test) {
         let options = ClientOptions(key: "xxxx:xxxx")
         options.endpoint = endpoint
@@ -4243,7 +4241,7 @@ class RealtimeClientConnectionTests: XCTestCase {
         _test__091__Connection__Host_Fallback__every_connection_is_first_attempted_to_the_primary_host(endpoint: getEndpoint(), test: test)
     }
 
-    // RTN17c
+    // RTN17j
     func _test__092__Connection__Host_Fallback__should_retry_hosts_in_random_order_after_checkin_if_an_internet_connection_is_available(endpoint: String?, test: Test) {
         let options = ClientOptions(key: "xxxx:xxxx")
         options.autoConnect = false
@@ -4320,7 +4318,7 @@ class RealtimeClientConnectionTests: XCTestCase {
         _test__092__Connection__Host_Fallback__should_retry_hosts_in_random_order_after_checkin_if_an_internet_connection_is_available(endpoint: getEndpoint(), test: test)
     }
 
-    // RTN17c
+    // RTN17j
     func test__093__Connection__Host_Fallback__doesn_t_try_fallback_host_if_Internet_connection_check_fails() {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")

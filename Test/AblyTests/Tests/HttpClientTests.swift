@@ -794,7 +794,7 @@ class HttpClientTests: XCTestCase {
         expect(capturedURLs.at(0)).to(beginWith("https://main.realtime.ably.net:999"))
     }
 
-    // RSC15b2
+    // REC2a2
     func test__059__RestClient__Host_Fallback__Fallback_behavior__should_be_applied_when_ClientOptions_fallbackHosts_is_provided() {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
@@ -821,8 +821,7 @@ class HttpClientTests: XCTestCase {
         XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(2), pattern: "//[a-b].cocoa.ably"))
     }
 
-    // RSC15b3, RSC15g4
-    // RSC15k
+    // RSC15m, REC2c2
     func test__045__RestClient__Host_Fallback__failing_HTTP_requests_with_custom_endpoint_should_result_in_an_error_immediately() {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
@@ -843,9 +842,9 @@ class HttpClientTests: XCTestCase {
         XCTAssertEqual(testHTTPExecutor.requests.count, 1)
     }
 
-    // RSC15g
+    // REC2
 
-    // RSC15g1
+    // REC2a2, RSC15n
     func test__061__RestClient__Host_Fallback__fallback_hosts_list_and_priorities__should_use_ClientOptions_fallbackHosts_when_list_is_provided() {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
@@ -957,8 +956,7 @@ class HttpClientTests: XCTestCase {
         XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(3), pattern: "//main.[a-e].fallback.ably-realtime.com"))
     }
 
-    // RSC15g4
-    // RSC15g1
+    // TO3k6, RSC15m
     func test__047__RestClient__Host_Fallback__won_t_apply_fallback_hosts_if_ClientOptions_fallbackHosts_array_is_empty() {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
@@ -982,8 +980,8 @@ class HttpClientTests: XCTestCase {
         XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(0), pattern: "//main.realtime.ably.net"))
     }
 
-    // RSC15g3
-    func test__048__RestClient__Host_Fallback__won_t_apply_custom_fallback_hosts_if_ClientOptions_fallbackHosts_and_ClientOptions_environment_are_not_set__use_defaults_instead() {
+    // REC2c1
+    func test__048__RestClient__Host_Fallback__won_t_apply_custom_fallback_hosts_if_ClientOptions_fallbackHosts_and_ClientOptions_endpoint_are_not_set__use_defaults_instead() {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
         options.fallbackHosts = nil
@@ -1297,7 +1295,7 @@ class HttpClientTests: XCTestCase {
         XCTAssertTrue(NSRegularExpression.match(testHTTPExecutor.requests[0].url!.absoluteString, pattern: "//main.realtime.ably.net"))
     }
 
-    // RSC15d
+    // RSC15l
 
     func test__074__RestClient__Host_Fallback__should_use_an_alternative_host_when___hostUnreachable() {
         let test = Test()
@@ -1314,7 +1312,7 @@ class HttpClientTests: XCTestCase {
         testUsesAlternativeHost(.hostInternalError(code: 501), channelName: test.uniqueChannelName())
     }
 
-    // RSC15d
+    // RSC15l
     func test__050__RestClient__Host_Fallback__should_not_use_an_alternative_host_when_the_client_receives_an_bad_request() {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")

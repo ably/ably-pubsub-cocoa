@@ -766,8 +766,9 @@ try await withSandboxApp { app in                             // SandboxApp.crea
 
 #### 11.4.2 The client — wired straight to the sandbox
 
-The options point the **real** transport at the sandbox host (no proxy in between). Setting
-explicit hosts auto-disables fallback hosts (REC2c2), so there's nothing else to configure:
+The options point the **real** transport at the sandbox (no proxy in between). The
+`nonprod:sandbox` routing-policy endpoint generates sandbox fallback hosts (REC2c3), so
+fallbacks remain enabled without any extra configuration:
 
 ```swift
 let publisherOptions = ClientOptions(key: app.defaultKey)

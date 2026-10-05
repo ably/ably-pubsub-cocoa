@@ -77,9 +77,9 @@ static BOOL ARTEndpointIsHostname(NSString *endpoint) {
     return [NSString stringWithFormat:@"%@\n\t clientId: %@;", [super description], self.clientId];
 }
 
-// REC1a
+// REC1a. An empty endpoint means the default, as in ably-js.
 - (NSString *)resolvedEndpoint {
-    return self.endpoint ?: [ARTDefault endpoint];
+    return self.endpoint.length > 0 ? self.endpoint : [ARTDefault endpoint];
 }
 
 // The `[id]` of an endpoint of the form `nonprod:[id]`, or nil for any other endpoint.

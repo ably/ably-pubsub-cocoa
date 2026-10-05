@@ -362,6 +362,15 @@ class HttpClientTests: XCTestCase {
         expect(testHTTPExecutor.requests.first?.url?.absoluteString).toEventually(beginWith("https://main.realtime.ably.net"), timeout: testTimeout)
     }
 
+    // REC1a, REC2c1
+    func test__028a__RestClient__endpoint__an_empty_endpoint_means_the_default() {
+        let options = ClientOptions(key: "fake:key")
+        options.endpoint = ""
+
+        XCTAssertEqual(options.primaryDomain, "main.realtime.ably.net")
+        XCTAssertEqual(options.endpointFallbackHosts, Default.fallbackHosts())
+    }
+
     func test__029__RestClient__endpoint__should_connect_over_plain_http____when_tls_is_off() throws {
         let test = Test()
         let options = try AblyTests.clientOptions(for: test, requestToken: true)

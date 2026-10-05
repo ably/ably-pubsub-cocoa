@@ -4197,6 +4197,13 @@ class RealtimeClientConnectionTests: XCTestCase {
         defer { client.dispose(); client.close() }
         client.channels.get(test.uniqueChannelName())
 
+        // The connectivity check before the fallback attempt (RTN17j) passes without network access.
+        let internalLog = InternalLog(clientOptions: options)
+        let mockHTTP = MockHTTP(logger: internalLog)
+        mockHTTP.setSuccessResponse(data: "yes".data(using: .utf8), contentType: "text/plain")
+        client.internal.rest.httpExecutor = TestProxyHTTPExecutor(http: mockHTTP, logger: internalLog)
+
+        // The attempt to the primary domain fails, and the attempt to a fallback host connects.
         transportFactory.fakeNetworkResponse = .hostUnreachable
 
         var urlConnections = [URL]()
@@ -4205,30 +4212,30 @@ class RealtimeClientConnectionTests: XCTestCase {
                 return
             }
             urlConnections.append(url)
-            transportFactory.fakeNetworkResponse = nil
+            if urlConnections.count == 1 {
+                transportFactory.fakeNetworkResponse = nil
+            } else if urlConnections.count == 2 {
+                (transport as! TestProxyTransport).simulateTransportSuccess()
+            }
         }
 
         waitUntil(timeout: testTimeout) { done in
-            let partialDone = AblyTests.splitDone(2, done: done)
-            // default host with the fake response or wss://main.[a-e].fallback.ably-realtime.com: when a timeout occurs
-            client.connection.on(.disconnected) { _ in
-                partialDone()
-            }
-            // wss://main.[a-e].fallback.ably-realtime.com: when a 401 occurs because of the `xxxx:xxxx` key
-            client.connection.on(.failed) { stateChange in
-                guard let error = stateChange.reason else {
-                    fail("Error is nil"); done(); return
-                }
-                // This is because, at time of writing, the production environment is handling connections using both frontend (which returns invalidCredential) and frontdoor (which returns invalidCredentials). So we need to handle both cases at least for now (unlike other tests, which use sandbox which is 100% using frontdoor).
-                XCTAssertTrue(error.code == ErrorCode.invalidCredential.rawValue || error.code == ErrorCode.invalidCredentials.rawValue)
-                partialDone()
+            client.connection.once(.connected) { _ in
+                done()
             }
             client.connect()
         }
 
-        XCTAssertTrue(urlConnections.count >= 2) // amount depends on how soon fallback receives `.failed` above, it's often `.disconnected` instead
+        XCTAssertEqual(urlConnections.count, 2)
         XCTAssertEqual(urlConnections.at(0)?.host, options.primaryDomain)
         XCTAssertTrue(options.endpointFallbackHosts.contains(urlConnections.at(1)?.host ?? ""))
+
+        // The connection to the fallback host drops. Later attempts fail, so the test stays off the network.
+        transportFactory.fakeNetworkResponse = .hostUnreachable
+        client.simulateLostConnection()
+
+        expect(urlConnections.count).toEventually(beGreaterThanOrEqualTo(3), timeout: testTimeout)
+        XCTAssertEqual(urlConnections.at(2)?.host, options.primaryDomain)
     }
 
     func test__091__Connection__Host_Fallback__every_connection_is_first_attempted_to_the_primary_host_default_endpoint() {

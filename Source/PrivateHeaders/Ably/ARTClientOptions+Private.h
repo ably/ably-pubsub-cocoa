@@ -29,6 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)setDefaultEndpoint:(nullable NSString *)endpoint;
 + (BOOL)getDefaultIdempotentRestPublishingForVersion:(NSString *)version;
 - (NSURLComponents *)restUrlComponents;
+- (NSURLComponents *)realtimeUrlComponents;
 
 // MARK: - Plugins
 

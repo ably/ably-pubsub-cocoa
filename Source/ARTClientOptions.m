@@ -131,12 +131,16 @@ static BOOL ARTEndpointIsHostname(NSString *endpoint) {
     return [self restUrlComponents].URL;
 }
 
-- (NSURL*)realtimeUrl {
+- (NSURLComponents *)realtimeUrlComponents {
     NSURLComponents *components = [[NSURLComponents alloc] init];
     components.scheme = self.tls ? @"wss" : @"ws";
     components.host = self.primaryDomain;
     components.port = [NSNumber numberWithInteger:(self.tls ? self.tlsPort : self.port)];
-    return components.URL;
+    return components;
+}
+
+- (NSURL*)realtimeUrl {
+    return [self realtimeUrlComponents].URL;
 }
 
 - (id)copyWithZone:(NSZone *)zone {

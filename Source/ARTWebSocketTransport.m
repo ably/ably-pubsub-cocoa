@@ -192,11 +192,11 @@ NS_ASSUME_NONNULL_END
     }
 
     // URL
-    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:@"/"];
+    NSURLComponents *const urlComponents = [options realtimeUrlComponents];
+    urlComponents.host = self.host;
+    urlComponents.path = @"/";
     urlComponents.queryItems = [queryItems allValues];
-    NSURLComponents *const baseComponents = [NSURLComponents componentsWithURL:[options realtimeUrl] resolvingAgainstBaseURL:NO];
-    baseComponents.host = self.host;
-    NSURL *url = [urlComponents URLRelativeToURL:baseComponents.URL];
+    NSURL *const url = urlComponents.URL;
 
     ARTLogDebug(_logger, @"R:%p WS:%p url %@", _delegate, self, url);
 

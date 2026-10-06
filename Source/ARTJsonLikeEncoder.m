@@ -308,34 +308,15 @@
     message.connectionId = [input artString:@"connectionId"];
     message.extras = [input objectForKey:@"extras"];
 
+    // TM2s: there is always a version. TM2s1 and TM2s2: its serial and timestamp default to the message's own.
     id version = input[@"version"];
-    if ([version isKindOfClass:[NSDictionary class]]) {
-        message.version = [ARTMessageVersion createFromDictionary:version];
-    } else {
-        // TM2s
-        message.version = [[ARTMessageVersion alloc] init];
-    }
+    message.version = [ARTMessageVersion createFromDictionary:[version isKindOfClass:[NSDictionary class]] ? version : nil
+                                                defaultSerial:message.serial
+                                             defaultTimestamp:message.timestamp];
 
-    if (!message.version.serial) { // TM2s1
-        message.version.serial = message.serial;
-    }
-
-    if (!message.version.timestamp) { // TM2s2
-        message.version.timestamp = message.timestamp;
-    }
-
+    // TM2u: there are always annotations. TM8a: their summary defaults to an empty object.
     id annotations = input[@"annotations"];
-    if (annotations && [annotations isKindOfClass:[NSDictionary class]]) {
-        message.annotations = [ARTMessageAnnotations createFromDictionary:annotations];
-    } else {
-        // TM2u
-        message.annotations = [[ARTMessageAnnotations alloc] init];
-    }
-
-    if (!message.annotations.summary) {
-        // TM8a
-        message.annotations.summary = @{};
-    }
+    message.annotations = [ARTMessageAnnotations createFromDictionary:[annotations isKindOfClass:[NSDictionary class]] ? annotations : nil];
 
     return message;
 }

@@ -16,7 +16,14 @@
 
 const ARTPluginName ARTPluginNameLiveObjects = @"LiveObjects";
 
-NSString *ARTDefaultEnvironment = nil;
+static NSString *const ARTNonprodEndpointPrefix = @"nonprod:";
+
+static NSString *ARTDefaultEndpointOverride = nil;
+
+// REC1b2
+static BOOL ARTEndpointIsHostname(NSString *endpoint) {
+    return [endpoint containsString:@"."] || [endpoint containsString:@"::"] || [endpoint isEqualToString:@"localhost"];
+}
 
 @interface ARTClientOptions ()
 
@@ -36,9 +43,9 @@ NSString *ARTDefaultEnvironment = nil;
     [ARTPluginAPI registerSelf];
 #endif
 
+    _endpoint = ARTDefaultEndpointOverride;
     _port = [ARTDefault port];
     _tlsPort = [ARTDefault tlsPort];
-    _environment = ARTDefaultEnvironment;
     _queueMessages = YES;
     _echoMessages = YES;
     _useBinaryProtocol = true;
@@ -70,31 +77,52 @@ NSString *ARTDefaultEnvironment = nil;
     return [NSString stringWithFormat:@"%@\n\t clientId: %@;", [super description], self.clientId];
 }
 
-- (NSString*)restHost {
-    if (_restHost != nil) {
-        return _restHost;
-    }
-    if ([_environment isEqualToString:ARTDefaultProduction]) {
-        return [ARTDefault restHost];
-    }
-    return self.hasEnvironment ? [self host:[ARTDefault restHost] forEnvironment:_environment] : [ARTDefault restHost];
+// REC1a. An empty endpoint means the default, as in ably-js.
+- (NSString *)resolvedEndpoint {
+    return self.endpoint.length > 0 ? self.endpoint : [ARTDefault endpoint];
 }
 
-- (NSString*)realtimeHost {
-    if (_realtimeHost != nil) {
-        return _realtimeHost;
+// The `[id]` of an endpoint of the form `nonprod:[id]`, or nil for any other endpoint.
+- (nullable NSString *)nonprodRoutingPolicyId {
+    NSString *const endpoint = [self resolvedEndpoint];
+    if (ARTEndpointIsHostname(endpoint) || ![endpoint hasPrefix:ARTNonprodEndpointPrefix]) {
+        return nil;
     }
-    if ([_environment isEqualToString:ARTDefaultProduction]) {
-        return [ARTDefault realtimeHost];
-    }
+    return [endpoint substringFromIndex:ARTNonprodEndpointPrefix.length];
+}
 
-    return self.hasEnvironment ? [self host:[ARTDefault realtimeHost] forEnvironment:_environment] : [ARTDefault realtimeHost];
+- (BOOL)hasNonprodEndpoint {
+    return [self nonprodRoutingPolicyId] != nil;
+}
+
+- (NSString *)primaryDomain {
+    NSString *const endpoint = [self resolvedEndpoint];
+    if (ARTEndpointIsHostname(endpoint)) { // REC1b2
+        return endpoint;
+    }
+    NSString *const nonprodId = [self nonprodRoutingPolicyId];
+    if (nonprodId) { // REC1b3
+        return [NSString stringWithFormat:@"%@.realtime.ably-nonprod.net", nonprodId];
+    }
+    return [NSString stringWithFormat:@"%@.realtime.ably.net", endpoint]; // REC1b4
+}
+
+- (NSArray<NSString *> *)endpointFallbackHosts {
+    NSString *const endpoint = [self resolvedEndpoint];
+    if (ARTEndpointIsHostname(endpoint)) { // REC2c2
+        return @[];
+    }
+    NSString *const nonprodId = [self nonprodRoutingPolicyId];
+    if (nonprodId) { // REC2c3
+        return [ARTDefault fallbackHostsForRoutingPolicyId:nonprodId domain:@"ably-realtime-nonprod.com"];
+    }
+    return [ARTDefault fallbackHostsForRoutingPolicyId:endpoint domain:@"ably-realtime.com"]; // REC2c1, REC2c4
 }
 
 - (NSURLComponents *)restUrlComponents {
     NSURLComponents *components = [[NSURLComponents alloc] init];
     components.scheme = self.tls ? @"https" : @"http";
-    components.host = self.restHost;
+    components.host = self.primaryDomain;
     components.port = [NSNumber numberWithInteger:(self.tls ? self.tlsPort : self.port)];
     return components;
 }
@@ -103,12 +131,16 @@ NSString *ARTDefaultEnvironment = nil;
     return [self restUrlComponents].URL;
 }
 
-- (NSURL*)realtimeUrl {
+- (NSURLComponents *)realtimeUrlComponents {
     NSURLComponents *components = [[NSURLComponents alloc] init];
     components.scheme = self.tls ? @"wss" : @"ws";
-    components.host = self.realtimeHost;
+    components.host = self.primaryDomain;
     components.port = [NSNumber numberWithInteger:(self.tls ? self.tlsPort : self.port)];
-    return components.URL;
+    return components;
+}
+
+- (NSURL*)realtimeUrl {
+    return [self realtimeUrlComponents].URL;
 }
 
 - (id)copyWithZone:(NSZone *)zone {
@@ -117,14 +149,13 @@ NSString *ARTDefaultEnvironment = nil;
     options.clientId = self.clientId;
     options.port = self.port;
     options.tlsPort = self.tlsPort;
-    if (self->_restHost) options.restHost = self.restHost;
-    if (self->_realtimeHost) options.realtimeHost = self.realtimeHost;
+    options.endpoint = self.endpoint;
+    options.connectivityCheckUrl = self.connectivityCheckUrl;
     options.queueMessages = self.queueMessages;
     options.echoMessages = self.echoMessages;
     options.recover = self.recover;
     options.useBinaryProtocol = self.useBinaryProtocol;
     options.autoConnect = self.autoConnect;
-    options.environment = self.environment;
     options.tls = self.tls;
     options.logLevel = self.logLevel;
     options.logHandler = self.logHandler;
@@ -153,6 +184,14 @@ NSString *ARTDefaultEnvironment = nil;
     return options;
 }
 
+- (BOOL)hasCustomPort {
+    return self.port && self.port != [ARTDefault port];
+}
+
+- (BOOL)hasCustomTlsPort {
+    return self.tlsPort && self.tlsPort != [ARTDefault tlsPort];
+}
+
 - (BOOL)isBasicAuth {
     return self.useTokenAuth == false &&
         self.key != nil &&
@@ -162,32 +201,8 @@ NSString *ARTDefaultEnvironment = nil;
         self.authCallback == nil;
 }
 
-- (BOOL)hasCustomRestHost {
-    return (_restHost && ![_restHost isEqualToString:[ARTDefault restHost]]) || (self.hasEnvironment && !self.isProductionEnvironment);
-}
-
-- (BOOL)hasDefaultRestHost {
-    return ![self hasCustomRestHost];
-}
-
-- (BOOL)hasCustomRealtimeHost {
-    return (_realtimeHost && ![_realtimeHost isEqualToString:[ARTDefault realtimeHost]]) || (self.hasEnvironment && !self.isProductionEnvironment);
-}
-
-- (BOOL)hasDefaultRealtimeHost {
-    return ![self hasCustomRealtimeHost];
-}
-
-- (BOOL)hasCustomPort {
-    return self.port && self.port != [ARTDefault port];
-}
-
-- (BOOL)hasCustomTlsPort {
-    return self.tlsPort && self.tlsPort != [ARTDefault tlsPort];
-}
-
-+ (void)setDefaultEnvironment:(NSString *)environment {
-    ARTDefaultEnvironment = environment;
++ (void)setDefaultEndpoint:(NSString *)endpoint {
+    ARTDefaultEndpointOverride = endpoint;
 }
 
 - (void)setDefaultTokenParams:(ARTTokenParams *)value {
@@ -201,22 +216,6 @@ NSString *ARTDefaultEnvironment = nil;
     else {
         return true;
     }
-}
-
-- (BOOL)isProductionEnvironment {
-    return [[self.environment lowercaseString] isEqualToString:[ARTDefaultProduction lowercaseString]];
-}
-
-- (BOOL)hasEnvironment {
-    return self.environment != nil && [self.environment isNotEmptyString];
-}
-
-- (BOOL)hasEnvironmentDifferentThanProduction {
-    return self.hasEnvironment && !self.isProductionEnvironment;
-}
-
-- (NSString *)host:(NSString *)host forEnvironment:(NSString *)environment {
-    return [NSString stringWithFormat:@"%@-%@", environment, host];
 }
 
 // MARK: - Plugins

@@ -22,7 +22,7 @@ final class HistoryTests: IntegrationTestCase {
         try await withSandboxApp { app in
             // Setup
             let options = ClientOptions(key: app.defaultKey)
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             let client = HttpClient(options: options)
             let channelName = "history-test-RSL2a-\(UUID().uuidString)"
@@ -65,7 +65,7 @@ final class HistoryTests: IntegrationTestCase {
         try await withSandboxApp { app in
             // Setup
             let options = ClientOptions(key: app.defaultKey)
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             let client = HttpClient(options: options)
             let channelName = "history-direction-\(UUID().uuidString)"
@@ -100,7 +100,7 @@ final class HistoryTests: IntegrationTestCase {
         try await withSandboxApp { app in
             // Setup
             let options = ClientOptions(key: app.defaultKey)
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             let client = HttpClient(options: options)
             let channelName = "history-limit-\(UUID().uuidString)"
@@ -136,7 +136,7 @@ final class HistoryTests: IntegrationTestCase {
         try await withSandboxApp { app in
             // Setup
             let options = ClientOptions(key: app.defaultKey)
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             let client = HttpClient(options: options)
             let channelName = "history-timerange-\(UUID().uuidString)"
@@ -208,7 +208,7 @@ final class HistoryTests: IntegrationTestCase {
         try await withSandboxApp { app in
             // Setup
             let options = ClientOptions(key: app.defaultKey)
-            options.restHost = SandboxApp.sandboxHost // the spec's endpoint: "nonprod:sandbox"
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.useBinaryProtocol = useBinaryProtocol
             let client = HttpClient(options: options)
             // Use a fresh channel with no messages

@@ -45,8 +45,8 @@ private func testUsesAlternativeHost(_ caseTest: FakeNetworkResponse, channelNam
     if testHTTPExecutor.requests.count != 2 {
         return
     }
-    XCTAssertTrue(NSRegularExpression.match(testHTTPExecutor.requests[0].url!.absoluteString, pattern: "//rest.ably.io"))
-    XCTAssertTrue(NSRegularExpression.match(testHTTPExecutor.requests[1].url!.absoluteString, pattern: "//[a-e].ably-realtime.com"))
+    XCTAssertTrue(NSRegularExpression.match(testHTTPExecutor.requests[0].url!.absoluteString, pattern: "//main.realtime.ably.net"))
+    XCTAssertTrue(NSRegularExpression.match(testHTTPExecutor.requests[1].url!.absoluteString, pattern: "//main.[a-e].fallback.ably-realtime.com"))
 }
 
 private func testStoresSuccessfulFallbackHostAsDefaultHost(_ caseTest: FakeNetworkResponse, channelName: String) {
@@ -66,8 +66,8 @@ private func testStoresSuccessfulFallbackHostAsDefaultHost(_ caseTest: FakeNetwo
     }
 
     XCTAssertEqual(testHTTPExecutor.requests.count, 2)
-    XCTAssertTrue(NSRegularExpression.match(testHTTPExecutor.requests[0].url!.host, pattern: "rest.ably.io"))
-    XCTAssertTrue(NSRegularExpression.match(testHTTPExecutor.requests[1].url!.host, pattern: "[a-e].ably-realtime.com"))
+    XCTAssertTrue(NSRegularExpression.match(testHTTPExecutor.requests[0].url!.host, pattern: "main.realtime.ably.net"))
+    XCTAssertTrue(NSRegularExpression.match(testHTTPExecutor.requests[1].url!.host, pattern: "main.[a-e].fallback.ably-realtime.com"))
 
     // #1 Store fallback used to request
     let usedFallbackURL = testHTTPExecutor.requests[1].url!
@@ -112,7 +112,7 @@ private func testRestoresDefaultPrimaryHostAfterTimeoutExpires(_ caseTest: FakeN
     }
 
     XCTAssertEqual(testHTTPExecutor.requests.count, 3)
-    XCTAssertEqual(testHTTPExecutor.requests[2].url!.host, "rest.ably.io")
+    XCTAssertEqual(testHTTPExecutor.requests[2].url!.host, "main.realtime.ably.net")
 }
 
 private func testUsesAnotherFallbackHost(_ caseTest: FakeNetworkResponse, channelName: String) {
@@ -134,8 +134,8 @@ private func testUsesAnotherFallbackHost(_ caseTest: FakeNetworkResponse, channe
     }
 
     XCTAssertEqual(testHTTPExecutor.requests.count, 3)
-    XCTAssertTrue(NSRegularExpression.match(testHTTPExecutor.requests[1].url!.host, pattern: "[a-e].ably-realtime.com"))
-    XCTAssertTrue(NSRegularExpression.match(testHTTPExecutor.requests[2].url!.host, pattern: "[a-e].ably-realtime.com"))
+    XCTAssertTrue(NSRegularExpression.match(testHTTPExecutor.requests[1].url!.host, pattern: "main.[a-e].fallback.ably-realtime.com"))
+    XCTAssertTrue(NSRegularExpression.match(testHTTPExecutor.requests[2].url!.host, pattern: "main.[a-e].fallback.ably-realtime.com"))
     XCTAssertNotEqual(testHTTPExecutor.requests[1].url!.host, testHTTPExecutor.requests[2].url!.host)
 }
 
@@ -178,7 +178,7 @@ class HttpClientTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
 
         let client = HttpClient(key: options.key!)
-        client.internal.prioritizedHost = options.restHost
+        client.internal.prioritizedHost = options.primaryDomain
 
         let publishTask = publishTestMessage(client, channelName: test.uniqueChannelName())
 
@@ -202,8 +202,8 @@ class HttpClientTests: XCTestCase {
 
     func test__018__RestClient__initializer__should_accept_a_token() throws {
         let test = Test()
-        ClientOptions.setDefaultEnvironment(getEnvironment())
-        defer { ClientOptions.setDefaultEnvironment(nil) }
+        ClientOptions.setDefaultEndpoint(getEndpoint())
+        defer { ClientOptions.setDefaultEndpoint(nil) }
 
         let client = HttpClient(token: try getTestToken(for: test))
         let publishTask = publishTestMessage(client, channelName: test.uniqueChannelName())
@@ -243,9 +243,9 @@ class HttpClientTests: XCTestCase {
 
     // RSC2
     func test__022__RestClient__logging__should_output_to_the_system_log_and_the_log_level_should_be_Warn() {
-        ClientOptions.setDefaultEnvironment(getEnvironment())
+        ClientOptions.setDefaultEndpoint(getEndpoint())
         defer {
-            ClientOptions.setDefaultEnvironment(nil)
+            ClientOptions.setDefaultEndpoint(nil)
         }
 
         let options = ClientOptions(key: "xxxx:xxxx")
@@ -305,13 +305,13 @@ class HttpClientTests: XCTestCase {
         XCTAssertEqual(client.internal.logger_onlyForUseInClassMethodsAndTests.logLevel, customLogger.logLevel)
     }
 
-    // RSC11
+    // RSC25
 
-    // RSC11a
+    // REC1b2
     func test__025__RestClient__endpoint__should_accept_a_custom_host_and_send_requests_to_the_specified_host() {
         let test = Test()
         let options = ClientOptions(key: "fake:key")
-        options.restHost = "fake.ably.io"
+        options.endpoint = "fake.ably.io"
         let client = HttpClient(options: options)
         testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
         client.internal.httpExecutor = testHTTPExecutor
@@ -321,35 +321,36 @@ class HttpClientTests: XCTestCase {
         expect(testHTTPExecutor.requests.first?.url?.host).toEventually(equal("fake.ably.io"), timeout: testTimeout)
     }
 
-    func test__026__RestClient__endpoint__should_ignore_an_environment_when_restHost_is_customized() {
+    // REC1b4
+    func test__026__RestClient__endpoint__should_send_requests_to_the_production_routing_policy_host() {
         let test = Test()
         let options = ClientOptions(key: "fake:key")
-        options.environment = "test"
-        options.restHost = "fake.ably.io"
+        options.endpoint = "acme"
         let client = HttpClient(options: options)
         testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
         client.internal.httpExecutor = testHTTPExecutor
 
         publishTestMessage(client, channelName: test.uniqueChannelName(), failOnError: false)
 
-        expect(testHTTPExecutor.requests.first?.url?.host).toEventually(equal("fake.ably.io"), timeout: testTimeout)
+        expect(testHTTPExecutor.requests.first?.url?.host).toEventually(equal("acme.realtime.ably.net"), timeout: testTimeout)
     }
 
-    // RSC11b
-    func test__027__RestClient__endpoint__should_accept_an_environment_when_restHost_is_left_unchanged() {
+    // REC1b3
+    func test__027__RestClient__endpoint__should_send_requests_to_the_nonprod_routing_policy_host() {
         let test = Test()
         let options = ClientOptions(key: "fake:key")
-        options.environment = "myEnvironment"
+        options.endpoint = "nonprod:acme"
         let client = HttpClient(options: options)
         testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
         client.internal.httpExecutor = testHTTPExecutor
 
         publishTestMessage(client, channelName: test.uniqueChannelName(), failOnError: false)
 
-        expect(testHTTPExecutor.requests.first?.url?.host).toEventually(equal("myEnvironment-rest.ably.io"), timeout: testTimeout)
+        expect(testHTTPExecutor.requests.first?.url?.host).toEventually(equal("acme.realtime.ably-nonprod.net"), timeout: testTimeout)
     }
 
-    func test__028__RestClient__endpoint__should_default_to_https___rest_ably_io() {
+    // REC1a
+    func test__028__RestClient__endpoint__should_default_to_https___main_realtime_ably_net() {
         let test = Test()
         let options = ClientOptions(key: "fake:key")
         let client = HttpClient(options: options)
@@ -358,7 +359,16 @@ class HttpClientTests: XCTestCase {
 
         publishTestMessage(client, channelName: test.uniqueChannelName(), failOnError: false)
 
-        expect(testHTTPExecutor.requests.first?.url?.absoluteString).toEventually(beginWith("https://rest.ably.io"), timeout: testTimeout)
+        expect(testHTTPExecutor.requests.first?.url?.absoluteString).toEventually(beginWith("https://main.realtime.ably.net"), timeout: testTimeout)
+    }
+
+    // REC1a, REC2c1
+    func test__028a__RestClient__endpoint__an_empty_endpoint_means_the_default() {
+        let options = ClientOptions(key: "fake:key")
+        options.endpoint = ""
+
+        XCTAssertEqual(options.primaryDomain, "main.realtime.ably.net")
+        XCTAssertEqual(options.endpointFallbackHosts, Default.fallbackHosts())
     }
 
     func test__029__RestClient__endpoint__should_connect_over_plain_http____when_tls_is_off() throws {
@@ -374,21 +384,12 @@ class HttpClientTests: XCTestCase {
         expect(testHTTPExecutor.requests.first?.url?.scheme).toEventually(equal("http"), timeout: testTimeout)
     }
 
-    // RSC11b
-    func test__030__RestClient__endpoint__should_not_prepend_the_environment_if_environment_is_configured_as__production_() {
-        let options = ClientOptions(key: "xxxx:xxxx")
-        options.environment = "production"
-        let client = HttpClient(options: options)
-        XCTAssertEqual(client.internal.options.restHost, Default.restHost())
-        XCTAssertEqual(client.internal.options.realtimeHost, Default.realtimeHost())
-    }
-
     // RSC13
 
     func test__031__RestClient__should_use_the_the_connection_and_request_timeouts_specified__timeout_for_any_single_HTTP_request_and_response() {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
-        options.restHost = "10.255.255.1" // non-routable IP address
+        options.endpoint = "10.255.255.1" // non-routable IP address
         XCTAssertEqual(options.httpRequestTimeout, 10.0) // Seconds
         options.httpRequestTimeout = 1.0
         let client = HttpClient(options: options)
@@ -421,7 +422,7 @@ class HttpClientTests: XCTestCase {
 
         var totalRetry: UInt = 0
         testHTTPExecutor.setListenerAfterRequest { request in
-            if NSRegularExpression.match(request.url!.absoluteString, pattern: "//[a-e].ably-realtime.com") {
+            if NSRegularExpression.match(request.url!.absoluteString, pattern: "//main.[a-e].fallback.ably-realtime.com") {
                 totalRetry += 1
             }
         }
@@ -468,13 +469,13 @@ class HttpClientTests: XCTestCase {
         XCTAssertTrue(authOptions == options)
     }
 
-    // RSC12
-    func test__003__RestClient__REST_endpoint_host_should_be_configurable_in_the_Client_constructor_with_the_option_restHost() throws {
+    // RSC25, TO3k8
+    func test__003__RestClient__REST_endpoint_host_should_be_configurable_in_the_Client_constructor_with_the_option_endpoint() throws {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
-        XCTAssertEqual(options.restHost, "rest.ably.io")
-        options.restHost = "rest.ably.test"
-        XCTAssertEqual(options.restHost, "rest.ably.test")
+        XCTAssertNil(options.endpoint)
+        options.endpoint = "rest.ably.test"
+        XCTAssertEqual(options.endpoint, "rest.ably.test")
         let client = HttpClient(options: options)
         testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
         client.internal.httpExecutor = testHTTPExecutor
@@ -642,9 +643,9 @@ class HttpClientTests: XCTestCase {
         guard let components = options.key?.components(separatedBy: ":"), let keyName = components.first, let keySecret = components.last else {
             fail("Invalid API key: \(options.key ?? "nil")"); return
         }
-        ClientOptions.setDefaultEnvironment(getEnvironment())
+        ClientOptions.setDefaultEndpoint(getEndpoint())
         defer {
-            ClientOptions.setDefaultEnvironment(nil)
+            ClientOptions.setDefaultEndpoint(nil)
         }
         let rest = HttpClient(key: "\(keyName):\(keySecret)")
         waitUntil(timeout: testTimeout) { done in
@@ -686,150 +687,10 @@ class HttpClientTests: XCTestCase {
         testOptionsGiveBasicAuthFalse { $0.tokenDetails = TokenDetails(token: "token"); $0.key = "fake:key" }
     }
 
-    // RSC14c
-    func test__036__RestClient__Authentication__should_error_when_expired_token_and_no_means_to_renew() throws {
-        let test = Test()
-        let client = HttpClient(options: try AblyTests.commonAppSetup(for: test))
-        let auth = client.auth
-
-        let tokenParams = TokenParams()
-        let tokenTtl = 3.0
-        tokenParams.ttl = NSNumber(value: tokenTtl) // Seconds
-
-        let options: ClientOptions = try AblyTests.waitFor(timeout: testTimeout) { value in
-            auth.requestToken(tokenParams, with: nil) { tokenDetails, error in
-                if let e = error {
-                    XCTFail(e.localizedDescription)
-                    value(nil)
-                    return
-                }
-
-                guard let currentTokenDetails = tokenDetails else {
-                    XCTFail("expected tokenDetails not to be nil when error is nil")
-                    value(nil)
-                    return
-                }
-
-                let options: ClientOptions
-                do {
-                    options = try AblyTests.clientOptions(for: test)
-                } catch {
-                    XCTFail(error.localizedDescription)
-                    value(nil)
-                    return
-                }
-                options.key = client.internal.options.key
-
-                // Expired token
-                options.tokenDetails = TokenDetails(
-                    token: currentTokenDetails.token,
-                    expires: currentTokenDetails.expires!.addingTimeInterval(testTimeout.toTimeInterval()),
-                    issued: currentTokenDetails.issued,
-                    capability: currentTokenDetails.capability,
-                    clientId: currentTokenDetails.clientId
-                )
-
-                options.authUrl = URL(string: "http://test-auth.ably.io")
-                value(options)
-            }
-        }
-
-        let rest = HttpClient(options: options)
-        testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
-        rest.internal.httpExecutor = testHTTPExecutor
-
-        waitUntil(timeout: testTimeout) { done in
-            // Delay for token expiration
-            delay(tokenTtl + AblyTests.tokenExpiryTolerance) {
-                // [40140, 40150) - token expired and will not recover because authUrl is invalid
-                publishTestMessage(rest, channelName: test.uniqueChannelName()) { error in
-                    guard let errorCode = testHTTPExecutor.responses.first?.value(forHTTPHeaderField: "X-Ably-Errorcode") else {
-                        fail("expected X-Ably-Errorcode header in response")
-                        return
-                    }
-                    expect(Int(errorCode)).to(beGreaterThanOrEqualTo(ErrorCode.tokenErrorUnspecified.intValue))
-                    expect(Int(errorCode)).to(beLessThan(ErrorCode.connectionLimitsExceeded.intValue))
-                    XCTAssertNotNil(error)
-                    done()
-                }
-            }
-        }
-    }
-
-    // RSC14d
-    func test__037__RestClient__Authentication__should_renew_the_token_when_it_has_expired() throws {
-        let test = Test()
-        let client = HttpClient(options: try AblyTests.commonAppSetup(for: test))
-        let auth = client.auth
-
-        let tokenParams = TokenParams()
-        let tokenTtl = 3.0
-        tokenParams.ttl = NSNumber(value: tokenTtl) // Seconds
-
-        waitUntil(timeout: testTimeout) { done in
-            auth.requestToken(tokenParams, with: nil) { tokenDetails, error in
-                if let e = error {
-                    XCTFail(e.localizedDescription)
-                    done()
-                    return
-                }
-
-                guard let currentTokenDetails = tokenDetails else {
-                    XCTFail("expected tokenDetails not to be nil when error is nil")
-                    done()
-                    return
-                }
-
-                let options: ClientOptions
-                do {
-                    options = try AblyTests.clientOptions(for: test)
-                } catch {
-                    XCTFail(error.localizedDescription)
-                    done()
-                    return
-                }
-                options.key = client.internal.options.key
-
-                // Expired token
-                options.tokenDetails = TokenDetails(
-                    token: currentTokenDetails.token,
-                    expires: currentTokenDetails.expires!.addingTimeInterval(testTimeout.toTimeInterval()),
-                    issued: currentTokenDetails.issued,
-                    capability: currentTokenDetails.capability,
-                    clientId: currentTokenDetails.clientId
-                )
-
-                let rest = HttpClient(options: options)
-                testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
-                rest.internal.httpExecutor = testHTTPExecutor
-
-                // Delay for token expiration
-                delay(tokenTtl + AblyTests.tokenExpiryTolerance) {
-                    // [40140, 40150) - token expired and will not recover because authUrl is invalid
-                    publishTestMessage(rest, channelName: test.uniqueChannelName()) { error in
-                        guard let errorCode = testHTTPExecutor.responses.first?.value(forHTTPHeaderField: "X-Ably-Errorcode") else {
-                            fail("expected X-Ably-Errorcode header in response")
-                            return
-                        }
-                        expect(Int(errorCode)).to(beGreaterThanOrEqualTo(ErrorCode.tokenErrorUnspecified.intValue))
-                        expect(Int(errorCode)).to(beLessThan(ErrorCode.connectionLimitsExceeded.intValue))
-                        XCTAssertNil(error)
-                        XCTAssertNotEqual(rest.auth.tokenDetails!.token, currentTokenDetails.token)
-                        done()
-                    }
-                }
-            }
-        }
-    }
-
     // RSC15
 
-    // TO3k7
-
-    // RSC15b
-
     // RSC15b1
-    func test__055__RestClient__Host_Fallback__Fallback_behavior__should_be_applied_when_restHost__port_and_tlsPort_has_not_been_set_to_an_explicit_value() throws {
+    func test__055__RestClient__Host_Fallback__Fallback_behavior__should_be_applied_when_endpoint__port_and_tlsPort_has_not_been_set_to_an_explicit_value() throws {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
         let client = HttpClient(options: options)
@@ -854,16 +715,16 @@ class HttpClientTests: XCTestCase {
         let requests = testHTTPExecutor.requests
         XCTAssertEqual(requests.count, 3)
         let capturedURLs = requests.map { $0.url!.absoluteString }
-        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(0), pattern: "//rest.ably.io"))
-        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(1), pattern: "//[a-e].ably-realtime.com"))
-        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(2), pattern: "//[a-e].ably-realtime.com"))
+        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(0), pattern: "//main.realtime.ably.net"))
+        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(1), pattern: "//main.[a-e].fallback.ably-realtime.com"))
+        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(2), pattern: "//main.[a-e].fallback.ably-realtime.com"))
     }
 
-    // RSC15b1
-    func test__056__RestClient__Host_Fallback__Fallback_behavior__should_NOT_be_applied_when_ClientOptions_restHost_has_been_set() {
+    // RSC15m, REC2c2
+    func test__056__RestClient__Host_Fallback__Fallback_behavior__should_NOT_be_applied_when_ClientOptions_endpoint_is_a_hostname() {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
-        options.restHost = "fake.ably.io"
+        options.endpoint = "fake.ably.io"
         let client = HttpClient(options: options)
         let internalLog = InternalLog(clientOptions: options)
         let mockHTTP = MockHTTP(logger: internalLog)
@@ -909,7 +770,7 @@ class HttpClientTests: XCTestCase {
         let requests = testHTTPExecutor.requests
         XCTAssertEqual(requests.count, 1)
         let capturedURLs = requests.map { $0.url!.absoluteString }
-        expect(capturedURLs.at(0)).to(beginWith("http://rest.ably.io:999"))
+        expect(capturedURLs.at(0)).to(beginWith("http://main.realtime.ably.net:999"))
     }
 
     // RSC15b1
@@ -935,10 +796,10 @@ class HttpClientTests: XCTestCase {
         let requests = testHTTPExecutor.requests
         XCTAssertEqual(requests.count, 1)
         let capturedURLs = requests.map { $0.url!.absoluteString }
-        expect(capturedURLs.at(0)).to(beginWith("https://rest.ably.io:999"))
+        expect(capturedURLs.at(0)).to(beginWith("https://main.realtime.ably.net:999"))
     }
 
-    // RSC15b2
+    // REC2a2
     func test__059__RestClient__Host_Fallback__Fallback_behavior__should_be_applied_when_ClientOptions_fallbackHosts_is_provided() {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
@@ -960,17 +821,16 @@ class HttpClientTests: XCTestCase {
 
         XCTAssertEqual(testHTTPExecutor.requests.count, 3)
         let capturedURLs = testHTTPExecutor.requests.map { $0.url!.absoluteString }
-        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(0), pattern: "//rest.ably.io"))
+        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(0), pattern: "//main.realtime.ably.net"))
         XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(1), pattern: "//[a-b].cocoa.ably"))
         XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(2), pattern: "//[a-b].cocoa.ably"))
     }
 
-    // RSC15b3, RSC15g4
-    // RSC15k
+    // RSC15m, REC2c2
     func test__045__RestClient__Host_Fallback__failing_HTTP_requests_with_custom_endpoint_should_result_in_an_error_immediately() {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
-        options.restHost = "fake.ably.io"
+        options.endpoint = "fake.ably.io"
         let client = HttpClient(options: options)
         let internalLog = InternalLog(clientOptions: options)
         let mockHTTP = MockHTTP(logger: internalLog)
@@ -987,9 +847,9 @@ class HttpClientTests: XCTestCase {
         XCTAssertEqual(testHTTPExecutor.requests.count, 1)
     }
 
-    // RSC15g
+    // REC2
 
-    // RSC15g1
+    // REC2a2, RSC15n
     func test__061__RestClient__Host_Fallback__fallback_hosts_list_and_priorities__should_use_ClientOptions_fallbackHosts_when_list_is_provided() {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
@@ -1011,15 +871,15 @@ class HttpClientTests: XCTestCase {
 
         XCTAssertEqual(testHTTPExecutor.requests.count, 2)
         let capturedURLs = testHTTPExecutor.requests.compactMap { $0.url?.absoluteString }
-        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(0), pattern: "//rest.ably.io"))
+        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(0), pattern: "//main.realtime.ably.net"))
         XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(1), pattern: "//f.ably-realtime.com"))
     }
 
-    // RSC15g2
-    func test__062__RestClient__Host_Fallback__fallback_hosts_list_and_priorities__should_use_environment_fallback_hosts_when_ClientOptions_environment_is_set_to_a_value_other_than__production__and_ClientOptions_fallbackHosts_is_not_set() throws {
+    // REC2c3
+    func test__062__RestClient__Host_Fallback__fallback_hosts_list_and_priorities__should_use_nonprod_fallback_hosts_when_ClientOptions_endpoint_is_a_nonprod_routing_policy_and_ClientOptions_fallbackHosts_is_not_set() throws {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
-        options.environment = "test"
+        options.endpoint = "nonprod:test"
         let client = HttpClient(options: options)
         let internalLog = InternalLog(clientOptions: options)
         let mockHTTP = MockHTTP(logger: internalLog)
@@ -1041,16 +901,16 @@ class HttpClientTests: XCTestCase {
 
         XCTAssertEqual(testHTTPExecutor.requests.count, 3)
         let capturedURLs = testHTTPExecutor.requests.compactMap { $0.url?.absoluteString }
-        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(0), pattern: "//test-rest.ably.io"))
-        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(1), pattern: "//test-[a-e]-fallback.ably-realtime.com"))
-        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(1), pattern: "//test-[a-e]-fallback.ably-realtime.com"))
+        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(0), pattern: "//test.realtime.ably-nonprod.net"))
+        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(1), pattern: "//test.[a-e].fallback.ably-realtime-nonprod.com"))
+        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(2), pattern: "//test.[a-e].fallback.ably-realtime-nonprod.com"))
     }
 
-    // RSC15g2
-    func test__063__RestClient__Host_Fallback__fallback_hosts_list_and_priorities__should_NOT_use_environment_fallback_hosts_when_ClientOptions_environment_is_set_to__production_() {
+    // REC2c4
+    func test__063__RestClient__Host_Fallback__fallback_hosts_list_and_priorities__should_use_routing_policy_fallback_hosts_when_ClientOptions_endpoint_is_a_production_routing_policy() {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
-        options.environment = "production"
+        options.endpoint = "acme"
         let client = HttpClient(options: options)
         let internalLog = InternalLog(clientOptions: options)
         let mockHTTP = MockHTTP(logger: internalLog)
@@ -1068,17 +928,16 @@ class HttpClientTests: XCTestCase {
 
         XCTAssertEqual(testHTTPExecutor.requests.count, 4)
         let capturedURLs = testHTTPExecutor.requests.compactMap { $0.url?.absoluteString }
-        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(0), pattern: "//rest.ably.io"))
-        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(1), pattern: "//[a-e].ably-realtime.com"))
-        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(2), pattern: "//[a-e].ably-realtime.com"))
-        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(3), pattern: "//[a-e].ably-realtime.com"))
+        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(0), pattern: "//acme.realtime.ably.net"))
+        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(1), pattern: "//acme.[a-e].fallback.ably-realtime.com"))
+        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(2), pattern: "//acme.[a-e].fallback.ably-realtime.com"))
+        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(3), pattern: "//acme.[a-e].fallback.ably-realtime.com"))
     }
 
-    // RSC15g3
-    func test__064__RestClient__Host_Fallback__fallback_hosts_list_and_priorities__should_use_default_fallback_hosts_when_both_ClientOptions_fallbackHosts_and_ClientOptions_environment_are_not_set() {
+    // REC2c1
+    func test__064__RestClient__Host_Fallback__fallback_hosts_list_and_priorities__should_use_default_fallback_hosts_when_both_ClientOptions_fallbackHosts_and_ClientOptions_endpoint_are_not_set() {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
-        options.environment = ""
         let client = HttpClient(options: options)
         let internalLog = InternalLog(clientOptions: options)
         let mockHTTP = MockHTTP(logger: internalLog)
@@ -1096,14 +955,13 @@ class HttpClientTests: XCTestCase {
 
         XCTAssertEqual(testHTTPExecutor.requests.count, 4)
         let capturedURLs = testHTTPExecutor.requests.compactMap { $0.url?.absoluteString }
-        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(0), pattern: "//rest.ably.io"))
-        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(1), pattern: "//[a-e].ably-realtime.com"))
-        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(2), pattern: "//[a-e].ably-realtime.com"))
-        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(3), pattern: "//[a-e].ably-realtime.com"))
+        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(0), pattern: "//main.realtime.ably.net"))
+        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(1), pattern: "//main.[a-e].fallback.ably-realtime.com"))
+        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(2), pattern: "//main.[a-e].fallback.ably-realtime.com"))
+        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(3), pattern: "//main.[a-e].fallback.ably-realtime.com"))
     }
 
-    // RSC15g4
-    // RSC15g1
+    // TO3k6, RSC15m
     func test__047__RestClient__Host_Fallback__won_t_apply_fallback_hosts_if_ClientOptions_fallbackHosts_array_is_empty() {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
@@ -1124,11 +982,11 @@ class HttpClientTests: XCTestCase {
 
         XCTAssertEqual(testHTTPExecutor.requests.count, 1)
         let capturedURLs = testHTTPExecutor.requests.map { $0.url!.absoluteString }
-        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(0), pattern: "//rest.ably.io"))
+        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(0), pattern: "//main.realtime.ably.net"))
     }
 
-    // RSC15g3
-    func test__048__RestClient__Host_Fallback__won_t_apply_custom_fallback_hosts_if_ClientOptions_fallbackHosts_and_ClientOptions_environment_are_not_set__use_defaults_instead() {
+    // REC2c1
+    func test__048__RestClient__Host_Fallback__won_t_apply_custom_fallback_hosts_if_ClientOptions_fallbackHosts_and_ClientOptions_endpoint_are_not_set__use_defaults_instead() {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
         options.fallbackHosts = nil
@@ -1152,11 +1010,11 @@ class HttpClientTests: XCTestCase {
         }
 
         let capturedURLs = testHTTPExecutor.requests.map { $0.url!.absoluteString }
-        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(1), pattern: "//[a-e].ably-realtime.com"))
+        XCTAssertTrue(NSRegularExpression.match(capturedURLs.at(1), pattern: "//main.[a-e].fallback.ably-realtime.com"))
     }
 
-    // RSC15e
-    func test__049__RestClient__Host_Fallback__every_new_HTTP_request_is_first_attempted_to_the_default_primary_host_rest_ably_io() {
+    // RSC25
+    func test__049__RestClient__Host_Fallback__every_new_HTTP_request_is_first_attempted_to_the_default_primary_host() {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
         options.httpMaxRetryCount = 1
@@ -1185,29 +1043,42 @@ class HttpClientTests: XCTestCase {
         }
 
         XCTAssertEqual(testHTTPExecutor.requests.count, 3)
-        XCTAssertTrue(NSRegularExpression.match(testHTTPExecutor.requests.at(0)?.url?.absoluteString, pattern: "//\(Default.restHost())"))
-        XCTAssertTrue(NSRegularExpression.match(testHTTPExecutor.requests.at(1)?.url?.absoluteString, pattern: "//[a-e].ably-realtime.com"))
-        XCTAssertTrue(NSRegularExpression.match(testHTTPExecutor.requests.at(2)?.url?.absoluteString, pattern: "//\(Default.restHost())"))
+        XCTAssertTrue(NSRegularExpression.match(testHTTPExecutor.requests.at(0)?.url?.absoluteString, pattern: "//main.realtime.ably.net"))
+        XCTAssertTrue(NSRegularExpression.match(testHTTPExecutor.requests.at(1)?.url?.absoluteString, pattern: "//main.[a-e].fallback.ably-realtime.com"))
+        XCTAssertTrue(NSRegularExpression.match(testHTTPExecutor.requests.at(2)?.url?.absoluteString, pattern: "//main.realtime.ably.net"))
     }
 
     // RSC15a
 
-    // RSC15h
-    func test__065__RestClient__Host_Fallback__retry_hosts_in_random_order__default_fallback_hosts_should_match__a_e__ably_realtime_com() {
+    // REC2c1
+    func test__065__RestClient__Host_Fallback__retry_hosts_in_random_order__default_fallback_hosts_should_match_main__a_e__fallback_ably_realtime_com() {
         let defaultFallbackHosts = Default.fallbackHosts()
         defaultFallbackHosts.forEach { host in
-            expect(host).to(match("[a-e].ably-realtime.com"))
+            expect(host).to(match("main.[a-e].fallback.ably-realtime.com"))
         }
         XCTAssertEqual(defaultFallbackHosts.count, 5)
     }
 
-    // RSC15i
-    func test__066__RestClient__Host_Fallback__retry_hosts_in_random_order__environment_fallback_hosts_have_the_format__environment___a_e__fallback_ably_realtime_com() {
-        let environmentFallbackHosts = Default.fallbackHosts(withEnvironment: "sandbox")
-        environmentFallbackHosts.forEach { host in
-            expect(host).to(match("sandbox-[a-e]-fallback.ably-realtime.com"))
+    // REC2c3, REC2c4
+    func test__066__RestClient__Host_Fallback__retry_hosts_in_random_order__routing_policy_fallback_hosts_have_the_format__id___a_e__fallback() {
+        let options = ClientOptions(key: "xxxx:xxxx")
+
+        options.endpoint = "nonprod:sandbox"
+        XCTAssertEqual(options.endpointFallbackHosts, ["a", "b", "c", "d", "e"].map { "sandbox.\($0).fallback.ably-realtime-nonprod.com" })
+
+        options.endpoint = "acme"
+        XCTAssertEqual(options.endpointFallbackHosts, ["a", "b", "c", "d", "e"].map { "acme.\($0).fallback.ably-realtime.com" })
+    }
+
+    // REC1b2, REC2c2
+    func test__066b__RestClient__Host_Fallback__an_endpoint_that_is_a_hostname_is_used_as_is_and_has_no_fallback_hosts() {
+        let options = ClientOptions(key: "xxxx:xxxx")
+
+        for hostname in ["localhost", "::1", "192.168.0.1", "foo.example.com"] {
+            options.endpoint = hostname
+            XCTAssertEqual(options.primaryDomain, hostname)
+            XCTAssertEqual(options.endpointFallbackHosts, [])
         }
-        XCTAssertEqual(environmentFallbackHosts.count, 5)
     }
 
     func test__067__RestClient__Host_Fallback__retry_hosts_in_random_order__until_httpMaxRetryCount_has_been_reached() {
@@ -1232,7 +1103,7 @@ class HttpClientTests: XCTestCase {
         XCTAssertEqual(testHTTPExecutor.requests.count, Int(1 + options.httpMaxRetryCount))
 
         let extractHostname = { (request: URLRequest) in
-            NSRegularExpression.extract(request.url!.absoluteString, pattern: "[a-e].ably-realtime.com")
+            NSRegularExpression.extract(request.url!.absoluteString, pattern: "main.[a-e].fallback.ably-realtime.com")
         }
         let resultFallbackHosts = testHTTPExecutor.requests.compactMap(extractHostname)
         let expectedFallbackHosts = Array(expectedHostOrder.map { Default.fallbackHosts()[$0] }[0 ..< Int(options.httpMaxRetryCount)])
@@ -1298,7 +1169,7 @@ class HttpClientTests: XCTestCase {
         XCTAssertEqual(testHTTPExecutor.requests.count, Default.fallbackHosts().count + 1)
 
         let extractHostname = { (request: URLRequest) in
-            NSRegularExpression.extract(request.url!.absoluteString, pattern: "[a-e].ably-realtime.com")
+            NSRegularExpression.extract(request.url!.absoluteString, pattern: "main.[a-e].fallback.ably-realtime.com")
         }
         let resultFallbackHosts = testHTTPExecutor.requests.compactMap(extractHostname)
         let expectedFallbackHosts = expectedHostOrder.map { Default.fallbackHosts()[$0] }
@@ -1372,6 +1243,7 @@ class HttpClientTests: XCTestCase {
         XCTAssertEqual(resultFallbackHosts, expectedFallbackHosts)
     }
 
+    // RSC15j
     func test__072__RestClient__Host_Fallback__retry_hosts_in_random_order__all_fallback_requests_headers_should_contain__Host__header_with_fallback_host_address() {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
@@ -1426,10 +1298,10 @@ class HttpClientTests: XCTestCase {
         }
 
         XCTAssertEqual(testHTTPExecutor.requests.count, 1)
-        XCTAssertTrue(NSRegularExpression.match(testHTTPExecutor.requests[0].url!.absoluteString, pattern: "//rest.ably.io"))
+        XCTAssertTrue(NSRegularExpression.match(testHTTPExecutor.requests[0].url!.absoluteString, pattern: "//main.realtime.ably.net"))
     }
 
-    // RSC15d
+    // RSC15l
 
     func test__074__RestClient__Host_Fallback__should_use_an_alternative_host_when___hostUnreachable() {
         let test = Test()
@@ -1446,7 +1318,7 @@ class HttpClientTests: XCTestCase {
         testUsesAlternativeHost(.hostInternalError(code: 501), channelName: test.uniqueChannelName())
     }
 
-    // RSC15d
+    // RSC15l
     func test__050__RestClient__Host_Fallback__should_not_use_an_alternative_host_when_the_client_receives_an_bad_request() {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
@@ -1465,7 +1337,7 @@ class HttpClientTests: XCTestCase {
         }
 
         XCTAssertEqual(testHTTPExecutor.requests.count, 1)
-        XCTAssertTrue(NSRegularExpression.match(testHTTPExecutor.requests[0].url!.absoluteString, pattern: "//rest.ably.io"))
+        XCTAssertTrue(NSRegularExpression.match(testHTTPExecutor.requests[0].url!.absoluteString, pattern: "//main.realtime.ably.net"))
     }
 
     // RSC15f
@@ -1713,7 +1585,7 @@ class HttpClientTests: XCTestCase {
         let acceptHeaderValue = try XCTUnwrap(request.allHTTPHeaderFields?["Accept"], "Accept HTTP Header is missing")
 
         XCTAssertEqual(request.httpMethod!.uppercased(), "PATCH")
-        XCTAssertEqual(url.absoluteString, "https://rest.ably.io:443/feature?foo=1")
+        XCTAssertEqual(url.absoluteString, "https://main.realtime.ably.net:443/feature?foo=1")
         XCTAssertEqual(acceptHeaderValue, "application/x-msgpack,application/json")
     }
 
@@ -1977,7 +1849,7 @@ class HttpClientTests: XCTestCase {
 
         var fallbackRequests: [URLRequest] = []
         testHTTPExecutor.setListenerAfterRequest { request in
-            if NSRegularExpression.match(request.url!.absoluteString, pattern: "//[a-e].ably-realtime.com") {
+            if NSRegularExpression.match(request.url!.absoluteString, pattern: "//main.[a-e].fallback.ably-realtime.com") {
                 fallbackRequests += [request]
             }
         }

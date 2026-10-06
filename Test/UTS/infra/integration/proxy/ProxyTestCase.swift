@@ -45,7 +45,7 @@ class ProxyTestCase: IntegrationTestCase {
     /// separate TLS "token signer" client, as in ably-java's proxy tests).
     func proxyClientOptions(for app: SandboxApp, through session: ProxySession) -> ClientOptions {
         let signerOptions = ClientOptions(key: app.defaultKey)
-        signerOptions.restHost = SandboxApp.sandboxHost
+        signerOptions.endpoint = SandboxApp.sandboxEndpoint
         let tokenSigner = HttpClient(options: signerOptions)
 
         let options = ClientOptions()

@@ -13,19 +13,23 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ARTClientOptions ()
 
-@property (readonly) BOOL isProductionEnvironment;
-@property (readonly) BOOL hasEnvironment;
-@property (readonly) BOOL hasEnvironmentDifferentThanProduction;
-@property (readonly) BOOL hasCustomRestHost;
-@property (readonly) BOOL hasDefaultRestHost;
-@property (readonly) BOOL hasCustomRealtimeHost;
-@property (readonly) BOOL hasDefaultRealtimeHost;
+/// The host that requests and connections go to first (REC1). It follows from `endpoint`.
+@property (readonly) NSString *primaryDomain;
+
+/// The fallback hosts that follow from `endpoint` (REC2c). They apply when `fallbackHosts` is nil. The array is empty when `endpoint` is a hostname.
+@property (readonly) NSArray<NSString *> *endpointFallbackHosts;
+
+/// Whether `endpoint` has the form `nonprod:[id]`.
+@property (readonly) BOOL hasNonprodEndpoint;
+
 @property (readonly) BOOL hasCustomPort;
 @property (readonly) BOOL hasCustomTlsPort;
 
-+ (void)setDefaultEnvironment:(nullable NSString *)environment;
+/// Sets the `endpoint` that new options start with. For tests that create a client through an initializer that takes only a key or a token.
++ (void)setDefaultEndpoint:(nullable NSString *)endpoint;
 + (BOOL)getDefaultIdempotentRestPublishingForVersion:(NSString *)version;
 - (NSURLComponents *)restUrlComponents;
+- (NSURLComponents *)realtimeUrlComponents;
 
 // MARK: - Plugins
 

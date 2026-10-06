@@ -759,7 +759,7 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
             break;
         }
         case ARTRealtimeSuspended: {
-            _fallbacks = nil; // RTN17a - "must always prefer the default endpoint", thus resetting fallbacks to start connection sequence again with the default endpoint
+            _fallbacks = nil; // RTN17i - "must always prefer the primary domain", thus resetting fallbacks to start connection sequence again with the primary domain
             [_connectionRetryFromDisconnectedListener stopTimer];
             _connectionRetryFromDisconnectedListener = nil;
             [self.auth cancelAuthorization:nil];
@@ -773,7 +773,7 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
             break;
         }
         case ARTRealtimeConnected: {
-            _fallbacks = nil; // RTN17a
+            _fallbacks = nil; // RTN17i
             _connectionLostAt = nil;
             self.options.recover = nil; // RTN16k
             [self resendPendingMessagesWithResumed:params.resumed]; // RTN19a1
@@ -1499,7 +1499,7 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
     NSString *host = [_fallbacks popFallbackHost];
     if (host != nil) {
         ARTLogDebug(self.logger, @"R:%p checking internet connection and then retrying realtime at %@", self, host);
-        [self.rest internetIsUp:^void(BOOL isUp) { // RTN17c
+        [self.rest internetIsUp:^void(BOOL isUp) { // RTN17j
             if (!isUp) {
                 ARTErrorInfo *const errorInfo = [ARTErrorInfo createWithCode:0 message:@"no Internet connection"];
                 ARTConnectionStateChangeParams *const params = [[ARTConnectionStateChangeParams alloc] initWithErrorInfo:errorInfo];
@@ -1522,20 +1522,8 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
 - (BOOL)shouldRetryWithFallbackForError:(ARTRealtimeTransportError *)error options:(ARTClientOptions *)options {
     if ((error.type == ARTRealtimeTransportErrorTypeBadResponse && error.badResponseCode >= 500 && error.badResponseCode <= 504) ||
          error.type == ARTRealtimeTransportErrorTypeHostUnreachable || error.type == ARTRealtimeTransportErrorTypeTimeout) {
-        // RTN17b1
-        if (!(options.hasCustomRealtimeHost || options.hasCustomPort || options.hasCustomTlsPort)) {
-            return YES;
-        }
-
-        // RTN17b2
-        if (options.fallbackHosts) {
-            return YES;
-        }
-
-        // RSC15g2
-        if (options.hasEnvironmentDifferentThanProduction) {
-            return YES;
-        }
+        // RTN17g
+        return [ARTFallbackHosts hostsFromOptions:options].count > 0;
     }
     return NO;
 }
@@ -1701,15 +1689,11 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
             NSArray *hosts = [ARTFallbackHosts hostsFromOptions:clientOptions];
             _fallbacks = [[ARTFallback alloc] initWithFallbackHosts:hosts shuffleArray:clientOptions.testOptions.shuffleArray];
         }
-        if (_fallbacks) {
-            if (_fallbacks.isEmpty) {
-                _fallbacks = nil;
-                ARTLogVerbose(self.logger, @"R:%p No fallback hosts left, will try primary one again...", self);
-            }
-            [self performTransitionToDisconnectedOrSuspendedWithParams:params]; // RTN14d, RTN17j
-        } else {
-            [self performTransitionToState:ARTRealtimeFailed withParams:params];
+        if (!_fallbacks || _fallbacks.isEmpty) {
+            _fallbacks = nil;
+            ARTLogVerbose(self.logger, @"R:%p No fallback hosts left, will try primary one again...", self);
         }
+        [self performTransitionToDisconnectedOrSuspendedWithParams:params]; // RTN14d, RTN17j
     } else {
         [self performTransitionToDisconnectedOrSuspendedWithParams:params];
     }

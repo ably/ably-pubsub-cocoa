@@ -4,9 +4,10 @@ import Foundation
 
 /// Provides the ``createAPIKey()`` function to create an API key for the Ably sandbox environment.
 enum Sandbox {
-    /// The Ably **nonprod sandbox** host (the same endpoint the UTS integration tier and ably-java
-    /// use). Keys created by ``createAPIKey()`` are only valid against this environment, so clients
-    /// must point `restHost`/`realtimeHost` here.
+    /// The Ably **nonprod sandbox** host (the same sandbox the UTS integration tier and ably-java
+    /// use). Key provisioning sends its requests here. Keys created by ``createAPIKey()`` only work
+    /// against the sandbox, so clients that use them set `endpoint` to
+    /// `SandboxEnvironment.nonprodEndpoint`.
     static let sandboxHost = SandboxEnvironment.nonprodHost
 
     private struct TestApp: Codable {
@@ -109,13 +110,12 @@ enum Sandbox {
         try await keyManager.getKey()
     }
 
-    /// Client options wired for the sandbox: the shared API key plus both transports pointed at
-    /// ``sandboxHost`` — the key is environment-scoped, so key and hosts must travel together.
+    /// Client options wired for the sandbox: the shared API key plus the sandbox endpoint. The key
+    /// only works against the sandbox, so key and endpoint must travel together.
     static func clientOptions() async throws -> ClientOptions {
         let key = try await fetchSharedAPIKey()
         let options = ClientOptions(key: key)
-        options.restHost = sandboxHost
-        options.realtimeHost = sandboxHost
+        options.endpoint = SandboxEnvironment.nonprodEndpoint
         return options
     }
 }

@@ -65,6 +65,9 @@ NS_ASSUME_NONNULL_END
       - the calls to `-[NSStream open]` (it's not clear to me what exactly is blocking here but it triggers an Xcode warning so let's avoid it)
      */
     _Nonnull dispatch_queue_t _websocketOpenQueue;
+
+    /// The host this transport connects to. It starts as the primary domain and changes to a fallback host when the client retries elsewhere.
+    NSString *_host;
 }
 
 @synthesize delegate = _delegate;
@@ -80,6 +83,7 @@ NS_ASSUME_NONNULL_END
         _encoder = rest.defaultEncoder;
         _logger = logger;
         _options = [options copy];
+        _host = _options.primaryDomain;
         _resumeKey = resumeKey;
         _stateEmitter = [[ARTInternalEventEmitter alloc] initWithQueue:_workQueue timeProvider:rest.timeProvider];
         _webSocketFactory = webSocketFactory;
@@ -188,9 +192,11 @@ NS_ASSUME_NONNULL_END
     }
 
     // URL
-    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:@"/"];
+    NSURLComponents *const urlComponents = [options realtimeUrlComponents];
+    urlComponents.host = self.host;
+    urlComponents.path = @"/";
     urlComponents.queryItems = [queryItems allValues];
-    NSURL *url = [urlComponents URLRelativeToURL:[options realtimeUrl]];
+    NSURL *const url = urlComponents.URL;
 
     ARTLogDebug(_logger, @"R:%p WS:%p url %@", _delegate, self, url);
 
@@ -245,11 +251,11 @@ NS_ASSUME_NONNULL_END
 }
 
 - (void)setHost:(NSString *)host {
-    self.options.realtimeHost = host;
+    _host = host;
 }
 
 - (NSString *)host {
-    return self.options.realtimeHost;
+    return _host;
 }
 
 - (ARTRealtimeTransportState)state {

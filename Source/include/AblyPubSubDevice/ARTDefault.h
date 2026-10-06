@@ -12,9 +12,6 @@ NS_SWIFT_NAME(Default)
 + (NSString *)libraryVersion;
 
 + (NSArray<NSString *> *)fallbackHosts;
-+ (NSArray<NSString *> *)fallbackHostsWithEnvironment:(NSString *_Nullable)environment;
-+ (NSString*)restHost;
-+ (NSString*)realtimeHost;
 + (int)port;
 + (int)tlsPort;
 

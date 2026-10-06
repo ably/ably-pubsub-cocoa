@@ -24,14 +24,12 @@ final class ChannelHistoryTests: IntegrationTestCase {
             let channelName = "history-RTL10d-\(UUID().uuidString)"
 
             let publisherOptions = ClientOptions(key: app.defaultKey)
-            publisherOptions.realtimeHost = SandboxApp.sandboxHost
-            publisherOptions.restHost = SandboxApp.sandboxHost
+            publisherOptions.endpoint = SandboxApp.sandboxEndpoint
             publisherOptions.useBinaryProtocol = useBinaryProtocol
             publisherOptions.autoConnect = false
 
             let subscriberOptions = ClientOptions(key: app.defaultKey)
-            subscriberOptions.realtimeHost = SandboxApp.sandboxHost
-            subscriberOptions.restHost = SandboxApp.sandboxHost
+            subscriberOptions.endpoint = SandboxApp.sandboxEndpoint
             subscriberOptions.useBinaryProtocol = useBinaryProtocol
             subscriberOptions.autoConnect = false
 

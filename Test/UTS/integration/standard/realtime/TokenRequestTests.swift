@@ -29,7 +29,7 @@ final class TokenRequestTests: IntegrationTestCase {
             // Setup
             // Client A creates TokenRequests using the API key
             let creatorOptions = ClientOptions(key: app.defaultKey)
-            creatorOptions.restHost = SandboxApp.sandboxHost
+            creatorOptions.endpoint = SandboxApp.sandboxEndpoint
             let creator = HttpClient(options: creatorOptions)
 
             // Client B connects using TokenRequests from client A
@@ -39,8 +39,7 @@ final class TokenRequestTests: IntegrationTestCase {
                     callback(tokenRequest, error)
                 }
             }
-            options.realtimeHost = SandboxApp.sandboxHost
-            options.restHost = SandboxApp.sandboxHost
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.autoConnect = false
             options.useBinaryProtocol = false
 
@@ -68,7 +67,7 @@ final class TokenRequestTests: IntegrationTestCase {
             let testClientId = "token-request-client-\(UUID().uuidString)"
 
             let creatorOptions = ClientOptions(key: app.defaultKey)
-            creatorOptions.restHost = SandboxApp.sandboxHost
+            creatorOptions.endpoint = SandboxApp.sandboxEndpoint
             let creator = HttpClient(options: creatorOptions)
 
             let options = ClientOptions()
@@ -78,8 +77,7 @@ final class TokenRequestTests: IntegrationTestCase {
                 }
             }
             options.clientId = testClientId
-            options.realtimeHost = SandboxApp.sandboxHost
-            options.restHost = SandboxApp.sandboxHost
+            options.endpoint = SandboxApp.sandboxEndpoint
             options.autoConnect = false
             options.useBinaryProtocol = false
 

@@ -714,7 +714,7 @@ actions: `refuse_connection`, `suppress`, `replace`, `inject_to_client[_and_clos
 `http_respond`.
 
 **Wiring a client through the proxy** — `options.connectThroughProxy(session)` sets
-`realtimeHost`/`restHost` = localhost, `port` = the session's port, `tls = false`, and
+`endpoint` = localhost, `port` = the session's port, `tls = false`, and
 `useBinaryProtocol = false` (the proxy only understands text frames). ⚠️ Because the proxy serves
 plain ws, **basic (key) auth is rejected** (RSA1: basic auth is TLS-only) — authenticate through
 the proxy with an `authCallback` that signs a `TokenRequest` locally using the sandbox key
@@ -766,13 +766,13 @@ try await withSandboxApp { app in                             // SandboxApp.crea
 
 #### 11.4.2 The client — wired straight to the sandbox
 
-The options point the **real** transport at the sandbox host (no proxy in between). Setting
-explicit hosts auto-disables fallback hosts (REC2c2), so there's nothing else to configure:
+The options point the **real** transport at the sandbox (no proxy in between). The
+`nonprod:sandbox` routing-policy endpoint generates sandbox fallback hosts (REC2c3), so
+fallbacks remain enabled without any extra configuration:
 
 ```swift
 let publisherOptions = ClientOptions(key: app.defaultKey)
-publisherOptions.realtimeHost = SandboxApp.sandboxHost   // sandbox.realtime.ably-nonprod.net
-publisherOptions.restHost = SandboxApp.sandboxHost
+publisherOptions.endpoint = SandboxApp.sandboxEndpoint   // "nonprod:sandbox"
 publisherOptions.useBinaryProtocol = useBinaryProtocol
 publisherOptions.autoConnect = false
 ```
@@ -816,7 +816,7 @@ subscriber's history. The integration-specific techniques on show:
   is `event1`.
 
 **What this test teaches about the infra:** `SandboxApp`-only provisioning, the direct-sandbox
-client wiring (`realtimeHost`/`restHost` from `SandboxApp.sandboxHost`, no proxy), the
+client wiring (`endpoint` from `SandboxApp.sandboxEndpoint`, no proxy), the
 protocol-variant parameterised test, awaiting a publish ack via the callback overload, and
 `pollUntil` over a real `history()` call.
 
@@ -857,7 +857,7 @@ try await withProxySession(rules: []) { app, session in
    ```swift
    let authCallbackInvocations = Captured<TokenParams>()
    let signerOptions = ClientOptions(key: app.defaultKey)
-   signerOptions.restHost = SandboxApp.sandboxHost
+   signerOptions.endpoint = SandboxApp.sandboxEndpoint
    let tokenSigner = HttpClient(options: signerOptions)
 
    let options = ClientOptions()

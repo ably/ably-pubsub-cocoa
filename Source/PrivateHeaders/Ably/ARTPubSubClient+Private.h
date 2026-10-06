@@ -74,21 +74,20 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)timeWithWrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
                       completion:(ARTDateTimeCallback)callback;
 
-- (BOOL)request:(NSString *)method
+- (void)request:(NSString *)method
            path:(NSString *)path
          params:(nullable NSStringDictionary *)params
            body:(nullable id)body
         headers:(nullable NSStringDictionary *)headers
 wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
-       callback:(ARTHTTPPaginatedCallback)callback
-          error:(NSError *_Nullable *_Nullable)errorPtr;
+       callback:(ARTHTTPPaginatedCallback)callback;
 
 - (void)ping:(ARTCallback)cb;
 
-- (BOOL)statsWithWrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
+- (void)statsWithWrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
                          callback:(ARTPaginatedStatsCallback)callback;
 
-- (BOOL)stats:(nullable ARTStatsQuery *)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedStatsCallback)callback error:(NSError *_Nullable *_Nullable)errorPtr;
+- (void)stats:(nullable ARTStatsQuery *)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedStatsCallback)callback;
 
 - (void)connect;
 

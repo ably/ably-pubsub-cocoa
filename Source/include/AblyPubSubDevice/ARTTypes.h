@@ -175,31 +175,6 @@ typedef NS_ENUM(NSUInteger, ARTChannelEvent) {
 /// :nodoc:
 NSString *_Nonnull ARTChannelEventToStr(ARTChannelEvent event) NS_SWIFT_NAME(channelEventToStr(_:));
 
-
-/// :nodoc:
-NS_SWIFT_SENDABLE
-typedef NS_ENUM(NSInteger, ARTDataQueryError) {
-    ARTDataQueryErrorLimit = 1,
-    ARTDataQueryErrorTimestampRange = 2,
-    ARTDataQueryErrorMissingRequiredFields = 3,
-    ARTDataQueryErrorInvalidParameters = 4,
-    ARTDataQueryErrorDeviceInactive = 5,
-} NS_SWIFT_NAME(DataQueryError);
-
-/// :nodoc:
-NS_SWIFT_SENDABLE
-typedef NS_ENUM(NSInteger, ARTRealtimeHistoryError) {
-    ARTRealtimeHistoryErrorNotAttached = ARTDataQueryErrorTimestampRange + 1
-} NS_SWIFT_NAME(RealtimeHistoryError);
-
-/// :nodoc:
-NS_SWIFT_SENDABLE
-typedef NS_ENUM(NSInteger, ARTCustomRequestError) {
-    ARTCustomRequestErrorInvalidMethod = 1,
-    ARTCustomRequestErrorInvalidBody = 2,
-    ARTCustomRequestErrorInvalidPath = 3,
-} NS_SWIFT_NAME(CustomRequestError);
-
 NS_ASSUME_NONNULL_BEGIN
 
 /// :nodoc:

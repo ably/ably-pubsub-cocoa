@@ -145,27 +145,26 @@
                              completion:cb];
 }
 
-- (BOOL)request:(NSString *)method
+- (void)request:(NSString *)method
            path:(NSString *)path
          params:(nullable NSStringDictionary *)params
            body:(nullable id)body
         headers:(nullable NSStringDictionary *)headers
-       callback:(ARTHTTPPaginatedCallback)callback
-          error:(NSError *_Nullable *_Nullable)errorPtr {
-    return [_internal request:method path:path params:params body:body headers:headers wrapperSDKAgents:nil callback:callback error:errorPtr];
+       callback:(ARTHTTPPaginatedCallback)callback {
+    [_internal request:method path:path params:params body:body headers:headers wrapperSDKAgents:nil callback:callback];
 }
 
 - (void)ping:(ARTCallback)cb {
     [_internal ping:cb];
 }
 
-- (BOOL)stats:(ARTPaginatedStatsCallback)callback {
-    return [_internal statsWithWrapperSDKAgents:nil
-                                       callback:callback];
+- (void)stats:(ARTPaginatedStatsCallback)callback {
+    [_internal statsWithWrapperSDKAgents:nil
+                                callback:callback];
 }
 
-- (BOOL)stats:(nullable ARTStatsQuery *)query callback:(ARTPaginatedStatsCallback)callback error:(NSError **)errorPtr {
-    return [_internal stats:query wrapperSDKAgents:nil callback:callback error:errorPtr];
+- (void)stats:(nullable ARTStatsQuery *)query callback:(ARTPaginatedStatsCallback)callback {
+    [_internal stats:query wrapperSDKAgents:nil callback:callback];
 }
 
 - (void)connect {
@@ -505,15 +504,14 @@ typedef NS_ENUM(NSUInteger, ARTNetworkState) {
                              completion:cb];
 }
 
-- (BOOL)request:(NSString *)method
+- (void)request:(NSString *)method
            path:(NSString *)path
          params:(nullable NSStringDictionary *)params
            body:(nullable id)body
         headers:(nullable NSStringDictionary *)headers
 wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
-       callback:(ARTHTTPPaginatedCallback)callback
-          error:(NSError *_Nullable *_Nullable)errorPtr {
-    return [self.rest request:method path:path params:params body:body headers:headers wrapperSDKAgents:wrapperSDKAgents callback:callback error:errorPtr];
+       callback:(ARTHTTPPaginatedCallback)callback {
+    [self.rest request:method path:path params:params body:body headers:headers wrapperSDKAgents:wrapperSDKAgents callback:callback];
 }
 
 - (void)ping:(ARTCallback) cb {
@@ -553,13 +551,13 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
     });
 }
 
-- (BOOL)statsWithWrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
+- (void)statsWithWrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
                          callback:(ARTPaginatedStatsCallback)callback {
-               return [self stats:[[ARTStatsQuery alloc] init] wrapperSDKAgents:wrapperSDKAgents callback:callback error:nil];
+    [self stats:[[ARTStatsQuery alloc] init] wrapperSDKAgents:wrapperSDKAgents callback:callback];
 }
 
-- (BOOL)stats:(ARTStatsQuery *)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedStatsCallback)callback error:(NSError **)errorPtr {
-    return [self.rest stats:query wrapperSDKAgents:wrapperSDKAgents callback:callback error:errorPtr];
+- (void)stats:(ARTStatsQuery *)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedStatsCallback)callback {
+    [self.rest stats:query wrapperSDKAgents:wrapperSDKAgents callback:callback];
 }
 
 - (void)performTransitionToDisconnectedOrSuspendedWithParams:(ARTConnectionStateChangeParams *)params {

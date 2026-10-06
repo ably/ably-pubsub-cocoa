@@ -1701,14 +1701,9 @@ class HttpClientTests: XCTestCase {
         let params = ["foo": "1"]
 
         waitUntil(timeout: testTimeout) { done in
-            do {
-                try rest.request("patch", path: "feature", params: params, body: nil, headers: nil) { paginatedResult, error in
-                    XCTAssertNil(error)
-                    XCTAssertNotNil(paginatedResult)
-                    done()
-                }
-            } catch {
-                fail(error.localizedDescription)
+            rest.request("patch", path: "feature", params: params, body: nil, headers: nil) { paginatedResult, error in
+                XCTAssertNil(error)
+                XCTAssertNotNil(paginatedResult)
                 done()
             }
         }
@@ -1729,14 +1724,9 @@ class HttpClientTests: XCTestCase {
         let bodyDict = ["blockchain": true]
 
         waitUntil(timeout: testTimeout) { done in
-            do {
-                try rest.request("post", path: "feature", params: nil, body: bodyDict, headers: nil) { paginatedResult, error in
-                    XCTAssertNil(error)
-                    XCTAssertNotNil(paginatedResult)
-                    done()
-                }
-            } catch {
-                fail(error.localizedDescription)
+            rest.request("post", path: "feature", params: nil, body: bodyDict, headers: nil) { paginatedResult, error in
+                XCTAssertNil(error)
+                XCTAssertNotNil(paginatedResult)
                 done()
             }
         }
@@ -1756,14 +1746,9 @@ class HttpClientTests: XCTestCase {
         let headers = ["X-foo": "ok"]
 
         waitUntil(timeout: testTimeout) { done in
-            do {
-                try rest.request("get", path: "feature", params: nil, body: nil, headers: headers) { paginatedResult, error in
-                    XCTAssertNil(error)
-                    XCTAssertNotNil(paginatedResult)
-                    done()
-                }
-            } catch {
-                fail(error.localizedDescription)
+            rest.request("get", path: "feature", params: nil, body: nil, headers: headers) { paginatedResult, error in
+                XCTAssertNil(error)
+                XCTAssertNotNil(paginatedResult)
                 done()
             }
         }
@@ -1774,58 +1759,48 @@ class HttpClientTests: XCTestCase {
         XCTAssertEqual(authorization, "ok")
     }
 
-    func test__089__RestClient__request__method_signature_and_arguments__should_error_if_method_is_invalid() {
+    func test__089__RestClient__request__method_signature_and_arguments__should_raise_if_method_is_invalid() {
         let rest = HttpClient(key: "xxxx:xxxx")
         let mockHTTPExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHTTPExecutor
 
-        do {
-            try rest.request("A", path: "feature", params: nil, body: nil, headers: nil) { _, _ in
-                fail("Completion closure should not be called")
+        for method in ["A", ""] {
+            let exception = tryInObjC {
+                rest.request(method, path: "feature", params: nil, body: nil, headers: nil) { _, _ in
+                    fail("Completion closure should not be called")
+                }
             }
-        } catch let error as NSError {
-            XCTAssertEqual(error.code, CustomRequestError.invalidMethod.rawValue)
-            expect(error.localizedDescription).to(contain("Method isn't valid"))
-        }
-
-        do {
-            try rest.request("", path: "feature", params: nil, body: nil, headers: nil) { _, _ in
-                fail("Completion closure should not be called")
-            }
-        } catch let error as NSError {
-            XCTAssertEqual(error.code, CustomRequestError.invalidMethod.rawValue)
-            expect(error.localizedDescription).to(contain("Method isn't valid"))
+            XCTAssertEqual(exception?.name, .invalidArgumentException)
+            expect(exception?.reason).to(contain("Method isn't valid"))
         }
     }
 
-    func test__090__RestClient__request__method_signature_and_arguments__should_error_if_path_is_invalid() {
+    func test__090__RestClient__request__method_signature_and_arguments__should_raise_if_path_is_invalid() {
         let rest = HttpClient(key: "xxxx:xxxx")
         let mockHTTPExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHTTPExecutor
 
-        do {
-            try rest.request("get", path: "", params: nil, body: nil, headers: nil) { _, _ in
+        let exception = tryInObjC {
+            rest.request("get", path: "", params: nil, body: nil, headers: nil) { _, _ in
                 fail("Completion closure should not be called")
             }
-        } catch let error as NSError {
-            XCTAssertEqual(error.code, CustomRequestError.invalidPath.rawValue)
-            expect(error.localizedDescription).to(contain("Path cannot be empty"))
         }
+        XCTAssertEqual(exception?.name, .invalidArgumentException)
+        expect(exception?.reason).to(contain("Path cannot be empty"))
     }
 
-    func test__091__RestClient__request__method_signature_and_arguments__should_error_if_body_is_not_a_Dictionary_or_an_Array() {
+    func test__091__RestClient__request__method_signature_and_arguments__should_raise_if_body_is_not_a_Dictionary_or_an_Array() {
         let rest = HttpClient(key: "xxxx:xxxx")
         let mockHttpExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHttpExecutor
 
-        do {
-            try rest.request("get", path: "feature", params: nil, body: mockHttpExecutor, headers: nil) { _, _ in
+        let exception = tryInObjC {
+            rest.request("get", path: "feature", params: nil, body: mockHttpExecutor, headers: nil) { _, _ in
                 fail("Completion closure should not be called")
             }
-        } catch let error as NSError {
-            XCTAssertEqual(error.code, CustomRequestError.invalidBody.rawValue)
-            expect(error.localizedDescription).to(contain("should be a Dictionary or an Array"))
         }
+        XCTAssertEqual(exception?.name, .invalidArgumentException)
+        expect(exception?.reason).to(contain("should be a Dictionary or an Array"))
     }
 
     func test__092__RestClient__request__method_signature_and_arguments__should_do_a_request_and_receive_a_valid_response() throws {
@@ -1845,29 +1820,24 @@ class HttpClientTests: XCTestCase {
 
         var capturedHttpPaginatedResponse: HTTPPaginatedResponse?
         waitUntil(timeout: testTimeout) { done in
-            do {
-                try rest.request("get", path: "/channels/\(channel.name)", params: nil, body: nil, headers: nil) { paginatedResponse, error in
-                    XCTAssertNil(error)
-                    guard let paginatedResponse = paginatedResponse else {
-                        fail("PaginatedResult is empty"); done(); return
-                    }
-                    XCTAssertEqual(paginatedResponse.items.count, 1)
-                    guard let channelDetailsDict = paginatedResponse.items.first else {
-                        fail("PaginatedResult first element is missing"); done(); return
-                    }
-                    XCTAssertEqual(channelDetailsDict.value(forKey: "channelId") as? String, channel.name)
-                    XCTAssertEqual(paginatedResponse.hasNext, false)
-                    XCTAssertEqual(paginatedResponse.isLast, true)
-                    XCTAssertEqual(paginatedResponse.statusCode, 200)
-                    XCTAssertEqual(paginatedResponse.success, true)
-                    XCTAssertEqual(paginatedResponse.errorCode, 0)
-                    XCTAssertNil(paginatedResponse.errorMessage)
-                    expect(paginatedResponse.headers).toNot(beEmpty())
-                    capturedHttpPaginatedResponse = paginatedResponse
-                    done()
+            rest.request("get", path: "/channels/\(channel.name)", params: nil, body: nil, headers: nil) { paginatedResponse, error in
+                XCTAssertNil(error)
+                guard let paginatedResponse = paginatedResponse else {
+                    fail("PaginatedResult is empty"); done(); return
                 }
-            } catch {
-                fail(error.localizedDescription)
+                XCTAssertEqual(paginatedResponse.items.count, 1)
+                guard let channelDetailsDict = paginatedResponse.items.first else {
+                    fail("PaginatedResult first element is missing"); done(); return
+                }
+                XCTAssertEqual(channelDetailsDict.value(forKey: "channelId") as? String, channel.name)
+                XCTAssertEqual(paginatedResponse.hasNext, false)
+                XCTAssertEqual(paginatedResponse.isLast, true)
+                XCTAssertEqual(paginatedResponse.statusCode, 200)
+                XCTAssertEqual(paginatedResponse.success, true)
+                XCTAssertEqual(paginatedResponse.errorCode, 0)
+                XCTAssertNil(paginatedResponse.errorMessage)
+                expect(paginatedResponse.headers).toNot(beEmpty())
+                capturedHttpPaginatedResponse = paginatedResponse
                 done()
             }
         }
@@ -1895,25 +1865,20 @@ class HttpClientTests: XCTestCase {
         rest.internal.httpExecutor = proxyHTTPExecutor
 
         waitUntil(timeout: testTimeout) { done in
-            do {
-                try rest.request("get", path: "feature", params: nil, body: nil, headers: nil) { paginatedResponse, error in
-                    XCTAssertNil(error)
-                    guard let paginatedResponse = paginatedResponse else {
-                        fail("PaginatedResult is empty"); done(); return
-                    }
-                    XCTAssertEqual(paginatedResponse.items.count, 0)
-                    XCTAssertEqual(paginatedResponse.hasNext, false)
-                    XCTAssertEqual(paginatedResponse.isLast, true)
-                    XCTAssertEqual(paginatedResponse.statusCode, 404)
-                    XCTAssertEqual(paginatedResponse.success, false)
-                    XCTAssertEqual(paginatedResponse.errorCode, ErrorCode.notFound.intValue)
-                    expect(paginatedResponse.errorMessage).to(contain("Could not find path"))
-                    expect(paginatedResponse.headers).toNot(beEmpty())
-                    XCTAssertEqual(paginatedResponse.headers["X-Ably-Errorcode"] as? String, "\(ErrorCode.notFound.intValue)")
-                    done()
+            rest.request("get", path: "feature", params: nil, body: nil, headers: nil) { paginatedResponse, error in
+                XCTAssertNil(error)
+                guard let paginatedResponse = paginatedResponse else {
+                    fail("PaginatedResult is empty"); done(); return
                 }
-            } catch {
-                fail(error.localizedDescription)
+                XCTAssertEqual(paginatedResponse.items.count, 0)
+                XCTAssertEqual(paginatedResponse.hasNext, false)
+                XCTAssertEqual(paginatedResponse.isLast, true)
+                XCTAssertEqual(paginatedResponse.statusCode, 404)
+                XCTAssertEqual(paginatedResponse.success, false)
+                XCTAssertEqual(paginatedResponse.errorCode, ErrorCode.notFound.intValue)
+                expect(paginatedResponse.errorMessage).to(contain("Could not find path"))
+                expect(paginatedResponse.headers).toNot(beEmpty())
+                XCTAssertEqual(paginatedResponse.headers["X-Ably-Errorcode"] as? String, "\(ErrorCode.notFound.intValue)")
                 done()
             }
         }

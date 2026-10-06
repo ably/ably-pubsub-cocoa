@@ -254,13 +254,9 @@ extension HistoryTests {
                               query: DataQuery? = nil,
                               sourceLocation: SourceLocation = #_sourceLocation) async -> [Message] {
         let (items, failure): ([Message], String?) = await withCheckedContinuation { continuation in
-            do {
-                try channel.history(query, callback: { result, error in
-                    continuation.resume(returning: (result?.items ?? [], error.map { "history() failed: \($0)" }))
-                })
-            } catch {
-                continuation.resume(returning: ([], "history(query) rejected the query: \(error)"))
-            }
+            channel.history(query, callback: { result, error in
+                continuation.resume(returning: (result?.items ?? [], error.map { "history() failed: \($0)" }))
+            })
         }
 
         if let failure {

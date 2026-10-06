@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)historyWithWrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
                          completion:(ARTPaginatedPresenceCallback)callback;
 
-- (BOOL)history:(ARTRealtimeHistoryQuery *_Nullable)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedPresenceCallback)callback error:(NSError *_Nullable *_Nullable)errorPtr;
+- (void)history:(ARTRealtimeHistoryQuery *_Nullable)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedPresenceCallback)callback;
 
 @end
 

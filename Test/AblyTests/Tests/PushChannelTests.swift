@@ -1,5 +1,6 @@
 #if os(iOS)
 import AblyPubSubDevice
+import AblyTestingObjC
 import Nimble
 import XCTest
 
@@ -261,7 +262,7 @@ class PushChannelTests: XCTestCase {
         ]
         let channel = rest.channels.get(test.uniqueChannelName())
         waitUntil(timeout: testTimeout) { done in
-            try? channel.push.listSubscriptions(params) { result, error in
+            channel.push.listSubscriptions(params) { result, error in
                 XCTAssertNil(error)
                 XCTAssertNotNil(result)
                 done()
@@ -290,7 +291,7 @@ class PushChannelTests: XCTestCase {
         ]
         let channel = rest.channels.get(test.uniqueChannelName())
         waitUntil(timeout: testTimeout) { done in
-            try? channel.push.listSubscriptions(params) { result, error in
+            channel.push.listSubscriptions(params) { result, error in
                 XCTAssertNil(error)
                 XCTAssertNotNil(result)
                 done()
@@ -313,9 +314,7 @@ class PushChannelTests: XCTestCase {
         let testEnvironment = TestEnvironment(test: test)
 
         let channel = testEnvironment.rest.channels.get(test.uniqueChannelName())
-        expect { try channel.push.listSubscriptions([:]) { _, _ in } }.to(throwError { (error: NSError) in
-            XCTAssertEqual(error.code, DataQueryError.missingRequiredFields.rawValue)
-        })
+        XCTAssertEqual(tryInObjC { channel.push.listSubscriptions([:]) { _, _ in } }?.name, .invalidArgumentException)
     }
 
     func test__012__Push_Channel__listSubscriptions__should_not_accept_both_deviceId_and_clientId_params_at_the_same_time() {
@@ -327,9 +326,7 @@ class PushChannelTests: XCTestCase {
             "clientId": "y",
         ]
         let channel = testEnvironment.rest.channels.get(test.uniqueChannelName())
-        expect { try channel.push.listSubscriptions(params) { _, _ in } }.to(throwError { (error: NSError) in
-            XCTAssertEqual(error.code, DataQueryError.invalidParameters.rawValue)
-        })
+        XCTAssertEqual(tryInObjC { channel.push.listSubscriptions(params) { _, _ in } }?.name, .invalidArgumentException)
     }
 
     func test__013__Push_Channel__listSubscriptions__should_return_a_paginated_result_with_PushChannelSubscription() throws {
@@ -362,7 +359,7 @@ class PushChannelTests: XCTestCase {
             "channel": channel.name,
         ]
         waitUntil(timeout: testTimeout) { done in
-            try! channel.push.listSubscriptions(params) { result, error in
+            channel.push.listSubscriptions(params) { result, error in
                 XCTAssertNil(error)
                 guard let result = result else {
                     fail("Result is nil"); done(); return

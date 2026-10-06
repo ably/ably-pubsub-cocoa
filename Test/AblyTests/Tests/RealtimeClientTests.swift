@@ -311,12 +311,10 @@ class RealtimeClientTests: XCTestCase {
         // Async
         waitUntil(timeout: testTimeout) { done in
             // Proxy from `client.internal.rest.stats`
-            expect {
-                try client.stats(query, callback: { paginated, _ in
-                    XCTAssertNotNil(paginated)
-                    done()
-                })
-            }.toNot(throwError { err in fail("\(err)"); done() })
+            client.stats(query, callback: { paginated, _ in
+                XCTAssertNotNil(paginated)
+                done()
+            })
         }
     }
 
@@ -333,14 +331,12 @@ class RealtimeClientTests: XCTestCase {
         }
 
         // Realtime
-        expect {
-            try client.stats(query, callback: { paginated, error in
-                if let e = error {
-                    XCTFail(e.localizedDescription)
-                }
-                paginatedResult = paginated as! PaginatedResult<AnyObject>?
-            })
-        }.toNot(throwError())
+        client.stats(query, callback: { paginated, error in
+            if let e = error {
+                XCTFail(e.localizedDescription)
+            }
+            paginatedResult = paginated as! PaginatedResult<AnyObject>?
+        })
         expect(paginatedResult).toEventuallyNot(beNil(), timeout: testTimeout)
         if paginatedResult == nil {
             return
@@ -348,20 +344,18 @@ class RealtimeClientTests: XCTestCase {
 
         // Rest
         waitUntil(timeout: testTimeout) { done in
-            expect {
-                try client.internal.rest.stats(query, wrapperSDKAgents:nil, callback: { paginated, error in
-                    defer { done() }
-                    if let e = error {
-                        XCTFail(e.localizedDescription)
-                        return
-                    }
-                    guard let paginated = paginated else {
-                        XCTFail("both paginated and error are nil")
-                        return
-                    }
-                    XCTAssertEqual(paginated.items.count, paginatedResult!.items.count)
-                })
-            }.toNot(throwError { err in fail("\(err)"); done() })
+            client.internal.rest.stats(query, wrapperSDKAgents:nil, callback: { paginated, error in
+                defer { done() }
+                if let e = error {
+                    XCTFail(e.localizedDescription)
+                    return
+                }
+                guard let paginated = paginated else {
+                    XCTFail("both paginated and error are nil")
+                    return
+                }
+                XCTAssertEqual(paginated.items.count, paginatedResult!.items.count)
+            })
         }
     }
 

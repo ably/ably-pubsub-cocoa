@@ -56,10 +56,9 @@
     [_internal unsubscribeClientWithWrapperSDKAgents:nil completion:callback];
 }
 
-- (BOOL)listSubscriptions:(NSStringDictionary *)params
-                 callback:(ARTPaginatedPushChannelCallback)callback
-                    error:(NSError *_Nullable *_Nullable)errorPtr {
-    return [_internal listSubscriptions:params wrapperSDKAgents:nil callback:callback error:errorPtr];
+- (void)listSubscriptions:(NSStringDictionary *)params
+                 callback:(ARTPaginatedPushChannelCallback)callback {
+    [_internal listSubscriptions:params wrapperSDKAgents:nil callback:callback];
 }
 
 @end
@@ -245,10 +244,16 @@ art_dispatch_async(_queue, ^{
 });
 }
 
-- (BOOL)listSubscriptions:(NSStringDictionary *)params
+- (void)listSubscriptions:(NSStringDictionary *)params
          wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
-                 callback:(ARTPaginatedPushChannelCallback)callback
-                    error:(NSError * __autoreleasing *)errorPtr {
+                 callback:(ARTPaginatedPushChannelCallback)callback {
+    if (!params[@"deviceId"] && !params[@"clientId"]) {
+        [NSException raise:NSInvalidArgumentException format:@"cannot list subscriptions with null device ID or null client ID"];
+    }
+    if (params[@"deviceId"] && params[@"clientId"]) {
+        [NSException raise:NSInvalidArgumentException format:@"cannot list subscriptions with device ID and client ID"];
+    }
+
     if (callback) {
         ARTPaginatedPushChannelCallback userCallback = callback;
         callback = ^(ARTPaginatedResult<ARTPushChannelSubscription *> *result, ARTErrorInfo *error) {
@@ -258,29 +263,8 @@ art_dispatch_async(_queue, ^{
         };
     }
 
-    __block BOOL ret;
 art_dispatch_sync(_queue, ^{
-    NSMutableDictionary<NSString *, NSString *> *mutableParams = params ? [NSMutableDictionary dictionaryWithDictionary:params] : [[NSMutableDictionary alloc] init];
-
-    if (!mutableParams[@"deviceId"] && !mutableParams[@"clientId"]) {
-        if (errorPtr) {
-            *errorPtr = [NSError errorWithDomain:ARTAblyErrorDomain
-                                            code:ARTDataQueryErrorMissingRequiredFields
-                                        userInfo:@{NSLocalizedDescriptionKey:@"cannot list subscriptions with null device ID or null client ID"}];
-        }
-        ret = NO;
-        return;
-    }
-    if (mutableParams[@"deviceId"] && mutableParams[@"clientId"]) {
-        if (errorPtr) {
-            *errorPtr = [NSError errorWithDomain:ARTAblyErrorDomain
-                                            code:ARTDataQueryErrorInvalidParameters
-                                        userInfo:@{NSLocalizedDescriptionKey:@"cannot list subscriptions with device ID and client ID"}];
-        }
-        ret = NO;
-        return;
-    }
-
+    NSMutableDictionary<NSString *, NSString *> *mutableParams = [NSMutableDictionary dictionaryWithDictionary:params];
     mutableParams[@"concatFilters"] = @"true";
 
     NSURLComponents *components = [[NSURLComponents alloc] initWithURL:[NSURL URLWithString:@"/push/channelSubscriptions"] resolvingAgainstBaseURL:NO];
@@ -293,9 +277,7 @@ art_dispatch_sync(_queue, ^{
     };
 
     [ARTPaginatedResult executePaginated:self->_rest withRequest:request andResponseProcessor:responseProcessor wrapperSDKAgents:wrapperSDKAgents logger:self->_logger callback:callback];
-    ret = YES;
 });
-    return ret;
 }
 
 - (ARTLocalDevice *)getDevice:(ARTCallback)callback {

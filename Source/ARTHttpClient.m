@@ -96,23 +96,22 @@
                              completion:callback];
 }
 
-- (BOOL)request:(NSString *)method
+- (void)request:(NSString *)method
            path:(NSString *)path
          params:(nullable NSStringDictionary *)params
            body:(nullable id)body
         headers:(nullable NSStringDictionary *)headers
-       callback:(ARTHTTPPaginatedCallback)callback
-          error:(NSError *_Nullable *_Nullable)errorPtr {
-    return [_internal request:(NSString *)method path:path params:params body:body headers:headers wrapperSDKAgents:nil callback:callback error:errorPtr];
+       callback:(ARTHTTPPaginatedCallback)callback {
+    [_internal request:(NSString *)method path:path params:params body:body headers:headers wrapperSDKAgents:nil callback:callback];
 }
 
-- (BOOL)stats:(ARTPaginatedStatsCallback)callback {
-    return [_internal statsWithWrapperSDKAgents:nil
-                                     completion:callback];
+- (void)stats:(ARTPaginatedStatsCallback)callback {
+    [_internal statsWithWrapperSDKAgents:nil
+                              completion:callback];
 }
 
-- (BOOL)stats:(nullable ARTStatsQuery *)query callback:(ARTPaginatedStatsCallback)callback error:(NSError *_Nullable *_Nullable)errorPtr {
-    return [_internal stats:query wrapperSDKAgents:nil callback:callback error:errorPtr];
+- (void)stats:(nullable ARTStatsQuery *)query callback:(ARTPaginatedStatsCallback)callback {
+    [_internal stats:query wrapperSDKAgents:nil callback:callback];
 }
 
 - (ARTHttpChannels *)channels {
@@ -570,14 +569,13 @@ NS_ASSUME_NONNULL_END
     }];
 }
 
-- (BOOL)request:(NSString *)method
+- (void)request:(NSString *)method
            path:(NSString *)path
          params:(nullable NSStringDictionary *)params
            body:(nullable id)body
         headers:(nullable NSStringDictionary *)headers
 wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
-       callback:(ARTHTTPPaginatedCallback)callback
-          error:(NSError **)errorPtr {
+       callback:(ARTHTTPPaginatedCallback)callback {
 
     if (callback) {
         void (^userCallback)(ARTHTTPPaginatedResponse *, ARTErrorInfo *) = callback;
@@ -593,44 +591,24 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
         ![[method lowercaseString] isEqualToString:@"patch"] &&
         ![[method lowercaseString] isEqualToString:@"put"] &&
         ![[method lowercaseString] isEqualToString:@"delete"]) {
-        if (errorPtr) {
-            *errorPtr = [NSError errorWithDomain:ARTAblyErrorDomain
-                                            code:ARTCustomRequestErrorInvalidMethod
-                                        userInfo:@{NSLocalizedDescriptionKey:@"Method isn't valid."}];
-        }
-        return NO;
+        [NSException raise:NSInvalidArgumentException format:@"Method isn't valid."];
     }
 
     if (body &&
         ![body isKindOfClass:[NSDictionary class]] &&
         ![body isKindOfClass:[NSArray class]]) {
-        if (errorPtr) {
-            *errorPtr = [NSError errorWithDomain:ARTAblyErrorDomain
-                                            code:ARTCustomRequestErrorInvalidBody
-                                        userInfo:@{NSLocalizedDescriptionKey:@"Body should be a Dictionary or an Array."}];
-        }
-        return NO;
+        [NSException raise:NSInvalidArgumentException format:@"Body should be a Dictionary or an Array."];
     }
 
     if ([[path stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] isEqualToString:@""]) {
-        if (errorPtr) {
-            *errorPtr = [NSError errorWithDomain:ARTAblyErrorDomain
-                                            code:ARTCustomRequestErrorInvalidPath
-                                        userInfo:@{NSLocalizedDescriptionKey:@"Path cannot be empty."}];
-        }
-        return NO;
+        [NSException raise:NSInvalidArgumentException format:@"Path cannot be empty."];
     }
 
     NSURL *url = [NSURL URLWithString:path relativeToURL:self.baseUrl];
     // Should not happen in iOS 17 and above. See explanation in the "Important" section here:
     // https://developer.apple.com/documentation/foundation/nsurl/1572047-urlwithstring
     if (!url) {
-        if (errorPtr) {
-            *errorPtr = [NSError errorWithDomain:ARTAblyErrorDomain
-                                            code:ARTCustomRequestErrorInvalidPath
-                                        userInfo:@{NSLocalizedDescriptionKey:@"Path isn't valid for an URL."}];
-        }
-        return NO;
+        [NSException raise:NSInvalidArgumentException format:@"Path isn't valid for an URL."];
     }
 
     NSURLComponents *components = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:YES];
@@ -667,7 +645,6 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
     art_dispatch_async(_queue, ^{
         [ARTHTTPPaginatedResponse executePaginated:self withRequest:request wrapperSDKAgents:wrapperSDKAgents logger:self.logger callback:callback];
     });
-    return YES;
 }
 
 - (NSObject<ARTCancellable> *)internetIsUp:(void (^)(BOOL isUp)) cb {
@@ -685,12 +662,14 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
     }];
 }
 
-- (BOOL)statsWithWrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
+- (void)statsWithWrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
                        completion:(ARTPaginatedStatsCallback)callback {
-    return [self stats:[[ARTStatsQuery alloc] init] wrapperSDKAgents:wrapperSDKAgents callback:callback error:nil];
+    [self stats:[[ARTStatsQuery alloc] init] wrapperSDKAgents:wrapperSDKAgents callback:callback];
 }
 
-- (BOOL)stats:(ARTStatsQuery *)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedStatsCallback)callback error:(NSError **)errorPtr {
+- (void)stats:(ARTStatsQuery *)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedStatsCallback)callback {
+    [query validate];
+
     if (callback) {
         ARTPaginatedStatsCallback userCallback = callback;
         callback = ^(ARTPaginatedResult<ARTStats *> *r, ARTErrorInfo *e) {
@@ -700,32 +679,9 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
         };
     }
 
-    if (query.limit > 1000) {
-        if (errorPtr) {
-            *errorPtr = [NSError errorWithDomain:ARTAblyErrorDomain
-                                            code:ARTDataQueryErrorLimit
-                                        userInfo:@{NSLocalizedDescriptionKey:@"Limit supports up to 1000 results only"}];
-        }
-        return NO;
-    }
-    if ([query.start compare:query.end] == NSOrderedDescending) {
-        if (errorPtr) {
-            *errorPtr = [NSError errorWithDomain:ARTAblyErrorDomain
-                                            code:ARTDataQueryErrorTimestampRange
-                                        userInfo:@{NSLocalizedDescriptionKey:@"Start must be equal to or less than end"}];
-        }
-        return NO;
-    }
-
     NSURLComponents *requestUrl = [NSURLComponents componentsWithString:@"/stats"];
-    NSError *error = nil;
-    requestUrl.queryItems = [query asQueryItems:&error];
-    if (error) {
-        if (errorPtr) {
-            *errorPtr = error;
-        }
-        return NO;
-    }
+    // A stats query has no state-dependent parameters, so it never produces an error.
+    requestUrl.queryItems = [query asQueryItems:nil];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[requestUrl URLRelativeToURL:self.baseUrl]];
 
     // Override X-Ably-Version header to use protocol version 2 for stats
@@ -738,7 +694,6 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
 art_dispatch_async(_queue, ^{
     [ARTPaginatedResult executePaginated:self withRequest:request andResponseProcessor:responseProcessor wrapperSDKAgents:wrapperSDKAgents logger:self.logger callback:callback];
 });
-    return YES;
 }
 
 - (id<ARTEncoder>)defaultEncoder {

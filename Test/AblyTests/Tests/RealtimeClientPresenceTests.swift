@@ -3648,23 +3648,39 @@ class RealtimeClientPresenceTests: XCTestCase {
         let queryRest = queryRealtime as DataQuery
 
         waitUntil(timeout: testTimeout) { done in
-            expect {
-                try channelRest.presence.history(queryRest) { _, _ in
-                    done()
-                }
-            }.toNot(throwError { err in fail("\(err)"); done() })
+            channelRest.presence.history(queryRest) { _, _ in
+                done()
+            }
         }
         XCTAssertTrue(restPresenceHistoryMethodWasCalled)
         restPresenceHistoryMethodWasCalled = false
 
         waitUntil(timeout: testTimeout) { done in
-            expect {
-                try channelRealtime.presence.history(queryRealtime) { _, _ in
-                    done()
-                }
-            }.toNot(throwError { err in fail("\(err)"); done() })
+            channelRealtime.presence.history(queryRealtime) { _, _ in
+                done()
+            }
         }
         XCTAssertTrue(restPresenceHistoryMethodWasCalled)
+    }
+
+    // RTP12a, RTL10b
+    func test__201__Presence__history__untilAttach_on_a_channel_that_is_not_attached_should_call_back_with_an_error() throws {
+        let test = Test()
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
+        defer { client.dispose(); client.close() }
+        let channel = client.channels.get(test.uniqueChannelName())
+
+        let query = RealtimeHistoryQuery()
+        query.untilAttach = true
+
+        waitUntil(timeout: testTimeout) { done in
+            channel.presence.history(query) { result, error in
+                XCTAssertNil(result)
+                XCTAssertEqual(error?.code, ErrorCode.badRequest.intValue)
+                XCTAssertEqual(error?.statusCode, 400)
+                done()
+            }
+        }
     }
 
     // RTP12

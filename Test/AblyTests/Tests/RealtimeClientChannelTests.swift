@@ -125,12 +125,10 @@ private func testWithUntilAttach(_ untilAttach: Bool, for test: Test, channelNam
     expect(channel.state).toEventually(equal(RealtimeChannelState.attached), timeout: testTimeout)
 
     waitUntil(timeout: testTimeout) { done in
-        expect {
-            try channel.history(query) { _, errorInfo in
-                XCTAssertNil(errorInfo)
-                done()
-            }
-        }.toNot(throwError { err in fail("\(err)"); done() })
+        channel.history(query) { _, errorInfo in
+            XCTAssertNil(errorInfo)
+            done()
+        }
     }
 
     let queryString = testHTTPExecutor.requests.last!.url!.query
@@ -3315,21 +3313,17 @@ class RealtimeClientChannelTests: XCTestCase {
         let queryRest = queryRealtime as DataQuery
 
         waitUntil(timeout: testTimeout) { done in
-            expect {
-                try channelRest.history(queryRest) { _, _ in
-                    done()
-                }
-            }.toNot(throwError { err in fail("\(err)"); done() })
+            channelRest.history(queryRest) { _, _ in
+                done()
+            }
         }
         XCTAssertTrue(restChannelHistoryMethodWasCalled)
         restChannelHistoryMethodWasCalled = false
 
         waitUntil(timeout: testTimeout) { done in
-            expect {
-                try channelRealtime.history(queryRealtime) { _, _ in
-                    done()
-                }
-            }.toNot(throwError { err in fail("\(err)"); done() })
+            channelRealtime.history(queryRealtime) { _, _ in
+                done()
+            }
         }
         XCTAssertTrue(restChannelHistoryMethodWasCalled)
     }
@@ -3350,15 +3344,14 @@ class RealtimeClientChannelTests: XCTestCase {
         let query = RealtimeHistoryQuery()
         query.untilAttach = true
 
-        do {
-            try channel.history(query, callback: { _, _ in })
-        } catch let error as NSError {
-            if error.code != RealtimeHistoryError.notAttached.rawValue {
-                fail("Shouldn't raise a global error, got \(error)")
+        waitUntil(timeout: testTimeout) { done in
+            channel.history(query) { result, error in
+                XCTAssertNil(result)
+                XCTAssertEqual(error?.code, ErrorCode.badRequest.intValue)
+                XCTAssertEqual(error?.statusCode, 400)
+                done()
             }
-            return
         }
-        fail("Should raise an error")
     }
 
     func test__125__Channel__history__supports_the_param_untilAttach__where_value_is_true__should_pass_the_querystring_param_fromSerial_with_the_serial_number_assigned_to_the_channel() throws {
@@ -3424,19 +3417,17 @@ class RealtimeClientChannelTests: XCTestCase {
         query.untilAttach = true
 
         waitUntil(timeout: testTimeout) { done in
-            expect {
-                try channel2.history(query) { result, error in
-                    XCTAssertNil(error)
-                    guard let result = result else {
-                        fail("Result is empty"); done(); return
-                    }
-                    XCTAssertEqual(result.items.count, 20)
-                    XCTAssertFalse(result.hasNext)
-                    XCTAssertEqual(result.items.first?.data as? String, "message 19")
-                    XCTAssertEqual(result.items.last?.data as? String, "message 0")
-                    done()
+            channel2.history(query) { result, error in
+                XCTAssertNil(error)
+                guard let result = result else {
+                    fail("Result is empty"); done(); return
                 }
-            }.toNot(throwError { err in fail("\(err)"); done() })
+                XCTAssertEqual(result.items.count, 20)
+                XCTAssertFalse(result.hasNext)
+                XCTAssertEqual(result.items.first?.data as? String, "message 19")
+                XCTAssertEqual(result.items.last?.data as? String, "message 0")
+                done()
+            }
         }
     }
 
@@ -3505,24 +3496,22 @@ class RealtimeClientChannelTests: XCTestCase {
         query.limit = 10
 
         waitUntil(timeout: testTimeout) { done in
-            expect {
-                try channel2.history(query) { result, _ in
-                    XCTAssertEqual(result!.items.count, 10)
-                    XCTAssertTrue(result!.hasNext)
-                    XCTAssertFalse(result!.isLast)
-                    XCTAssertEqual((result!.items.first!).data as? String, "message 19")
-                    XCTAssertEqual((result!.items.last!).data as? String, "message 10")
+            channel2.history(query) { result, _ in
+                XCTAssertEqual(result!.items.count, 10)
+                XCTAssertTrue(result!.hasNext)
+                XCTAssertFalse(result!.isLast)
+                XCTAssertEqual((result!.items.first!).data as? String, "message 19")
+                XCTAssertEqual((result!.items.last!).data as? String, "message 10")
 
-                    result!.next { result, _ in
-                        XCTAssertEqual(result!.items.count, 10)
-                        XCTAssertFalse(result!.hasNext)
-                        XCTAssertTrue(result!.isLast)
-                        XCTAssertEqual((result!.items.first!).data as? String, "message 9")
-                        XCTAssertEqual((result!.items.last!).data as? String, "message 0")
-                        done()
-                    }
+                result!.next { result, _ in
+                    XCTAssertEqual(result!.items.count, 10)
+                    XCTAssertFalse(result!.hasNext)
+                    XCTAssertTrue(result!.isLast)
+                    XCTAssertEqual((result!.items.first!).data as? String, "message 9")
+                    XCTAssertEqual((result!.items.last!).data as? String, "message 0")
+                    done()
                 }
-            }.toNot(throwError { err in fail("\(err)"); done() })
+            }
         }
     }
 

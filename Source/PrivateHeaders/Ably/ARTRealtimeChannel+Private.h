@@ -109,7 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)historyWithWrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
                          completion:(ARTPaginatedMessagesCallback)callback;
-- (BOOL)history:(ARTRealtimeHistoryQuery *_Nullable)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedMessagesCallback)callback error:(NSError *_Nullable *_Nullable)errorPtr;
+- (void)history:(ARTRealtimeHistoryQuery *_Nullable)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedMessagesCallback)callback;
 
 - (void)setOptions:(ARTRealtimeChannelOptions *_Nullable)options callback:(nullable ARTCallback)callback;
 

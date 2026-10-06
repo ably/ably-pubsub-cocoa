@@ -57,11 +57,10 @@ NS_ASSUME_NONNULL_END
                                                                completion:callback];
 }
 
-- (BOOL)history:(ARTRealtimeHistoryQuery * _Nullable)query callback:(nonnull ARTPaginatedPresenceCallback)callback error:(NSError * _Nullable __autoreleasing * _Nullable)errorPtr {
-    return [self.underlyingRealtimePresence.internal history:query
-                                            wrapperSDKAgents:self.proxyOptions.agents
-                                                    callback:callback
-                                                       error:errorPtr];
+- (void)history:(ARTRealtimeHistoryQuery * _Nullable)query callback:(nonnull ARTPaginatedPresenceCallback)callback {
+    [self.underlyingRealtimePresence.internal history:query
+                                     wrapperSDKAgents:self.proxyOptions.agents
+                                             callback:callback];
 }
 
 - (void)leave:(id _Nullable)data {

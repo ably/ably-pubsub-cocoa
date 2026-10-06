@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (readonly, nullable) ARTChannelOptions *options;
 
-- (BOOL)history:(nullable ARTDataQuery *)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedMessagesCallback)callback error:(NSError *_Nullable *_Nullable)errorPtr;
+- (void)history:(nullable ARTDataQuery *)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedMessagesCallback)callback;
 
 - (void)status:(ARTChannelDetailsCallback)callback;
 

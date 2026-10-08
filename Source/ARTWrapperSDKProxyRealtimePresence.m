@@ -79,19 +79,19 @@ NS_ASSUME_NONNULL_END
     [self.underlyingRealtimePresence leaveClient:clientId data:data callback:callback];
 }
 
-- (ARTEventListener * _Nullable)subscribe:(nonnull ARTPresenceMessageCallback)callback {
+- (ARTEventListener *)subscribe:(nonnull ARTPresenceMessageCallback)callback {
     return [self.underlyingRealtimePresence subscribe:callback];
 }
 
-- (ARTEventListener * _Nullable)subscribe:(ARTPresenceAction)action callback:(nonnull ARTPresenceMessageCallback)callback {
+- (ARTEventListener *)subscribe:(ARTPresenceAction)action callback:(nonnull ARTPresenceMessageCallback)callback {
     return [self.underlyingRealtimePresence subscribe:action callback:callback];
 }
 
-- (ARTEventListener * _Nullable)subscribe:(ARTPresenceAction)action onAttach:(nullable ARTCallback)onAttach callback:(nonnull ARTPresenceMessageCallback)callback {
+- (ARTEventListener *)subscribe:(ARTPresenceAction)action onAttach:(nullable ARTCallback)onAttach callback:(nonnull ARTPresenceMessageCallback)callback {
     return [self.underlyingRealtimePresence subscribe:action onAttach:onAttach callback:callback];
 }
 
-- (ARTEventListener * _Nullable)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(nonnull ARTPresenceMessageCallback)callback {
+- (ARTEventListener *)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(nonnull ARTPresenceMessageCallback)callback {
     return [self.underlyingRealtimePresence subscribeWithAttachCallback:onAttach callback:callback];
 }
 

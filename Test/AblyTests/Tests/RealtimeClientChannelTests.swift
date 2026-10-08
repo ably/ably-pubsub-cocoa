@@ -3113,6 +3113,28 @@ class RealtimeClientChannelTests: XCTestCase {
     }
 
     // RTL7g
+    func test__110c__Channel__subscribe__registers_the_listener_even_if_the_channel_is_in_the_FAILED_state() throws {
+        let test = Test()
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
+        defer { client.dispose(); client.close() }
+
+        let channel = client.channels.get(test.uniqueChannelName())
+        channel.internal.onError(AblyTests.newErrorProtocolMessage())
+        XCTAssertEqual(channel.state, RealtimeChannelState.failed)
+
+        waitUntil(timeout: testTimeout) { done in
+            channel.subscribe { message in
+                XCTAssertEqual(message.name, "foo")
+                done()
+            }
+            channel.attach { error in
+                XCTAssertNil(error)
+                channel.publish("foo", data: "bar")
+            }
+        }
+    }
+
+    // RTL7g
     func test__110b__Channel__subscribe__should_not_result_in_an_error_if_channel_is_in_the_FAILED_state_and_options_attachOnSubscribe_is_false() throws {
         let test = Test()
         let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))

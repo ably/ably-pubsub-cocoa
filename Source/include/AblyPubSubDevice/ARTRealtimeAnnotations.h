@@ -77,7 +77,7 @@ NS_SWIFT_NAME(RealtimeAnnotationsProtocol)
  *
  * @return An event listener object.
  */
-- (ARTEventListener *_Nullable)subscribe:(ARTAnnotationCallback)callback;
+- (ARTEventListener *)subscribe:(ARTAnnotationCallback)callback;
 
 /**
  * Registers a listener that is called each time an `ARTAnnotation` is received on the channel. An attach callback may optionally be passed in to this call to be notified of success or failure of the channel `-[ARTRealtimeChannelProtocol attach]` operation. It will not be called if the `ARTRealtimeChannelOptions.attachOnSubscribe` channel option is set to `false`.
@@ -89,7 +89,7 @@ NS_SWIFT_NAME(RealtimeAnnotationsProtocol)
  *
  * @return An event listener object.
  */
-- (ARTEventListener *_Nullable)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(ARTAnnotationCallback)callback;
+- (ARTEventListener *)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(ARTAnnotationCallback)callback;
 
 /**
  * Registers a listener that is called each time an `ARTAnnotation` matching a given `type` is received on the channel.
@@ -101,7 +101,7 @@ NS_SWIFT_NAME(RealtimeAnnotationsProtocol)
  *
  * @return An event listener object.
  */
-- (ARTEventListener *_Nullable)subscribe:(NSString *)type callback:(ARTAnnotationCallback)callback;
+- (ARTEventListener *)subscribe:(NSString *)type callback:(ARTAnnotationCallback)callback;
 
 /**
  * Registers a listener that is called each time an `ARTAnnotation` matching a given `type` is received on the channel. An attach callback may optionally be passed in to this call to be notified of success or failure of the channel `-[ARTRealtimeChannelProtocol attach]` operation. It will not be called if the `ARTRealtimeChannelOptions.attachOnSubscribe` channel option is set to `false`.
@@ -114,7 +114,7 @@ NS_SWIFT_NAME(RealtimeAnnotationsProtocol)
  *
  * @return An event listener object.
  */
-- (ARTEventListener *_Nullable)subscribe:(NSString *)type onAttach:(nullable ARTCallback)onAttach callback:(ARTAnnotationCallback)callback;
+- (ARTEventListener *)subscribe:(NSString *)type onAttach:(nullable ARTCallback)onAttach callback:(ARTAnnotationCallback)callback;
 
 /**
  * Deregisters all listeners currently receiving `ARTAnnotation` for the channel.

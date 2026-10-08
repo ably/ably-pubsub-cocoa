@@ -109,19 +109,19 @@
     [_internal leaveClient:clientId data:data callback:cb];
 }
 
-- (ARTEventListener *_Nullable)subscribe:(ARTPresenceMessageCallback)callback {
+- (ARTEventListener *)subscribe:(ARTPresenceMessageCallback)callback {
     return [_internal subscribe:callback];
 }
 
-- (ARTEventListener *_Nullable)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(ARTPresenceMessageCallback)cb {
+- (ARTEventListener *)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(ARTPresenceMessageCallback)cb {
     return [_internal subscribeWithAttachCallback:onAttach callback:cb];
 }
 
-- (ARTEventListener *_Nullable)subscribe:(ARTPresenceAction)action callback:(ARTPresenceMessageCallback)cb {
+- (ARTEventListener *)subscribe:(ARTPresenceAction)action callback:(ARTPresenceMessageCallback)cb {
     return [_internal subscribe:action callback:cb];
 }
 
-- (ARTEventListener *_Nullable)subscribe:(ARTPresenceAction)action onAttach:(nullable ARTCallback)onAttach callback:(ARTPresenceMessageCallback)cb {
+- (ARTEventListener *)subscribe:(ARTPresenceAction)action onAttach:(nullable ARTCallback)onAttach callback:(ARTPresenceMessageCallback)cb {
     return [_internal subscribe:action onAttach:onAttach callback:cb];
 }
 
@@ -512,10 +512,8 @@ art_dispatch_sync(_queue, ^{
         if (onAttach && attachOnSubscribe) { // RTL7h
             onAttach([ARTErrorInfo createWithCode:ARTErrorChannelOperationFailedInvalidState message:@"attempted to subscribe while channel is in Failed state."]);
         }
-        ARTLogWarn(self.logger, @"R:%p C:%p (%@) presence subscribe to '%@' action(s) has been ignored (attempted to subscribe while channel is in FAILED state)", self->_realtime, self->_channel, self->_channel.name, ARTPresenceActionToStr(action));
-        return;
-    }
-    if (self->_channel.shouldAttach && attachOnSubscribe) { // RTP6c
+        ARTLogWarn(self.logger, @"R:%p C:%p (%@) presence subscribe to '%@' action(s) while channel is in FAILED state; the listener receives presence messages once the channel is attached again", self->_realtime, self->_channel, self->_channel.name, ARTPresenceActionToStr(action));
+    } else if (self->_channel.shouldAttach && attachOnSubscribe) { // RTP6c
         [self->_channel _attach:onAttach];
     }
     listener = action == ARTPresenceActionAll ? [_eventEmitter on:cb] : [_eventEmitter on:[ARTEvent newWithPresenceAction:action] callback:cb];

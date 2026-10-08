@@ -10,6 +10,7 @@
 #import "ARTPresence.h"
 #import "ARTPresenceMessage.h"
 #import "ARTAnnotation.h"
+#import "ARTOutboundAnnotation+Private.h"
 #import "ARTMessageVersion.h"
 #import "ARTMessageAnnotations.h"
 #import "ARTMessageVersion+Private.h"
@@ -98,7 +99,7 @@
     return [self encode:[self messageToDictionary:message] error:error];
 }
 
-- (NSData *)encodeAnnotation:(ARTAnnotation *)annotation error:(NSError **)error {
+- (NSData *)encodeAnnotation:(ARTOutboundAnnotation *)annotation error:(NSError **)error {
     return [self encode:[self annotationToDictionary:annotation] error:error];
 }
 
@@ -110,7 +111,7 @@
     return [self encode:[self messagesToArray:messages] error:error];
 }
 
-- (NSData *)encodeAnnotations:(NSArray<ARTAnnotation *> *)annotations error:(NSError **)error {
+- (NSData *)encodeAnnotations:(NSArray<ARTOutboundAnnotation *> *)annotations error:(NSError **)error {
     return [self encode:[self annotationsToArray:annotations] error:error];
 }
 
@@ -539,7 +540,7 @@
     return output;
 }
 
-- (NSDictionary *)annotationToDictionary:(ARTAnnotation *)annotation {
+- (NSDictionary *)annotationToDictionary:(ARTOutboundAnnotation *)annotation {
     NSMutableDictionary *output = [NSMutableDictionary dictionary];
 
     // Only encode fields that exist in ARTOutboundAnnotation (RSAN1a2)
@@ -702,7 +703,7 @@
 - (NSArray *)annotationsToArray:(NSArray *)annotations {
     NSMutableArray *output = [NSMutableArray array];
 
-    for (ARTAnnotation *annotation in annotations) {
+    for (ARTOutboundAnnotation *annotation in annotations) {
         NSDictionary *item = [self annotationToDictionary:annotation];
         [output addObject:item];
     }
@@ -773,8 +774,8 @@
         output[@"presence"] = [self presenceMessagesToArray:message.presence];
     }
 
-    if (message.annotations) {
-        output[@"annotations"] = [self annotationsToArray:message.annotations];
+    if (message.outboundAnnotations) {
+        output[@"annotations"] = [self annotationsToArray:message.outboundAnnotations];
     }
 
     if (message.auth) {

@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary *)messageToDictionary:(ARTMessage *)message;
 - (NSArray *)messagesToArray:(NSArray *)messages;
 
-- (NSDictionary *)annotationToDictionary:(ARTAnnotation *)annotation;
+- (NSDictionary *)annotationToDictionary:(ARTOutboundAnnotation *)annotation;
 - (NSArray *)annotationsToArray:(NSArray *)annotations;
 
 - (NSDictionary *)presenceMessageToDictionary:(ARTPresenceMessage *)message;

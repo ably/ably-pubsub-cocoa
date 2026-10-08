@@ -85,44 +85,6 @@
     return ret;
 }
 
-- (id)encodeDataWithEncoder:(ARTDataEncoder*)encoder error:(NSError **)error {
-    ARTDataEncoderOutput *encoded = [encoder encode:self.data];
-    if (encoded.errorInfo && error) {
-        *error = [NSError errorWithDomain:ARTAblyErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey: @"encoding failed",
-                                                                               NSLocalizedFailureReasonErrorKey: encoded.errorInfo.message}];
-    }
-    id ret = [self copy];
-    ((ARTAnnotation *)ret)->_data = encoded.data;
-    ((ARTAnnotation *)ret)->_encoding = [NSString artAddEncoding:encoded.encoding toString:self.encoding];
-    return ret;
-}
-
-- (NSInteger)annotationSize {
-    // TO3l8*
-    NSInteger finalResult = 0;
-    finalResult += [self.name lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-    finalResult += [[self.extras toJSONString] lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-    finalResult += [self.clientId lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-    if (self.data) {
-        if ([self.data isKindOfClass:[NSString class]]) {
-            finalResult += [self.data lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-        }
-        else if ([self.data isKindOfClass:[NSData class]]) {
-            finalResult += [self.data length];
-        }
-        else {
-            NSError *error = nil;
-            NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self.data
-                                                               options:NSJSONWritingWithoutEscapingSlashes // Copied from `ARTBaseMessage.messageSize`
-                                                                 error:&error];
-            if (!error) {
-                finalResult += [jsonData length];
-            }
-        }
-    }
-    return finalResult;
-}
-
 - (BOOL)isIdEmpty {
     return self.id == nil || [self.id isEqualToString:@""];
 }

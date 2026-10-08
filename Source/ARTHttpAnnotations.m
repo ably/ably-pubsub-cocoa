@@ -11,7 +11,7 @@
 #import "ARTChannel.h"
 #import "ARTDataQuery.h"
 #import "ARTAnnotation.h"
-#import "ARTOutboundAnnotation.h"
+#import "ARTOutboundAnnotation+Private.h"
 #import "ARTAnnotation+Private.h"
 #import "ARTDefault.h"
 #import "ARTCrypto+Private.h"
@@ -140,24 +140,14 @@ NS_ASSUME_NONNULL_END
         annotationId = [NSString stringWithFormat:@"%@:0", [baseIdData base64EncodedStringWithOptions:0]];
     }
 
-    // Convert ARTOutboundAnnotation to ARTAnnotation for internal processing
-    ARTAnnotation *annotation = [[ARTAnnotation alloc] initWithId:annotationId
-                                                           action:action // RSAN1c1
-                                                         clientId:outboundAnnotation.clientId
-                                                             name:outboundAnnotation.name
-                                                            count:outboundAnnotation.count
-                                                             data:outboundAnnotation.data
-                                                         encoding:nil
-                                                        timestamp:nil
-                                                           serial:nil
-                                                    messageSerial:messageSerial // RSAN1c2
-                                                             type:outboundAnnotation.type
-                                                           extras:outboundAnnotation.extras];
+    ARTOutboundAnnotation *annotation = [outboundAnnotation annotationForPublishingWithId:annotationId
+                                                                                   action:action // RSAN1c1
+                                                                            messageSerial:messageSerial]; // RSAN1c2
 art_dispatch_async(_queue, ^{
     // RSAN1c3: encode annotation data
     NSError *encodeError = nil;
     ARTDataEncoder *dataEncoder = self->_channel.dataEncoder;
-    ARTAnnotation *annotationToPublish = dataEncoder ? [annotation encodeDataWithEncoder:dataEncoder error:&encodeError] : annotation;
+    ARTOutboundAnnotation *annotationToPublish = dataEncoder ? [annotation encodeDataWithEncoder:dataEncoder error:&encodeError] : annotation;
     if (encodeError) {
         if (callback) {
             callback([ARTErrorInfo createFromNSError:encodeError]);

@@ -86,8 +86,8 @@ NS_SWIFT_NAME(Annotation)
                      count:(nullable NSNumber *)count
                       data:(nullable id)data
                   encoding:(nullable NSString *)encoding
-                 timestamp:(nullable NSDate *)timestamp
-                    serial:(nullable NSString *)serial
+                 timestamp:(NSDate *)timestamp
+                    serial:(NSString *)serial
              messageSerial:(NSString *)messageSerial
                       type:(NSString *)type
                     extras:(nullable id<ARTJsonCompatible>)extras;

@@ -14,6 +14,7 @@
 @class ARTMessage;
 @class ARTPresenceMessage;
 @class ARTAnnotation;
+@class ARTOutboundAnnotation;
 @class ARTPublishResult;
 
 typedef NS_ENUM(NSUInteger, ARTProtocolMessageAction) {
@@ -64,6 +65,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, readwrite, nonatomic) NSArray<ARTMessage *> *messages;
 @property (nullable, readwrite, nonatomic) NSArray<ARTPresenceMessage *> *presence;
 @property (nullable, readwrite, nonatomic) NSArray<ARTAnnotation *> *annotations;
+/// The annotations that the SDK publishes. They are sent in the `annotations` field.
+@property (nullable, readwrite, nonatomic) NSArray<ARTOutboundAnnotation *> *outboundAnnotations;
 @property (readwrite, nonatomic) int64_t flags;
 @property (readonly, nonatomic) ARTChannelMode channelModes;
 @property (nullable, readwrite, nonatomic) ARTConnectionDetails *connectionDetails;

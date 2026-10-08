@@ -3123,10 +3123,12 @@ class RealtimeClientChannelTests: XCTestCase {
         XCTAssertEqual(channel.state, RealtimeChannelState.failed)
 
         waitUntil(timeout: testTimeout) { done in
-            channel.subscribe { message in
+            let listener = channel.subscribe { message in
                 XCTAssertEqual(message.name, "foo")
                 done()
             }
+            // Objective-C doesn't enforce the nonnull return type. If it returned nil, this crashes the test run
+            XCTAssertNotNil(listener)
             channel.attach { error in
                 XCTAssertNil(error)
                 channel.publish("foo", data: "bar")

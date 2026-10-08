@@ -3127,7 +3127,14 @@ class RealtimeClientChannelTests: XCTestCase {
                 XCTAssertEqual(message.name, "foo")
                 done()
             }
-            // Objective-C doesn't enforce the nonnull return type. If it returned nil, this crashes the test run
+            // `subscribe` used to return nil on a FAILED channel. Its return type is now nonnull, but
+            // Objective-C doesn't enforce that, so a regression would hand Swift a nil `EventListener`.
+            // Swift assumes a non-optional can't be nil, so this check can't fail cleanly:
+            // - Passing `listener` as `Any?` always wraps it as present. XCTAssertNotNil then reads the
+            //   object to describe it, which crashes on nil (SIGSEGV in swift_getObjectType), and the
+            //   whole test run stops. `try` can't catch a crash.
+            // - `listener is EventListener` is no better: the compiler folds it to `true`.
+            // A crash still flags the regression, which a missing check wouldn't.
             XCTAssertNotNil(listener)
             channel.attach { error in
                 XCTAssertNil(error)

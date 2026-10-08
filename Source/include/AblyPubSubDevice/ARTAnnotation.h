@@ -64,8 +64,8 @@ NS_SWIFT_NAME(Annotation)
 /// This is typically empty, as all messages received from Ably are automatically decoded client-side using this value. However, if the message encoding cannot be processed, this attribute contains the remaining transformations not applied to the `data` payload.
 @property (nonatomic, readonly, nullable) NSString *encoding;
 
-/// Timestamp of when the message was received by Ably, as a `NSDate` object.
-@property (nullable, nonatomic, readonly) NSDate *timestamp;
+/// Timestamp of when the annotation was received by Ably, as a `NSDate` object.
+@property (nonatomic, readonly) NSDate *timestamp;
 
 /// This annotation's unique serial (lexicographically totally ordered).
 @property (readonly, nonatomic) NSString *serial;

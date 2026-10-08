@@ -72,12 +72,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable NSArray *)statsFromArray:(NSArray *)input;
 - (nullable ARTStats *)statsFromDictionary:(NSDictionary *)input;
-- (nullable ARTStatsMessageTypes *)statsMessageTypesFromDictionary:(NSDictionary *)input;
-- (nullable ARTStatsMessageCount *)statsMessageCountFromDictionary:(NSDictionary *)input;
-- (nullable ARTStatsMessageTraffic *)statsMessageTrafficFromDictionary:(NSDictionary *)input;
-- (nullable ARTStatsConnectionTypes *)statsConnectionTypesFromDictionary:(NSDictionary *)input;
-- (nullable ARTStatsResourceCount *)statsResourceCountFromDictionary:(NSDictionary *)input;
-- (nullable ARTStatsRequestCount *)statsRequestCountFromDictionary:(NSDictionary *)input;
 
 - (void)writeData:(id)data encoding:(NSString *)encoding toDictionary:(NSMutableDictionary *)output;
 

@@ -126,13 +126,20 @@ class HttpClientStatsTests: XCTestCase {
         let result = try queryStats(client, query)
         XCTAssertEqual(result.items.count, 3)
 
+        // TS12c, TS12s, TS12t
+        for item in result.items {
+            XCTAssertEqual(item.unit, .minute)
+            XCTAssertFalse(item.schema.isEmpty)
+            XCTAssertFalse(item.appId.isEmpty)
+        }
+
         let totalInbound = result.items.reduce(0 as UInt) {
-            $0 + $1.inbound.all.messages.count
+            $0 + ($1.entries["messages.inbound.all.messages.count"]?.uintValue ?? 0)
         }
         XCTAssertEqual(totalInbound, 50 + 60 + 70)
 
         let totalOutbound = result.items.reduce(0 as UInt) {
-            $0 + $1.outbound.all.messages.count
+            $0 + ($1.entries["messages.outbound.all.messages.count"]?.uintValue ?? 0)
         }
         XCTAssertEqual(totalOutbound, 20 + 10 + 40)
     }
@@ -149,10 +156,10 @@ class HttpClientStatsTests: XCTestCase {
 
         let result = try queryStats(client, query)
         let totalInbound = result.items.reduce(0 as UInt) {
-            $0 + $1.inbound.all.messages.count
+            $0 + ($1.entries["messages.inbound.all.messages.count"]?.uintValue ?? 0)
         }
         let totalOutbound = result.items.reduce(0 as UInt) {
-            $0 + $1.outbound.all.messages.count
+            $0 + ($1.entries["messages.outbound.all.messages.count"]?.uintValue ?? 0)
         }
 
         XCTAssertEqual(result.items.count, 1)
@@ -171,8 +178,8 @@ class HttpClientStatsTests: XCTestCase {
         query.unit = .month
 
         let result = try queryStats(client, query)
-        let totalInbound = (result.items).reduce(0) { $0 + $1.inbound.all.messages.count }
-        let totalOutbound = (result.items).reduce(0) { $0 + $1.outbound.all.messages.count }
+        let totalInbound = (result.items).reduce(0) { $0 + ($1.entries["messages.inbound.all.messages.count"]?.uintValue ?? 0) }
+        let totalOutbound = (result.items).reduce(0) { $0 + ($1.entries["messages.outbound.all.messages.count"]?.uintValue ?? 0) }
 
         XCTAssertEqual(result.items.count, 1)
         XCTAssertEqual(totalInbound, 50 + 60 + 70)
@@ -190,8 +197,8 @@ class HttpClientStatsTests: XCTestCase {
         query.unit = .month
 
         let result = try queryStats(client, query)
-        let totalInbound = (result.items).reduce(0) { $0 + $1.inbound.all.messages.count }
-        let totalOutbound = (result.items).reduce(0) { $0 + $1.outbound.all.messages.count }
+        let totalInbound = (result.items).reduce(0) { $0 + ($1.entries["messages.inbound.all.messages.count"]?.uintValue ?? 0) }
+        let totalOutbound = (result.items).reduce(0) { $0 + ($1.entries["messages.outbound.all.messages.count"]?.uintValue ?? 0) }
 
         XCTAssertEqual(result.items.count, 1)
         XCTAssertEqual(totalInbound, 50 + 60 + 70)
@@ -208,8 +215,8 @@ class HttpClientStatsTests: XCTestCase {
         query.limit = 1
 
         let result = try queryStats(client, query)
-        let totalInbound = (result.items).reduce(0) { $0 + $1.inbound.all.messages.count }
-        let totalOutbound = (result.items).reduce(0) { $0 + $1.outbound.all.messages.count }
+        let totalInbound = (result.items).reduce(0) { $0 + ($1.entries["messages.inbound.all.messages.count"]?.uintValue ?? 0) }
+        let totalOutbound = (result.items).reduce(0) { $0 + ($1.entries["messages.outbound.all.messages.count"]?.uintValue ?? 0) }
 
         XCTAssertEqual(result.items.count, 1)
         XCTAssertEqual(totalInbound, 60)
@@ -227,8 +234,8 @@ class HttpClientStatsTests: XCTestCase {
         query.direction = .forwards
 
         let result = try queryStats(client, query)
-        let totalInbound = (result.items).reduce(0) { $0 + $1.inbound.all.messages.count }
-        let totalOutbound = (result.items).reduce(0) { $0 + $1.outbound.all.messages.count }
+        let totalInbound = (result.items).reduce(0) { $0 + ($1.entries["messages.inbound.all.messages.count"]?.uintValue ?? 0) }
+        let totalOutbound = (result.items).reduce(0) { $0 + ($1.entries["messages.outbound.all.messages.count"]?.uintValue ?? 0) }
 
         XCTAssertEqual(result.items.count, 1)
         XCTAssertEqual(totalInbound, 50)
@@ -246,7 +253,7 @@ class HttpClientStatsTests: XCTestCase {
 
         let firstPage = try queryStats(client, query)
         XCTAssertEqual(firstPage.items.count, 1)
-        XCTAssertEqual((firstPage.items)[0].inbound.all.messages.data, 7000)
+        XCTAssertEqual(firstPage.items[0].entries["messages.inbound.all.messages.data"]?.uintValue, 7000)
         XCTAssertTrue(firstPage.hasNext)
         XCTAssertFalse(firstPage.isLast)
 
@@ -258,7 +265,7 @@ class HttpClientStatsTests: XCTestCase {
         }
 
         XCTAssertEqual(secondPage.items.count, 1)
-        XCTAssertEqual((secondPage.items)[0].inbound.all.messages.data, 6000)
+        XCTAssertEqual(secondPage.items[0].entries["messages.inbound.all.messages.data"]?.uintValue, 6000)
         XCTAssertTrue(secondPage.hasNext)
         XCTAssertFalse(secondPage.isLast)
 
@@ -270,7 +277,7 @@ class HttpClientStatsTests: XCTestCase {
         }
 
         XCTAssertEqual(thirdPage.items.count, 1)
-        XCTAssertEqual((thirdPage.items)[0].inbound.all.messages.data, 5000)
+        XCTAssertEqual(thirdPage.items[0].entries["messages.inbound.all.messages.data"]?.uintValue, 5000)
         XCTAssertTrue(thirdPage.isLast)
 
         let firstPageAgain: PaginatedResult<Stats> = try AblyTests.waitFor(timeout: testTimeout) { value in
@@ -281,7 +288,7 @@ class HttpClientStatsTests: XCTestCase {
         }
 
         XCTAssertEqual(firstPageAgain.items.count, 1)
-        XCTAssertEqual((firstPageAgain.items)[0].inbound.all.messages.data, 7000)
+        XCTAssertEqual(firstPageAgain.items[0].entries["messages.inbound.all.messages.data"]?.uintValue, 7000)
     }
 
     func test__008__RestClient__stats__result__should_be_paginated_according_to_the_limit__fowards_() throws {
@@ -296,7 +303,7 @@ class HttpClientStatsTests: XCTestCase {
 
         let firstPage = try queryStats(client, query)
         XCTAssertEqual(firstPage.items.count, 1)
-        XCTAssertEqual((firstPage.items)[0].inbound.all.messages.data, 5000)
+        XCTAssertEqual(firstPage.items[0].entries["messages.inbound.all.messages.data"]?.uintValue, 5000)
         XCTAssertTrue(firstPage.hasNext)
         XCTAssertFalse(firstPage.isLast)
 
@@ -308,7 +315,7 @@ class HttpClientStatsTests: XCTestCase {
         }
 
         XCTAssertEqual(secondPage.items.count, 1)
-        XCTAssertEqual((secondPage.items)[0].inbound.all.messages.data, 6000)
+        XCTAssertEqual(secondPage.items[0].entries["messages.inbound.all.messages.data"]?.uintValue, 6000)
         XCTAssertTrue(secondPage.hasNext)
         XCTAssertFalse(secondPage.isLast)
 
@@ -320,7 +327,7 @@ class HttpClientStatsTests: XCTestCase {
         }
 
         XCTAssertEqual(thirdPage.items.count, 1)
-        XCTAssertEqual((thirdPage.items)[0].inbound.all.messages.data, 7000)
+        XCTAssertEqual(thirdPage.items[0].entries["messages.inbound.all.messages.data"]?.uintValue, 7000)
         XCTAssertTrue(thirdPage.isLast)
 
         let firstPageAgain: PaginatedResult<Stats> = try AblyTests.waitFor(timeout: testTimeout) { value in
@@ -331,7 +338,7 @@ class HttpClientStatsTests: XCTestCase {
         }
 
         XCTAssertEqual(firstPageAgain.items.count, 1)
-        XCTAssertEqual((firstPageAgain.items)[0].inbound.all.messages.data, 5000)
+        XCTAssertEqual(firstPageAgain.items[0].entries["messages.inbound.all.messages.data"]?.uintValue, 5000)
     }
 
     // RSC6b

@@ -345,7 +345,7 @@ NS_ASSUME_NONNULL_END
         NSMutableURLRequest *mutableRequest = (NSMutableURLRequest *)request;
         [mutableRequest setAcceptHeader:self.defaultEncoder encoders:self.encoders];
         [mutableRequest setTimeoutInterval:_options.httpRequestTimeout];
-        // Only set X-Ably-Version if it's not already set (allows override for specific methods like stats)
+        // Only set X-Ably-Version if the caller has not set it already
         if (![mutableRequest valueForHTTPHeaderField:@"X-Ably-Version"]) {
             [mutableRequest setValue:[ARTDefault apiVersion] forHTTPHeaderField:@"X-Ably-Version"];
         }
@@ -685,9 +685,6 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
     // A stats query has no state-dependent parameters, so it never produces an error.
     requestUrl.queryItems = [query asQueryItems:nil];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[requestUrl URLRelativeToURL:self.baseUrl]];
-
-    // Override X-Ably-Version header to use protocol version 2 for stats
-    [request setValue:@"2" forHTTPHeaderField:@"X-Ably-Version"];
 
     ARTPaginatedResultResponseProcessor responseProcessor = ^(NSHTTPURLResponse *response, NSData *data, NSError **errorPtr) {
         return [self.encoders[response.MIMEType] decodeStats:data error:errorPtr];

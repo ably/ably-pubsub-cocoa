@@ -30,12 +30,8 @@ NS_ASSUME_NONNULL_END
     return [self.underlyingChannels exists:name];
 }
 
-- (void)release:(nonnull NSString *)name {
-    [self.underlyingChannels release:name];
-}
-
-- (void)release:(nonnull NSString *)name callback:(nullable ARTCallback)errorInfo {
-    [self.underlyingChannels release:name callback:errorInfo];
+- (BOOL)release:(nonnull NSString *)name error:(NSError *_Nullable *_Nullable)error {
+    return [self.underlyingChannels release:name error:error];
 }
 
 - (ARTWrapperSDKProxyRealtimeChannel *)get:(NSString *)name maybeOptions:(nullable ARTRealtimeChannelOptions *)options {

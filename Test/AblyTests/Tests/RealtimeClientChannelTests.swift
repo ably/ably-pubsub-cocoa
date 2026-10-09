@@ -649,44 +649,6 @@ class RealtimeClientChannelTests: XCTestCase {
         XCTAssertEqual(channel.state, RealtimeChannelState.failed)
     }
 
-    func test__019__Channel__connection_state__changes_to_FAILED__channel_being_released_waiting_for_DETACH_shouldn_t_crash__issue__918_() throws {
-        let test = Test()
-        let options = try AblyTests.commonAppSetup(for: test)
-        options.autoConnect = false
-        options.testOptions.transportFactory = TestProxyTransportFactory()
-        let client = PubSubClient(options: options)
-        client.connect()
-        defer { client.dispose(); client.close() }
-
-        // Force the callback on .release below to be triggered by our
-        // forced FAILED message, not by a DETACHED.
-        let transport = client.internal.transport as! TestProxyTransport
-        transport.actionsIgnored += [.detached]
-
-        var channel0Name = ""
-        for i in 0 ..< 100 { // We need a few channels to trigger iterator invalidation.
-            let channelName = test.uniqueChannelName(prefix: "channel\(i)")
-            if i == 0 { channel0Name = channelName }
-            let channel = client.channels.get(channelName)
-            channel.attach() // No need to wait; ATTACHING state is good enough.
-            expect(channel.state).toEventually(equal(RealtimeChannelState.attaching), timeout: testTimeout)
-        }
-
-        waitUntil(timeout: testTimeout) { done in
-            let partialDone = AblyTests.splitDone(2, done: done)
-
-            client.channels.release(channel0Name) { _ in
-                partialDone()
-            }
-
-            AblyTests.queue.async {
-                let pmError = AblyTests.newErrorProtocolMessage()
-                client.internal.onError(pmError)
-                partialDone()
-            }
-        }
-    }
-
     // TO3g
     func test__020__Channel__connection_state__changes_to_FAILED__should_immediately_fail_if_not_in_the_connected_state() throws {
         let test = Test()
@@ -835,43 +797,6 @@ class RealtimeClientChannelTests: XCTestCase {
         expect(channel.state).toEventually(equal(RealtimeChannelState.attached), timeout: testTimeout)
         client.internal.onSuspended()
         XCTAssertEqual(channel.state, RealtimeChannelState.suspended)
-    }
-
-    func test__026__Channel__connection_state__changes_to_SUSPENDED__channel_being_released_waiting_for_DETACH_shouldn_t_crash__issue__918_() throws {
-        let test = Test()
-        let options = try AblyTests.commonAppSetup(for: test)
-        options.autoConnect = false
-        options.testOptions.transportFactory = TestProxyTransportFactory()
-        let client = PubSubClient(options: options)
-        client.connect()
-        defer { client.dispose(); client.close() }
-
-        // Force the callback on .release below to be triggered by our
-        // forced SUSPENDED message, not by a DETACHED.
-        let transport = client.internal.transport as! TestProxyTransport
-        transport.actionsIgnored += [.detached]
-
-        var channel0Name = ""
-        for i in 0 ..< 100 { // We need a few channels to trigger iterator invalidation.
-            let channelName = test.uniqueChannelName(prefix: "channel\(i)")
-            if i == 0 { channel0Name = channelName }
-            let channel = client.channels.get(channelName)
-            channel.attach() // No need to wait; ATTACHING state is good enough.
-            expect(channel.state).toEventually(equal(RealtimeChannelState.attaching), timeout: testTimeout)
-        }
-
-        waitUntil(timeout: testTimeout) { done in
-            let partialDone = AblyTests.splitDone(2, done: done)
-
-            client.channels.release(channel0Name) { _ in
-                partialDone()
-            }
-
-            AblyTests.queue.async {
-                client.internal.onSuspended()
-                partialDone()
-            }
-        }
     }
 
     // RTL3d

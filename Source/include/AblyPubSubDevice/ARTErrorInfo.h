@@ -130,6 +130,7 @@ typedef CF_ENUM(NSUInteger, ARTErrorCode) {
     ARTErrorUnableToRecoverChannelUnboundedRequest = 90006,
     ARTErrorChannelOperationFailedNoResponseFromServer = 90007,
     ARTErrorMaxNumberOfChannelsPerConnectionExceeded = 90010,
+    ARTErrorChannelReleaseInvalidState = 90011,
     ARTErrorUnableToEnterPresenceChannelNoClientid = 91000,
     ARTErrorUnableToEnterPresenceChannelInvalidState = 91001,
     ARTErrorUnableToLeavePresenceChannelThatIsNotEntered = 91002,

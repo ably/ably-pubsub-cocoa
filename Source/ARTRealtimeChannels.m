@@ -8,7 +8,6 @@
 #import "ARTClientOptions+TestConfiguration.h"
 #import "ARTTestClientOptions.h"
 #import "ARTGCD.h"
-#import "ARTInternalLog.h"
 
 @implementation ARTRealtimeChannels {
     ARTQueuedDealloc *_dealloc;
@@ -36,12 +35,8 @@
     return [[ARTRealtimeChannel alloc] initWithInternal:[_internal get:(NSString *)name options:options] pubsubInternal:_realtimeInternal queuedDealloc:_dealloc];
 }
 
-- (void)release:(NSString *)name callback:(nullable ARTCallback)errorInfo {
-    [_internal release:(NSString *)name callback:errorInfo];
-}
-
-- (void)release:(NSString *)name {
-    [_internal release:(NSString *)name];
+- (BOOL)release:(NSString *)name error:(NSError *_Nullable *_Nullable)error {
+    return [_internal release:name error:error];
 }
 
 - (id<NSFastEnumeration>)iterate {
@@ -64,13 +59,11 @@
 
 @implementation ARTRealtimeChannelsInternal {
     ARTChannels *_channels;
-    dispatch_queue_t _userQueue;
 }
 
 - (instancetype)initWithPubSub:(ARTPubSubClientInternal *)pubsub logger:(ARTInternalLog *)logger {
     if (self = [super init]) {
         _realtime = pubsub;
-        _userQueue = _realtime.rest.userQueue;
         _queue = _realtime.rest.queue;
         _logger = logger;
         _channels = [[ARTChannels alloc] initWithDelegate:self dispatchQueue:_queue prefix:_realtime.options.testOptions.channelNamePrefix];
@@ -98,57 +91,48 @@
     return [_channels exists:name];
 }
 
-- (void)release:(NSString *)name callback:(ARTCallback)cb {
+- (BOOL)release:(NSString *)name error:(NSError *_Nullable *_Nullable)errorPtr {
     name = [_channels addPrefix:name];
 
-    if (cb) {
-        ARTCallback userCallback = cb;
-        cb = ^(ARTErrorInfo *error) {
-            art_dispatch_async(self->_userQueue, ^{
-                userCallback(error);
-            });
-        };
-    }
-
+    __block ARTErrorInfo *error = nil;
 art_dispatch_sync(_queue, ^{
-    if (![self->_channels _exists:name]) {
-        if (cb) cb(nil);
-        return;
-    }
-
-    ARTRealtimeChannelInternal *channel = [self->_channels _get:name];
-    const ARTRealtimeChannelState state = channel.state_nosync;
-    if (state != ARTRealtimeChannelInitialized && state != ARTRealtimeChannelDetached && state != ARTRealtimeChannelFailed) {
-        // RTS4b
-        ARTLogWarn(self.logger, @"Calling `channels.release()` on a channel in the %@ state is deprecated, and will throw an error in the next major version. Call `channel.detach()` and wait for it to complete before calling `channels.release(name)`.", [ARTRealtimeChannelStateToStr(state) lowercaseString]);
-    }
-    [channel _detach:^(ARTErrorInfo *errorInfo) {
-        [channel off_nosync];
-        [channel _unsubscribe];
-        [channel.presence _unsubscribe];
-
-        // Only release if the stored channel now is the same as whne.
-        // Otherwise, subsequent calls to this release method race, and
-        // a new channel, created between the first call releases the stored
-        // one and the second call's detach callback is called, can be
-        // released unwillingly.
-        if ([self->_channels _exists:name] && [self->_channels _get:name] == channel) {
-#ifdef ABLY_SUPPORTS_PLUGINS
-            // Runs on the internal queue (the `_detach:` callback queue). See
-            // `-nosync_onChannelRelease:` for what the plugin does with this.
-            [self.realtime.options.liveObjectsPlugin nosync_onChannelRelease:channel];
-#endif
-
-            [self->_channels _release:name];
-        }
-
-        if (cb) cb(errorInfo);
-    }];
+    error = [self _release:name];
 });
+
+    if (error) {
+        if (errorPtr) {
+            *errorPtr = error;
+        }
+        return NO;
+    }
+    return YES;
 }
 
-- (void)release:(NSString *)name {
-    [self release:name callback:nil];
+- (nullable ARTErrorInfo *)_release:(NSString *)name {
+    // RTS4c
+    if (![_channels _exists:name]) {
+        return nil;
+    }
+
+    ARTRealtimeChannelInternal *const channel = [_channels _get:name];
+    const ARTRealtimeChannelState state = channel.state_nosync;
+    // RTS4e
+    if (state != ARTRealtimeChannelInitialized && state != ARTRealtimeChannelDetached && state != ARTRealtimeChannelFailed) {
+        return [ARTErrorInfo createWithCode:ARTErrorChannelReleaseInvalidState
+                                     status:400
+                                    message:[NSString stringWithFormat:@"Can only release a channel in a state where there is no possibility of further updates from the server being received (initialized, detached, or failed). The current state is %@", [ARTRealtimeChannelStateToStr(state) lowercaseString]]];
+    }
+
+    // RTS4d
+    [channel off_nosync];
+    [channel _unsubscribe];
+    [channel.presence _unsubscribe];
+#ifdef ABLY_SUPPORTS_PLUGINS
+    // See `-nosync_onChannelRelease:` for what the plugin does with this.
+    [self.realtime.options.liveObjectsPlugin nosync_onChannelRelease:channel];
+#endif
+    [_channels _release:name];
+    return nil;
 }
 
 - (NSMutableDictionary *)getCollection {

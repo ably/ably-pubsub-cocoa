@@ -1795,7 +1795,7 @@ extension PubSubClient {
     func dispose() {
         let names = self.channels.map({ ($0 as! RealtimeChannel).name })
         for name in names {
-            self.channels.release(name)
+            try? self.channels.release(name)
         }
         self.connection.off()
     }

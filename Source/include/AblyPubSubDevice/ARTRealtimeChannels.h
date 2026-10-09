@@ -12,8 +12,18 @@ NS_SWIFT_NAME(RealtimeChannelsProtocol)
 // Swift ignores Objective-C generics and thinks this is returning an id, failing to compile.
 // Thus, we can't make ARTRealtimeChannels inherit from ARTChannels; we have to compose them instead.
 - (BOOL)exists:(NSString *)name;
-- (void)release:(NSString *)name callback:(nullable ARTCallback)errorInfo;
-- (void)release:(NSString *)name;
+
+/**
+ * Releases an `ARTRealtimeChannel` object by deleting it, so that it can be garbage collected. It also removes any listeners associated with the channel. Does nothing if no channel with this name exists.
+ *
+ * A realtime channel can only be released when it is in the `ARTRealtimeChannelState.ARTRealtimeChannelInitialized`, `ARTRealtimeChannelState.ARTRealtimeChannelDetached`, or `ARTRealtimeChannelState.ARTRealtimeChannelFailed` state. In any other state, the channel is left as it is and an error with code `ARTErrorCode.ARTErrorChannelReleaseInvalidState` is returned. Call `-[ARTRealtimeChannelProtocol detach:]` and wait for its callback before releasing the channel.
+ *
+ * @param name The channel name.
+ * @param error On return, the error if the channel could not be released.
+ *
+ * @return `true` if the channel was released or did not exist, otherwise `false`.
+ */
+- (BOOL)release:(NSString *)name error:(NSError *_Nullable *_Nullable)error;
 
 @end
 

@@ -31,18 +31,6 @@ NS_SWIFT_SENDABLE
 
 - (void)publish:(nullable NSString *)name data:(nullable id)data resultCallback:(nullable ARTPublishResultCallback)resultCallback;
 
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(NSString *)clientId;
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(NSString *)clientId callback:(nullable ARTCallback)callback;
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data extras:(nullable id<ARTJsonCompatible>)extras;
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data extras:(nullable id<ARTJsonCompatible>)extras callback:(nullable ARTCallback)callback;
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(NSString *)clientId extras:(nullable id<ARTJsonCompatible>)extras;
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(NSString *)clientId extras:(nullable id<ARTJsonCompatible>)extras callback:(nullable ARTCallback)callback;
-
 - (void)publish:(NSArray<ARTMessage *> *)messages;
 
 - (void)publish:(NSArray<ARTMessage *> *)messages callback:(nullable ARTCallback)callback;

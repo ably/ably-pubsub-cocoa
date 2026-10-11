@@ -78,30 +78,6 @@
     [_internal publish:name data:data resultCallback:resultCallback];
 }
 
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(NSString *)clientId {
-    [_internal publish:name data:data clientId:clientId];
-}
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(NSString *)clientId callback:(nullable ARTCallback)callback {
-    [_internal publish:name data:data clientId:clientId callback:callback];
-}
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data extras:(nullable id<ARTJsonCompatible>)extras {
-    [_internal publish:name data:data extras:extras];
-}
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data extras:(nullable id<ARTJsonCompatible>)extras callback:(nullable ARTCallback)callback {
-    [_internal publish:name data:data extras:extras callback:callback];
-}
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(NSString *)clientId extras:(nullable id<ARTJsonCompatible>)extras {
-    [_internal publish:name data:data clientId:clientId extras:extras];
-}
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(NSString *)clientId extras:(nullable id<ARTJsonCompatible>)extras callback:(nullable ARTCallback)callback {
-    [_internal publish:name data:data clientId:clientId extras:extras callback:callback];
-}
-
 - (void)publish:(NSArray<ARTMessage *> *)messages {
     [_internal publish:messages];
 }

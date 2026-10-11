@@ -75,48 +75,23 @@
 }
 
 - (void)publish:(nullable NSString *)name data:(nullable id)data callback:(nullable ARTCallback)callback {
-    [self publish:name data:data extras:nil callback:callback];
-}
-
-- (void)publish:(NSString *)name data:(id)data extras:(id<ARTJsonCompatible>)extras {
-    [self publish:name data:data extras:extras callback:nil];
-}
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data extras:(id<ARTJsonCompatible>)extras callback:(nullable ARTCallback)callback {
-    [self publish:name message:[[ARTMessage alloc] initWithName:name data:data] extras:extras callback:callback];
+    [self publish:name message:[[ARTMessage alloc] initWithName:name data:data] callback:callback];
 }
 
 - (void)publish:(nullable NSString *)name data:(nullable id)data resultCallback:(nullable ARTPublishResultCallback)resultCallback {
-    [self publish:name message:[[ARTMessage alloc] initWithName:name data:data] extras:nil resultCallback:resultCallback];
+    [self publish:name message:[[ARTMessage alloc] initWithName:name data:data] resultCallback:resultCallback];
 }
 
-- (void)publish:(NSString *)name data:(id)data clientId:(NSString *)clientId {
-    [self publish:name data:data clientId:clientId callback:nil];
-}
-
-- (void)publish:(NSString *)name data:(id)data clientId:(NSString *)clientId extras:(id<ARTJsonCompatible>)extras {
-    [self publish:name data:data clientId:clientId extras:extras callback:nil];
-}
-
-- (void)publish:(NSString *)name data:(id)data clientId:(NSString *)clientId callback:(ARTCallback)callback {
-    [self publish:name data:data clientId:(NSString *)clientId extras:nil callback:callback];
-}
-
-- (void)publish:(NSString *)name data:(id)data clientId:(NSString *)clientId extras:(id<ARTJsonCompatible>)extras callback:(ARTCallback)callback {
-    [self publish:name message:[[ARTMessage alloc] initWithName:name data:data clientId:clientId] extras:extras callback:callback];
-}
-
-- (void)publish:(NSString *)name message:(ARTMessage *)message extras:(id<ARTJsonCompatible>)extras callback:(ARTCallback)callback {
+- (void)publish:(NSString *)name message:(ARTMessage *)message callback:(ARTCallback)callback {
     // Wrap callback to discard the result and only pass the error
     ARTPublishResultCallback resultCallback = callback ? ^(ARTPublishResult *result, ARTErrorInfo *error) {
         callback(error);
     } : nil;
-    [self publish:name message:message extras:extras resultCallback:resultCallback];
+    [self publish:name message:message resultCallback:resultCallback];
 }
 
-- (void)publish:(NSString *)name message:(ARTMessage *)message extras:(id<ARTJsonCompatible>)extras resultCallback:(ARTPublishResultCallback)resultCallback {
+- (void)publish:(NSString *)name message:(ARTMessage *)message resultCallback:(ARTPublishResultCallback)resultCallback {
     NSError *error = nil;
-    message.extras = extras;
     ARTMessage *messagesWithDataEncoded = [self encodeMessageIfNeeded:message error:&error];
     if (error) {
         if (resultCallback) resultCallback(nil, [ARTErrorInfo createFromNSError:error]);

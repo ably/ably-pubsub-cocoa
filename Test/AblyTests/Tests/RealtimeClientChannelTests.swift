@@ -2944,8 +2944,8 @@ class RealtimeClientChannelTests: XCTestCase {
         }
     }
 
-    // RTL6h
-    func test__066__Channel__publish__should_provide_an_optional_argument_that_allows_the_clientId_value_to_be_specified() throws {
+    // RTL6h: the clientId goes on the Message, not in a separate argument to publish
+    func test__066__Channel__publish__should_publish_the_clientId_of_a_Message() throws {
         let test = Test()
         let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.dispose(); client.close() }
@@ -2959,7 +2959,7 @@ class RealtimeClientChannelTests: XCTestCase {
                 XCTAssertEqual(message.clientId, "foo")
                 partialDone()
             }
-            channel.publish("event", data: "data", clientId: "foo") { errorInfo in
+            channel.publish([Message(name: "event", data: "data", clientId: "foo")]) { errorInfo in
                 XCTAssertNil(errorInfo)
                 partialDone()
             }

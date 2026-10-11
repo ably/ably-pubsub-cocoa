@@ -3920,7 +3920,11 @@ class RealtimeClientConnectionTests: XCTestCase {
 
         waitUntil(timeout: testTimeout) { done in
             channel.publish(nil, data: "message") { error in
-                XCTAssertEqual(error?.code, 2)
+                XCTAssertEqual(error?.code, ErrorCode.disconnected.intValue)
+                // The transport's error is the underlying error
+                let underlyingError = error?.underlyingErrors.first as NSError?
+                XCTAssertEqual(underlyingError?.domain, kCFErrorDomainCFNetwork as String)
+                XCTAssertEqual(underlyingError?.code, 2)
                 expect(error?.message).to(contain("host unreachable"))
                 expect(error?.reason).to(contain(".FakeNetworkResponse"))
                 done()
@@ -3969,7 +3973,11 @@ class RealtimeClientConnectionTests: XCTestCase {
 
         waitUntil(timeout: testTimeout) { done in
             channel.publish(nil, data: "message") { error in
-                XCTAssertEqual(error?.code, 2)
+                XCTAssertEqual(error?.code, ErrorCode.disconnected.intValue)
+                // The transport's error is the underlying error
+                let underlyingError = error?.underlyingErrors.first as NSError?
+                XCTAssertEqual(underlyingError?.domain, kCFErrorDomainCFNetwork as String)
+                XCTAssertEqual(underlyingError?.code, 2)
                 expect(error?.message).to(contain("host unreachable"))
                 expect(error?.reason).to(contain(".FakeNetworkResponse"))
                 done()
@@ -4018,7 +4026,11 @@ class RealtimeClientConnectionTests: XCTestCase {
 
         waitUntil(timeout: testTimeout) { done in
             channel.publish(nil, data: "message") { error in
-                XCTAssertEqual(error?.code, 2)
+                XCTAssertEqual(error?.code, ErrorCode.disconnected.intValue)
+                // The transport's error is the underlying error
+                let underlyingError = error?.underlyingErrors.first as NSError?
+                XCTAssertEqual(underlyingError?.domain, kCFErrorDomainCFNetwork as String)
+                XCTAssertEqual(underlyingError?.code, 2)
                 expect(error?.message).to(contain("host unreachable"))
                 expect(error?.reason).to(contain(".FakeNetworkResponse"))
                 done()

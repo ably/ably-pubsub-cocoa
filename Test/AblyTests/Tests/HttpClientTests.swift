@@ -401,7 +401,10 @@ class HttpClientTests: XCTestCase {
                 expect(end.timeIntervalSince(start as Date)).to(beCloseTo(options.httpRequestTimeout, within: 0.5))
                 XCTAssertNotNil(error)
                 if let error = error {
-                    expect(error.code).to(satisfyAnyOf(equal(-1001 /* Timed Out */ ), equal(-1004 /* Cannot Connect To Host */ )))
+                    // The system error is the underlying error of the ErrorInfo
+                    let underlyingError = error.underlyingErrors.first as NSError?
+                    XCTAssertEqual(underlyingError?.domain, NSURLErrorDomain)
+                    expect(underlyingError?.code).to(satisfyAnyOf(equal(-1001 /* Timed Out */ ), equal(-1004 /* Cannot Connect To Host */ )))
                 }
                 done()
             }

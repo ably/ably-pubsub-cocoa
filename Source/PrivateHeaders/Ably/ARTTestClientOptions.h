@@ -20,11 +20,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, copy) NSString *channelNamePrefix;
 
 /**
- Initial value is `ARTDefault.realtimeRequestTimeout`.
- */
-@property (nonatomic) NSTimeInterval realtimeRequestTimeout;
-
-/**
  Initial value is `ARTFallback_shuffleArray`.
  */
 @property (nonatomic) void (^shuffleArray)(NSMutableArray *);

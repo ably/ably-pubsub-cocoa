@@ -37,10 +37,11 @@ internal protocol CoreSDK: AnyObject, Sendable {
     /// conditions).
     var nosync_connectionStateError: ErrorInfo? { get }
 
-    /// RTO15d: The connection's negotiated `maxMessageSize`, read from the latest `CONNECTED`
-    /// `ProtocolMessage`'s `connectionDetails`. `nil` when the core SDK has no connection details yet or
-    /// the server did not send a limit; callers fall back to the Ably default of 65536 bytes.
-    var nosync_maxMessageSize: Int? { get }
+    /// RTO15d: The `maxMessageSize` that publishes are checked against: the connection's negotiated
+    /// value, read from the latest `CONNECTED` `ProtocolMessage`'s `connectionDetails` (CD2c), or the
+    /// client's `ClientOptions.maxMessageSize` (TO3l8) when there are no connection details yet or the
+    /// server did not send a limit.
+    var nosync_maxMessageSize: Int { get }
 
     /// Initiates an implicit attach (RTL33b) on the wrapped Realtime channel, used by the
     /// *ensure-active-channel* procedure of `RealtimeObject.get()` (RTO23e / RTL33). The callback
@@ -157,15 +158,15 @@ internal final class DefaultCoreSDK: CoreSDK {
         pluginAPI.nosync_connectionStateError(for: client).map { ErrorInfo.castPluginPublicErrorInfo($0) }
     }
 
-    internal var nosync_maxMessageSize: Int? {
+    internal var nosync_maxMessageSize: Int {
         // The core SDK surfaces the limit via the latest CONNECTED ProtocolMessage's connectionDetails;
-        // a `0`/absent value means the server sent no limit, so we return nil to let the caller fall
-        // back to the Ably default.
-        guard let connectionDetails = pluginAPI.nosync_latestConnectionDetails(for: client) else {
-            return nil
+        // a `0`/absent value means the server sent no limit, so we fall back to the client option.
+        if let connectionDetails = pluginAPI.nosync_latestConnectionDetails(for: client), connectionDetails.maxMessageSize > 0 {
+            return connectionDetails.maxMessageSize
         }
-        let maxMessageSize = connectionDetails.maxMessageSize
-        return maxMessageSize > 0 ? maxMessageSize : nil
+        // The plugin API exposes client options as an opaque marker protocol; cast to the concrete
+        // `ClientOptions` (the only conformer) to read `maxMessageSize`.
+        return ClientOptions.castPluginPublicClientOptions(pluginAPI.options(for: client)).maxMessageSize
     }
 
     internal func nosync_attach(callback: @escaping @Sendable (ErrorInfo?) -> Void) {

@@ -804,7 +804,7 @@ class AuthTests: XCTestCase {
         options.authCallback = { _, _ in
             // Ignore `completion` closure to force a time out
         }
-        options.testOptions.realtimeRequestTimeout = 0.5
+        options.realtimeRequestTimeout = 0.5
 
         let realtime = PubSubClient(options: options)
         defer { realtime.dispose(); realtime.close() }
@@ -838,7 +838,7 @@ class AuthTests: XCTestCase {
         }
 
         // This needs to be sufficiently long such that we can expect to receive a CONNECTED ProtocolMessage within this duration after starting a connection attempt (there's no "correct" value since it depends on network conditions, but 1.5s seemed to work locally and in CI at time of writing). But we also don't want it to be longer than necessary since that would impact test execution time.
-        options.testOptions.realtimeRequestTimeout = 1.5
+        options.realtimeRequestTimeout = 1.5
 
         let realtime = PubSubClient(options: options)
         defer { realtime.dispose(); realtime.close() }

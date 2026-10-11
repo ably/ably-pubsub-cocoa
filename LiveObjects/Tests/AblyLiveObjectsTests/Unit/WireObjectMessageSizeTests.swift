@@ -315,24 +315,4 @@ struct WireObjectMessageSizeTests {
         #expect(error.statusCode == 400)
         #expect(error.message == "ObjectMessages size 3072 exceeds maximum allowed size of 2048 bytes")
     }
-
-    // RTO15d: when the core SDK exposes no negotiated `maxMessageSize` (nil — no connection
-    // details, or the server sent no limit), the gate falls back to the 65536 Ably default, so a
-    // message that fits the default is accepted.
-    // @spec RTO15d
-    @Test
-    func publishFallsBackToDefaultMaxMessageSizeWhenUnset() async throws {
-        let internalQueue = TestFactories.createInternalQueue()
-        let realtimeObjects = Self.createRealtimeObjects(internalQueue: internalQueue)
-        // nil maxMessageSize → fall back to the 65536 default.
-        let coreSDK = MockCoreSDK(channelState: .attached, maxMessageSize: nil, internalQueue: internalQueue)
-        coreSDK.setPublishHandler { messages in
-            PublishResult(serials: messages.map { _ in "serial" })
-        }
-
-        // 60 KiB: over any smaller negotiated limit but within the 65536 default.
-        let message = ProtocolTypes.OutboundObjectMessage(clientId: String(repeating: "a", count: 60 * 1024))
-
-        try await realtimeObjects.testsOnly_publish(objectMessages: [message], coreSDK: coreSDK)
-    }
 }

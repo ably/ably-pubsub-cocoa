@@ -58,7 +58,10 @@ static BOOL ARTEndpointIsHostname(NSString *endpoint) {
     _channelRetryTimeout = 15.0; //Seconds
     _httpOpenTimeout = 4.0; //Seconds
     _httpRequestTimeout = 10.0; //Seconds
+    _realtimeRequestTimeout = 10.0; // Seconds, TO3l11
     _fallbackRetryTimeout = 600.0; // Seconds, TO3l10
+    _maxMessageSize = 65536; // TO3l8
+    _maxFrameSize = 524288; // TO3l9
     _httpMaxRetryDuration = 15.0; //Seconds
     _httpMaxRetryCount = 3;
     _fallbackHosts = nil;
@@ -165,7 +168,10 @@ static BOOL ARTEndpointIsHostname(NSString *endpoint) {
     options.httpMaxRetryCount = self.httpMaxRetryCount;
     options.httpMaxRetryDuration = self.httpMaxRetryDuration;
     options.httpOpenTimeout = self.httpOpenTimeout;
+    options.realtimeRequestTimeout = self.realtimeRequestTimeout;
     options.fallbackRetryTimeout = self.fallbackRetryTimeout;
+    options.maxMessageSize = self.maxMessageSize;
+    options.maxFrameSize = self.maxFrameSize;
     options->_fallbackHosts = self.fallbackHosts; //ignore setter
 
     options.httpRequestTimeout = self.httpRequestTimeout;

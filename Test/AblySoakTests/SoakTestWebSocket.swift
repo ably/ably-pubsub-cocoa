@@ -36,7 +36,7 @@ class SoakTestWebSocket: NSObject, ARTWebSocket {
 
     func open() {
         readyState = .connecting
-        delegateDispatchQueue!.afterSeconds(between: 0.1 ... Default.realtimeRequestTimeout() + 1.0) {
+        delegateDispatchQueue!.afterSeconds(between: 0.1 ... ClientOptions().realtimeRequestTimeout + 1.0) {
             if true.times(9, outOf: 10) {
                 self.readyState = .open
                 self.delegate?.webSocketDidOpen?(self)

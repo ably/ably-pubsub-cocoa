@@ -881,7 +881,7 @@ class RealtimeClientChannelTests: XCTestCase {
         options.testOptions.transportFactory = TestProxyTransportFactory()
         options.suspendedRetryTimeout = 1.0
         options.channelRetryTimeout = 1.0
-        options.testOptions.realtimeRequestTimeout = 1.0
+        options.realtimeRequestTimeout = 1.0
         let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
@@ -1370,7 +1370,7 @@ class RealtimeClientChannelTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.channelRetryTimeout = 1.0
-        options.testOptions.realtimeRequestTimeout = 1.0
+        options.realtimeRequestTimeout = 1.0
         let client = AblyTests.newRealtime(options).client
         defer { client.dispose(); client.close() }
 
@@ -1540,7 +1540,7 @@ class RealtimeClientChannelTests: XCTestCase {
     func test__038__Channel__attach__a_channel_in_DETACHING_can_actually_move_back_to_ATTACHED_if_it_fails_to_detach() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        options.testOptions.realtimeRequestTimeout = 1.0
+        options.realtimeRequestTimeout = 1.0
         let client = AblyTests.newRealtime(options).client
         defer { client.dispose(); client.close() }
         let channel = client.channels.get(test.uniqueChannelName())
@@ -1936,7 +1936,7 @@ class RealtimeClientChannelTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.autoConnect = false
-        options.testOptions.realtimeRequestTimeout = 1.0
+        options.realtimeRequestTimeout = 1.0
         options.testOptions.transportFactory = TestProxyTransportFactory()
         let client = PubSubClient(options: options)
         client.connect()
@@ -3663,7 +3663,7 @@ class RealtimeClientChannelTests: XCTestCase {
     func test__129__Channel__history__if_the_channel_receives_a_server_initiated_DETACHED_message_when__the_channel_is_in_the_SUSPENDED_state__an_attempt_to_reattach_the_channel_should_be_made_immediately_by_sending_a_new_ATTACH_message_and_the_channel_should_transition_to_the_ATTACHING_state_with_the_error_emitted_in_the_ChannelStateChange_event() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        options.testOptions.realtimeRequestTimeout = 1.0
+        options.realtimeRequestTimeout = 1.0
         let client = AblyTests.newRealtime(options).client
         defer { client.dispose(); client.close() }
 
@@ -3718,7 +3718,7 @@ class RealtimeClientChannelTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.channelRetryTimeout = 1.0
-        options.testOptions.realtimeRequestTimeout = 1.0
+        options.realtimeRequestTimeout = 1.0
         let client = AblyTests.newRealtime(options).client
         defer { client.dispose(); client.close() }
         let channel = client.channels.get(test.uniqueChannelName())
@@ -3833,7 +3833,7 @@ class RealtimeClientChannelTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
         options.channelRetryTimeout = 1.0
         options.autoConnect = false
-        options.testOptions.realtimeRequestTimeout = 1.0
+        options.realtimeRequestTimeout = 1.0
         options.testOptions.transportFactory = TestProxyTransportFactory()
 
         let jitterCoefficients = StaticJitterCoefficients()
@@ -3903,7 +3903,7 @@ class RealtimeClientChannelTests: XCTestCase {
             ).prefix(numberOfRetriesToWaitFor)
         )
         let timeout = expectedRetryDelays.map { retryDelay in
-            options.testOptions.realtimeRequestTimeout // waiting for attach to time out
+            options.realtimeRequestTimeout // waiting for attach to time out
             + retryDelay // waiting for retry to occur
             + 0.2 // some extra tolerance, arbitrarily chosen
         }.reduce(0, +)
@@ -3951,7 +3951,7 @@ class RealtimeClientChannelTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.channelRetryTimeout = 1.0
-        options.testOptions.realtimeRequestTimeout = 1.0
+        options.realtimeRequestTimeout = 1.0
         let client = AblyTests.newRealtime(options).client
         defer { client.dispose(); client.close() }
         let channel = client.channels.get(test.uniqueChannelName())
@@ -4573,7 +4573,7 @@ class RealtimeClientChannelTests: XCTestCase {
     func test__002__Channel__should_not_crash_when_an_ATTACH_request_is_responded_with_a_DETACHED() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        options.testOptions.realtimeRequestTimeout = 1.0
+        options.realtimeRequestTimeout = 1.0
         let client = AblyTests.newRealtime(options).client
         defer { client.dispose(); client.close() }
         let channel = client.channels.get(test.uniqueChannelName())

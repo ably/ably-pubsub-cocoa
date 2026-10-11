@@ -542,7 +542,7 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
                     }];
                     return;
                 }
-                [[[self->_pingEventEmitter once:cb] setTimer:self.options.testOptions.realtimeRequestTimeout onTimeout:^{
+                [[[self->_pingEventEmitter once:cb] setTimer:self.options.realtimeRequestTimeout onTimeout:^{
                     ARTLogVerbose(self.logger, @"R:%p ping timed out", self);
                     cb([ARTErrorInfo createWithCode:ARTErrorConnectionTimedOut status:ARTStateConnectionFailed message:@"timed out"]);
                 }] startTimer];
@@ -671,7 +671,7 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
                 [self clearConnectionStateIfInactive];
             }
 
-            stateChangeEventListener = [self unlessStateChangesBefore:self.options.testOptions.realtimeRequestTimeout do:^{
+            stateChangeEventListener = [self unlessStateChangesBefore:self.options.realtimeRequestTimeout do:^{
                 [self onConnectionTimeOut];
             }];
             _connectingTimeoutListener = stateChangeEventListener;
@@ -700,7 +700,7 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
         case ARTRealtimeClosing: {
             [self stopIdleTimer];
             [self setReachabilityActive:NO];
-            stateChangeEventListener = [self unlessStateChangesBefore:self.options.testOptions.realtimeRequestTimeout do:^{
+            stateChangeEventListener = [self unlessStateChangesBefore:self.options.realtimeRequestTimeout do:^{
                 [self performTransitionToState:ARTRealtimeClosed withParams:[[ARTConnectionStateChangeParams alloc] init]];
             }];
             [self.transport sendClose];
@@ -1126,7 +1126,7 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
     }
     else {
         // Token
-        ARTLogDebug(self.logger, @"R:%p connecting with token auth; authorising (timeout of %f)", self, self.options.testOptions.realtimeRequestTimeout);
+        ARTLogDebug(self.logger, @"R:%p connecting with token auth; authorising (timeout of %f)", self, self.options.realtimeRequestTimeout);
 
         if (!forceNewToken && [self.auth tokenRemainsValid]) {
             // Reuse token
@@ -1138,7 +1138,7 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
             [self.auth setTokenDetails:nil];
 
             // Schedule timeout handler
-            _authenitcatingTimeoutWork = [_timeProvider scheduleAfter:self.options.testOptions.realtimeRequestTimeout queue:_rest.queue block:^{
+            _authenitcatingTimeoutWork = [_timeProvider scheduleAfter:self.options.realtimeRequestTimeout queue:_rest.queue block:^{
                 [self onConnectionTimeOut];
             }];
 
@@ -1541,7 +1541,7 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
     }
     [_idleTimer cancel];
 
-    _idleTimer = [_timeProvider scheduleAfter:self.options.testOptions.realtimeRequestTimeout + self.maxIdleInterval queue:_rest.queue block:^{
+    _idleTimer = [_timeProvider scheduleAfter:self.options.realtimeRequestTimeout + self.maxIdleInterval queue:_rest.queue block:^{
         ARTLogError(self.logger, @"R:%p No activity seen from realtime in %f seconds; assuming connection has dropped", self, [[self->_timeProvider wallClockNow] timeIntervalSinceDate:self->_lastActivity]);
 
         ARTErrorInfo *idleTimerExpired = [ARTErrorInfo createWithCode:ARTErrorDisconnected status:408 message:@"Idle timer expired"];

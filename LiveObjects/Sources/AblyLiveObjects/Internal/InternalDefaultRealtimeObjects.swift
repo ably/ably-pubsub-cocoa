@@ -552,22 +552,17 @@ internal final class InternalDefaultRealtimeObjects: Sendable, InternalRealtimeO
 
     // MARK: - Sending `OBJECT` ProtocolMessage
 
-    /// The Ably default maximum message size, in bytes, used as a fallback when the connection has not
-    /// negotiated one. Matches the core SDK's `Default.maxMessageSize`.
-    private static let defaultMaxMessageSize = 65536
-
     /// RTO15d: Validates that the total size of `objectMessages` (each calculated per OM3) does not
     /// exceed the connection's `maxMessageSize`. If it does, the publish is rejected with an
     /// `ErrorInfo` of `statusCode` 400 and `code` 40009.
     ///
-    /// The effective limit is the connection's negotiated `maxMessageSize`, read from the latest
-    /// `CONNECTED` `ProtocolMessage`'s `connectionDetails` via `CoreSDK.nosync_maxMessageSize`; we fall
-    /// back to ``defaultMaxMessageSize`` when the core SDK has no connection details yet or the server
-    /// did not send a limit.
+    /// The effective limit is `CoreSDK.nosync_maxMessageSize`: the connection's negotiated
+    /// `maxMessageSize`, or the client's `ClientOptions.maxMessageSize` when the core SDK has no
+    /// connection details yet or the server did not send a limit.
     ///
     /// Must be called on the internal queue (it reads the `nosync_` connection-details accessor).
     internal static func ensureMessageSizeWithinLimit(_ objectMessages: [ProtocolTypes.OutboundObjectMessage], coreSDK: CoreSDK) throws(ErrorInfo) { // internal for AblyLiveObjectsTesting
-        let maximumAllowedSize = coreSDK.nosync_maxMessageSize ?? defaultMaxMessageSize
+        let maximumAllowedSize = coreSDK.nosync_maxMessageSize
         let totalSize = objectMessages.reduce(0) { $0 + $1.size }
         if totalSize > maximumAllowedSize {
             throw LiveObjectsError.maxMessageSizeExceeded(size: totalSize, maxSize: maximumAllowedSize).toARTErrorInfo()

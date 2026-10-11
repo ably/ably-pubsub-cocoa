@@ -15,9 +15,9 @@ final class MockCoreSDK: CoreSDK {
     private let serverTime: Date
     let channelName: String
 
-    /// The value returned by ``nosync_maxMessageSize`` (RTO15d). `nil` (the default) simulates a
-    /// connection with no negotiated limit, so the RTO15d gate falls back to the Ably default.
-    private nonisolated(unsafe) var _maxMessageSize: Int?
+    /// The value returned by ``nosync_maxMessageSize`` (RTO15d). Defaults to 65536, the default
+    /// `ClientOptions.maxMessageSize`.
+    private nonisolated(unsafe) var _maxMessageSize: Int
 
     /// The value returned by ``nosync_objectChannelModes`` (RTO2a2/RTO2b2).
     private nonisolated(unsafe) var _objectChannelModes: _AblyPluginSupportPrivate.ChannelMode
@@ -29,7 +29,7 @@ final class MockCoreSDK: CoreSDK {
     init(
         channelState: _AblyPluginSupportPrivate.RealtimeChannelState,
         serverTime: Date = .init(),
-        maxMessageSize: Int? = nil,
+        maxMessageSize: Int = 65536,
         channelName: String = "",
         objectChannelModes: _AblyPluginSupportPrivate.ChannelMode = [.objectSubscribe, .objectPublish],
         echoMessages: Bool = true,
@@ -69,12 +69,12 @@ final class MockCoreSDK: CoreSDK {
         mutex.withLock { _connectionStateError = error }
     }
 
-    var nosync_maxMessageSize: Int? {
+    var nosync_maxMessageSize: Int {
         mutex.withLock { _maxMessageSize }
     }
 
     /// Sets the value returned by ``nosync_maxMessageSize`` (RTO15d).
-    func setMaxMessageSize(_ maxMessageSize: Int?) {
+    func setMaxMessageSize(_ maxMessageSize: Int) {
         mutex.withLock { _maxMessageSize = maxMessageSize }
     }
 

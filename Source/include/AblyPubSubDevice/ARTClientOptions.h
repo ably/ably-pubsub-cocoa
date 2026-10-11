@@ -129,9 +129,28 @@ NS_SWIFT_NAME(ClientOptions)
 @property (readwrite, nonatomic) NSTimeInterval httpRequestTimeout;
 
 /**
+ * Timeout for the wait of acknowledgement for operations performed via a realtime connection, before the client library considers a request failed and triggers a failure condition. Operations include establishing a connection with Ably, or sending a `ARTProtocolMessageHeartbeat`, `ARTProtocolMessageConnect`, `ARTProtocolMessageAttach`, `ARTProtocolMessageDetach` or `ARTProtocolMessageClose` request. It is the equivalent of `httpRequestTimeout` but for realtime operations, rather than REST. The default is 10 seconds.
+ */
+@property (readwrite, nonatomic) NSTimeInterval realtimeRequestTimeout;
+
+/**
  * The maximum time before HTTP requests are retried against the default endpoint. The default is 600 seconds.
  */
 @property (readwrite, nonatomic) NSTimeInterval fallbackRetryTimeout;
+
+/**
+ * The maximum size, in bytes, of the messages that can be published in one go. A publish whose messages exceed it is rejected with error code 40009, without a request to Ably. The default is 65536 (64 KiB).
+ *
+ * For a realtime connection, the `ARTConnection.maxMessageSize` that Ably sends when the connection is established takes precedence over this value.
+ */
+@property (readwrite, nonatomic) NSInteger maxMessageSize;
+
+/**
+ * The maximum size, in bytes, of a single HTTP request body or WebSocket frame. The default is 524288 (512 KiB).
+ *
+ * The client does not check requests against it. Publishes are limited by `maxMessageSize`, which is smaller.
+ */
+@property (readwrite, nonatomic) NSInteger maxFrameSize;
 
 /**
  * The maximum number of fallback hosts to use as a fallback when an HTTP request to the primary host is unreachable or indicates that it is unserviceable. The default value is 3.

@@ -14,10 +14,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSArray<NSString *> *)fallbackHostsForRoutingPolicyId:(NSString *)routingPolicyId domain:(NSString *)domain;
 
 + (void)setConnectionStateTtl:(NSTimeInterval)value;
-+ (void)setMaxMessageSize:(NSInteger)value;
-
-+ (NSInteger)maxSandboxMessageSize;
-+ (NSInteger)maxProductionMessageSize;
 
 @end
 

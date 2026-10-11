@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(WrapperSDKProxyRealtime)
-@interface ARTWrapperSDKProxyRealtime : NSObject <ARTRealtimeProtocol>
+@interface ARTWrapperSDKProxyRealtime : NSObject <ARTPubSubProtocol>
 
 - (instancetype)init NS_UNAVAILABLE;
 

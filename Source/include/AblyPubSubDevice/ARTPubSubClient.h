@@ -26,8 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  The protocol upon which the top level object `ARTPubSubClient` is implemented.
  */
-NS_SWIFT_NAME(RealtimeProtocol)
-@protocol ARTRealtimeProtocol <NSObject>
+NS_SWIFT_NAME(PubSubProtocol)
+@protocol ARTPubSubProtocol <NSObject>
 
 /// :nodoc:
 - (instancetype)init NS_UNAVAILABLE;
@@ -103,7 +103,7 @@ NS_SWIFT_NAME(RealtimeProtocol)
  */
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(PubSubClient)
-@interface ARTPubSubClient : NSObject <ARTRealtimeProtocol>
+@interface ARTPubSubClient : NSObject <ARTPubSubProtocol>
 
 /**
  * An `ARTConnection` object.

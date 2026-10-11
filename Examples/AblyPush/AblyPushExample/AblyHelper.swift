@@ -110,7 +110,7 @@ extension AblyHelper {
                     "baz": "qux"
                 ]
             ]
-        ] as any JsonCompatible
+        ]
 
         client.channels.get(channel.rawValue).publish([message]) { error in
             if let error {

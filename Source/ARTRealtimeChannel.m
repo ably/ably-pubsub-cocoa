@@ -14,6 +14,7 @@
 #import "ARTProtocolMessage.h"
 #import "ARTProtocolMessage+Private.h"
 #import "ARTNSArray+ARTFunctional.h"
+#import "ARTNSDictionary+ARTDictionaryUtil.h"
 #import "ARTStatus.h"
 #import "ARTDefault.h"
 #import "ARTHttpClient.h"
@@ -878,24 +879,17 @@ art_dispatch_sync(_queue, ^{
     int i = 0;
 
     ARTMessage *firstMessage = pm.messages.firstObject;
-    if (firstMessage.extras) {
-        NSError *extrasDecodeError;
-        NSDictionary *const extras = [firstMessage.extras toJSON:&extrasDecodeError];
-        if (extrasDecodeError) {
-            ARTLogError(self.logger, @"R:%p C:%p (%@) message extras %@ decode error: %@", _realtime, self, self.name, firstMessage.extras, extrasDecodeError);
+    // Typed lookups, so that malformed delta metadata is ignored rather than crashing
+    NSDictionary *const delta = [firstMessage.extras artTyped:[NSDictionary class] key:@"delta"];
+    NSString *const deltaFrom = [delta artString:@"from"];
+    if (deltaFrom && _lastPayloadMessageId && ![deltaFrom isEqualToString:_lastPayloadMessageId]) {
+        ARTErrorInfo *incompatibleIdError = [ARTErrorInfo createWithCode:ARTErrorUnableToDecodeMessage message:[NSString stringWithFormat:@"previous id '%@' is incompatible with message delta %@", _lastPayloadMessageId, firstMessage]];
+        ARTLogError(self.logger, @"R:%p C:%p (%@) %@", _realtime, self, self.name, incompatibleIdError.message);
+        for (int j = i + 1; j < pm.messages.count; j++) {
+            ARTLogVerbose(self.logger, @"R:%p C:%p (%@) message skipped %@", _realtime, self, self.name, pm.messages[j]);
         }
-        else {
-            NSString *const deltaFrom = [[extras objectForKey:@"delta"] objectForKey:@"from"];
-            if (deltaFrom && _lastPayloadMessageId && ![deltaFrom isEqualToString:_lastPayloadMessageId]) {
-                ARTErrorInfo *incompatibleIdError = [ARTErrorInfo createWithCode:ARTErrorUnableToDecodeMessage message:[NSString stringWithFormat:@"previous id '%@' is incompatible with message delta %@", _lastPayloadMessageId, firstMessage]];
-                ARTLogError(self.logger, @"R:%p C:%p (%@) %@", _realtime, self, self.name, incompatibleIdError.message);
-                for (int j = i + 1; j < pm.messages.count; j++) {
-                    ARTLogVerbose(self.logger, @"R:%p C:%p (%@) message skipped %@", _realtime, self, self.name, pm.messages[j]);
-                }
-                [self startDecodeFailureRecoveryWithErrorInfo:incompatibleIdError];
-                return;
-            }
-        }
+        [self startDecodeFailureRecoveryWithErrorInfo:incompatibleIdError];
+        return;
     }
 
     ARTDataEncoder *dataEncoder = self.dataEncoder;

@@ -164,7 +164,7 @@ class DeltaCodecTests: XCTestCase {
                         "format": "vcdiff",
                         "from": "foo:1:0",
                     ],
-                ] as NSDictionary
+                ]
                 transport.setBeforeIncomingMessageModifier(nil)
             }
             return protocolMessage
@@ -250,5 +250,50 @@ class DeltaCodecTests: XCTestCase {
         }
 
         expect(receivedMessages).toEventually(haveCount(testData.count))
+    }
+
+    // RTL20
+    func test__004__DeltaCodec__decoding__should_ignore_delta_metadata_that_is_not_an_object() throws {
+        let test = Test()
+        let options = try AblyTests.commonAppSetup(for: test)
+        let client = AblyTests.newRealtime(options).client
+        defer { client.dispose(); client.close() }
+        let channelOptions = RealtimeChannelOptions()
+        channelOptions.params = ["delta": "vcdiff"]
+        let channel = client.channels.get(test.uniqueChannelName(), options: channelOptions)
+
+        waitUntil(timeout: testTimeout) { done in
+            channel.attach { error in
+                XCTAssertNil(error)
+                done()
+            }
+        }
+
+        guard let transport = client.internal.transport as? TestProxyTransport else {
+            fail("TestProxyTransport is not be assigned"); return
+        }
+
+        transport.setBeforeIncomingMessageModifier { protocolMessage in
+            if protocolMessage.action == .message,
+               let thirdMessage = protocolMessage.messages?.filter({ $0.name == "2" }).first
+            {
+                thirdMessage.extras = ["delta": "invalid"]
+                transport.setBeforeIncomingMessageModifier(nil)
+            }
+            return protocolMessage
+        }
+
+        var receivedMessages: [Message] = []
+        channel.subscribe { message in
+            receivedMessages.append(message)
+        }
+
+        for (i, data) in testData.enumerated() {
+            channel.publish(String(i), data: data)
+        }
+
+        expect(receivedMessages).toEventually(haveCount(testData.count))
+        XCTAssertEqual(channel.state, .attached)
+        XCTAssertNil(channel.errorReason)
     }
 }

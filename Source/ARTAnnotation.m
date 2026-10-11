@@ -18,7 +18,7 @@
                     serial:(NSString *)serial
              messageSerial:(NSString *)messageSerial
                       type:(NSString *)type
-                    extras:(id<ARTJsonCompatible>)extras {
+                    extras:(NSDictionary<NSString *, id> *)extras {
     if (self = [self init]) {
         _id = annotationId;
         _action = action;

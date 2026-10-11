@@ -3938,7 +3938,7 @@ class RealtimeClientPresenceTests: XCTestCase {
             channel1.presence.subscribe(.enter) { message in
                 XCTAssertEqual(message.clientId, "jwtClient")
 
-                guard let extras = message.extras as? NSDictionary else {
+                guard let extras = message.extras else {
                     XCTFail("extras should not be nil on presence message")
                     partialDone()
                     return

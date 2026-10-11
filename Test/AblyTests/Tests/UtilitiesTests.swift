@@ -534,7 +534,7 @@ class UtilitiesTests: XCTestCase {
 
     func test__023__Utilities__maxMessageSize__calculates_maxMessageSize_of_a_Message_with_name__data_and_extras() {
         let message = Message(name: "this is name", data: data)
-        message.extras = extras as JsonCompatible
+        message.extras = extras
         let expectedSize = "{\"test\":\"test\"}".count + "{\"push\":{\"key\":\"value\"}}".count + message.name!.count
         XCTAssertEqual(message.messageSize(), expectedSize)
     }
@@ -542,7 +542,7 @@ class UtilitiesTests: XCTestCase {
     func test__024__Utilities__maxMessageSize__calculates_maxMessageSize_of_a_Message_with_name__data__clientId_and_extras() {
         let message = Message(name: "this is name", data: data)
         message.clientId = clientId
-        message.extras = extras as JsonCompatible
+        message.extras = extras
         let expectedSize = "{\"test\":\"test\"}".count + "{\"push\":{\"key\":\"value\"}}".count + clientId.count + message.name!.count
         XCTAssertEqual(message.messageSize(), expectedSize)
     }
@@ -560,7 +560,7 @@ class UtilitiesTests: XCTestCase {
 
         // extras: {"k":"你😊"} is 11 UTF-16 code units (versus 15 UTF-8 bytes).
         let messageWithExtras = Message(name: nil, data: "")
-        messageWithExtras.extras = ["k": "你😊"] as JsonCompatible
+        messageWithExtras.extras = ["k": "你😊"]
         XCTAssertEqual(messageWithExtras.messageSize(), 11)
 
         // object data: {"k":"你😊"} JSON-stringified is 11 UTF-16 code units.
@@ -841,5 +841,28 @@ class UtilitiesTests: XCTestCase {
         let message = try XCTUnwrap(pm.messages?.first)
 
         XCTAssertEqual(message.version?.metadata, ["reason": "typo"])
+    }
+
+    /// - TM2i
+    /// - TP3i
+    func test__031_Utilities__extras_that_are_not_an_object_decode_as_nil() throws {
+        beforeEach__Utilities__JSON_Encoder()
+        let json = """
+        {
+            "messages": [
+                { "extras": "not an object" },
+                { "extras": { "push": { "key": "value" } } }
+            ],
+            "presence": [
+                { "action": 2, "extras": ["not", "an", "object"] }
+            ]
+        }
+        """
+        let pm = try jsonEncoder.decodeProtocolMessage(json.data(using: .utf8)!)
+        let messages = try XCTUnwrap(pm.messages)
+
+        XCTAssertNil(messages[0].extras)
+        XCTAssertEqual(messages[1].extras as NSDictionary?, ["push": ["key": "value"]] as NSDictionary)
+        XCTAssertNil(try XCTUnwrap(pm.presence?.first).extras)
     }
 }

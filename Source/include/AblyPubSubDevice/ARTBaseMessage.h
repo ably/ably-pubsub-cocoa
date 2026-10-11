@@ -42,7 +42,7 @@ NS_SWIFT_NAME(BaseMessage)
 /**
  * A JSON object of arbitrary key-value pairs that may contain metadata, and/or ancillary payloads.
  */
-@property (nullable, nonatomic) id<ARTJsonCompatible> extras;
+@property (nullable, nonatomic) NSDictionary<NSString *, id> *extras;
 
 /// :nodoc:
 - (NSString *)description;

@@ -103,7 +103,25 @@
 
 @end
 
-@implementation NSDictionary (ARTCipherParamsCompatible)
+@implementation ARTCipherParamOptions
+
+- (instancetype)initWithKey:(id<ARTCipherKeyCompatible>)key {
+    return [self initWithKey:key algorithm:nil keyLength:0 mode:nil];
+}
+
+- (instancetype)initWithKey:(id<ARTCipherKeyCompatible>)key
+                  algorithm:(NSString *)algorithm
+                  keyLength:(NSUInteger)keyLength
+                       mode:(NSString *)mode {
+    self = [super init];
+    if (self) {
+        _key = [key conformsToProtocol:@protocol(NSCopying)] ? [(id<NSCopying>)key copyWithZone:nil] : key;
+        _algorithm = [algorithm copy];
+        _keyLength = keyLength;
+        _mode = [mode copy];
+    }
+    return self;
+}
 
 - (ARTCipherParams *)toCipherParams {
     return [ARTCrypto getDefaultParams:self];
@@ -318,16 +336,19 @@
     return hash;
 }
 
-+ (ARTCipherParams *)getDefaultParams:(NSDictionary *)cipherParams {
-    NSString *algorithm = cipherParams[@"algorithm"];
-    if (algorithm == nil) {
-        algorithm = [ARTCrypto defaultAlgorithm];
-    }
-    NSString *key = cipherParams[@"key"];
-    if (key == nil) {
++ (ARTCipherParams *)getDefaultParams:(ARTCipherParamOptions *)options {
+    if (options.key == nil) {
         [ARTException raise:NSInvalidArgumentException format:@"missing key parameter"];
     }
-    return [[ARTCipherParams alloc] initWithAlgorithm:algorithm key:key];
+    NSString *algorithm = options.algorithm ?: [ARTCrypto defaultAlgorithm];
+    if (options.mode != nil && [options.mode caseInsensitiveCompare:@"CBC"] != NSOrderedSame) {
+        [ARTException raise:NSInvalidArgumentException format:@"unsupported cipher mode: %@", options.mode];
+    }
+    ARTCipherParams *params = [[ARTCipherParams alloc] initWithAlgorithm:algorithm key:options.key];
+    if (options.keyLength != 0 && options.keyLength != params.keyLength) {
+        [ARTException raise:NSInvalidArgumentException format:@"keyLength %lu does not match the key's length of %lu bits", (unsigned long)options.keyLength, (unsigned long)params.keyLength];
+    }
+    return params;
 }
 
 + (NSData *)generateRandomKey {

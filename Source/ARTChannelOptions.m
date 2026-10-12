@@ -14,7 +14,7 @@
 }
 
 - (instancetype)initWithCipherKey:(id<ARTCipherKeyCompatible>)key {
-    return [self initWithCipher:@{@"key": key}];
+    return [self initWithCipher:[[ARTCipherParamOptions alloc] initWithKey:key]];
 }
 
 - (id)copyWithZone:(NSZone *)zone {

@@ -41,9 +41,7 @@ private func testSupportsAESEncryptionWithKeyLength(_ encryptionKeyLength: UInt,
     let client = HttpClient(options: options)
     client.internal.httpExecutor = testHTTPExecutor
 
-    let params: CipherParams = Crypto.getDefaultParams([
-        "key": Crypto.generateRandomKey(encryptionKeyLength),
-    ])
+    let params: CipherParams = Crypto.getDefaultParams(CipherParamOptions(key: Crypto.generateRandomKey(encryptionKeyLength) as NSData))
     XCTAssertEqual(params.algorithm, "AES")
     XCTAssertEqual(params.keyLength, encryptionKeyLength)
     XCTAssertEqual(params.mode, "CBC")
@@ -1577,7 +1575,7 @@ class HttpClientChannelTests: XCTestCase {
         let clientEncrypted = HttpClient(options: options)
 
         let channelName = test.uniqueChannelName()
-        let channelOptions = ChannelOptions(cipher: ["key": Crypto.generateRandomKey()] as CipherParamsCompatible)
+        let channelOptions = ChannelOptions(cipher: CipherParamOptions(key: Crypto.generateRandomKey() as NSData))
         let channelEncrypted = clientEncrypted.channels.get(channelName, options: channelOptions)
 
         let expectedMessage = ["something": 1]
@@ -1617,7 +1615,7 @@ class HttpClientChannelTests: XCTestCase {
         options.useBinaryProtocol = false
         options.logHandler = Log(capturingOutput: true)
         let client = HttpClient(options: options)
-        let channelOptions = ChannelOptions(cipher: ["key": Crypto.generateRandomKey()] as CipherParamsCompatible)
+        let channelOptions = ChannelOptions(cipher: CipherParamOptions(key: Crypto.generateRandomKey() as NSData))
         let channel = client.channels.get(test.uniqueChannelName(), options: channelOptions)
         client.internal.httpExecutor = testHTTPExecutor
 

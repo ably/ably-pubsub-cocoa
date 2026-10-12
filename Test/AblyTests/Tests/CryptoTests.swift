@@ -23,23 +23,23 @@ class CryptoTests: XCTestCase {
 
     // RSE1a, RSE1b
     func test__001__Crypto__getDefaultParams__returns_a_complete_CipherParams_instance__using_the_default_values_for_any_field_not_supplied() {
-        XCTAssertNotNil(tryInObjC {
-            _ = Crypto.getDefaultParams(["nokey": "nokey"])
-        })
-
-        var params: CipherParams = Crypto.getDefaultParams([
-            "key": key,
-        ])
+        var params: CipherParams = Crypto.getDefaultParams(CipherParamOptions(key: key as NSString))
         XCTAssertEqual(params.algorithm, "AES")
         XCTAssertEqual(params.key, binaryKey as Data)
         XCTAssertEqual(params.keyLength, 128)
         XCTAssertEqual(params.mode, "CBC")
 
-        params = Crypto.getDefaultParams([
-            "key": longKey,
-            "algorithm": "DES",
-        ])
+        params = Crypto.getDefaultParams(CipherParamOptions(key: longKey as NSData, algorithm: "DES", keyLength: 0, mode: nil))
         XCTAssertEqual(params.algorithm, "DES")
+        XCTAssertEqual(params.key, longKey as Data)
+        XCTAssertEqual(params.keyLength, 256)
+        XCTAssertEqual(params.mode, "CBC")
+    }
+
+    // RSE1b, CO2
+    func test__017__Crypto__getDefaultParams__accepts_all_CipherParamOptions_fields() {
+        let params = Crypto.getDefaultParams(CipherParamOptions(key: longKey as NSData, algorithm: "aes", keyLength: 256, mode: "cbc"))
+        XCTAssertEqual(params.algorithm, "aes")
         XCTAssertEqual(params.key, longKey as Data)
         XCTAssertEqual(params.keyLength, 256)
         XCTAssertEqual(params.mode, "CBC")
@@ -48,37 +48,60 @@ class CryptoTests: XCTestCase {
     // RSE1c
 
     func test__004__Crypto__getDefaultParams__key_parameter__can_be_a_binary() {
-        let params = Crypto.getDefaultParams(["key": binaryKey])
+        let params = Crypto.getDefaultParams(CipherParamOptions(key: binaryKey as NSData))
         XCTAssertEqual(params.key, binaryKey as Data)
     }
 
     func test__005__Crypto__getDefaultParams__key_parameter__can_be_a_base64_encoded_string_with_standard_encoding() {
-        let params = Crypto.getDefaultParams(["key": key])
+        let params = Crypto.getDefaultParams(CipherParamOptions(key: key as NSString))
         XCTAssertEqual(params.key, binaryKey as Data)
     }
 
     func test__006__Crypto__getDefaultParams__key_parameter__can_be_a_base64_encoded_string_with_URL_encoding() {
         let key = "-_h4eHh4eHh4eHh4eHh4eA=="
-        let params = Crypto.getDefaultParams(["key": key])
+        let params = Crypto.getDefaultParams(CipherParamOptions(key: key as NSString))
         XCTAssertEqual(params.key, binaryKey as Data)
     }
 
     // RSE1d
     func test__002__Crypto__getDefaultParams__calculates_a_keyLength_from_the_key__its_size_in_bits_() {
-        var params = Crypto.getDefaultParams(["key": binaryKey])
+        var params = Crypto.getDefaultParams(CipherParamOptions(key: binaryKey as NSData))
         XCTAssertEqual(params.keyLength, 128)
 
-        params = Crypto.getDefaultParams(["key": longKey])
+        params = Crypto.getDefaultParams(CipherParamOptions(key: longKey as NSData))
         XCTAssertEqual(params.keyLength, 256)
     }
 
     // RSE1e
     func test__003__Crypto__getDefaultParams__should_check_that_keyLength_is_valid_for_algorithm() {
         XCTAssertNotNil(tryInObjC {
-            _ = Crypto.getDefaultParams([
-                "key": binaryKey.subdata(in: 0 ..< 10),
-            ])
+            _ = Crypto.getDefaultParams(CipherParamOptions(key: binaryKey.subdata(in: 0 ..< 10) as NSData))
         })
+    }
+
+    // RSE1e
+    func test__018__Crypto__getDefaultParams__should_check_that_keyLength_matches_the_key() {
+        XCTAssertNotNil(tryInObjC {
+            _ = Crypto.getDefaultParams(CipherParamOptions(key: binaryKey as NSData, algorithm: nil, keyLength: 256, mode: nil))
+        })
+    }
+
+    // RSE1e, CO2d
+    func test__019__Crypto__getDefaultParams__should_reject_an_unsupported_mode() {
+        XCTAssertNotNil(tryInObjC {
+            _ = Crypto.getDefaultParams(CipherParamOptions(key: binaryKey as NSData, algorithm: nil, keyLength: 0, mode: "ECB"))
+        })
+    }
+
+    // CO2
+    func test__020__CipherParamOptions__stores_a_copy_of_the_key() {
+        let mutableKey = NSMutableData(data: binaryKey)
+        let options = CipherParamOptions(key: mutableKey)
+        mutableKey.append(binaryKey)
+        XCTAssertEqual(options.key as? NSData, binaryKey as NSData)
+        XCTAssertEqual(options.keyLength, 0)
+        XCTAssertNil(options.algorithm)
+        XCTAssertNil(options.mode)
     }
 
     // RSE2

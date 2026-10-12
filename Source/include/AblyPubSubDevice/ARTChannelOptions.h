@@ -19,11 +19,20 @@ NS_SWIFT_NAME(ChannelOptions)
 /**
  * Creates an options object that requests encryption for the channel.
  *
- * @param cipherParams An `ARTCipherParams` object, or an `ARTCipherParamOptions` object from which `+[ARTCrypto getDefaultParams:]` builds one. Pass `nil` for no encryption.
+ * @param cipherParams An `ARTCipherParams` object, or `nil` for no encryption.
  *
  * @return An `ARTChannelOptions` object.
  */
-- (instancetype)initWithCipher:(id<ARTCipherParamsCompatible> _Nullable)cipherParams;
+- (instancetype)initWithCipher:(nullable ARTCipherParams *)cipherParams;
+
+/**
+ * Creates an options object that requests encryption for the channel, using `+[ARTCrypto getDefaultParams:]` to build the cipher parameters.
+ *
+ * @param options An `ARTCipherParamOptions` object.
+ *
+ * @return An `ARTChannelOptions` object.
+ */
+- (instancetype)initWithCipherOptions:(ARTCipherParamOptions *)options;
 
 /**
  * Creates an options object using a key only.

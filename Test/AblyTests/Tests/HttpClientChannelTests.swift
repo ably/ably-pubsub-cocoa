@@ -1575,7 +1575,7 @@ class HttpClientChannelTests: XCTestCase {
         let clientEncrypted = HttpClient(options: options)
 
         let channelName = test.uniqueChannelName()
-        let channelOptions = ChannelOptions(cipher: CipherParamOptions(key: Crypto.generateRandomKey() as NSData))
+        let channelOptions = ChannelOptions(cipherOptions: CipherParamOptions(key: Crypto.generateRandomKey() as NSData))
         let channelEncrypted = clientEncrypted.channels.get(channelName, options: channelOptions)
 
         let expectedMessage = ["something": 1]
@@ -1615,7 +1615,7 @@ class HttpClientChannelTests: XCTestCase {
         options.useBinaryProtocol = false
         options.logHandler = Log(capturingOutput: true)
         let client = HttpClient(options: options)
-        let channelOptions = ChannelOptions(cipher: CipherParamOptions(key: Crypto.generateRandomKey() as NSData))
+        let channelOptions = ChannelOptions(cipherOptions: CipherParamOptions(key: Crypto.generateRandomKey() as NSData))
         let channel = client.channels.get(test.uniqueChannelName(), options: channelOptions)
         client.internal.httpExecutor = testHTTPExecutor
 

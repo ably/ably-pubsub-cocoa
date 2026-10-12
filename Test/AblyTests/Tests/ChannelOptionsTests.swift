@@ -29,7 +29,7 @@ class ChannelOptionsTests: XCTestCase {
     // TB2b2
     func test_initWithCipherParamOptions_callsGetDefaultParams() throws {
         let key = Crypto.generateRandomKey(128)
-        let options = ChannelOptions(cipher: CipherParamOptions(key: key as NSData))
+        let options = ChannelOptions(cipherOptions: CipherParamOptions(key: key as NSData))
 
         let cipher = try XCTUnwrap(options.cipher)
         XCTAssertEqual(cipher.algorithm, "AES")
@@ -41,7 +41,7 @@ class ChannelOptionsTests: XCTestCase {
     // TB2b2
     func test_initWithInvalidCipherParamOptions_raises() {
         XCTAssertNotNil(tryInObjC {
-            _ = ChannelOptions(cipher: CipherParamOptions(key: Crypto.generateRandomKey(128) as NSData, algorithm: nil, keyLength: 256, mode: nil))
+            _ = ChannelOptions(cipherOptions: CipherParamOptions(key: Crypto.generateRandomKey(128) as NSData, algorithm: nil, keyLength: 256, mode: nil))
         })
     }
 
@@ -60,7 +60,7 @@ class ChannelOptionsTests: XCTestCase {
     // TB2b2
     func test_realtimeInitWithCipherParamOptions_callsGetDefaultParams() throws {
         let key = Crypto.generateRandomKey()
-        let options = RealtimeChannelOptions(cipher: CipherParamOptions(key: key as NSData))
+        let options = RealtimeChannelOptions(cipherOptions: CipherParamOptions(key: key as NSData))
 
         let cipher = try XCTUnwrap(options.cipher)
         XCTAssertEqual(cipher.key, key)

@@ -97,10 +97,6 @@
     return YES;
 }
 
-- (ARTCipherParams *)toCipherParams {
-    return self;
-}
-
 @end
 
 @implementation ARTCipherParamOptions
@@ -121,10 +117,6 @@
         _mode = [mode copy];
     }
     return self;
-}
-
-- (ARTCipherParams *)toCipherParams {
-    return [ARTCrypto getDefaultParams:self];
 }
 
 @end
@@ -340,11 +332,16 @@
     if (options.key == nil) {
         [ARTException raise:NSInvalidArgumentException format:@"missing key parameter"];
     }
+    // A string key that isn't valid base64 converts to nil, which would otherwise surface as a key length of 0.
+    NSData *keyData = [options.key toData];
+    if (keyData == nil) {
+        [ARTException raise:NSInvalidArgumentException format:@"key is not a valid base64 string"];
+    }
     NSString *algorithm = options.algorithm ?: [ARTCrypto defaultAlgorithm];
     if (options.mode != nil && [options.mode caseInsensitiveCompare:@"CBC"] != NSOrderedSame) {
         [ARTException raise:NSInvalidArgumentException format:@"unsupported cipher mode: %@", options.mode];
     }
-    ARTCipherParams *params = [[ARTCipherParams alloc] initWithAlgorithm:algorithm key:options.key];
+    ARTCipherParams *params = [[ARTCipherParams alloc] initWithAlgorithm:algorithm key:keyData];
     if (options.keyLength != 0 && options.keyLength != params.keyLength) {
         [ARTException raise:NSInvalidArgumentException format:@"keyLength %lu does not match the key's length of %lu bits", (unsigned long)options.keyLength, (unsigned long)params.keyLength];
     }

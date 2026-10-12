@@ -21,19 +21,11 @@ NS_SWIFT_NAME(CipherKeyCompatible)
 - (NSData *)toData;
 @end
 
-@class ARTCipherParams;
-
-/// :nodoc:
-NS_SWIFT_NAME(CipherParamsCompatible)
-@protocol ARTCipherParamsCompatible <NSObject>
-- (ARTCipherParams *)toCipherParams;
-@end
-
 /**
  * Sets the properties to configure encryption for an `ARTHttpChannel` or `ARTRealtimeChannel` object.
  */
 NS_SWIFT_NAME(CipherParams)
-@interface ARTCipherParams : NSObject <ARTCipherParamsCompatible>
+@interface ARTCipherParams : NSObject
 
 /**
  * The algorithm to use for encryption. Only `AES` is supported and is the default value.
@@ -61,19 +53,16 @@ NS_SWIFT_NAME(CipherParams)
 /// :nodoc:
 - (instancetype)initWithAlgorithm:(NSString *)algorithm key:(id<ARTCipherKeyCompatible>)key;
 
-/// :nodoc:
-- (ARTCipherParams *)toCipherParams;
-
 @end
 
 /**
  * Contains the properties used to generate an `ARTCipherParams` object.
  *
- * Pass it to `+[ARTCrypto getDefaultParams:]`, or directly as the `cipher` of an `ARTChannelOptions` or `ARTRealtimeChannelOptions` object.
+ * Pass it to `+[ARTCrypto getDefaultParams:]`, or to `-[ARTChannelOptions initWithCipherOptions:]` to encrypt a channel.
  */
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(CipherParamOptions)
-@interface ARTCipherParamOptions : NSObject <ARTCipherParamsCompatible>
+@interface ARTCipherParamOptions : NSObject
 
 /**
  * The algorithm to use for encryption. Only `AES` is supported. If `nil`, `AES` is used.
@@ -117,9 +106,6 @@ NS_SWIFT_NAME(CipherParamOptions)
 
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
-
-/// :nodoc:
-- (ARTCipherParams *)toCipherParams;
 
 @end
 

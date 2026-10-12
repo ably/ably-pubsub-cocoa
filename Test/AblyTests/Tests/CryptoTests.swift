@@ -93,6 +93,14 @@ class CryptoTests: XCTestCase {
         })
     }
 
+    func test__021__Crypto__getDefaultParams__should_reject_a_key_that_is_not_valid_base64() {
+        let exception = tryInObjC {
+            _ = Crypto.getDefaultParams(CipherParamOptions(key: "not base64!" as NSString))
+        }
+        XCTAssertEqual(exception?.name, .invalidArgumentException)
+        XCTAssertEqual(exception?.reason, "key is not a valid base64 string")
+    }
+
     // CO2
     func test__020__CipherParamOptions__stores_a_copy_of_the_key() {
         let mutableKey = NSMutableData(data: binaryKey)

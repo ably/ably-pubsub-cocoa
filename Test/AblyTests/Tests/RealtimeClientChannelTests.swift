@@ -3191,7 +3191,7 @@ class RealtimeClientChannelTests: XCTestCase {
         client.connect()
         defer { client.dispose(); client.close() }
 
-        let channelOptions = RealtimeChannelOptions(cipher: CipherParamOptions(key: Crypto.generateRandomKey() as NSData))
+        let channelOptions = RealtimeChannelOptions(cipherOptions: CipherParamOptions(key: Crypto.generateRandomKey() as NSData))
         let channel = client.channels.get(test.uniqueChannelName(), options: channelOptions)
 
         let expectedMessage = ["key": 1]

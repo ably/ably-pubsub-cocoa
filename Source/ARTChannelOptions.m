@@ -6,15 +6,19 @@
     ARTCipherParams *_cipher;
 }
 
-- (instancetype)initWithCipher:(id<ARTCipherParamsCompatible>)cipherParams {
+- (instancetype)initWithCipher:(ARTCipherParams *)cipherParams {
     if (self = [super init]) {
-        self->_cipher = [cipherParams toCipherParams];
+        self->_cipher = cipherParams;
     }
     return self;
 }
 
+- (instancetype)initWithCipherOptions:(ARTCipherParamOptions *)options {
+    return [self initWithCipher:[ARTCrypto getDefaultParams:options]];
+}
+
 - (instancetype)initWithCipherKey:(id<ARTCipherKeyCompatible>)key {
-    return [self initWithCipher:[[ARTCipherParamOptions alloc] initWithKey:key]];
+    return [self initWithCipherOptions:[[ARTCipherParamOptions alloc] initWithKey:key]];
 }
 
 - (id)copyWithZone:(NSZone *)zone {

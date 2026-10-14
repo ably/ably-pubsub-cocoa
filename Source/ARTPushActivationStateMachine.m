@@ -428,9 +428,6 @@ art_dispatch_async(_queue, ^{
         if ([delegate respondsToSelector:@selector(didUpdateAblyPush:)]) {
             [delegate didUpdateAblyPush:error];
         }
-        else if (error && [delegate respondsToSelector:@selector(didAblyPushRegistrationFail:)]) {
-            [delegate didAblyPushRegistrationFail:error];
-        }
     });
     #endif
 }

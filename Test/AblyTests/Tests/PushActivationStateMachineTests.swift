@@ -1445,7 +1445,6 @@ class StateMachineDelegate: NSObject, PushRegistererDelegate {
     var onDidActivateAblyPush: ((ErrorInfo?) -> Void)?
     var onDidUpdateAblyPush: ((ErrorInfo?) -> Void)?
     var onDidDeactivateAblyPush: ((ErrorInfo?) -> Void)?
-    var onDidAblyPushRegistrationFail: ((ErrorInfo?) -> Void)?
 
     func didActivateAblyPush(_ error: ErrorInfo?) {
         onDidActivateAblyPush?(error)
@@ -1457,10 +1456,6 @@ class StateMachineDelegate: NSObject, PushRegistererDelegate {
 
     func didDeactivateAblyPush(_ error: ErrorInfo?) {
         onDidDeactivateAblyPush?(error)
-    }
-
-    func didAblyPushRegistrationFail(_ error: ErrorInfo?) {
-        onDidAblyPushRegistrationFail?(error)
     }
 }
 

@@ -35,11 +35,6 @@ NS_SWIFT_NAME(PushRegistererDelegate)
 - (void)didUpdateAblyPush:(nullable ARTErrorInfo *)error;
 
 /**
- Same as `didUpdateAblyPush:`, but called only in case of failure for backward compatibility.
- */
-- (void)didAblyPushRegistrationFail:(nullable ARTErrorInfo *)error;
-
-/**
  Optional method.
  If you want to activate devices from your server, then you should implement this method (including the `ablyPushCustomDeregister:deviceId:callback` method) where the network request completion should call the callback argument to continue with the registration process.
  */

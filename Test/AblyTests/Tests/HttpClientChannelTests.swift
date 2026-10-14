@@ -618,6 +618,23 @@ class HttpClientChannelTests: XCTestCase {
         }
     }
 
+    // RSL1i, TO3l8
+    func test__019a__publish__the_maxMessageSize_is_the_one_in_the_client_options() throws {
+        let test = Test()
+        let options = ClientOptions(key: "xxxx:xxxx")
+        options.maxMessageSize = 10
+        let client = HttpClient(options: options)
+        let channel = client.channels.get(test.uniqueChannelName())
+
+        // Far below the 65536 default; the size check rejects it before any request is made
+        waitUntil(timeout: testTimeout) { done in
+            channel.publish("name", data: "more than ten bytes") { error in
+                XCTAssertEqual(error?.code, ErrorCode.maxMessageLengthExceeded.intValue)
+                done()
+            }
+        }
+    }
+
     // RSL1k
 
     // TO3n

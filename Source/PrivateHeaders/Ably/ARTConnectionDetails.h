@@ -21,12 +21,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly, getter=getConnectionKey, nullable) NSString *connectionKey;
 
 /**
- * The maximum message size is an attribute of an Ably account and enforced by Ably servers. `maxMessageSize` indicates the maximum message size allowed by the Ably account this connection is using. Overrides the default value of `+[ARTDefault maxMessageSize]`.
+ * The maximum message size is an attribute of an Ably account and enforced by Ably servers. `maxMessageSize` indicates the maximum message size allowed by the Ably account this connection is using. Overrides `ARTClientOptions.maxMessageSize`.
  */
 @property (readonly, nonatomic) NSInteger maxMessageSize;
 
 /**
- * Overrides the default `maxFrameSize`.
+ * Overrides `ARTClientOptions.maxFrameSize`.
  */
 @property (readonly, nonatomic) NSInteger maxFrameSize;
 

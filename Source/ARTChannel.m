@@ -10,7 +10,6 @@
 #import "ARTBaseMessage+Private.h"
 #import "ARTDataQuery.h"
 #import "ARTHttpClient+Private.h"
-#import "ARTDefault.h"
 #import "ARTClientOptions+Private.h"
 #import "ARTInternalLog.h"
 #import "ARTGCD.h"
@@ -18,6 +17,7 @@
 @implementation ARTChannel {
     dispatch_queue_t _queue;
     ARTChannelOptions *_options;
+    NSInteger _maxMessageSize;
 }
 
 - (instancetype)initWithName:(NSString *)name andOptions:(ARTChannelOptions *)options rest:(ARTHttpClientInternal *)rest logger:(ARTInternalLog *)logger {
@@ -25,6 +25,7 @@
         _name = name;
         _logger = logger;
         _queue = rest.queue;
+        _maxMessageSize = rest.options.maxMessageSize;
         _options = options;
         _options.frozen = YES;
         NSError *error = nil;
@@ -220,7 +221,7 @@
     for (ARTMessage *message in messages) {
         size += [message messageSize];
     }
-    return size > [ARTDefault maxMessageSize];
+    return size > _maxMessageSize;
 }
 
 - (ARTMessage *)encodeMessageIfNeeded:(ARTMessage *)message error:(NSError **)error {

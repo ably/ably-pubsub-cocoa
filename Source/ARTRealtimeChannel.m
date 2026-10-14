@@ -1096,7 +1096,7 @@ art_dispatch_sync(_queue, ^{
             return;
         }
         // Set attach timer after the connection is active
-        [[self unlessStateChangesBefore:self.realtime.options.testOptions.realtimeRequestTimeout do:^{
+        [[self unlessStateChangesBefore:self.realtime.options.realtimeRequestTimeout do:^{
             // Timeout
             ARTErrorInfo *errorInfo = [ARTErrorInfo createWithCode:ARTStateAttachTimedOut message:@"attach timed out"];
             ARTChannelStateChangeParams *const params = [[ARTChannelStateChangeParams alloc] initWithState:ARTStateAttachTimedOut
@@ -1191,7 +1191,7 @@ art_dispatch_sync(_queue, ^{
 
     [self.realtime send:detachMessage sentCallback:nil ackCallback:nil];
 
-    [[self unlessStateChangesBefore:self.realtime.options.testOptions.realtimeRequestTimeout do:^{
+    [[self unlessStateChangesBefore:self.realtime.options.realtimeRequestTimeout do:^{
         if (!self.realtime) {
             return;
         }

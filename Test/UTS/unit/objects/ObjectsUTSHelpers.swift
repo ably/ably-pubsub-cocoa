@@ -93,10 +93,10 @@ final class ObjectsUTSCoreSDK: CoreSDK {
         nil
     }
 
-    var nosync_maxMessageSize: Int? {
+    var nosync_maxMessageSize: Int {
         // The unit ports do not publish through this CoreSDK, so the RTO15d gate is never consulted;
-        // nil falls back to the Ably default if it ever were.
-        nil
+        // return the default `ClientOptions.maxMessageSize` in case it ever is.
+        65536
     }
 
     func nosync_attach(callback: @escaping @Sendable (ErrorInfo?) -> Void) {

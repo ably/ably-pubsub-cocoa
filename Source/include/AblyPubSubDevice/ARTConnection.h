@@ -25,7 +25,7 @@ NS_SWIFT_NAME(ConnectionProtocol)
 @property (nullable, readonly) NSString *key;
 
 /**
- * The maximum message size is an attribute of an Ably account and enforced by Ably servers. `maxMessageSize` indicates the maximum message size allowed by the Ably account this connection is using. Overrides the default value of `+[ARTDefault maxMessageSize]`.
+ * The maximum message size is an attribute of an Ably account and enforced by Ably servers. `maxMessageSize` indicates the maximum message size allowed by the Ably account this connection is using. Overrides `ARTClientOptions.maxMessageSize`, which this property returns until Ably sends a value when the connection is established.
  */
 @property (readonly) NSInteger maxMessageSize;
 

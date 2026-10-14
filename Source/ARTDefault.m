@@ -8,8 +8,6 @@ static NSString *const ARTDefault_apiVersion = @"6"; // CSV2
 static NSString *const ARTDefault_endpoint = @"main";
 
 static NSTimeInterval _connectionStateTtl = 60.0;
-static NSInteger _maxProductionMessageSize = 65536;
-static NSInteger _maxSandboxMessageSize = 16384;
 
 @implementation ARTDefault
 
@@ -56,51 +54,9 @@ static NSInteger _maxSandboxMessageSize = 16384;
     return _connectionStateTtl;
 }
 
-+ (NSTimeInterval)realtimeRequestTimeout {
-    return 10.0;
-}
-
-+ (NSInteger)maxMessageSize {
-#if DEBUG
-    return _maxSandboxMessageSize;
-#else
-    return _maxProductionMessageSize;
-#endif
-}
-
-+ (NSInteger)maxSandboxMessageSize {
-    return _maxSandboxMessageSize;
-}
-
-+ (NSInteger)maxProductionMessageSize {
-    return _maxProductionMessageSize;
-}
-
 + (void)setConnectionStateTtl:(NSTimeInterval)value {
     @synchronized (self) {
         _connectionStateTtl = value;
-    }
-}
-
-+ (void)setMaxMessageSize:(NSInteger)value {
-    @synchronized (self) {
-#if DEBUG
-        _maxSandboxMessageSize = value;
-#else
-        _maxProductionMessageSize = value;
-#endif
-    }
-}
-
-+ (void)setMaxProductionMessageSize:(NSInteger)value {
-    @synchronized (self) {
-        _maxProductionMessageSize = value;
-    }
-}
-
-+ (void)setMaxSandboxMessageSize:(NSInteger)value {
-    @synchronized (self) {
-        _maxSandboxMessageSize = value;
     }
 }
 

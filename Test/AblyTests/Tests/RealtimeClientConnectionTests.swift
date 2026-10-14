@@ -25,7 +25,7 @@ private func testUsesAlternativeHostOnResponse(_ caseTest: FakeNetworkResponse, 
     let options = ClientOptions(key: "xxxx:xxxx")
     options.autoConnect = false
     options.disconnectedRetryTimeout = 1.0
-    options.testOptions.realtimeRequestTimeout = 1.0
+    options.realtimeRequestTimeout = 1.0
     let transportFactory = TestProxyTransportFactory()
     options.testOptions.transportFactory = transportFactory
     let client = PubSubClient(options: options)
@@ -155,23 +155,23 @@ class RealtimeClientConnectionTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
         options.autoConnect = false
         options.testOptions.transportFactory = TestProxyTransportFactory()
+        // A value the sandbox won't send, so that the override is visible
+        options.maxMessageSize = 1
         let client = PubSubClient(options: options)
-        let defaultMaxMessageSize = Default.maxMessageSize()
-        // Sandbox apps have a 16384 limit
-        XCTAssertEqual(defaultMaxMessageSize, 16384)
         defer {
-            Default.setMaxMessageSize(defaultMaxMessageSize)
             client.dispose()
             client.close()
         }
-        // Setting different value to check override below
-        Default.setMaxMessageSize(1)
+
+        // TO3l8: until CONNECTED, the client option applies
+        XCTAssertEqual(client.connection.maxMessageSize, 1)
 
         waitUntil(timeout: testTimeout) { done in
             client.connection.once(.connected) { _ in
                 let transport = client.internal.transport as! TestProxyTransport
                 let maxMessageSize = transport.protocolMessagesReceived.filter { $0.action == .connected }[0].connectionDetails?.maxMessageSize
-                XCTAssertEqual(maxMessageSize, defaultMaxMessageSize)
+                // Sandbox apps have a 16384 limit
+                XCTAssertEqual(maxMessageSize, 16384)
                 XCTAssertEqual(client.connection.maxMessageSize, maxMessageSize)
                 done()
             }
@@ -1730,7 +1730,7 @@ class RealtimeClientConnectionTests: XCTestCase {
         }
 
         expect(start).toEventuallyNot(beNil(), timeout: testTimeout)
-        expect(end).toEventuallyNot(beNil(), timeout: DispatchTimeInterval.milliseconds(Int(1000.0 * Default.realtimeRequestTimeout())))
+        expect(end).toEventuallyNot(beNil(), timeout: DispatchTimeInterval.milliseconds(Int(1000.0 * options.realtimeRequestTimeout)))
 
         if states.count != 2 {
             fail("Invalid number of connection states. Expected CLOSING and CLOSE states")
@@ -1932,7 +1932,7 @@ class RealtimeClientConnectionTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         let realtimeRequestTimeout = 3.0
-        options.testOptions.realtimeRequestTimeout = realtimeRequestTimeout
+        options.realtimeRequestTimeout = realtimeRequestTimeout
         let client = AblyTests.newRealtime(options).client
         defer { client.dispose(); client.close() }
         waitUntil(timeout: testTimeout) { done in
@@ -2184,7 +2184,7 @@ class RealtimeClientConnectionTests: XCTestCase {
         options.endpoint = "10.255.255.1" // non-routable IP address
         options.autoConnect = false
         let realtimeRequestTimeout = 0.5
-        options.testOptions.realtimeRequestTimeout = realtimeRequestTimeout
+        options.realtimeRequestTimeout = realtimeRequestTimeout
 
         let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
@@ -2351,7 +2351,7 @@ class RealtimeClientConnectionTests: XCTestCase {
         try testRTN14dAndRTB1(test: test,
                               extraTimeNeededToObserveEachRetry: realtimeRequestTimeout, // waiting for connect to time out
                               modifyOptions: { options in
-            options.testOptions.realtimeRequestTimeout = realtimeRequestTimeout
+            options.realtimeRequestTimeout = realtimeRequestTimeout
             options.authCallback = { _, _ in
                 // Ignore `completion` closure to force a time out
             }
@@ -2382,7 +2382,7 @@ class RealtimeClientConnectionTests: XCTestCase {
         options.disconnectedRetryTimeout = 0.1
         options.suspendedRetryTimeout = 0.5
         options.autoConnect = false
-        options.testOptions.realtimeRequestTimeout = 0.1
+        options.realtimeRequestTimeout = 0.1
 
         options.authCallback = { _, _ in
             // Force a timeout
@@ -2504,7 +2504,7 @@ class RealtimeClientConnectionTests: XCTestCase {
         options.disconnectedRetryTimeout = 0.1
         options.suspendedRetryTimeout = 0.5
         options.autoConnect = false
-        options.testOptions.realtimeRequestTimeout = 0.1
+        options.realtimeRequestTimeout = 0.1
         let expectedTime: TimeInterval = 1.0
 
         options.authCallback = { _, _ in
@@ -4033,7 +4033,7 @@ class RealtimeClientConnectionTests: XCTestCase {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
         options.endpoint = "\(UUID()).com" // a hostname endpoint has no fallback hosts
-        options.testOptions.realtimeRequestTimeout = 1.0
+        options.realtimeRequestTimeout = 1.0
         XCTAssertNil(options.fallbackHosts)
         options.autoConnect = false
 
@@ -4075,7 +4075,7 @@ class RealtimeClientConnectionTests: XCTestCase {
         options.autoConnect = false
         options.disconnectedRetryTimeout = 1.0
         options.fallbackHosts = ["f.ably-realtime.com", "g.ably-realtime.com", "h.ably-realtime.com", "i.ably-realtime.com", "j.ably-realtime.com"]
-        options.testOptions.realtimeRequestTimeout = 1.0
+        options.realtimeRequestTimeout = 1.0
         let transportFactory = TestProxyTransportFactory()
         options.testOptions.transportFactory = transportFactory
         let client = PubSubClient(options: options)
@@ -4146,7 +4146,7 @@ class RealtimeClientConnectionTests: XCTestCase {
         let options = ClientOptions(key: "xxxx:xxxx")
         options.autoConnect = false
         options.disconnectedRetryTimeout = 1.0 // so that the test doesn't have to wait a long time to observe a retry
-        options.testOptions.realtimeRequestTimeout = 1.0
+        options.realtimeRequestTimeout = 1.0
         let transportFactory = TestProxyTransportFactory()
         options.testOptions.transportFactory = transportFactory
         let client = PubSubClient(options: options)
@@ -4190,7 +4190,7 @@ class RealtimeClientConnectionTests: XCTestCase {
         options.endpoint = endpoint
         options.autoConnect = false
         options.disconnectedRetryTimeout = 1.0
-        options.testOptions.realtimeRequestTimeout = 1.0
+        options.realtimeRequestTimeout = 1.0
         let transportFactory = TestProxyTransportFactory()
         options.testOptions.transportFactory = transportFactory
         let client = PubSubClient(options: options)
@@ -4254,7 +4254,7 @@ class RealtimeClientConnectionTests: XCTestCase {
         options.autoConnect = false
         options.disconnectedRetryTimeout = 1.0
         options.endpoint = endpoint
-        options.testOptions.realtimeRequestTimeout = 5.0
+        options.realtimeRequestTimeout = 5.0
         options.testOptions.shuffleArray = shuffleArrayInExpectedHostOrder
         let transportFactory = TestProxyTransportFactory()
         options.testOptions.transportFactory = transportFactory
@@ -4330,7 +4330,7 @@ class RealtimeClientConnectionTests: XCTestCase {
         let test = Test()
         let options = ClientOptions(key: "xxxx:xxxx")
         options.autoConnect = false
-        options.testOptions.realtimeRequestTimeout = 1.0
+        options.realtimeRequestTimeout = 1.0
         let transportFactory = TestProxyTransportFactory()
         options.testOptions.transportFactory = transportFactory
         let client = PubSubClient(options: options)
@@ -4433,7 +4433,7 @@ class RealtimeClientConnectionTests: XCTestCase {
         options.autoConnect = false
         options.disconnectedRetryTimeout = 1.0
         options.fallbackHosts = expectedFallbackHosts.sorted() // will be picked "randomly" as of expectedHostOrder
-        options.testOptions.realtimeRequestTimeout = 5.0
+        options.realtimeRequestTimeout = 5.0
         options.testOptions.shuffleArray = shuffleArrayInExpectedHostOrder
         let transportFactory = TestProxyTransportFactory()
         options.testOptions.transportFactory = transportFactory
@@ -5209,7 +5209,7 @@ class RealtimeClientConnectionTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
         // This needs to be sufficiently long such that we can expect to receive a CONNECTED ProtocolMessage within this duration after starting a connection attempt (there's no "correct" value since it depends on network conditions, but 1.5s seemed to work locally and in CI at time of writing). But we also don't want it to be longer than necessary since that would impact test execution time.
         let realtimeRequestTimeout = 1.5
-        options.testOptions.realtimeRequestTimeout = realtimeRequestTimeout
+        options.realtimeRequestTimeout = realtimeRequestTimeout
         let client = AblyTests.newRealtime(options).client
         defer { client.dispose(); client.close() }
 

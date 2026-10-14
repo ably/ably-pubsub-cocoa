@@ -13,7 +13,6 @@
 #import "ARTAnnotation.h"
 #import "ARTOutboundAnnotation+Private.h"
 #import "ARTAnnotation+Private.h"
-#import "ARTDefault.h"
 #import "ARTCrypto+Private.h"
 #import "ARTConstants.h"
 #import "ARTGCD.h"
@@ -157,7 +156,7 @@ art_dispatch_async(_queue, ^{
 
     // Validate the annotation size
     NSInteger annotationSize = [annotationToPublish annotationSize];
-    NSInteger maxSize = [ARTDefault maxMessageSize];
+    NSInteger maxSize = self->_channel.rest.options.maxMessageSize;
 
     if (annotationSize > maxSize) {
         if (callback) {

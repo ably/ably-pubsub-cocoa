@@ -300,7 +300,7 @@ class HttpAnnotationsTests: XCTestCase {
         let restClient = HttpClient(options: options)
         let channel = restClient.channels.get(test.uniqueChannelName(prefix: "mutable:"))
 
-        let largeString = String(repeating: "f", count: Default.maxMessageSize() + 100) // Create a string larger than maxMessageSize
+        let largeString = String(repeating: "f", count: options.maxMessageSize + 100) // Create a string larger than maxMessageSize
 
         waitUntil(timeout: testTimeout) { done in
             // Create an annotation with the large string as name

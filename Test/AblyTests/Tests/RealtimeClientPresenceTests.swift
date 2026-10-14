@@ -498,7 +498,7 @@ class RealtimeClientPresenceTests: XCTestCase {
         defer { client.dispose(); client.close() }
         let channel = client.channels.get(test.uniqueChannelName())
 
-        let listener = channel.presence.subscribe { _ in }!
+        let listener = channel.presence.subscribe { _ in }
         XCTAssertEqual(channel.internal.presence.eventEmitter.anyListeners.count, 1)
         channel.presence.unsubscribe(listener)
         XCTAssertEqual(channel.internal.presence.eventEmitter.anyListeners.count, 0)
@@ -883,7 +883,7 @@ class RealtimeClientPresenceTests: XCTestCase {
         defer { client.dispose(); client.close() }
         let channel = client.channels.get(test.uniqueChannelName())
 
-        let listener = channel.presence.subscribe(.present) { _ in }!
+        let listener = channel.presence.subscribe(.present) { _ in }
         XCTAssertEqual(channel.internal.presence.eventEmitter.listeners.count, 1)
         channel.presence.unsubscribe(.present, listener: listener)
         XCTAssertEqual(channel.internal.presence.eventEmitter.listeners.count, 0)
@@ -959,6 +959,9 @@ class RealtimeClientPresenceTests: XCTestCase {
                 fail("Should not be called")
             })
         }
+
+        // The listener is registered even though the channel is FAILED
+        XCTAssertEqual(channel.internal.presence.eventEmitter.anyListeners.count, 1)
     }
 
     // RTP6e

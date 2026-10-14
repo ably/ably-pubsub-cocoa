@@ -299,6 +299,10 @@ class RealtimeAnnotationsTests: XCTestCase {
                 }) { _ in }
             }) { _ in }
         }
+
+        // The listeners are registered even though the channel is FAILED
+        XCTAssertEqual(channel.internal.annotations.eventEmitter.anyListeners.count, 1)
+        XCTAssertEqual(channel.internal.annotations.eventEmitter.listeners.count, 1)
     }
 
     // RTAN4d, RTL7g

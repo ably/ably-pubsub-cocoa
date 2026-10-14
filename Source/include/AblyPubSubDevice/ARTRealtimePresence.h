@@ -145,7 +145,7 @@ NS_SWIFT_NAME(RealtimePresenceProtocol)
  *
  * @return An event listener object.
  */
-- (ARTEventListener *_Nullable)subscribe:(ARTPresenceMessageCallback)callback;
+- (ARTEventListener *)subscribe:(ARTPresenceMessageCallback)callback;
 
 /**
  * Registers a listener that is called each time a `ARTPresenceMessage` is received on the channel, such as a new member entering the presence set. A callback may optionally be passed in to this call to be notified of success or failure of the channel `-[ARTRealtimeChannelProtocol attach]` operation. It will not be called if the `ARTRealtimeChannelOptions.attachOnSubscribe` channel option is set to `false`.
@@ -155,7 +155,7 @@ NS_SWIFT_NAME(RealtimePresenceProtocol)
  *
  * @return An event listener object.
  */
-- (ARTEventListener *_Nullable)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(ARTPresenceMessageCallback)callback;
+- (ARTEventListener *)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(ARTPresenceMessageCallback)callback;
 
 /**
  * Registers a listener that is called each time a `ARTPresenceMessage` matching a given `ARTPresenceAction` is received on the channel, such as a new member entering the presence set.
@@ -165,7 +165,7 @@ NS_SWIFT_NAME(RealtimePresenceProtocol)
  *
  * @return An event listener object.
  */
-- (ARTEventListener *_Nullable)subscribe:(ARTPresenceAction)action callback:(ARTPresenceMessageCallback)callback;
+- (ARTEventListener *)subscribe:(ARTPresenceAction)action callback:(ARTPresenceMessageCallback)callback;
 
 /**
  * Registers a listener that is called each time a `ARTPresenceMessage` matching a given `ARTPresenceAction` is received on the channel, such as a new member entering the presence set. A callback may optionally be passed in to this call to be notified of success or failure of the channel `-[ARTRealtimeChannelProtocol attach]` operation. It will not be called if the `ARTRealtimeChannelOptions.attachOnSubscribe` channel option is set to `false`.
@@ -176,7 +176,7 @@ NS_SWIFT_NAME(RealtimePresenceProtocol)
  *
  * @return An event listener object.
  */
-- (ARTEventListener *_Nullable)subscribe:(ARTPresenceAction)action onAttach:(nullable ARTCallback)onAttach callback:(ARTPresenceMessageCallback)callback;
+- (ARTEventListener *)subscribe:(ARTPresenceAction)action onAttach:(nullable ARTCallback)onAttach callback:(ARTPresenceMessageCallback)callback;
 
 /**
  * Deregisters all listeners currently receiving `ARTPresenceMessage` for the channel.

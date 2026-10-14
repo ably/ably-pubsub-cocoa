@@ -201,19 +201,19 @@
     [_internal detach:callback];
 }
 
-- (ARTEventListener *_Nullable)subscribe:(ARTMessageCallback)callback {
+- (ARTEventListener *)subscribe:(ARTMessageCallback)callback {
     return [_internal subscribe:callback];
 }
 
-- (ARTEventListener *_Nullable)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(ARTMessageCallback)cb {
+- (ARTEventListener *)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(ARTMessageCallback)cb {
     return [_internal subscribeWithAttachCallback:onAttach callback:cb];
 }
 
-- (ARTEventListener *_Nullable)subscribe:(NSString *)name callback:(ARTMessageCallback)cb {
+- (ARTEventListener *)subscribe:(NSString *)name callback:(ARTMessageCallback)cb {
     return [_internal subscribe:name callback:cb];
 }
 
-- (ARTEventListener *_Nullable)subscribe:(NSString *)name onAttach:(nullable ARTCallback)onAttach callback:(ARTMessageCallback)cb {
+- (ARTEventListener *)subscribe:(NSString *)name onAttach:(nullable ARTCallback)onAttach callback:(ARTMessageCallback)cb {
     return [_internal subscribe:name onAttach:onAttach callback:cb];
 }
 
@@ -588,10 +588,8 @@ art_dispatch_sync(_queue, ^{
         if (onAttach && attachOnSubscribe) { // RTL7h
             onAttach([ARTErrorInfo createWithCode:ARTErrorChannelOperationFailedInvalidState message:@"attempted to subscribe while channel is in FAILED state."]);
         }
-        ARTLogWarn(self.logger, @"R:%p C:%p (%@) subscribe of '%@' has been ignored (attempted to subscribe while channel is in FAILED state)", self->_realtime, self, self.name, name == nil ? @"all" : name);
-        return;
-    }
-    if (self.shouldAttach && attachOnSubscribe) { // RTL7g
+        ARTLogWarn(self.logger, @"R:%p C:%p (%@) subscribe to '%@' event(s) while channel is in FAILED state; the listener receives messages once the channel is attached again", self->_realtime, self, self.name, name == nil ? @"all" : name);
+    } else if (self.shouldAttach && attachOnSubscribe) { // RTL7g
         [self _attach:onAttach];
     }
     listener = name == nil ? [self.messagesEventEmitter on:cb] : [self.messagesEventEmitter on:name callback:cb];

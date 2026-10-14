@@ -3113,6 +3113,37 @@ class RealtimeClientChannelTests: XCTestCase {
     }
 
     // RTL7g
+    func test__110c__Channel__subscribe__registers_the_listener_even_if_the_channel_is_in_the_FAILED_state() throws {
+        let test = Test()
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
+        defer { client.dispose(); client.close() }
+
+        let channel = client.channels.get(test.uniqueChannelName())
+        channel.internal.onError(AblyTests.newErrorProtocolMessage())
+        XCTAssertEqual(channel.state, RealtimeChannelState.failed)
+
+        waitUntil(timeout: testTimeout) { done in
+            let listener = channel.subscribe { message in
+                XCTAssertEqual(message.name, "foo")
+                done()
+            }
+            // `subscribe` used to return nil on a FAILED channel. Its return type is now nonnull, but
+            // Objective-C doesn't enforce that, so a regression would hand Swift a nil `EventListener`.
+            // Swift assumes a non-optional can't be nil, so this check can't fail cleanly:
+            // - Passing `listener` as `Any?` always wraps it as present. XCTAssertNotNil then reads the
+            //   object to describe it, which crashes on nil (SIGSEGV in swift_getObjectType), and the
+            //   whole test run stops. `try` can't catch a crash.
+            // - `listener is EventListener` is no better: the compiler folds it to `true`.
+            // A crash still flags the regression, which a missing check wouldn't.
+            XCTAssertNotNil(listener)
+            channel.attach { error in
+                XCTAssertNil(error)
+                channel.publish("foo", data: "bar")
+            }
+        }
+    }
+
+    // RTL7g
     func test__110b__Channel__subscribe__should_not_result_in_an_error_if_channel_is_in_the_FAILED_state_and_options_attachOnSubscribe_is_false() throws {
         let test = Test()
         let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))

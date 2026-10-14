@@ -80,7 +80,7 @@ NS_SWIFT_NAME(RealtimeChannelProtocol)
  *
  * @see See `subscribeWithAttachCallback:` for more details.
  */
-- (ARTEventListener *_Nullable)subscribe:(ARTMessageCallback)callback;
+- (ARTEventListener *)subscribe:(ARTMessageCallback)callback;
 
 /**
  * Registers a listener for messages on this channel. The caller supplies a listener function, which is called each time one or more messages arrives on the channel.
@@ -91,7 +91,7 @@ NS_SWIFT_NAME(RealtimeChannelProtocol)
  *
  * @return An `ARTEventListener` object.
  */
-- (ARTEventListener *_Nullable)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(ARTMessageCallback)callback;
+- (ARTEventListener *)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(ARTMessageCallback)callback;
 
 /**
  * Registers a listener for messages with a given event `name` on this channel. The caller supplies a listener function, which is called each time one or more matching messages arrives on the channel.
@@ -103,7 +103,7 @@ NS_SWIFT_NAME(RealtimeChannelProtocol)
  *
  * @see See `subscribeWithAttachCallback:` for more details.
 */
-- (ARTEventListener *_Nullable)subscribe:(NSString *)name callback:(ARTMessageCallback)callback;
+- (ARTEventListener *)subscribe:(NSString *)name callback:(ARTMessageCallback)callback;
 
 /**
  * Registers a listener for messages with a given event `name` on this channel. The caller supplies a listener function, which is called each time one or more matching messages arrives on the channel. A callback may optionally be passed in to this call to be notified of success or failure of the channel `-[ARTRealtimeChannelProtocol attach]` operation. It will not be called if the `ARTRealtimeChannelOptions.attachOnSubscribe` channel option is set to `false`.
@@ -113,7 +113,7 @@ NS_SWIFT_NAME(RealtimeChannelProtocol)
  *
  * @return An `ARTEventListener` object.
  */
-- (ARTEventListener *_Nullable)subscribe:(NSString *)name onAttach:(nullable ARTCallback)onAttach callback:(ARTMessageCallback)callback;
+- (ARTEventListener *)subscribe:(NSString *)name onAttach:(nullable ARTCallback)onAttach callback:(ARTMessageCallback)callback;
 
 /**
  * Deregisters all listeners to messages on this channel. This removes all earlier subscriptions.

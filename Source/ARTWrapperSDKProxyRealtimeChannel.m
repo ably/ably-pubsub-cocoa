@@ -203,19 +203,19 @@ NS_ASSUME_NONNULL_END
     [self.underlyingChannel setOptions:options callback:callback];
 }
 
-- (ARTEventListener * _Nullable)subscribe:(nonnull ARTMessageCallback)callback {
+- (ARTEventListener *)subscribe:(nonnull ARTMessageCallback)callback {
     return [self.underlyingChannel subscribe:callback];
 }
 
-- (ARTEventListener * _Nullable)subscribe:(nonnull NSString *)name callback:(nonnull ARTMessageCallback)callback {
+- (ARTEventListener *)subscribe:(nonnull NSString *)name callback:(nonnull ARTMessageCallback)callback {
     return [self.underlyingChannel subscribe:name callback:callback];
 }
 
-- (ARTEventListener * _Nullable)subscribe:(nonnull NSString *)name onAttach:(nullable ARTCallback)onAttach callback:(nonnull ARTMessageCallback)callback {
+- (ARTEventListener *)subscribe:(nonnull NSString *)name onAttach:(nullable ARTCallback)onAttach callback:(nonnull ARTMessageCallback)callback {
     return [self.underlyingChannel subscribe:name onAttach:onAttach callback:callback];
 }
 
-- (ARTEventListener * _Nullable)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(nonnull ARTMessageCallback)callback {
+- (ARTEventListener *)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(nonnull ARTMessageCallback)callback {
     return [self.underlyingChannel subscribeWithAttachCallback:onAttach callback:callback];
 }
 

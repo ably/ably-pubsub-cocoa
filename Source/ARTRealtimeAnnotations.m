@@ -200,7 +200,7 @@ art_dispatch_sync(_queue, ^{
         if (onAttach && attachOnSubscribe) { // RTL7h
             onAttach([ARTErrorInfo createWithCode:ARTErrorChannelOperationFailedInvalidState message:@"attempted to subscribe while channel is in Failed state."]);
         }
-        ARTLogWarn(self.logger, @"R:%p C:%p (%@) annotation subscribe to '%@' type while channel is in FAILED state; the listener receives annotations once the channel is attached again", self->_realtime, self->_channel, self->_channel.name, type == nil ? @"all" : type);
+        ARTLogWarn(self.logger, @"R:%p C:%p (%@) annotation subscribe to '%@' type while channel is in FAILED state; the listener receives annotations once the channel is attached again with the annotation_subscribe channel mode granted",self->_realtime, self->_channel, self->_channel.name, type == nil ? @"all" : type);
     } else if (attachOnSubscribe) {
         NSString *warningTemplate = @"R:%p C:%p (%@) You are trying to add an annotation listener, but you haven't requested the annotation_subscribe channel mode in ChannelOptions, so this won't do anything (we only deliver annotations to clients who have explicitly requested them).";
         if (self->_channel.shouldAttach) { // RTP6c

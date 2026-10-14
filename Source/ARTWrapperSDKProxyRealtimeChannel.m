@@ -88,30 +88,6 @@ NS_ASSUME_NONNULL_END
     [self.underlyingChannel publish:name data:data resultCallback:resultCallback];
 }
 
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(nonnull NSString *)clientId {
-    [self.underlyingChannel publish:name data:data clientId:clientId];
-}
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(nonnull NSString *)clientId callback:(nullable ARTCallback)callback {
-    [self.underlyingChannel publish:name data:data clientId:clientId callback:callback];
-}
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(nonnull NSString *)clientId extras:(nullable id<ARTJsonCompatible>)extras {
-    [self.underlyingChannel publish:name data:data clientId:clientId extras:extras];
-}
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(nonnull NSString *)clientId extras:(nullable id<ARTJsonCompatible>)extras callback:(nullable ARTCallback)callback {
-    [self.underlyingChannel publish:name data:data clientId:clientId extras:extras callback:callback];
-}
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data extras:(nullable id<ARTJsonCompatible>)extras {
-    [self.underlyingChannel publish:name data:data extras:extras];
-}
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data extras:(nullable id<ARTJsonCompatible>)extras callback:(nullable ARTCallback)callback {
-    [self.underlyingChannel publish:name data:data extras:extras callback:callback];
-}
-
 - (void)getMessageWithSerial:(nonnull NSString *)serial callback:(nonnull ARTMessageErrorCallback)callback {
     [self.underlyingChannel.internal getMessageWithSerial:serial
                                          wrapperSDKAgents:self.proxyOptions.agents

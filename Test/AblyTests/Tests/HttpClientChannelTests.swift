@@ -440,7 +440,7 @@ class HttpClientChannelTests: XCTestCase {
                 subscriber.unsubscribe()
                 done()
             }
-            publisher.publish("check clientId", data: nil, clientId: expectedClientId) { error in
+            publisher.publish([Message(name: "check clientId", data: "data", clientId: expectedClientId)]) { error in
                 XCTAssertNil(error)
             }
         }
@@ -471,7 +471,7 @@ class HttpClientChannelTests: XCTestCase {
                 subscriber.unsubscribe()
                 done()
             }
-            publisher.publish("check clientId", data: nil, clientId: expectedClientId) { error in
+            publisher.publish([Message(name: "check clientId", data: "data", clientId: expectedClientId)]) { error in
                 XCTAssertNil(error)
             }
         }
@@ -501,7 +501,7 @@ class HttpClientChannelTests: XCTestCase {
             subscriber.subscribe { _ in
                 fail("Should not receive the message")
             }
-            publisher.publish("check clientId", data: nil, clientId: "foo") { error in
+            publisher.publish([Message(name: "check clientId", data: "data", clientId: "foo")]) { error in
                 XCTAssertEqual(error?.code, Int(ARTState.mismatchedClientId.rawValue))
                 done()
             }
@@ -542,23 +542,8 @@ class HttpClientChannelTests: XCTestCase {
         }
     }
 
-    // RSL1h
-    func test__002__publish__should_provide_an_optional_argument_that_allows_the_clientId_value_to_be_specified() throws {
-        let test = Test()
-        let options = try AblyTests.commonAppSetup(for: test)
-        options.clientId = "john"
-        let client = HttpClient(options: options)
-        let channel = client.channels.get(test.uniqueChannelName())
-        waitUntil(timeout: testTimeout) { done in
-            channel.publish("name", data: "some data", clientId: "tester") { error in
-                expect(error!.message).to(contain("invalid clientId"))
-                done()
-            }
-        }
-    }
-
-    // RSL1h, RSL6a2
-    func test__003__publish__should_provide_an_optional_argument_that_allows_the_extras_value_to_be_specified() throws {
+    // RSL6a2
+    func test__003__publish__should_publish_the_extras_of_a_Message() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         // Prevent channel name to be prefixed by test-*
@@ -573,7 +558,9 @@ class HttpClientChannelTests: XCTestCase {
         ], protocolMessage: nil)?.extras == extras)
 
         waitUntil(timeout: testTimeout) { done in
-            channel.publish("name", data: "some data", extras: extras) { error in
+            let message = Message(name: "name", data: "some data")
+            message.extras = extras
+            channel.publish([message]) { error in
                 if let error = error {
                     fail("unexpected error \(error)")
                     done(); return
@@ -615,7 +602,7 @@ class HttpClientChannelTests: XCTestCase {
         }
     }
 
-    func test__019__publish__If_the_total_size_of_message_s__exceeds_the_maxMessageSize__also_when_using_publish_data_clientId_extras() throws {
+    func test__019__publish__If_the_total_size_of_message_s__exceeds_the_maxMessageSize__also_when_using_publish_name_data() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         let client = HttpClient(options: options)
@@ -623,7 +610,7 @@ class HttpClientChannelTests: XCTestCase {
         let name = buildStringThatExceedMaxMessageSize()
 
         waitUntil(timeout: testTimeout) { done in
-            channel.publish(name, data: nil, extras: nil) { error in
+            channel.publish(name, data: nil) { error in
                 XCTAssertEqual(error?.code, ErrorCode.maxMessageLengthExceeded.intValue)
                 done()
             }

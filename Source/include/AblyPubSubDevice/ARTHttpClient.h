@@ -17,10 +17,13 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- This protocol contains the non-initializer instance methods provided by the `ARTHttpClient` client class.
+ The protocol upon which the top level object `ARTHttpClient` is implemented.
  */
-NS_SWIFT_NAME(HttpClientInstanceMethodsProtocol)
-@protocol ARTHttpClientInstanceMethodsProtocol <NSObject>
+NS_SWIFT_NAME(HttpClientProtocol)
+@protocol ARTHttpClientProtocol <NSObject>
+
+/// :nodoc:
+- (instancetype)init NS_UNAVAILABLE;
 
 /**
  * Retrieves the time from the Ably service. Clients that do not have access to a sufficiently well maintained time source and wish to issue Ably `ARTTokenRequest`s with a more accurate timestamp should use the `ARTAuthOptions.queryTime` property instead of this method.
@@ -68,17 +71,6 @@ NS_SWIFT_NAME(HttpClientInstanceMethodsProtocol)
  */
 @property (readonly) ARTLocalDevice *device;
 #endif
-
-@end
-
-/**
- The protocol upon which the top level object `ARTHttpClient` is implemented.
- */
-NS_SWIFT_NAME(HttpClientProtocol)
-@protocol ARTHttpClientProtocol <ARTHttpClientInstanceMethodsProtocol>
-
-/// :nodoc:
-- (instancetype)init NS_UNAVAILABLE;
 
 @end
 

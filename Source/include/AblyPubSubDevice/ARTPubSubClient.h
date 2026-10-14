@@ -24,10 +24,13 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- This protocol contains the non-initializer instance methods provided by the `ARTPubSubClient` client class.
+ The protocol upon which the top level object `ARTPubSubClient` is implemented.
  */
-NS_SWIFT_NAME(RealtimeInstanceMethodsProtocol)
-@protocol ARTRealtimeInstanceMethodsProtocol <NSObject>
+NS_SWIFT_NAME(RealtimeProtocol)
+@protocol ARTRealtimeProtocol <NSObject>
+
+/// :nodoc:
+- (instancetype)init NS_UNAVAILABLE;
 
 #if TARGET_OS_IOS
 /**
@@ -92,17 +95,6 @@ NS_SWIFT_NAME(RealtimeInstanceMethodsProtocol)
  * Calls `-[ARTConnectionProtocol close]` and causes the connection to close, entering the closing state. Once closed, the library will not attempt to re-establish the connection without an explicit call to `connect`.
  */
 - (void)close;
-
-@end
-
-/**
- The protocol upon which the top level object `ARTPubSubClient` is implemented.
- */
-NS_SWIFT_NAME(RealtimeProtocol)
-@protocol ARTRealtimeProtocol <ARTRealtimeInstanceMethodsProtocol>
-
-/// :nodoc:
-- (instancetype)init NS_UNAVAILABLE;
 
 @end
 

@@ -33,7 +33,7 @@ NS_SWIFT_NAME(OutboundAnnotation)
 @property (nullable, readonly, nonatomic) id data;
 
 /// A JSON object of arbitrary key-value pairs that may contain metadata, and/or ancillary payloads.
-@property (nullable, readonly, nonatomic) id<ARTJsonCompatible> extras;
+@property (nullable, readonly, nonatomic) NSDictionary<NSString *, id> *extras;
 
 - (instancetype)initWithId:(nullable NSString *)annotationId
                       type:(NSString *)type
@@ -41,7 +41,7 @@ NS_SWIFT_NAME(OutboundAnnotation)
                       name:(nullable NSString *)name
                      count:(nullable NSNumber *)count
                       data:(nullable id)data
-                    extras:(nullable id<ARTJsonCompatible>)extras;
+                    extras:(nullable NSDictionary<NSString *, id> *)extras;
 
 @end
 

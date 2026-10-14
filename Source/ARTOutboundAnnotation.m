@@ -11,7 +11,7 @@
                       name:(nullable NSString *)name
                      count:(nullable NSNumber *)count
                       data:(nullable id)data
-                    extras:(nullable id<ARTJsonCompatible>)extras {
+                    extras:(nullable NSDictionary<NSString *, id> *)extras {
     return [self initWithId:annotationId
                        type:type
                    clientId:clientId
@@ -30,7 +30,7 @@
                       name:(nullable NSString *)name
                      count:(nullable NSNumber *)count
                       data:(nullable id)data
-                    extras:(nullable id<ARTJsonCompatible>)extras
+                    extras:(nullable NSDictionary<NSString *, id> *)extras
                     action:(ARTAnnotationAction)action
              messageSerial:(nullable NSString *)messageSerial
                   encoding:(nullable NSString *)encoding {

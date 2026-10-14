@@ -307,7 +307,7 @@
     message.encoding = [input artString:@"encoding"];
     message.timestamp = [input artTimestamp:@"timestamp"];
     message.connectionId = [input artString:@"connectionId"];
-    message.extras = [input objectForKey:@"extras"];
+    message.extras = [input artTyped:[NSDictionary class] key:@"extras"]; // TM2i
 
     // TM2s: there is always a version. TM2s1 and TM2s2: its serial and timestamp default to the message's own.
     id version = input[@"version"];
@@ -420,7 +420,7 @@
     message.action = [self presenceActionFromInt:action];
 
     message.connectionId = [input artString:@"connectionId"];
-    message.extras = [input objectForKey:@"extras"]; // TP3i
+    message.extras = [input artTyped:[NSDictionary class] key:@"extras"]; // TP3i
 
     return message;
 }
@@ -458,7 +458,7 @@
                                                            serial:[input artString:@"serial"]
                                                     messageSerial:[input artString:@"messageSerial"]
                                                              type:[input artString:@"type"]
-                                                           extras:[input objectForKey:@"extras"]];
+                                                           extras:[input artTyped:[NSDictionary class] key:@"extras"]]; // TAN2l
     return annotation;
 }
 

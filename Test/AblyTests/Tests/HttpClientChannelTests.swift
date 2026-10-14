@@ -550,12 +550,13 @@ class HttpClientChannelTests: XCTestCase {
         options.testOptions.channelNamePrefix = nil
         let client = HttpClient(options: options)
         let channel = client.channels.get(test.uniqueChannelName(prefix: "pushenabled:test"))
-        let extras = ["push": ["notification": ["title": "Hello from Ably!"]]] as JsonCompatible
+        let extras: [String: Any] = ["push": ["notification": ["title": "Hello from Ably!"]]]
 
-        XCTAssertTrue((client.internal.encoders["application/json"] as! ARTJsonLikeEncoder).message(from: [
+        let decodedMessage = (client.internal.encoders["application/json"] as! ARTJsonLikeEncoder).message(from: [
             "data": "foo",
             "extras": ["push": ["notification": ["title": "Hello from Ably!"]]],
-        ], protocolMessage: nil)?.extras == extras)
+        ], protocolMessage: nil)
+        XCTAssertEqual(decodedMessage?.extras as NSDictionary?, extras as NSDictionary)
 
         waitUntil(timeout: testTimeout) { done in
             let message = Message(name: "name", data: "some data")
@@ -578,7 +579,7 @@ class HttpClientChannelTests: XCTestCase {
                         fail("expected published message in history")
                         done(); return
                     }
-                    XCTAssertTrue(message.extras == extras)
+                    XCTAssertEqual(message.extras as NSDictionary?, extras as NSDictionary)
                     done()
                 }
             }

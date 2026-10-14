@@ -77,7 +77,7 @@ NS_SWIFT_NAME(Annotation)
 @property (readonly, nonatomic) NSString *type;
 
 /// A JSON object of arbitrary key-value pairs that may contain metadata, and/or ancillary payloads.
-@property (nullable, readonly, nonatomic) id<ARTJsonCompatible> extras;
+@property (nullable, readonly, nonatomic) NSDictionary<NSString *, id> *extras;
 
 - (instancetype)initWithId:(nullable NSString *)annotationId
                     action:(ARTAnnotationAction)action
@@ -90,7 +90,7 @@ NS_SWIFT_NAME(Annotation)
                     serial:(NSString *)serial
              messageSerial:(NSString *)messageSerial
                       type:(NSString *)type
-                    extras:(nullable id<ARTJsonCompatible>)extras;
+                    extras:(nullable NSDictionary<NSString *, id> *)extras;
 
 @end
 

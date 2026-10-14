@@ -8,7 +8,6 @@
 NSString *const ARTAblyErrorDomain = @"io.ably.cocoa";
 
 NSString *const ARTErrorInfoStatusCodeKey = @"ARTErrorInfoStatusCode";
-NSString *const ARTErrorInfoOriginalDomainKey = @"ARTErrorInfoOriginalDomain";
 NSString *const ARTErrorInfoRequestIdKey = @"ARTErrorInfoRequestId";
 
 
@@ -67,11 +66,25 @@ NSInteger getStatusFromCode(NSInteger code) {
         return (ARTErrorInfo *)error;
     }
 
-    NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithDictionary:error.userInfo];
-    userInfo[ARTErrorInfoOriginalDomainKey] = error.domain;
-    userInfo[ARTErrorInfoRequestIdKey] = error.requestId;
+    // A transport that disconnects without an error passes nil
+    if (error == nil) {
+        return [[ARTErrorInfo alloc] initWithDomain:ARTAblyErrorDomain code:0 userInfo:nil];
+    }
 
-    return [[ARTErrorInfo alloc] initWithDomain:ARTAblyErrorDomain code:error.code userInfo:userInfo];
+    if ([error.domain isEqualToString:ARTAblyErrorDomain]) {
+        // Already an Ably error, just not an ARTErrorInfo instance
+        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithDictionary:error.userInfo];
+        userInfo[ARTErrorInfoRequestIdKey] = error.requestId;
+        return [[ARTErrorInfo alloc] initWithDomain:ARTAblyErrorDomain code:error.code userInfo:userInfo];
+    }
+
+    // An error from another domain (a system error, for example) keeps its domain and code: it becomes the underlying error of an Ably error.
+    const BOOL timedOut = [error.domain isEqualToString:NSURLErrorDomain] && error.code == NSURLErrorTimedOut;
+    return [ARTErrorInfo createWithCode:timedOut ? ARTErrorTimeoutError : ARTErrorInternalError
+                                 status:500
+                                message:error.localizedDescription
+                              requestId:error.requestId
+                     additionalUserInfo:@{NSUnderlyingErrorKey: error}];
 }
 
 + (ARTErrorInfo *)createFromNSException:(NSException *)error requestId:(nullable NSString *)requestId {
@@ -91,11 +104,13 @@ NSInteger getStatusFromCode(NSInteger code) {
 }
 
 + (ARTErrorInfo *)wrap:(ARTErrorInfo *)error prepend:(NSString *)prepend {
+    NSError *const underlyingError = error.userInfo[NSUnderlyingErrorKey];
     return [ARTErrorInfo
             createWithCode:error.code
             status:error.statusCode
             message:[NSString stringWithFormat:@"%@%@", prepend, error.message]
-            requestId:error.requestId];
+            requestId:error.requestId
+            additionalUserInfo:underlyingError ? @{NSUnderlyingErrorKey: underlyingError} : nil];
 }
 
 - (NSString *)message {
@@ -111,15 +126,17 @@ NSInteger getStatusFromCode(NSInteger code) {
     if (!reason || [reason isEqualToString:@""]) {
         reason = (NSString *)self.userInfo[@"NSDebugDescription"];
     }
-    if (!reason || [reason isEqualToString:@""]) {
-        reason = (NSString *)self.userInfo[ARTErrorInfoOriginalDomainKey];
+    NSError *const underlyingError = self.userInfo[NSUnderlyingErrorKey];
+    if ((!reason || [reason isEqualToString:@""]) && underlyingError && ![underlyingError.domain isEqualToString:ARTAblyErrorDomain]) {
+        reason = (NSString *)underlyingError.userInfo[NSLocalizedFailureReasonErrorKey] ?: (NSString *)underlyingError.userInfo[@"NSDebugDescription"];
     }
     return reason;
 }
 
 - (ARTErrorInfo *)cause {
-    NSError *underlyingError = self.userInfo[NSUnderlyingErrorKey];
-    if (underlyingError == nil) {
+    NSError *const underlyingError = self.userInfo[NSUnderlyingErrorKey];
+    // An underlying error from another domain is not an ErrorInfo (TI1). Converting it would wrap it again, giving a cause with a cause of its own, without end.
+    if (underlyingError == nil || ![underlyingError.domain isEqualToString:ARTAblyErrorDomain]) {
         return nil;
     }
     return [ARTErrorInfo createFromNSError:underlyingError];

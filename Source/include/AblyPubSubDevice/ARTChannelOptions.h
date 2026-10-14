@@ -16,8 +16,23 @@ NS_SWIFT_NAME(ChannelOptions)
  */
 @property (nonatomic, nullable) ARTCipherParams *cipher;
 
-/// :nodoc: TODO: docstring
-- (instancetype)initWithCipher:(id<ARTCipherParamsCompatible> _Nullable)cipherParams;
+/**
+ * Creates an options object that requests encryption for the channel.
+ *
+ * @param cipherParams An `ARTCipherParams` object, or `nil` for no encryption.
+ *
+ * @return An `ARTChannelOptions` object.
+ */
+- (instancetype)initWithCipher:(nullable ARTCipherParams *)cipherParams;
+
+/**
+ * Creates an options object that requests encryption for the channel, using `+[ARTCrypto getDefaultParams:]` to build the cipher parameters.
+ *
+ * @param options An `ARTCipherParamOptions` object.
+ *
+ * @return An `ARTChannelOptions` object.
+ */
+- (instancetype)initWithCipherOptions:(ARTCipherParamOptions *)options;
 
 /**
  * Creates an options object using a key only.

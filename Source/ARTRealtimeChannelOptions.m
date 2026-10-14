@@ -14,7 +14,7 @@
     return self;
 }
 
-- (instancetype)initWithCipher:(id<ARTCipherParamsCompatible>)cipherParams {
+- (instancetype)initWithCipher:(ARTCipherParams *)cipherParams {
     if (self = [super initWithCipher:cipherParams]) {
         _attachOnSubscribe = true;
     }

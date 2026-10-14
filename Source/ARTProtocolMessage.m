@@ -56,6 +56,7 @@
     [description appendFormat:@" messages: %@\n", self.messages];
     [description appendFormat:@" presence: %@\n", self.presence];
     [description appendFormat:@" annotations: %@\n", self.annotations];
+    [description appendFormat:@" outboundAnnotations: %@\n", self.outboundAnnotations];
     [description appendFormat:@" params: %@\n", self.params];
     [description appendFormat:@" res: %@\n", self.res];
     [description appendFormat:@"}"];
@@ -76,6 +77,7 @@
     pm.messages = self.messages;
     pm.presence = self.presence;
     pm.annotations = self.annotations;
+    pm.outboundAnnotations = self.outboundAnnotations;
     pm.flags = self.flags;
     pm.error = self.error;
     pm.connectionDetails = self.connectionDetails;

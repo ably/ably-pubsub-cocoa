@@ -10,7 +10,7 @@
 #import "ARTEventEmitter+Private.h"
 #import "ARTDataEncoder.h"
 #import "ARTAnnotation+Private.h"
-#import "ARTOutboundAnnotation.h"
+#import "ARTOutboundAnnotation+Private.h"
 #import "ARTProtocolMessage+Private.h"
 #import "ARTEventEmitter+Private.h"
 #import "ARTClientOptions.h"
@@ -133,23 +133,13 @@
         return;
     }
 
-    // Convert ARTOutboundAnnotation to ARTAnnotation for internal processing
-    ARTAnnotation *annotation = [[ARTAnnotation alloc] initWithId:nil
-                                                           action:action // RSAN1c1
-                                                         clientId:outboundAnnotation.clientId
-                                                             name:outboundAnnotation.name
-                                                            count:outboundAnnotation.count
-                                                             data:outboundAnnotation.data
-                                                         encoding:nil
-                                                        timestamp:nil
-                                                           serial:nil
-                                                    messageSerial:messageSerial // RSAN1c2
-                                                             type:outboundAnnotation.type
-                                                           extras:outboundAnnotation.extras];
+    ARTOutboundAnnotation *annotation = [outboundAnnotation annotationForPublishingWithId:nil
+                                                                                   action:action // RSAN1c1
+                                                                            messageSerial:messageSerial]; // RSAN1c2
 art_dispatch_sync(_queue, ^{
     NSError *error = nil;
     ARTDataEncoder *dataEncoder = self->_channel.dataEncoder;
-    ARTAnnotation *annotationToPublish = dataEncoder ? [annotation encodeDataWithEncoder:dataEncoder error:&error] : annotation; // RSAN1c3
+    ARTOutboundAnnotation *annotationToPublish = dataEncoder ? [annotation encodeDataWithEncoder:dataEncoder error:&error] : annotation; // RSAN1c3
     if (error) {
         if (callback) {
             callback([ARTErrorInfo createFromNSError:error]);
@@ -173,7 +163,7 @@ art_dispatch_sync(_queue, ^{
     ARTProtocolMessage *pm = [[ARTProtocolMessage alloc] init];
     pm.action = ARTProtocolMessageAnnotation;
     pm.channel = _channel.name;
-    pm.annotations = @[annotationToPublish];
+    pm.outboundAnnotations = @[annotationToPublish];
 
     // RTAN1b
     [_channel publishProtocolMessage:pm callback:^void(ARTMessageSendStatus *status) {

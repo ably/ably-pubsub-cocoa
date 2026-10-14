@@ -43,6 +43,7 @@ module AblyPubSubDevice {
         header "../PrivateHeaders/Ably/ARTRealtimePresence+Private.h"
         header "../PrivateHeaders/Ably/ARTHttpPresence+Private.h"
         header "../PrivateHeaders/Ably/ARTAnnotation+Private.h"
+        header "../PrivateHeaders/Ably/ARTOutboundAnnotation+Private.h"
         header "../PrivateHeaders/Ably/ARTRealtimeAnnotations+Private.h"
         header "../PrivateHeaders/Ably/ARTMessageVersion+Private.h"
         header "../PrivateHeaders/Ably/ARTMessageAnnotations+Private.h"

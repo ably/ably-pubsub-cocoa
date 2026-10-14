@@ -446,7 +446,7 @@ class RealtimeAnnotationsTests: XCTestCase {
 
         let sentAnnotations = transport.protocolMessagesSent
             .filter { $0.action == .annotation }
-            .compactMap { $0.annotations }
+            .compactMap { $0.outboundAnnotations }
             .flatMap { $0 }
         let sentAnnotation = try XCTUnwrap(sentAnnotations.first, "No ANNOTATION protocol message was sent")
 

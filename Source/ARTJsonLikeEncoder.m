@@ -1004,7 +1004,11 @@
     }
 
     ARTDevicePushDetails *devicePushDetails = [[ARTDevicePushDetails alloc] init];
-    devicePushDetails.state = [input artString:@"state"];
+    NSString *state = [input artString:@"state"];
+    devicePushDetails.state = ARTDevicePushStateFromWireValue(state);
+    if (state && devicePushDetails.state == ARTDevicePushStateUnknown) {
+        ARTLogWarn(_logger, @"RS:%p ARTJsonLikeEncoder<%@>: unrecognised device push state \"%@\"", _rest, [_delegate formatAsString], state);
+    }
     NSDictionary *errorReason = [input valueForKey:@"errorReason"];
     if (errorReason) {
         devicePushDetails.errorReason = [ARTErrorInfo createWithCode:[[errorReason artNumber:@"code"] intValue] status:[[errorReason artNumber:@"statusCode"] intValue] message:[errorReason artString:@"message"]];

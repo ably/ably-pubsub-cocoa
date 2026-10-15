@@ -22,7 +22,34 @@
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"%@ - \n\t recipient: %@; \n\t state: %@; \n\t errorReason: %@;", [super description], self.recipient, self.state, self.errorReason];
+    return [NSString stringWithFormat:@"%@ - \n\t recipient: %@; \n\t state: %@; \n\t errorReason: %@;", [super description], self.recipient, ARTDevicePushStateToWireValue(self.state) ?: @"unknown", self.errorReason];
 }
 
 @end
+
+ARTDevicePushState ARTDevicePushStateFromWireValue(NSString *value) {
+    if ([value isEqualToString:@"active"]) {
+        return ARTDevicePushStateActive;
+    }
+    if ([value isEqualToString:@"failing"]) {
+        return ARTDevicePushStateFailing;
+    }
+    if ([value isEqualToString:@"failed"]) {
+        return ARTDevicePushStateFailed;
+    }
+    return ARTDevicePushStateUnknown;
+}
+
+NSString *ARTDevicePushStateToWireValue(ARTDevicePushState state) {
+    switch (state) {
+        case ARTDevicePushStateActive:
+            return @"active";
+        case ARTDevicePushStateFailing:
+            return @"failing";
+        case ARTDevicePushStateFailed:
+            return @"failed";
+        case ARTDevicePushStateUnknown:
+            return nil;
+    }
+    return nil;
+}

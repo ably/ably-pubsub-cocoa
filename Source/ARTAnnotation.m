@@ -2,6 +2,7 @@
 #import "ARTJsonEncoder.h"
 #import "ARTJsonLikeEncoder.h"
 #import "ARTAnnotation+Private.h"
+#import "ARTProtocolMessage.h"
 #import "ARTNSArray+ARTFunctional.h"
 #import "ARTInternalLog.h"
 
@@ -87,6 +88,24 @@
 
 - (BOOL)isIdEmpty {
     return self.id == nil || [self.id isEqualToString:@""];
+}
+
+- (ARTAnnotation *)annotationByPopulatingFieldsFromProtocolMessage:(ARTProtocolMessage *)protocolMessage index:(NSUInteger)index {
+    const BOOL populatesId = self.isIdEmpty && protocolMessage.id != nil;
+    // The header declares `timestamp` nonnull, but an annotation received without one decodes to nil.
+    const BOOL populatesTimestamp = self.timestamp == nil;
+    if (!populatesId && !populatesTimestamp) {
+        return self;
+    }
+
+    ARTAnnotation *annotation = [self copy];
+    if (populatesId) {
+        annotation->_id = [NSString stringWithFormat:@"%@:%lu", protocolMessage.id, (unsigned long)index];
+    }
+    if (populatesTimestamp) {
+        annotation->_timestamp = protocolMessage.timestamp;
+    }
+    return annotation;
 }
 
 @end

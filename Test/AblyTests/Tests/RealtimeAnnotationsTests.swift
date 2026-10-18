@@ -1,4 +1,5 @@
 import AblyPubSubDevice
+import AblyPubSubDevice.Private
 import Nimble
 import XCTest
 
@@ -88,6 +89,8 @@ class RealtimeAnnotationsTests: XCTestCase {
                 XCTAssertEqual(annotation.type, "reaction:multiple.v1")
                 XCTAssertEqual(annotation.name, "👍")
                 XCTAssertEqual(annotation.count?.intValue, 10)
+                // Ably can deliver an annotation without a timestamp of its own, and reading a missing one from Swift traps
+                XCTAssertGreaterThan(annotation.timestamp.timeIntervalSince1970, 0)
 
                 // Verify it matches the message
                 XCTAssertEqual(annotation.messageSerial, capturedReceivedMessage?.serial)
@@ -227,6 +230,56 @@ class RealtimeAnnotationsTests: XCTestCase {
                 partialDone()
             }
         }
+    }
+
+    // RTAN4b, with the TM2a and TM2f behaviour of messages
+    func test__an_annotation_without_an_id_or_timestamp_takes_them_from_its_protocol_message() throws {
+        let test = Test()
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
+        defer { client.dispose(); client.close() }
+
+        // Decoded from JSON, since an Annotation can't be built without a timestamp from Swift
+        let json = """
+        {
+            "action": 21,
+            "id": "protocolId",
+            "timestamp": 12345,
+            "annotations": [
+                { "action": 0, "type": "reaction:distinct.v1", "name": "👍", "serial": "a", "messageSerial": "m" },
+                { "action": 0, "type": "reaction:distinct.v1", "name": "🎉", "serial": "b", "messageSerial": "m", "id": "annotationId", "timestamp": 67890 }
+            ]
+        }
+        """
+        let jsonEncoder = ARTJsonLikeEncoder(delegate: ARTJsonEncoder(), timeProvider: SystemTimeProvider())
+        let protocolMessage = try jsonEncoder.decodeProtocolMessage(try XCTUnwrap(json.data(using: .utf8)))
+
+        let channel = client.channels.get(test.uniqueChannelName())
+        waitUntil(timeout: testTimeout) { done in
+            channel.attach { _ in
+                done()
+            }
+        }
+
+        var annotations: [AblyPubSubDevice.Annotation] = []
+        waitUntil(timeout: testTimeout) { done in
+            channel.annotations.subscribe { annotation in
+                annotations.append(annotation)
+                if annotations.count == 2 {
+                    done()
+                }
+            }
+            AblyTests.queue.async {
+                channel.internal.onChannelMessage(protocolMessage)
+            }
+        }
+
+        // The first annotation has neither, so takes both from the ProtocolMessage
+        XCTAssertEqual(annotations[0].id, "protocolId:0")
+        XCTAssertEqual(annotations[0].timestamp, Date(timeIntervalSince1970: 12.345))
+
+        // The second annotation keeps its own
+        XCTAssertEqual(annotations[1].id, "annotationId")
+        XCTAssertEqual(annotations[1].timestamp, Date(timeIntervalSince1970: 67.89))
     }
 
     // RTAN4d, RTL7g

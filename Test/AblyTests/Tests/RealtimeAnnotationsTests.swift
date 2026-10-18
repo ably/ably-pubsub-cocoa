@@ -282,6 +282,46 @@ class RealtimeAnnotationsTests: XCTestCase {
         XCTAssertEqual(annotations[1].timestamp, Date(timeIntervalSince1970: 67.89))
     }
 
+    // RTAN4b, when the ProtocolMessage has no timestamp either
+    func test__an_annotation_without_a_timestamp_in_a_protocol_message_without_one_takes_the_current_time() throws {
+        let test = Test()
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        let options = try AblyTests.clientOptions(for: test, key: "xxxx:xxxx")
+        options.autoConnect = false
+        options.testOptions.timeProvider = FixedWallClockTimeProvider(wallClockNow: now)
+        let client = PubSubClient(options: options)
+        defer { client.dispose(); client.close() }
+
+        let json = """
+        {
+            "action": 21,
+            "annotations": [
+                { "action": 0, "type": "reaction:distinct.v1", "name": "👍", "serial": "a", "messageSerial": "m" }
+            ]
+        }
+        """
+        let jsonEncoder = ARTJsonLikeEncoder(delegate: ARTJsonEncoder(), timeProvider: SystemTimeProvider())
+        let protocolMessage = try jsonEncoder.decodeProtocolMessage(try XCTUnwrap(json.data(using: .utf8)))
+
+        let channelOptions = RealtimeChannelOptions()
+        channelOptions.attachOnSubscribe = false
+        let channel = client.channels.get(test.uniqueChannelName(), options: channelOptions)
+
+        var receivedAnnotation: AblyPubSubDevice.Annotation?
+        waitUntil(timeout: testTimeout) { done in
+            channel.annotations.subscribe { annotation in
+                receivedAnnotation = annotation
+                done()
+            }
+            AblyTests.queue.async {
+                channel.internal.onChannelMessage(protocolMessage)
+            }
+        }
+
+        let annotation = try XCTUnwrap(receivedAnnotation)
+        XCTAssertEqual(annotation.timestamp, now)
+    }
+
     // RTAN4d, RTL7g
     func test__annotations_subscribe_should_implicitly_attach_the_channel_if_options_attachOnSubscribe_is_true() throws {
         let test = Test()
@@ -519,5 +559,18 @@ class RealtimeAnnotationsTests: XCTestCase {
         // handed is the original plaintext.
         let decodedAnnotation = try XCTUnwrap(receivedAnnotation, "No annotation received")
         XCTAssertEqual(decodedAnnotation.data as? String, annotationData)
+    }
+}
+
+/// A time provider whose wall clock always reads `wallClockNow`.
+private final class FixedWallClockTimeProvider: SystemTimeProvider, @unchecked Sendable {
+    private let fixedWallClockNow: Date
+
+    init(wallClockNow: Date) {
+        fixedWallClockNow = wallClockNow
+    }
+
+    override func wallClockNow() -> Date {
+        fixedWallClockNow
     }
 }

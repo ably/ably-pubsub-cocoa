@@ -291,7 +291,7 @@ art_dispatch_sync(_queue, ^{
     ARTDataEncoder *dataEncoder = _channel.dataEncoder;
     NSUInteger index = 0;
     for (ARTAnnotation *a in message.annotations) {
-        ARTAnnotation *annotation = [a annotationByPopulatingFieldsFromProtocolMessage:message index:index++];
+        ARTAnnotation *annotation = [a annotationByPopulatingFieldsFromProtocolMessage:message index:index++ timeProvider:_realtime.rest.timeProvider];
         if (annotation.data && dataEncoder) {
             NSError *decodeError = nil;
             annotation = [annotation decodeDataWithEncoder:dataEncoder error:&decodeError];

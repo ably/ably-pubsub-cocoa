@@ -64,7 +64,7 @@ The Ably Pub/Sub SDK includes installation support for [Swift Package Manager](h
 
 To install the `ably-cocoa` package in your Xcode project: 
 
-* Paste `https://github.com/ably/ably-cocoa` in the *Swift Packages* search box. ( *Xcode project*  &rarr;  *Swift Packages..* . &rarr; `+` button)
+* Paste `https://github.com/ably/ably-cocoa` in the *Swift Packages* search box. (*Xcode project* &rarr; *Swift Packages…* &rarr; `+` button)
 * Select the `AblyPubSubDevice` SDK for your target.
 
 To install the `ably-cocoa` package in another Swift package, add the following to your `Package.Swift`:

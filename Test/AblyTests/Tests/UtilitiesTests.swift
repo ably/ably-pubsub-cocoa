@@ -874,4 +874,25 @@ class UtilitiesTests: XCTestCase {
             XCTAssertNil(encodedDict["annotations"])
         }
     }
+
+    /// TM2c
+    func test__033_Utilities__message_connection_id_is_nil_when_there_is_none() throws {
+        beforeEach__Utilities__JSON_Encoder()
+
+        XCTAssertNil(Message(name: "name", data: "data").connectionId)
+
+        let json = """
+        {
+            "messages": [
+                { "action": 0, "serial": "1" },
+                { "action": 0, "serial": "2", "connectionId": "connection" }
+            ]
+        }
+        """
+        let pm = try jsonEncoder.decodeProtocolMessage(json.data(using: .utf8)!)
+        let messages = try XCTUnwrap(pm.messages)
+
+        XCTAssertNil(messages[0].connectionId)
+        XCTAssertEqual(messages[1].connectionId, "connection")
+    }
 }

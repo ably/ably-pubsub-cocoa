@@ -27,7 +27,7 @@ NS_SWIFT_NAME(BaseMessage)
 /**
  * The connection ID of the publisher of this message.
  */
-@property (nonatomic) NSString *connectionId;
+@property (nullable, nonatomic) NSString *connectionId;
 
 /**
  * This is typically empty, as all messages received from Ably are automatically decoded client-side using this value. However, if the message encoding cannot be processed, this attribute contains the remaining transformations not applied to the `data` payload.

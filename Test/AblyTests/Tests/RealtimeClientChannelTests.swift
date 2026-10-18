@@ -4627,6 +4627,60 @@ class RealtimeClientChannelTests: XCTestCase {
         }
     }
 
+    // TM2f, TM2s2
+    func test__139b__message_attributes__if_the_message_does_not_contain_a_timestamp__its_version_timestamp_should_be_set_to_the_protocol_message_timestamp() throws {
+        let test = Test()
+        let options = try AblyTests.clientOptions(for: test, key: "xxxx:xxxx")
+        options.autoConnect = false
+        options.useBinaryProtocol = false
+        let transportFactory = TestProxyTransportFactory()
+        options.testOptions.transportFactory = transportFactory
+        transportFactory.networkConnectEvent = { transport, _ in
+            (transport as! TestProxyTransport).simulateTransportSuccess()
+        }
+        let client = PubSubClient(options: options)
+        defer { client.dispose(); client.close() }
+
+        waitUntil(timeout: testTimeout) { done in
+            client.connection.once(.connected) { _ in
+                done()
+            }
+            client.connect()
+        }
+        // The connection is faked, so nothing can go over the real WebSocket.
+        let transport = try XCTUnwrap(client.internal.transport as? TestProxyTransport)
+        transport.ignoreSends = true
+
+        let channelName = test.uniqueChannelName()
+        let channel = client.channels.get(channelName)
+        waitUntil(timeout: testTimeout) { done in
+            channel.attach { error in
+                XCTAssertNil(error)
+                done()
+            }
+            let attachedMessage = ARTProtocolMessage()
+            attachedMessage.action = .attached
+            attachedMessage.channel = channelName
+            AblyTests.queue.async {
+                transport.receive(attachedMessage)
+            }
+        }
+
+        // A MESSAGE whose message has neither a timestamp nor a version, decoded from the wire like a real one.
+        let protocolMessageJSON = #"{"action":15,"id":"protocolId","channel":"\#(channelName)","timestamp":1700000000000,"messages":[{"name":"greeting","data":"hello"}]}"#
+        let protocolMessageTimestamp = Date(timeIntervalSince1970: 1_700_000_000)
+        waitUntil(timeout: testTimeout) { done in
+            channel.subscribe { message in
+                XCTAssertEqual(message.timestamp, protocolMessageTimestamp) // TM2f
+                XCTAssertEqual(message.version.timestamp, protocolMessageTimestamp) // TM2s2
+                done()
+            }
+            AblyTests.queue.async {
+                _ = transport.receive(with: protocolMessageJSON.data(using: .utf8)!)
+            }
+        }
+    }
+
     // TB1
     func test__140__ChannelOptions__options_provided_when_instantiating_a_channel_should_be_frozen() throws {
         let test = Test()

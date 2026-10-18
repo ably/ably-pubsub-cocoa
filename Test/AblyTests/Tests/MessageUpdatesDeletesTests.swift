@@ -220,7 +220,7 @@ class MessageUpdatesDeletesTests: XCTestCase {
         var capturedUpdatedMessage: Message?
 
         // Fetch the updated message (poll getMessageWithSerial until it returns the updated message)
-        while capturedUpdatedMessage == nil || capturedUpdatedMessage!.version?.serial == publishedMessage.version?.serial {
+        while capturedUpdatedMessage == nil || capturedUpdatedMessage!.version.serial == publishedMessage.version.serial {
             // Get the updated message by serial string
             waitUntil(timeout: testTimeout) { done in
                 channel.getMessageWithSerial(publishedMessageSerial) { message, error in
@@ -239,18 +239,17 @@ class MessageUpdatesDeletesTests: XCTestCase {
         XCTAssertEqual(updatedMessage.action, .update)
 
         // Verify version properties
-        XCTAssertNotNil(updatedMessage.version)
-        XCTAssertNotNil(updatedMessage.version?.serial)
-        XCTAssertTrue(updatedMessage.version!.serial! > publishedMessageSerial)
-        XCTAssertNotNil(updatedMessage.version?.timestamp)
-        XCTAssertTrue(updatedMessage.version!.timestamp! > publishedMessage.timestamp!)
-        XCTAssertEqual(updatedMessage.version?.clientId, "updater-client")
-        XCTAssertEqual(updatedMessage.version?.descriptionText, "Editing message text")
-        XCTAssertEqual(updatedMessage.version?.metadata, ["newValue": "hello world!"])
+        XCTAssertNotNil(updatedMessage.version.serial)
+        XCTAssertTrue(updatedMessage.version.serial! > publishedMessageSerial)
+        XCTAssertNotNil(updatedMessage.version.timestamp)
+        XCTAssertTrue(updatedMessage.version.timestamp! > publishedMessage.timestamp!)
+        XCTAssertEqual(updatedMessage.version.clientId, "updater-client")
+        XCTAssertEqual(updatedMessage.version.descriptionText, "Editing message text")
+        XCTAssertEqual(updatedMessage.version.metadata, ["newValue": "hello world!"])
 
         // Check the contents of updateMessage's returned UpdateDeleteResult
         let unwrappedUpdateResult = try XCTUnwrap(updateResult)
-        XCTAssertEqual(updatedMessage.version?.serial, unwrappedUpdateResult.versionSerial)
+        XCTAssertEqual(updatedMessage.version.serial, unwrappedUpdateResult.versionSerial)
 
         // RSL14a: Get versions by serial string
         let versions = waitUntilEditingHistoryBecomesAvailableForMessageSerial(publishedMessageSerial, onChannel: channel)
@@ -344,7 +343,7 @@ class MessageUpdatesDeletesTests: XCTestCase {
         var updatedMessage: Message?
 
         // Fetch the updated message (poll getMessageWithSerial until it returns the updated message)
-        while updatedMessage == nil || updatedMessage!.version?.serial == publishedMessage.version?.serial {
+        while updatedMessage == nil || updatedMessage!.version.serial == publishedMessage.version.serial {
             // Get the updated message by serial string
             waitUntil(timeout: testTimeout) { done in
                 channel.getMessageWithSerial(publishedMessageSerial) { message, error in
@@ -367,18 +366,17 @@ class MessageUpdatesDeletesTests: XCTestCase {
         XCTAssertEqual(updatedMessage.action, .delete)
 
         // Verify version properties
-        XCTAssertNotNil(updatedMessage.version)
-        XCTAssertNotNil(updatedMessage.version?.serial)
-        XCTAssertTrue(updatedMessage.version!.serial! > publishedMessageSerial)
-        XCTAssertNotNil(updatedMessage.version?.timestamp)
-        XCTAssertTrue(updatedMessage.version!.timestamp! > publishedMessage.timestamp!)
-        XCTAssertEqual(updatedMessage.version?.clientId, "deleter-client")
-        XCTAssertEqual(updatedMessage.version?.descriptionText, "Test delete operation")
-        XCTAssertEqual(updatedMessage.version?.metadata, ["reason": "inappropriate content"])
+        XCTAssertNotNil(updatedMessage.version.serial)
+        XCTAssertTrue(updatedMessage.version.serial! > publishedMessageSerial)
+        XCTAssertNotNil(updatedMessage.version.timestamp)
+        XCTAssertTrue(updatedMessage.version.timestamp! > publishedMessage.timestamp!)
+        XCTAssertEqual(updatedMessage.version.clientId, "deleter-client")
+        XCTAssertEqual(updatedMessage.version.descriptionText, "Test delete operation")
+        XCTAssertEqual(updatedMessage.version.metadata, ["reason": "inappropriate content"])
 
         // Check the contents of deleteMessage's returned UpdateDeleteResult
         let unwrappedDeleteResult = try XCTUnwrap(deleteResult)
-        XCTAssertEqual(updatedMessage.version?.serial, unwrappedDeleteResult.versionSerial)
+        XCTAssertEqual(updatedMessage.version.serial, unwrappedDeleteResult.versionSerial)
     }
 
     private func _test__rest_and_realtime__appendMessage(_ testEnvironment: TestEnvironment) throws {
@@ -467,7 +465,7 @@ class MessageUpdatesDeletesTests: XCTestCase {
         var updatedMessage: Message?
 
         // Fetch the updated message (poll getMessageWithSerial until it returns the updated message)
-        while updatedMessage == nil || updatedMessage!.version?.serial == publishedMessage.version?.serial {
+        while updatedMessage == nil || updatedMessage!.version.serial == publishedMessage.version.serial {
             // Get the updated message by serial string
             waitUntil(timeout: testTimeout) { done in
                 channel.getMessageWithSerial(publishedMessageSerial) { message, error in
@@ -491,17 +489,16 @@ class MessageUpdatesDeletesTests: XCTestCase {
         XCTAssertEqual(updatedMessage.action, .update)
 
         // Verify version properties
-        XCTAssertNotNil(updatedMessage.version)
-        XCTAssertNotNil(updatedMessage.version?.serial)
-        XCTAssertTrue(updatedMessage.version!.serial! > publishedMessageSerial)
-        XCTAssertNotNil(updatedMessage.version?.timestamp)
-        XCTAssertTrue(updatedMessage.version!.timestamp! > publishedMessage.timestamp!)
-        XCTAssertEqual(updatedMessage.version?.clientId, "appender-client")
-        XCTAssertEqual(updatedMessage.version?.descriptionText, "Test append operation")
-        XCTAssertEqual(updatedMessage.version?.metadata, ["reason": "further LLM tokens"])
+        XCTAssertNotNil(updatedMessage.version.serial)
+        XCTAssertTrue(updatedMessage.version.serial! > publishedMessageSerial)
+        XCTAssertNotNil(updatedMessage.version.timestamp)
+        XCTAssertTrue(updatedMessage.version.timestamp! > publishedMessage.timestamp!)
+        XCTAssertEqual(updatedMessage.version.clientId, "appender-client")
+        XCTAssertEqual(updatedMessage.version.descriptionText, "Test append operation")
+        XCTAssertEqual(updatedMessage.version.metadata, ["reason": "further LLM tokens"])
 
         // Check the contents of appendMessage's returned UpdateDeleteResult
-        XCTAssertEqual(updatedMessage.version?.serial, unwrappedAppendResult.versionSerial)
+        XCTAssertEqual(updatedMessage.version.serial, unwrappedAppendResult.versionSerial)
     }
 
     // MARK: - RSL11: RestChannel#getMessage function

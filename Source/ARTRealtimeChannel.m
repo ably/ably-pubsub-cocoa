@@ -914,7 +914,16 @@ art_dispatch_sync(_queue, ^{
         }
 
         if (!msg.timestamp) {
-            msg.timestamp = pm.timestamp;
+            msg.timestamp = pm.timestamp; // TM2f
+        }
+        // TM2s2: decoding set version.timestamp from the message's own timestamp, which may only now be set by TM2f. ARTMessageVersion is immutable, so this replaces it.
+        if (!msg.version.timestamp && msg.timestamp) {
+            ARTMessageVersion *version = msg.version;
+            msg.version = [[ARTMessageVersion alloc] initWithSerial:version.serial
+                                                          timestamp:msg.timestamp
+                                                           clientId:version.clientId
+                                                    descriptionText:version.descriptionText
+                                                           metadata:version.metadata];
         }
         if (!msg.id) {
             msg.id = [NSString stringWithFormat:@"%@:%d", pm.id, i];

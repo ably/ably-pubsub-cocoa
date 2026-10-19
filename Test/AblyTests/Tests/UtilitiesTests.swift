@@ -589,9 +589,9 @@ class UtilitiesTests: XCTestCase {
         var messages = try XCTUnwrap(pm.messages)
         XCTAssert(messages[0].action == .create)
         XCTAssert(messages[0].serial == "123")
-        XCTAssert(messages[0].version?.serial == "123")
+        XCTAssert(messages[0].version.serial == "123")
         XCTAssert(messages[0].timestamp == Date(timeIntervalSince1970: 12.345))
-        XCTAssert(messages[0].version?.timestamp == Date(timeIntervalSince1970: 12.345))
+        XCTAssert(messages[0].version.timestamp == Date(timeIntervalSince1970: 12.345))
 
         // for update
         json = """
@@ -610,9 +610,9 @@ class UtilitiesTests: XCTestCase {
         messages = try XCTUnwrap(pm.messages)
         XCTAssert(messages[0].action == .update)
         XCTAssert(messages[0].serial == "123")
-        XCTAssert(messages[0].version?.serial == "123")
+        XCTAssert(messages[0].version.serial == "123")
         XCTAssert(messages[0].timestamp == Date(timeIntervalSince1970: 12.345))
-        XCTAssert(messages[0].version?.timestamp == Date(timeIntervalSince1970: 12.345))
+        XCTAssert(messages[0].version.timestamp == Date(timeIntervalSince1970: 12.345))
 
         // partial
         json = """
@@ -636,11 +636,11 @@ class UtilitiesTests: XCTestCase {
         messages = try XCTUnwrap(pm.messages)
         XCTAssert(messages[0].action == .create)
         XCTAssert(messages[0].serial == "123")
-        XCTAssert(messages[0].version?.serial == "124")
-        XCTAssert(messages[0].version?.clientId == "testClient")
-        XCTAssert(messages[0].version?.descriptionText == "test operation")
+        XCTAssert(messages[0].version.serial == "124")
+        XCTAssert(messages[0].version.clientId == "testClient")
+        XCTAssert(messages[0].version.descriptionText == "test operation")
         XCTAssert(messages[0].timestamp == Date(timeIntervalSince1970: 12.345))
-        XCTAssert(messages[0].version?.timestamp == Date(timeIntervalSince1970: 12.345))
+        XCTAssert(messages[0].version.timestamp == Date(timeIntervalSince1970: 12.345))
     }
 
     /// - TM8a
@@ -665,8 +665,7 @@ class UtilitiesTests: XCTestCase {
         let message1 = messages1[0]
 
         // Verify annotations are always populated
-        XCTAssertNotNil(message1.annotations, "message.annotations should always be populated")
-        XCTAssertNotNil(message1.annotations?.summary, "message.annotations.summary should always be populated")
+        XCTAssertNotNil(message1.annotations.summary, "message.annotations.summary should always be populated")
 
         // Test with empty annotations object
         let json2 = """
@@ -686,8 +685,7 @@ class UtilitiesTests: XCTestCase {
         let message2 = messages2[0]
 
         // Verify annotations are always populated even with empty annotations object
-        XCTAssertNotNil(message2.annotations, "message.annotations should always be populated")
-        XCTAssertNotNil(message2.annotations?.summary, "message.annotations.summary should always be populated when not provided")
+        XCTAssertNotNil(message2.annotations.summary, "message.annotations.summary should always be populated when not provided")
 
         // Test with annotations containing summary
         let json3 = """
@@ -709,9 +707,8 @@ class UtilitiesTests: XCTestCase {
         let message3 = messages3[0]
 
         // Verify annotations and summary are properly decoded
-        XCTAssertNotNil(message3.annotations, "message.annotations should be populated")
-        XCTAssertNotNil(message3.annotations?.summary, "message.annotations.summary should be populated")
-        if let summary = message3.annotations?.summary as? [String: Any] {
+        XCTAssertNotNil(message3.annotations.summary, "message.annotations.summary should be populated")
+        if let summary = message3.annotations.summary {
             XCTAssertEqual(summary["count"] as? Int, 5)
             XCTAssertEqual(summary["type"] as? String, "test")
         } else {
@@ -746,21 +743,14 @@ class UtilitiesTests: XCTestCase {
         let message = messages[0]
 
         XCTAssert(message.action == .create)
-        XCTAssertNotNil(message.version)
         XCTAssert(message.serial == "123")
         XCTAssert(message.timestamp == Date(timeIntervalSince1970: 1234512.340))
-        XCTAssert(message.version?.serial == "124")
-        XCTAssert(message.version?.timestamp == Date(timeIntervalSince1970: 1234512.345))
-        XCTAssert(message.version?.clientId == "testClient")
-        XCTAssert(message.version?.descriptionText == "test operation")
-        XCTAssertNotNil(message.version?.metadata)
-        if let metadata = message.version?.metadata as? [String: Any] {
-            XCTAssertEqual(metadata["key"] as? String, "value")
-        } else {
-            XCTFail("metadata should be a dictionary with expected values")
-        }
-        XCTAssertNotNil(message.annotations)
-        XCTAssertNotNil(message.annotations?.summary)
+        XCTAssert(message.version.serial == "124")
+        XCTAssert(message.version.timestamp == Date(timeIntervalSince1970: 1234512.345))
+        XCTAssert(message.version.clientId == "testClient")
+        XCTAssert(message.version.descriptionText == "test operation")
+        XCTAssertEqual(message.version.metadata?["key"], "value")
+        XCTAssertNotNil(message.annotations.summary)
     }
 
     /// TM2s
@@ -816,7 +806,7 @@ class UtilitiesTests: XCTestCase {
         let messages = try XCTUnwrap(pm.messages)
 
         for message in messages {
-            let summary = try XCTUnwrap(message.annotations?.summary)
+            let summary = try XCTUnwrap(message.annotations.summary)
             XCTAssertTrue(summary.isEmpty)
         }
     }
@@ -840,7 +830,7 @@ class UtilitiesTests: XCTestCase {
         let pm = try jsonEncoder.decodeProtocolMessage(json.data(using: .utf8)!)
         let message = try XCTUnwrap(pm.messages?.first)
 
-        XCTAssertEqual(message.version?.metadata, ["reason": "typo"])
+        XCTAssertEqual(message.version.metadata, ["reason": "typo"])
     }
 
     /// - TM2i
@@ -864,5 +854,24 @@ class UtilitiesTests: XCTestCase {
         XCTAssertNil(messages[0].extras)
         XCTAssertEqual(messages[1].extras as NSDictionary?, ["push": ["key": "value"]] as NSDictionary)
         XCTAssertNil(try XCTUnwrap(pm.presence?.first).extras)
+    }
+
+    /// TM2s
+    /// TM2u
+    func test__032_Utilities__message_you_create_has_an_empty_version_and_annotations_that_are_not_encoded() throws {
+        beforeEach__Utilities__JSON_Encoder()
+
+        for message in [Message(), Message(name: "name", data: "data"), Message(name: "name", data: "data", clientId: "client")] {
+            XCTAssertNil(message.version.serial)
+            XCTAssertNil(message.version.timestamp)
+            XCTAssertNil(message.version.clientId)
+            XCTAssertNil(message.version.descriptionText)
+            XCTAssertNil(message.version.metadata)
+            XCTAssertNil(message.annotations.summary)
+
+            let encodedDict = jsonEncoder.message(toDictionary: message)
+            XCTAssertNil(encodedDict["version"])
+            XCTAssertNil(encodedDict["annotations"])
+        }
     }
 }

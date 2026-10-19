@@ -9,6 +9,15 @@
 
 @implementation ARTMessage
 
+- (instancetype)init {
+    if (self = [super init]) {
+        // TM2s, TM2u: a message always has a version and annotations. The encoder leaves out empty ones, so a message you create sends neither.
+        _version = [[ARTMessageVersion alloc] initWithSerial:nil timestamp:nil clientId:nil descriptionText:nil metadata:nil];
+        _annotations = [[ARTMessageAnnotations alloc] initWithSummary:nil];
+    }
+    return self;
+}
+
 - (instancetype)initWithName:(NSString *)name data:(id)data {
     if (self = [self init]) {
         self.name = [name copy];

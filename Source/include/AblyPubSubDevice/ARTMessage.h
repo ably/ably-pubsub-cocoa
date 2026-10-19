@@ -69,10 +69,10 @@ NS_SWIFT_NAME(Message)
 @property (nullable, readwrite, nonatomic) NSString *serial;
 
 /// The version information for the message, containing serial, timestamp, and operation metadata.
-@property (nullable, readwrite, nonatomic) ARTMessageVersion *version;
+@property (readwrite, nonatomic) ARTMessageVersion *version;
 
 /// Contains annotations for the message, including summary data.
-@property (nullable, readwrite, nonatomic) ARTMessageAnnotations *annotations;
+@property (readwrite, nonatomic) ARTMessageAnnotations *annotations;
 
 /**
  * Construct an `ARTMessage` object with an event name and payload.

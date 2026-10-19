@@ -66,7 +66,7 @@ class HttpAnnotationsTests: XCTestCase {
                     // Verify summary properties
                     XCTAssertEqual(receivedSummary.action, .messageSummary)
                     XCTAssertEqual(receivedSummary.serial, capturedReceivedMessage?.serial)
-                    XCTAssertEqual(receivedSummary.annotations?.summary?.count, 1)
+                    XCTAssertEqual(receivedSummary.annotations.summary?.count, 1)
 
                     partialDone()
                 }

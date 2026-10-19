@@ -4,7 +4,7 @@ import XCTest
 
 private let links = "<./messages?start=0&end=1535035746063&limit=100&direction=backwards&format=msgpack&firstEnd=1535035746063&fromDate=1535035746063&mode=all>; rel=\"first\", <./messages?start=0&end=1535035746063&limit=100&direction=backwards&format=msgpack&firstEnd=1535035746063&fromDate=1535035746063&mode=all>; rel=\"current\""
 
-private let url = URL(string: "https://sandbox-rest.ably.io:443/channels/foo/messages?limit=100&direction=backwards")!
+private let url = URL(string: "https://sandbox.realtime.ably-nonprod.net:443/channels/foo/messages?limit=100&direction=backwards")!
 
 class HttpPaginatedTests: XCTestCase {
     // XCTest invokes this method before executing the first test in the test suite. We use it to ensure that the global variables are initialized at the same moment, and in the same order, as they would have been when we used the Quick testing framework.
@@ -44,6 +44,6 @@ class HttpPaginatedTests: XCTestCase {
             fail("First link isn't a valid URL"); return
         }
 
-        XCTAssertEqual(firstRequest.url?.absoluteString, "https://sandbox-rest.ably.io:443/channels/foo/messages?start=0&end=1535035746063&limit=100&direction=backwards&format=msgpack&firstEnd=1535035746063&fromDate=1535035746063&mode=all")
+        XCTAssertEqual(firstRequest.url?.absoluteString, "https://sandbox.realtime.ably-nonprod.net:443/channels/foo/messages?start=0&end=1535035746063&limit=100&direction=backwards&format=msgpack&firstEnd=1535035746063&fromDate=1535035746063&mode=all")
     }
 }

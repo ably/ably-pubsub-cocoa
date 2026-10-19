@@ -19,9 +19,9 @@ class ObjectLifetimesTests: XCTestCase {
 
     func test__001__ObjectLifetimes__user_code_releases_public_object__the_object_s_internal_child_s_back_reference_is_released_too() {
         var realtime: PubSubClient? = PubSubClient(options: options)
-        weak var internalRealtime: ARTPubSubClientInternal? = realtime!.internal
-        weak var internalConn: ARTConnectionInternal? = realtime!.connection.internal
-        weak var internalRest: ARTHttpClientInternal? = realtime!.internal.rest
+        weak let internalRealtime: ARTPubSubClientInternal? = realtime!.internal
+        weak let internalConn: ARTConnectionInternal? = realtime!.connection.internal
+        weak let internalRest: ARTHttpClientInternal? = realtime!.internal.rest
 
         waitUntil(timeout: testTimeout) { done in
             options.internalDispatchQueue.async {
@@ -57,7 +57,7 @@ class ObjectLifetimesTests: XCTestCase {
 
     func test__003__ObjectLifetimes__user_code_holds_only_reference_to_public_object_s_public_child__when_it_s_released__schedules_async_release_of_parent_s_internal_object_in_internal_queue() {
         var conn: Connection? = PubSubClient(options: options).connection
-        weak var weakConn = conn!.internal_nosync
+        weak let weakConn = conn!.internal_nosync
 
         waitUntil(timeout: testTimeout) { done in
             options.internalDispatchQueue.async {
@@ -83,7 +83,7 @@ class ObjectLifetimesTests: XCTestCase {
 
         var client: PubSubClient? = PubSubClient(options: options)
 
-        weak var weakClient = client!.internal
+        weak let weakClient = client!.internal
         XCTAssertNotNil(weakClient)
         defer { client?.close() }
 
@@ -104,10 +104,10 @@ class ObjectLifetimesTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
 
         var client: PubSubClient? = PubSubClient(options: options)
-        weak var weakClient = client!.internal
+        weak let weakClient = client!.internal
 
         var channel: RealtimeChannel? = client!.channels.get(test.uniqueChannelName())
-        weak var weakChannel = channel!.internal
+        weak let weakChannel = channel!.internal
 
         waitUntil(timeout: testTimeout) { done in
             channel!.attach { errorInfo in

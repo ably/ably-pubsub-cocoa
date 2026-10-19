@@ -36,6 +36,8 @@ The following platforms are supported:
 | macOS| >= 11 |
 | tvOS | >= 14 |
 
+Building the SDK requires Xcode 26 or later.
+
 > [!IMPORTANT]
 > Ably Cocoa SDK versions below 1.2.23 will be [deprecated](https://ably.com/docs/platform/deprecate/protocol-v1) from November 1, 2025.
 

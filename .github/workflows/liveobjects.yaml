@@ -37,10 +37,10 @@ jobs:
           persist-credentials: false
           submodules: true
 
-      # This step can be removed once the runners' default version of Xcode is 16.4 or above
+      # This step can be removed once the runners' default version of Xcode is 26.2 or above
       - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1
         with:
-          xcode-version: 16.4
+          xcode-version: 26.2
 
       # We use caching for Mint because at the time of writing SwiftLint took about 5 minutes to build in CI, which is unacceptably slow.
       # https://github.com/actions/cache/blob/40c3b67b2955d93d83b27ed164edd0756bc24049/examples.md#swift---mint
@@ -80,10 +80,10 @@ jobs:
           persist-credentials: false
           submodules: true
 
-      # This step can be removed once the runners' default version of Xcode is 16.4 or above
+      # This step can be removed once the runners' default version of Xcode is 26.2 or above
       - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1
         with:
-          xcode-version: 16.4
+          xcode-version: 26.2
 
       - id: generation-step
         run: swift run --package-path BuildTool BuildTool generate-matrices >> $GITHUB_OUTPUT
@@ -238,10 +238,10 @@ jobs:
           persist-credentials: false
           submodules: true
 
-      # This step can be removed once the runners' default version of Xcode is 16.4 or above
+      # This step can be removed once the runners' default version of Xcode is 26.2 or above
       - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1
         with:
-          xcode-version: 16.4
+          xcode-version: 26.2
 
       - run: swift run --package-path BuildTool BuildTool generate-code-coverage --result-bundle-path CodeCoverage.xcresult
 
@@ -253,7 +253,7 @@ jobs:
       # - offer more fine-grained configuration about which data to include in the report (I only care about code coverage, not test results, and I don't care about code coverage of the AblyLiveObjectsTests target)
       #
       # but it'll do for now (we can always fork or have another look for tooling later).
-      - uses: slidoapp/xcresulttool@9c51e32ae0320e0ca9b63240e4da8e974ac573e3 # v3.1.0
+      - uses: slidoapp/xcresulttool@b98987749a0e149b1eecce5387dbb90aa1d58499 # v3.2.0
         with:
           path: LiveObjects/CodeCoverage.xcresult
           # This title will be used for the sidebar item that this job adds to GitHub results page for this workflow
@@ -335,10 +335,10 @@ jobs:
           persist-credentials: false
           submodules: true
 
-      # This step can be removed once the runners' default version of Xcode is 16.4 or above
+      # This step can be removed once the runners' default version of Xcode is 26.2 or above
       - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1
         with:
-          xcode-version: 16.4
+          xcode-version: 26.2
 
       # Dry run upload-action to get base-path url
       - name: Dry-Run Upload (to get url)

@@ -97,9 +97,9 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Select Xcode (16.4)
+      - name: Select Xcode (26.2)
         run: |
-          sudo xcode-select -s /Applications/Xcode_16.4.app
+          sudo xcode-select -s /Applications/Xcode_26.2.app
           echo "Selected Xcode version:"
           xcodebuild -version
 

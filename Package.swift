@@ -13,7 +13,7 @@ let package = Package(
         // The main SDK product.
         .library(
             name: "AblyPubSubDevice",
-            targets: ["AblyPubSubDevice"]
+            targets: ["AblyPubSubDevice", "AblyPubSubDeviceSwift"]
         ),
         // The LiveObjects plugin.
         .library(
@@ -52,6 +52,22 @@ let package = Package(
                 .headerSearchPath("SocketRocket/Internal/Delegate"),
                 .headerSearchPath("SocketRocket/Internal/IOConsumer"),
             ]
+        ),
+        // The Swift overlay: re-exports the main SDK target and adds `async` versions of its callback-based operations. It is a separate module because SPM doesn't allow mixed-language targets, and the Objective-C module keeps the `AblyPubSubDevice` name so that `@import AblyPubSubDevice;` keeps working from Objective-C.
+        .target(
+            name: "AblyPubSubDeviceSwift",
+            dependencies: [
+                .target(name: "AblyPubSubDevice"),
+            ],
+            path: "Swift/Sources/AblyPubSubDeviceSwift"
+        ),
+        .testTarget(
+            name: "AblyPubSubDeviceSwiftTests",
+            dependencies: [
+                .target(name: "AblyPubSubDeviceSwift"),
+                .byName(name: "AblyTesting"),
+            ],
+            path: "Swift/Tests/AblyPubSubDeviceSwiftTests"
         ),
         .target(
             name: "AblyLiveObjects",

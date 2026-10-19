@@ -131,6 +131,17 @@ realtime.connection.on { stateChange in
 }
 ```
 
+In Swift, import `AblyPubSubDeviceSwift` to await operations such as attaching, publishing and entering presence instead of passing callbacks. Failures throw an `ErrorInfo`:
+
+```swift
+import AblyPubSubDeviceSwift
+
+let channel = realtime.channels.get("test-channel")
+try await channel.attach()
+try await channel.publish("test-event", data: "hello world!")
+try await channel.presence.enter("present")
+```
+
 ---
 
 ## LiveObjects

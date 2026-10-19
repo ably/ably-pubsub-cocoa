@@ -45,6 +45,11 @@ NS_SWIFT_NAME(PresenceMessage)
 @property (readwrite, nonatomic) ARTPresenceAction action;
 
 /**
+ * The ID of the connection associated with the client that published the `ARTPresenceMessage`.
+ */
+@property (nonatomic) NSString *connectionId;
+
+/**
  * Combines `ARTBaseMessage.clientId` and `ARTBaseMessage.connectionId` to ensure that multiple connected clients with an identical `clientId` are uniquely identifiable.
  *
  * @return A combination of `ARTBaseMessage.clientId` and `ARTBaseMessage.connectionId`.

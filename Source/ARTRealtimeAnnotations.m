@@ -289,11 +289,12 @@ art_dispatch_sync(_queue, ^{
 
 - (void)onMessage:(ARTProtocolMessage *)message {
     ARTDataEncoder *dataEncoder = _channel.dataEncoder;
+    NSUInteger index = 0;
     for (ARTAnnotation *a in message.annotations) {
-        ARTAnnotation *annotation = a;
+        ARTAnnotation *annotation = [a annotationByPopulatingFieldsFromProtocolMessage:message index:index++ timeProvider:_realtime.rest.timeProvider];
         if (annotation.data && dataEncoder) {
             NSError *decodeError = nil;
-            annotation = [a decodeDataWithEncoder:dataEncoder error:&decodeError];
+            annotation = [annotation decodeDataWithEncoder:dataEncoder error:&decodeError];
             if (decodeError != nil) {
                 ARTErrorInfo *errorInfo = [ARTErrorInfo wrap:[ARTErrorInfo createWithCode:ARTErrorUnableToDecodeMessage message:decodeError.localizedFailureReason] prepend:@"Failed to decode data: "];
                 ARTLogError(self.logger, @"RT:%p C:%p (%@) %@", _realtime, _channel, _channel.name, errorInfo.message);

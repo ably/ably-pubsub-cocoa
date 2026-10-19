@@ -2,6 +2,8 @@
 #import "ARTJsonEncoder.h"
 #import "ARTJsonLikeEncoder.h"
 #import "ARTAnnotation+Private.h"
+#import "ARTProtocolMessage.h"
+#import "ARTTimeProvider.h"
 #import "ARTNSArray+ARTFunctional.h"
 #import "ARTInternalLog.h"
 
@@ -87,6 +89,25 @@
 
 - (BOOL)isIdEmpty {
     return self.id == nil || [self.id isEqualToString:@""];
+}
+
+- (ARTAnnotation *)annotationByPopulatingFieldsFromProtocolMessage:(ARTProtocolMessage *)protocolMessage index:(NSUInteger)index timeProvider:(id<ARTTimeProvider>)timeProvider {
+    const BOOL populatesId = self.isIdEmpty && protocolMessage.id != nil;
+    // The header declares `timestamp` nonnull, but an annotation received without one decodes to nil.
+    const BOOL populatesTimestamp = self.timestamp == nil;
+    if (!populatesId && !populatesTimestamp) {
+        return self;
+    }
+
+    ARTAnnotation *annotation = [self copy];
+    if (populatesId) {
+        annotation->_id = [NSString stringWithFormat:@"%@:%lu", protocolMessage.id, (unsigned long)index];
+    }
+    if (populatesTimestamp) {
+        // The wall-clock fallback is specific to ably-cocoa. TAN2h makes `timestamp` non-optional, so the header declares it nonnull, and Swift traps when it reads a nil one. Other SDKs have no such fallback: ably-js leaves the timestamp unset and ably-java leaves it 0.
+        annotation->_timestamp = protocolMessage.timestamp ?: [timeProvider wallClockNow];
+    }
+    return annotation;
 }
 
 @end

@@ -36,7 +36,7 @@ This plugin supports the following platforms:
 | tvOS     | >= 14.0 |
 
 > [!NOTE]
-> Xcode 16.3 or later is required.
+> Xcode 26 or later is required.
 
 ---
 

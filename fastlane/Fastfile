@@ -6,7 +6,7 @@ class LaneConfig < Struct.new(:name, :devices)
   # a glance, and either can be re-run without the other's ~40 minutes.
   #
   #   nil / "all" — every target in Test/Ably.xctestplan
-  #   "sdk"       — AblyTests and AblyTestsObjC
+  #   "sdk"       — AblyTests, AblyTestsObjC and AblyPubSubDeviceSwiftTests
   #   "uts"       — the UTS target alone
   # `test_plan` selects an Xcode test plan by name. The default plan (Ably) runs the
   # targets against today's constructors; UTSDevice runs the UTS target with

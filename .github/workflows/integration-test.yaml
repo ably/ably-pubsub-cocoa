@@ -19,8 +19,9 @@ jobs:
     runs-on: macos-15
 
     # These Fastlane lanes build the `ably-cocoa` scheme against
-    # Test/Ably.xctestplan, passing `suite:sdk` so that the AblyTests and
-    # AblyTestsObjC targets run here and the UTS target does not. The UTS runs
+    # Test/Ably.xctestplan, passing `suite:sdk` so that the AblyTests,
+    # AblyTestsObjC and AblyPubSubDeviceSwiftTests targets run here and the UTS
+    # target does not. The UTS runs
     # in uts.yaml instead: it is mostly a unit suite, so grouping it under
     # "Integration Test" misnamed it, and splitting the two means a UTS failure
     # is distinguishable at a glance and either can be re-run without the
@@ -50,9 +51,9 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Select Xcode (16.4)
+      - name: Select Xcode (26.2)
         run: |
-          sudo xcode-select -s /Applications/Xcode_16.4.app
+          sudo xcode-select -s /Applications/Xcode_26.2.app
           echo "Selected Xcode version:"
           xcodebuild -version
 

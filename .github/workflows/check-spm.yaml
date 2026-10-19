@@ -30,7 +30,7 @@ jobs:
           persist-credentials: false
       - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
         with:
-          xcode-version: 16.4
+          xcode-version: 26.2
 
       # https://forums.swift.org/t/warnings-as-errors-for-libraries-frameworks/58393/2
       - run: swift build -Xswiftc -warnings-as-errors

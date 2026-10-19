@@ -1584,7 +1584,7 @@ class RealtimeClientConnectionTests: XCTestCase {
                         oldTransport = _internal.transport
                     }
                     // Old connection must complete the close request
-                    weak var oldTestProxyTransport = oldTransport as? TestProxyTransport
+                    weak let oldTestProxyTransport = oldTransport as? TestProxyTransport
                     oldTestProxyTransport?.setBeforeIncomingMessageModifier { protocolMessage in
                         if protocolMessage.action == .closed {
                             partialDone()

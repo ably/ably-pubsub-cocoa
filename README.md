@@ -36,6 +36,8 @@ The following platforms are supported:
 | macOS| >= 11 |
 | tvOS | >= 14 |
 
+Building the SDK requires Xcode 26 or later.
+
 > [!IMPORTANT]
 > Ably Cocoa SDK versions below 1.2.23 will be [deprecated](https://ably.com/docs/platform/deprecate/protocol-v1) from November 1, 2025.
 
@@ -127,6 +129,17 @@ realtime.connection.on { stateChange in
         }
     }
 }
+```
+
+In Swift, import `AblyPubSubDeviceSwift` to await operations such as attaching, publishing and entering presence instead of passing callbacks. Failures throw an `ErrorInfo`:
+
+```swift
+import AblyPubSubDeviceSwift
+
+let channel = realtime.channels.get("test-channel")
+try await channel.attach()
+try await channel.publish("test-event", data: "hello world!")
+try await channel.presence.enter("present")
 ```
 
 ---

@@ -455,7 +455,7 @@ class UtilitiesTests: XCTestCase {
     func test__018__Utilities__EventEmitter__the_timed_method__should_not_call_onTimeout_if_the_deadline_isn_t_reached() {
         beforeEach__Utilities__EventEmitter()
 
-        weak var timer = listenerFoo1!.setTimer(0.2, onTimeout: {
+        weak let timer = listenerFoo1!.setTimer(0.2, onTimeout: {
             fail("onTimeout callback shouldn't have been called")
         })
         waitUntil(timeout: DispatchTimeInterval.seconds(1)) { done in

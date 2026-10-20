@@ -173,8 +173,11 @@ func channelsOperations(realtime: PubSubClient, queue: DispatchQueue) {
         }
 
         queue.afterSeconds(between: 0.1 ... 2) {
-            realtime.channels.release(channel.name) { error in
-                print("\(channel.name): released; error: \(String(describing: error))")
+            do {
+                try realtime.channels.release(channel.name)
+                print("\(channel.name): released")
+            } catch {
+                print("\(channel.name): not released; error: \(error)")
             }
         }
 

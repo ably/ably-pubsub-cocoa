@@ -80,7 +80,7 @@ internal final class DefaultInternalPlugin: NSObject, _AblyPluginSupportPrivate.
         liveObjects.nosync_setSiteCode(pluginAPI.nosync_latestConnectionDetails(for: client)?.siteCode)
     }
 
-    // The core SDK calls this from `-[ARTRealtimeChannels release:]` when a channel is released.
+    // The core SDK calls this from `-[ARTRealtimeChannels release:error:]` when a channel is released.
     // Disposes the channel's objects engine with a release-specific cause, failing any in-flight
     // operation proactively (rather than waiting for the channel's eventual deallocation, which would
     // fail waiters with a generic cause via `deinit`). This release-time disposal is not specified. A

@@ -26,8 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) dispatch_queue_t queue;
 
 - (BOOL)exists:(NSString *)name;
-- (void)release:(NSString *)name callback:(nullable ARTCallback)errorInfo;
-- (void)release:(NSString *)name;
+- (BOOL)release:(NSString *)name error:(NSError *_Nullable *_Nullable)error;
 
 @end
 

@@ -122,8 +122,8 @@ class RealtimeClientChannelsTests: XCTestCase {
     func test__006__Channels__release__should_log_a_deprecation_warning_when_releasing_an_attached_channel() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        options.logHandler = ARTLog(capturingOutput: true)
-        let client = ARTRealtime(options: options)
+        options.logHandler = Log(capturingOutput: true)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         let channelName = test.uniqueChannelName()
@@ -138,7 +138,7 @@ class RealtimeClientChannelsTests: XCTestCase {
         waitUntil(timeout: testTimeout) { done in
             client.channels.release(channelName) { errorInfo in
                 XCTAssertNil(errorInfo)
-                XCTAssertEqual(channel.state, ARTRealtimeChannelState.detached)
+                XCTAssertEqual(channel.state, RealtimeChannelState.detached)
                 done()
             }
         }
@@ -153,8 +153,8 @@ class RealtimeClientChannelsTests: XCTestCase {
     func test__007__Channels__release__should_not_log_a_deprecation_warning_when_releasing_a_detached_channel() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        options.logHandler = ARTLog(capturingOutput: true)
-        let client = ARTRealtime(options: options)
+        options.logHandler = Log(capturingOutput: true)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         let channelName = test.uniqueChannelName()
@@ -168,7 +168,7 @@ class RealtimeClientChannelsTests: XCTestCase {
                 }
             }
         }
-        XCTAssertEqual(channel.state, ARTRealtimeChannelState.detached)
+        XCTAssertEqual(channel.state, RealtimeChannelState.detached)
 
         client.channels.release(channelName)
         XCTAssertFalse(client.channels.exists(channelName))

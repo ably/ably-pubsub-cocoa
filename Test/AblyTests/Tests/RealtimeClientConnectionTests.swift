@@ -3223,7 +3223,7 @@ class RealtimeClientConnectionTests: XCTestCase {
         options.key = nil
         options.token = try getTestToken(for: test, key: key, ttl: 60.0)
         options.testOptions.transportFactory = TestProxyTransportFactory()
-        let client = ARTRealtime(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         waitUntil(timeout: testTimeout) { done in

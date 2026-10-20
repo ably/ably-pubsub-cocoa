@@ -1793,9 +1793,17 @@ extension PubSubClient {
     }
 
     func dispose() {
-        let names = self.channels.map({ ($0 as! RealtimeChannel).name })
-        for name in names {
-            try? self.channels.release(name)
+        let channels = self.channels.map({ $0 as! RealtimeChannel })
+        for channel in channels {
+            do {
+                try self.channels.release(channel.name)
+            } catch {
+                // RTS4e: a channel that isn't initialized, detached or failed can't be released, so remove the
+                // listeners that releasing it would have removed. This stops them firing after the test has finished.
+                channel.off()
+                channel.unsubscribe()
+                channel.presence.unsubscribe()
+            }
         }
         self.connection.off()
     }

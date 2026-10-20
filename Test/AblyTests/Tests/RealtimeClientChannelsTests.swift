@@ -175,4 +175,50 @@ class RealtimeClientChannelsTests: XCTestCase {
         XCTAssertTrue(client.channels.exists(channelName))
         XCTAssertTrue(client.channels.get(channelName).internal === channel.internal)
     }
+
+    // RTS4d
+    func test__009__Channels__release__should_remove_a_failed_channel() throws {
+        let test = Test()
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
+        defer { client.dispose(); client.close() }
+
+        let channelName = test.uniqueChannelName()
+        let channel = client.channels.get(channelName)
+        channel.internal.onError(AblyTests.newErrorProtocolMessage())
+        XCTAssertEqual(channel.state, RealtimeChannelState.failed)
+
+        try client.channels.release(channelName)
+        XCTAssertFalse(client.channels.exists(channelName))
+        XCTAssertFalse(client.channels.get(channelName).internal === channel.internal)
+    }
+
+    // RTS4e
+    func test__010__Channels__release__should_fail_without_releasing_a_suspended_channel() throws {
+        let test = Test()
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
+        defer { client.dispose(); client.close() }
+
+        let channelName = test.uniqueChannelName()
+        let channel = client.channels.get(channelName)
+        waitUntil(timeout: testTimeout) { done in
+            channel.attach { error in
+                XCTAssertNil(error)
+                done()
+            }
+        }
+        client.internal.onSuspended()
+        XCTAssertEqual(channel.state, RealtimeChannelState.suspended)
+
+        XCTAssertThrowsError(try client.channels.release(channelName)) { error in
+            guard let error = error as? ErrorInfo else {
+                XCTFail("Expected an ErrorInfo, got \(error)")
+                return
+            }
+            XCTAssertEqual(error.code, ErrorCode.channelReleaseInvalidState.intValue)
+            XCTAssertEqual(error.statusCode, 400)
+        }
+        XCTAssertEqual(channel.state, RealtimeChannelState.suspended)
+        XCTAssertTrue(client.channels.exists(channelName))
+        XCTAssertTrue(client.channels.get(channelName).internal === channel.internal)
+    }
 }

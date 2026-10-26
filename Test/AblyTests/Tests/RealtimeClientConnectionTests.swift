@@ -4139,6 +4139,79 @@ class RealtimeClientConnectionTests: XCTestCase {
         testUsesAlternativeHostOnResponse(.hostInternalError(code: 501), channelName: test.uniqueChannelName())
     }
 
+    // RTN17f, RSC15l4
+    func test__099b__Connection__Host_Fallback__should_use_an_alternative_host_when___cloudFrontError_code__403() {
+        let test = Test()
+        testUsesAlternativeHostOnResponse(.cloudFrontError(code: 403), channelName: test.uniqueChannelName())
+    }
+
+    // Connects, injects a DISCONNECTED with the given status, and returns the host of the next connection attempt and whether the connectivity check ran before it.
+    private func hostAfterDisconnectedMessage(statusCode: Int, options: ClientOptions) -> (host: String?, checkedConnectivity: Bool) {
+        options.autoConnect = false
+        options.disconnectedRetryTimeout = 1.0
+        let transportFactory = TestProxyTransportFactory()
+        options.testOptions.transportFactory = transportFactory
+        let client = PubSubClient(options: options)
+        defer { client.dispose(); client.close() }
+
+        let internalLog = InternalLog(clientOptions: options)
+        let mockHTTP = MockHTTP(logger: internalLog)
+        mockHTTP.setSuccessResponse(data: "yes\n".data(using: .utf8), contentType: "text/plain")
+        let testHttpExecutor = TestProxyHTTPExecutor(http: mockHTTP, logger: internalLog)
+        client.internal.rest.httpExecutor = testHttpExecutor
+
+        waitUntil(timeout: testTimeout) { done in
+            client.connection.once(.connected) { _ in
+                done()
+            }
+            client.connect()
+        }
+
+        var nextHost: String?
+        waitUntil(timeout: testTimeout) { done in
+            transportFactory.networkConnectEvent = { transport, url in
+                if client.internal.transport !== transport {
+                    return
+                }
+                transportFactory.networkConnectEvent = nil
+                DispatchQueue.main.async {
+                    nextHost = url.host
+                    done()
+                }
+            }
+
+            let disconnectedMessage = ARTProtocolMessage()
+            disconnectedMessage.action = .disconnected
+            disconnectedMessage.error = ErrorInfo.create(withCode: statusCode * 100, status: statusCode, message: "Injected DISCONNECTED")
+            client.internal.transport?.receive(disconnectedMessage)
+        }
+
+        let checkedConnectivity = testHttpExecutor.requests.contains { $0.url?.host == "internet-up.ably-realtime.com" }
+        return (nextHost, checkedConnectivity)
+    }
+
+    // RTN17f1
+    func test__099c__Connection__Host_Fallback__should_use_an_alternative_host_after_a_DISCONNECTED_with_status_503() throws {
+        let test = Test()
+        let options = try AblyTests.commonAppSetup(for: test)
+
+        let result = hostAfterDisconnectedMessage(statusCode: 503, options: options)
+
+        XCTAssertTrue(result.checkedConnectivity)
+        XCTAssertTrue(options.endpointFallbackHosts.contains(result.host ?? ""), "\(String(describing: result.host)) isn't a fallback host")
+    }
+
+    // RTN17f1
+    func test__099d__Connection__Host_Fallback__should_not_use_an_alternative_host_after_a_DISCONNECTED_with_status_400() throws {
+        let test = Test()
+        let options = try AblyTests.commonAppSetup(for: test)
+
+        let result = hostAfterDisconnectedMessage(statusCode: 400, options: options)
+
+        XCTAssertFalse(result.checkedConnectivity)
+        XCTAssertEqual(result.host, options.primaryDomain)
+    }
+
     func test__100__Connection__Host_Fallback__should_move_to_disconnected_when_there_s_no_internet__with_NSPOSIXErrorDomain_with_code_57() throws {
         let test = Test()
         try testMovesToDisconnectedWithNetworkingError(NSError(domain: "NSPOSIXErrorDomain", code: 57, userInfo: [NSLocalizedDescriptionKey: "shouldn't matter"]), for: test)

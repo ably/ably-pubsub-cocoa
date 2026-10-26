@@ -855,6 +855,8 @@ enum FakeNetworkResponse {
     case requestTimeout(timeout: TimeInterval)
     case hostInternalError(code: Int)
     case host400BadRequest
+    /// A response with the given status code and a `Server: CloudFront` header (RSC15l4).
+    case cloudFrontError(code: Int)
     case arbitraryError
 
     var error: NSError {
@@ -869,6 +871,8 @@ enum FakeNetworkResponse {
             return NSError(domain: AblyTestsErrorDomain, code: code, userInfo: [NSLocalizedDescriptionKey: "internal error", NSLocalizedFailureReasonErrorKey: AblyTestsErrorDomain + ".FakeNetworkResponse"])
         case .host400BadRequest:
             return NSError(domain: AblyTestsErrorDomain, code: 400, userInfo: [NSLocalizedDescriptionKey: "bad request", NSLocalizedFailureReasonErrorKey: AblyTestsErrorDomain + ".FakeNetworkResponse"])
+        case .cloudFrontError(let code):
+            return NSError(domain: AblyTestsErrorDomain, code: code, userInfo: [NSLocalizedDescriptionKey: "CloudFront error", NSLocalizedFailureReasonErrorKey: AblyTestsErrorDomain + ".FakeNetworkResponse"])
         case .arbitraryError:
             return NSError(domain: AblyTestsErrorDomain, code: 1, userInfo: [NSLocalizedDescriptionKey: "error from FakeNetworkResponse.arbitraryError"])
         }
@@ -883,9 +887,11 @@ enum FakeNetworkResponse {
         case .requestTimeout:
             return ARTRealtimeTransportError(error: error, type: .timeout, url: url)
         case .hostInternalError(let code):
-            return ARTRealtimeTransportError(error: error, badResponseCode: code, url: url)
+            return ARTRealtimeTransportError(error: error, badResponseCode: code, badResponseServerHeader: nil, url: url)
         case .host400BadRequest:
-            return ARTRealtimeTransportError(error: error, badResponseCode: 400, url: url)
+            return ARTRealtimeTransportError(error: error, badResponseCode: 400, badResponseServerHeader: nil, url: url)
+        case .cloudFrontError(let code):
+            return ARTRealtimeTransportError(error: error, badResponseCode: code, badResponseServerHeader: "CloudFront", url: url)
         case .arbitraryError:
             return ARTRealtimeTransportError(error: error, type: .other, url: url)
         }
@@ -1009,6 +1015,8 @@ class MockHTTP: ARTHTTPExecutor {
             requestCallback?(HTTPURLResponse(url: URL(string: "http://cocoa.test.suite")!, statusCode: code, httpVersion: nil, headerFields: nil), nil, nil)
         case .host400BadRequest:
             requestCallback?(HTTPURLResponse(url: URL(string: "http://cocoa.test.suite")!, statusCode: 400, httpVersion: nil, headerFields: nil), nil, nil)
+        case .cloudFrontError(let code):
+            requestCallback?(HTTPURLResponse(url: URL(string: "http://cocoa.test.suite")!, statusCode: code, httpVersion: nil, headerFields: ["Server": "CloudFront"]), nil, nil)
         case .arbitraryError:
             requestCallback?(nil, nil, NSError(domain: AblyTestsErrorDomain, code: 1, userInfo: [NSLocalizedDescriptionKey: "error from FakeNetworkResponse.arbitraryError"]))
         }
@@ -1404,6 +1412,7 @@ class TestProxyTransport: ARTWebSocketTransport {
                  .hostUnreachable,
                  .hostInternalError,
                  .host400BadRequest,
+                 .cloudFrontError,
                  .arbitraryError:
                 performFakeConnectionError(0.1, error: fakeResponse.transportError(for: url))
             case .requestTimeout(let timeout):

@@ -10,4 +10,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+/**
+ Whether a response is an error from CloudFront: an HTTP status code `>= 400` and a `Server` header equal to `CloudFront`, ignoring case. Such a response calls for an alternative host (RSC15l4).
+ */
+BOOL ARTIsCloudFrontError(NSInteger statusCode, NSString *_Nullable serverHeader);
+
 NS_ASSUME_NONNULL_END

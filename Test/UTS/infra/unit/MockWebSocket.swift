@@ -54,6 +54,7 @@ final class MockWebSocket: NSObject, ARTWebSocket, @unchecked Sendable {
     weak var delegate: ARTWebSocketDelegate?
     var delegateDispatchQueue: DispatchQueue?
     private(set) var readyState: ARTWebSocketReadyState = .connecting
+    let receivedHTTPHeaders: CFHTTPMessage? = nil
 
     // MARK: Inspection
 

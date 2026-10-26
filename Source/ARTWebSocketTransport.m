@@ -333,11 +333,11 @@ NS_ASSUME_NONNULL_END
 - (void)webSocket:(id<ARTWebSocket>)webSocket didFailWithError:(NSError *)error {
     ARTLogDebug(self.logger, @"R:%p WS:%p websocket did receive error %@", _delegate, self, error);
 
-    [_delegate realtimeTransportFailed:self withError:[self classifyError:error]];
+    [_delegate realtimeTransportFailed:self withError:[self classifyError:error webSocket:webSocket]];
     _state = ARTRealtimeTransportStateClosed;
 }
 
-- (ARTRealtimeTransportError *)classifyError:(NSError *)error {
+- (ARTRealtimeTransportError *)classifyError:(NSError *)error webSocket:(id<ARTWebSocket>)webSocket {
     ARTRealtimeTransportErrorType type = ARTRealtimeTransportErrorTypeOther;
 
     if ([error.domain isEqualToString:@"com.squareup.SocketRocket"] && error.code == 504) {
@@ -349,8 +349,11 @@ NS_ASSUME_NONNULL_END
     } else if ([error.domain isEqualToString:ARTSRWebSocketErrorDomain] && error.code == 2132) {
         id status = error.userInfo[ARTSRHTTPResponseErrorKey];
         if (status) {
+            CFHTTPMessageRef const headers = webSocket.receivedHTTPHeaders;
+            NSString *const server = headers ? CFBridgingRelease(CFHTTPMessageCopyHeaderFieldValue(headers, CFSTR("Server"))) : nil;
             return [[ARTRealtimeTransportError alloc] initWithError:error
                                                     badResponseCode:[(NSNumber *)status integerValue]
+                                            badResponseServerHeader:server
                                                                 url:self.websocketURL];
         }
     }

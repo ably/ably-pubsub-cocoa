@@ -984,6 +984,12 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
         return;
     }
 
+    ARTClientOptions *const clientOptions = [self getClientOptions];
+    if (![self isSuspendMode] && [self shouldRetryWithFallbackForDisconnectedError:error options:clientOptions]) {
+        ARTLogDebug(self.logger, @"R:%p Ably can't serve the connection (status %ld); can retry with fallback host", self, (long)error.statusCode);
+        [self prepareFallbacksWithOptions:clientOptions];
+    }
+
     ARTConnectionStateChangeParams *const params = [[ARTConnectionStateChangeParams alloc] initWithErrorInfo:error];
     [self performTransitionToDisconnectedOrSuspendedWithParams:params];
 }
@@ -1519,13 +1525,27 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
     }
 }
 
+// RTN17f
 - (BOOL)shouldRetryWithFallbackForError:(ARTRealtimeTransportError *)error options:(ARTClientOptions *)options {
-    if ((error.type == ARTRealtimeTransportErrorTypeBadResponse && error.badResponseCode >= 500 && error.badResponseCode <= 504) ||
-         error.type == ARTRealtimeTransportErrorTypeHostUnreachable || error.type == ARTRealtimeTransportErrorTypeTimeout) {
-        // RTN17g
-        return [ARTFallbackHosts hostsFromOptions:options].count > 0;
+    BOOL qualifies = error.type == ARTRealtimeTransportErrorTypeHostUnreachable || error.type == ARTRealtimeTransportErrorTypeTimeout; // RSC15l1, RSC15l2
+    if (error.type == ARTRealtimeTransportErrorTypeBadResponse) {
+        qualifies = (error.badResponseCode >= 500 && error.badResponseCode <= 504) || // RSC15l3
+                    ARTIsCloudFrontError(error.badResponseCode, error.badResponseServerHeader); // RSC15l4
     }
-    return NO;
+    if (!qualifies) {
+        return NO;
+    }
+    // RTN17g
+    return [ARTFallbackHosts hostsFromOptions:options].count > 0;
+}
+
+// RTN17f1
+- (BOOL)shouldRetryWithFallbackForDisconnectedError:(nullable ARTErrorInfo *)error options:(ARTClientOptions *)options {
+    if (!error || error.statusCode < 500 || error.statusCode > 504) {
+        return NO;
+    }
+    // RTN17g
+    return [ARTFallbackHosts hostsFromOptions:options].count > 0;
 }
 
 - (void)onActivity {
@@ -1697,17 +1717,20 @@ wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
 
     if (![self isSuspendMode] && [self shouldRetryWithFallbackForError:transportError options:clientOptions]) {
         ARTLogDebug(self.logger, @"R:%p host is down; can retry with fallback host", self);
-        if (!_fallbacks) {
-            NSArray *hosts = [ARTFallbackHosts hostsFromOptions:clientOptions];
-            _fallbacks = [[ARTFallback alloc] initWithFallbackHosts:hosts shuffleArray:clientOptions.testOptions.shuffleArray];
-        }
-        if (!_fallbacks || _fallbacks.isEmpty) {
-            _fallbacks = nil;
-            ARTLogVerbose(self.logger, @"R:%p No fallback hosts left, will try primary one again...", self);
-        }
-        [self performTransitionToDisconnectedOrSuspendedWithParams:params]; // RTN14d, RTN17j
-    } else {
-        [self performTransitionToDisconnectedOrSuspendedWithParams:params];
+        [self prepareFallbacksWithOptions:clientOptions];
+    }
+    [self performTransitionToDisconnectedOrSuspendedWithParams:params]; // RTN14d, RTN17j
+}
+
+// Creates the list of fallback hosts for the next connection attempts, unless one is in use. When every host in it has been tried, the list is cleared so that the next attempt goes to the primary domain.
+- (void)prepareFallbacksWithOptions:(ARTClientOptions *)clientOptions {
+    if (!_fallbacks) {
+        NSArray *hosts = [ARTFallbackHosts hostsFromOptions:clientOptions];
+        _fallbacks = [[ARTFallback alloc] initWithFallbackHosts:hosts shuffleArray:clientOptions.testOptions.shuffleArray];
+    }
+    if (!_fallbacks || _fallbacks.isEmpty) {
+        _fallbacks = nil;
+        ARTLogVerbose(self.logger, @"R:%p No fallback hosts left, will try primary one again...", self);
     }
 }
 

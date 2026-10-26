@@ -20,6 +20,7 @@ typedef NS_ENUM(NSInteger, ARTWebSocketReadyState) {
 @property (nonatomic, weak) id <ARTWebSocketDelegate> _Nullable delegate;
 @property (nullable, nonatomic) dispatch_queue_t delegateDispatchQueue;
 @property (atomic, readonly) ARTWebSocketReadyState readyState;
+@property (nullable, nonatomic, readonly) CFHTTPMessageRef receivedHTTPHeaders;
 
 - (void)setDelegateDispatchQueue:(dispatch_queue_t)queue;
 

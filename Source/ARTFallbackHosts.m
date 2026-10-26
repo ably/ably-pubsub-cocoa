@@ -17,3 +17,7 @@
 }
 
 @end
+
+BOOL ARTIsCloudFrontError(NSInteger statusCode, NSString *serverHeader) {
+    return statusCode >= 400 && serverHeader && [serverHeader caseInsensitiveCompare:@"CloudFront"] == NSOrderedSame;
+}

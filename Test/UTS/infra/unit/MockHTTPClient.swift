@@ -10,7 +10,7 @@ import Ably.Private
 /// (`executeRequest:completion:`), so each `execute(_:)` is a standalone attempt: `onConnectionAttempt`
 /// is consulted first (its `respond_with_refused`/`timeout`/`dns_error` fail the request with the
 /// corresponding `NSError`), and unless the connection failed, the request is delivered to `onRequest`.
-final class MockHTTPClient: NSObject, ARTHTTPExecutor, Sendable {
+final class MockHTTPClient: NSObject, ARTHTTPExecutor, @unchecked Sendable {
     /// Returns the error the connection should fail with, or `nil` if it succeeds.
     typealias ConnectionHandler = @Sendable (PendingHTTPConnection) -> NSError?
     typealias RequestHandler = @Sendable (PendingHTTPRequest) -> Void
@@ -18,10 +18,28 @@ final class MockHTTPClient: NSObject, ARTHTTPExecutor, Sendable {
     private let onConnectionAttempt: ConnectionHandler?
     private let onRequest: RequestHandler?
 
+    private let lock = NSLock()
+    /// The fake clock, when `enableFakeTimers()` is in effect. Wired by `UTSTestCase.makeRest` /
+    /// `makeRealtime` at client-build time (mirroring how `testOptions.timeProvider` is injected), so
+    /// `respondWithDelay` can defer delivery through virtual time instead of a real timer. Set on the
+    /// test thread, read on the SDK's queue, so guarded by `lock`.
+    private var timeProvider: MockTimeProvider?
+
     init(onConnectionAttempt: ConnectionHandler? = nil, onRequest: RequestHandler? = nil) {
         self.onConnectionAttempt = onConnectionAttempt
         self.onRequest = onRequest
         super.init()
+    }
+
+    /// Wires the fake clock so `respondWithDelay` routes its delay through virtual time (UTS "No real
+    /// timers in unit tests"). When no provider is wired, `respondWithDelay` falls back to a real delay.
+    func useTimeProvider(_ provider: MockTimeProvider) {
+        lock.lock(); timeProvider = provider; lock.unlock()
+    }
+
+    private var currentTimeProvider: MockTimeProvider? {
+        lock.lock(); defer { lock.unlock() }
+        return timeProvider
     }
 
     // MARK: ARTHTTPExecutor
@@ -38,7 +56,7 @@ final class MockHTTPClient: NSObject, ARTHTTPExecutor, Sendable {
             // A request reached the mock with no handler installed: a test set-up error.
             fatalError("MockHTTPClient received a request but no onRequest handler is installed")
         }
-        onRequest(PendingHTTPRequest(request: request, completion: callback))
+        onRequest(PendingHTTPRequest(request: request, completion: callback, timeProvider: currentTimeProvider))
         return NoopCancellable()
     }
 }
@@ -84,10 +102,15 @@ struct PendingHTTPConnection {
 struct PendingHTTPRequest {
     let request: URLRequest
     private let completion: ((HTTPURLResponse?, Data?, Error?) -> Void)?
+    /// The fake clock, when fake timers are enabled — used by `respondWithDelay` (see `MockHTTPClient`).
+    private let timeProvider: MockTimeProvider?
 
-    init(request: URLRequest, completion: ((HTTPURLResponse?, Data?, Error?) -> Void)?) {
+    init(request: URLRequest,
+         completion: ((HTTPURLResponse?, Data?, Error?) -> Void)?,
+         timeProvider: MockTimeProvider? = nil) {
         self.request = request
         self.completion = completion
+        self.timeProvider = timeProvider
     }
 
     var url: URL {
@@ -109,7 +132,9 @@ struct PendingHTTPRequest {
     /// JSON-serialisable value (dictionary/array); defaults to a JSON content type.
     func respondWith(status: Int, body: Any, headers: [String: String] = [:]) {
         var headerFields = headers
-        if headerFields["Content-Type"] == nil {
+        // Default the content type only when the caller supplied none — the presence check is
+        // case-insensitive so a caller passing e.g. "content-type" is honoured, not duplicated.
+        if !headerFields.keys.contains(where: { $0.caseInsensitiveCompare("Content-Type") == .orderedSame }) {
             headerFields["Content-Type"] = "application/json"
         }
         let response = HTTPURLResponse(url: url, statusCode: status, httpVersion: "HTTP/1.1", headerFields: headerFields)
@@ -117,14 +142,32 @@ struct PendingHTTPRequest {
     }
 
     /// Sends an HTTP response after `delay` seconds (UTS `respond_with_delay` — for slow-server
-    /// specs). The response is built up front; only the delivery is deferred.
-    func respondWithDelay(_ delay: TimeInterval, status: Int, body: Any) {
-        let response = HTTPURLResponse(url: url, statusCode: status, httpVersion: "HTTP/1.1",
-                                       headerFields: ["Content-Type": "application/json"])
+    /// specs). Honours `headers` (defaulting the content type only when absent, like `respondWith`);
+    /// the response is built up front and only the delivery is deferred. When fake timers are enabled
+    /// the delay runs on the fake clock (released by `advanceTime`), per the UTS "No real timers in
+    /// unit tests" rule; otherwise it falls back to a real delay.
+    func respondWithDelay(_ delay: TimeInterval, status: Int, body: Any, headers: [String: String] = [:]) {
+        var headerFields = headers
+        // Default the content type only when the caller supplied none — the presence check is
+        // case-insensitive so a caller passing e.g. "content-type" is honoured, not duplicated.
+        if !headerFields.keys.contains(where: { $0.caseInsensitiveCompare("Content-Type") == .orderedSame }) {
+            headerFields["Content-Type"] = "application/json"
+        }
+        let response = HTTPURLResponse(url: url, statusCode: status, httpVersion: "HTTP/1.1", headerFields: headerFields)
         let data = Self.data(from: body)
-        let completion = DelayedCompletionBox(completion: self.completion)
-        DispatchQueue.global().asyncAfter(deadline: .now() + delay) {
-            completion.completion?(response, data, nil)
+        let box = SendableCompletionBox(completion: completion)
+        if let timeProvider {
+            // Fake timers wired: defer delivery through virtual time so `advanceTime` drives it.
+            _ = timeProvider.schedule(after: delay, queue: .global()) {
+                box.completion?(response, data, nil)
+            }
+        } else {
+            // No fake clock: fall back to a real delay (never hit in unit tests, which enable fake
+            // timers) without a real timer API.
+            DispatchQueue.global().async {
+                if delay > 0 { Thread.sleep(forTimeInterval: delay) }
+                box.completion?(response, data, nil)
+            }
         }
     }
 
@@ -142,9 +185,11 @@ struct PendingHTTPRequest {
     }
 }
 
-/// Carries a completion handler across the `asyncAfter` hop for `respondWithDelay`. The handler is
-/// only ever invoked once, from that single deferred block, so the unchecked-Sendable wrapper is safe.
-private final class DelayedCompletionBox: @unchecked Sendable {
+/// Carries the (non-`Sendable`) completion handler across the deferred-delivery hop for
+/// `respondWithDelay` (the fake-clock `schedule` block, or the real-delay fallback — both `@Sendable`).
+/// The handler is only ever invoked once, from that single deferred block, so the unchecked-Sendable
+/// wrapper is safe.
+private final class SendableCompletionBox: @unchecked Sendable {
     let completion: ((HTTPURLResponse?, Data?, Error?) -> Void)?
     init(completion: ((HTTPURLResponse?, Data?, Error?) -> Void)?) { self.completion = completion }
 }

@@ -26,7 +26,7 @@ class IntegrationTestCase {
     func withSandboxApp(_ body: (SandboxApp) async throws -> Void) async throws {
         let app = try await SandboxApp.create()
         try await runThenCleanUp(app, body: body) { app in
-            await app.delete()
+            try await app.delete()
         }
     }
 
@@ -52,14 +52,20 @@ class IntegrationTestCase {
     /// the original error and nothing is orphaned. Subclasses use this for their own scopes.
     func runThenCleanUp<Resource>(_ resource: Resource,
                                   body: (Resource) async throws -> Void,
-                                  cleanup: (Resource) async -> Void) async throws {
+                                  cleanup: (Resource) async throws -> Void) async throws {
         var thrown: Error?
         do {
             try await body(resource)
         } catch {
             thrown = error
         }
-        await cleanup(resource)
+        do {
+            try await cleanup(resource)
+        } catch {
+            // Never let a cleanup error mask the body's failure; surface it only when the body
+            // succeeded (e.g. cooperative cancellation propagated from teardown).
+            if thrown == nil { thrown = error }
+        }
         if let thrown { throw thrown }
     }
 }

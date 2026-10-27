@@ -53,7 +53,19 @@ final class MockWebSocket: NSObject, ARTWebSocket, @unchecked Sendable {
 
     weak var delegate: ARTWebSocketDelegate?
     var delegateDispatchQueue: DispatchQueue?
-    private(set) var readyState: ARTWebSocketReadyState = .connecting
+
+    /// `ARTWebSocket.readyState`. Written on the transport's private queue and the delegate queue,
+    /// read from the test thread, so guarded by the same `lock` as `sent` / `capturedClose`.
+    var readyState: ARTWebSocketReadyState {
+        lock.lock(); defer { lock.unlock() }
+        return _readyState
+    }
+    private var _readyState: ARTWebSocketReadyState = .connecting
+    private func setReadyState(_ newValue: ARTWebSocketReadyState) {
+        lock.lock()
+        _readyState = newValue
+        lock.unlock()
+    }
 
     // MARK: Inspection
 
@@ -74,7 +86,33 @@ final class MockWebSocket: NSObject, ARTWebSocket, @unchecked Sendable {
         return sent
     }
     private var sent: [ARTProtocolMessage] = []
+    /// The `(code, reason)` of a client-initiated close (UTS `await_client_close`), or `nil` if the
+    /// SDK hasn't closed this socket. Recorded inside `close(withCode:reason:)` because the real
+    /// `ARTWebSocketTransport` nils its delegate *before* closing, so a delegate callback can't reach
+    /// the test — the mock must capture it directly. Guarded by `lock` like `sent`.
+    private var capturedClose: (code: Int, reason: String?)?
     private let lock = NSLock()
+
+    /// The `(code, reason)` the SDK closed this socket with (UTS client-close observation), or `nil`
+    /// if it hasn't. Read from the test thread; guarded by `lock`.
+    var clientClose: (code: Int, reason: String?)? {
+        lock.lock(); defer { lock.unlock() }
+        return capturedClose
+    }
+
+    /// Blocks until the SDK has closed this socket, returning the `(code, reason)` it closed with, or
+    /// `nil` if `timeout` elapses first (UTS `await_client_close`). Polls `clientClose` on the test
+    /// thread — the same synchronous-poll style as `UTSTestCase`'s awaits and `sentMessages`
+    /// inspection, which is fine because a frozen `MockTimeProvider` settles the SDK in microseconds.
+    @discardableResult
+    func awaitClientClose(timeout: TimeInterval = 1) -> (code: Int, reason: String?)? {
+        let deadline = Date().addingTimeInterval(timeout)
+        while clientClose == nil {
+            if Date() >= deadline { return nil }
+            Thread.sleep(forTimeInterval: 0.0005)
+        }
+        return clientClose
+    }
 
     private let decoder: ARTEncoder
 
@@ -95,7 +133,12 @@ final class MockWebSocket: NSObject, ARTWebSocket, @unchecked Sendable {
     }
 
     func close(withCode code: Int, reason: String?) {
-        readyState = .closed
+        lock.lock()
+        _readyState = .closed
+        capturedClose = (code, reason)
+        lock.unlock()
+        // No delegate callback here: the transport has already nil'd its delegate before calling
+        // close, so client-initiated close is observable only via `clientClose` / `awaitClientClose`.
     }
 
     func send(_ message: Any?) {
@@ -110,7 +153,7 @@ final class MockWebSocket: NSObject, ARTWebSocket, @unchecked Sendable {
 
     /// Accepts the connection at the transport level (UTS `respond_with_success()`).
     func respondWithSuccess() {
-        readyState = .open
+        setReadyState(.open)
         deliverToDelegate { [weak self] in
             guard let self else { return }
             self.delegate?.webSocketDidOpen?(self)
@@ -142,7 +185,7 @@ final class MockWebSocket: NSObject, ARTWebSocket, @unchecked Sendable {
             if self.readyState == .open {
                 self.delegate?.webSocket?(self, didReceiveMessage: message.makeProtocolMessage())
             }
-            self.readyState = .closed
+            self.setReadyState(.closed)
             self.delegate?.webSocket?(self, didCloseWithCode: WSCloseCode.normal, reason: "Normal Closure", wasClean: true)
         }
     }
@@ -152,7 +195,7 @@ final class MockWebSocket: NSObject, ARTWebSocket, @unchecked Sendable {
     func respondWithRefused() {
         deliverToDelegate { [weak self] in
             guard let self else { return }
-            self.readyState = .closed
+            self.setReadyState(.closed)
             self.delegate?.webSocket?(self, didCloseWithCode: WSCloseCode.refuse, reason: "Connection refused", wasClean: false)
         }
     }
@@ -161,7 +204,7 @@ final class MockWebSocket: NSObject, ARTWebSocket, @unchecked Sendable {
     func simulateDisconnect() {
         deliverToDelegate { [weak self] in
             guard let self else { return }
-            self.readyState = .closed
+            self.setReadyState(.closed)
             // GoingAway maps to `realtimeTransportDisconnected:` (an unexpected connectivity drop).
             self.delegate?.webSocket?(self, didCloseWithCode: WSCloseCode.goingAway, reason: "Going Away", wasClean: false)
         }

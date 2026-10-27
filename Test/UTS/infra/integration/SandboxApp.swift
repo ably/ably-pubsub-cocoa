@@ -68,14 +68,21 @@ final class SandboxApp: Sendable {
         }
     }
 
-    /// Deletes the provisioned app. Errors are ignored — best-effort cleanup must never mask a
-    /// test failure.
-    func delete() async {
+    /// Deletes the provisioned app. Network/timeout errors are ignored — best-effort cleanup must
+    /// never mask a test failure — but a `CancellationError` is rethrown so cooperative task
+    /// cancellation is not swallowed during teardown.
+    func delete() async throws {
         var request = URLRequest(url: Self.sandboxBaseURL.appendingPathComponent("apps/\(appId)"))
         request.httpMethod = "DELETE"
         let basic = Data(defaultKey.utf8).base64EncodedString()
         request.setValue("Basic \(basic)", forHTTPHeaderField: "Authorization")
-        _ = try? await httpRequest(request, session: Self.session)
+        do {
+            _ = try await httpRequest(request, session: Self.session)
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            // Best-effort cleanup: ignore network/timeout errors (sandbox apps auto-expire).
+        }
     }
 
     /// Fetches the `post_apps` body from the shared `test-app-setup.json` in ably-common. Retried.

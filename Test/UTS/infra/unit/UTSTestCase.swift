@@ -82,6 +82,9 @@ class UTSTestCase {
         // fallback hosts, …), so wire an installed MockHTTPClient into the client's REST layer too.
         if let installedMockHTTPClient {
             options.testOptions.httpExecutor = installedMockHTTPClient
+            if let timeProvider {
+                installedMockHTTPClient.useTimeProvider(timeProvider)
+            }
         }
 
         configure(options)
@@ -110,6 +113,7 @@ class UTSTestCase {
 
         if let timeProvider {
             options.testOptions.timeProvider = timeProvider
+            mockHTTP.useTimeProvider(timeProvider)
         }
         options.testOptions.httpExecutor = mockHTTP
 

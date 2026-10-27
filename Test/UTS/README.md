@@ -290,7 +290,7 @@ primitives:
 | `AWAIT_STATE conn.state == s` | `awaitConnectionState(client, .connected)` — proceeds immediately if the condition already holds, otherwise polls until it does or the timeout (default 2 s) expires, then records a failure. |
 | `AWAIT_STATE channel.state == s` | `awaitChannelState(channel, .attached)` |
 | generic awaiting (e.g. "a frame has been sent") | `poll("description") { condition }` |
-| `enable_fake_timers()` | `enableFakeTimers()` — clients built *after* this call use the `MockTimeProvider`; by default they run on the real clock (mirroring the spec, where only timeout/retry tests opt into fake timers). |
+| `enable_fake_timers()` | `enableFakeTimers()` — clients built *after* this call use the `MockTimeProvider`, a **hard gate** per the spec's `mock_websocket.md` §Fake-time semantics (nothing timer-driven fires until `advanceTime`); by default they run on the real clock (mirroring the spec, where only timeout/retry tests opt into fake timers). |
 | `ADVANCE_TIME(ms)` | `advanceTime(byMilliseconds:)` |
 | `CLOSE_CLIENT` | `closeClient(_:)` |
 
@@ -410,8 +410,9 @@ test (which must not touch the real network).
 
 ### 6.9 Where each ably-java helper lives in cocoa
 
-For a developer coming from the Kotlin `uts` module — every java helper's capability exists here,
-though some map onto a different shape:
+For a developer coming from the Kotlin `uts` module — the java helpers' capabilities are provided
+here, though some map onto a different shape (and a few, such as client-close observability, are
+exposed through dedicated accessors rather than the timeline):
 
 | ably-java helper | cocoa equivalent |
 |---|---|
@@ -421,7 +422,7 @@ though some map onto a different shape:
 | JUnit suite lifecycle (`@BeforeAll` / `@AfterAll` in integration suites) | Swift Testing has no setUp/tearDown and `deinit` can't `await` — integration suites subclass `IntegrationTestCase` / `ProxyTestCase`, whose scoped `with…` methods own setup + always-run teardown (§11) |
 | `unit/MockWebSocket.kt` + `MockWebSocketEngineFactory.kt` | `MockWebSocket.swift` (provider + socket + the two factories) |
 | `unit/MockHttpClient.kt` + `MockHttpEngine.kt` + `PendingConnection/Request` (+ `Default*`) | `MockHTTPClient.swift` (`MockHTTPClient`, `PendingHTTPConnection`, `PendingHTTPRequest`) — cocoa's HTTP seam is one protocol, so no engine/adapter split |
-| `unit/MockEvent.kt` (typed event timeline) | `MockWebSocket.sentMessages` (client→server frames) + `Captured` collectors in `onConnectionAttempt` — same assertions, no separate event type |
+| `unit/MockEvent.kt` (typed event timeline) | `MockWebSocket.sentMessages` (client→server frames) + `Captured` collectors in `onConnectionAttempt` for most events; client-initiated close is observed via `MockWebSocket.awaitClientClose(timeout:)` / `clientClose` (recorded inside the mock's own `close`, since the transport nils its delegate before closing), not `sentMessages` |
 | await-style mocking (`awaitConnectionAttempt()`, …) and the per-frame handlers (`onMessageFromClient`, `onText/BinaryDataFrame`) | Handler style + a counter in `onConnectionAttempt`, and `sentMessages` polling (see §6.2's note; add these when a spec needs what they can't express) |
 | `CONNECTED_MESSAGE` | `ProtocolMessage.connectedMessage` |
 | `parseQueryString` | `parseQueryParams(of:)` in `infra/Utils.swift` |

@@ -1321,6 +1321,12 @@ class HttpClientTests: XCTestCase {
         testUsesAlternativeHost(.hostInternalError(code: 501), channelName: test.uniqueChannelName())
     }
 
+    // RSC15l4
+    func test__076b__RestClient__Host_Fallback__should_use_an_alternative_host_when___cloudFrontError_code__403_() {
+        let test = Test()
+        testUsesAlternativeHost(.cloudFrontError(code: 403), channelName: test.uniqueChannelName())
+    }
+
     // RSC15l
     func test__050__RestClient__Host_Fallback__should_not_use_an_alternative_host_when_the_client_receives_an_bad_request() {
         let test = Test()

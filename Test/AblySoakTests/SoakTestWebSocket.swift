@@ -23,6 +23,7 @@ class SoakTestWebSocket: NSObject, ARTWebSocket {
     var readyState: ARTWebSocketReadyState
     var delegateDispatchQueue: DispatchQueue?
     var delegate: ARTWebSocketDelegate?
+    let receivedHTTPHeaders: CFHTTPMessage? = nil
 
     let id = nextGlobalSerial()
     let connectionId: String

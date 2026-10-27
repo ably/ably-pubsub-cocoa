@@ -498,6 +498,10 @@ NS_ASSUME_NONNULL_END
     if (response.statusCode >= 500 && response.statusCode <= 504) {
         return YES;
     }
+    // RSC15l4
+    if (ARTIsCloudFrontError(response.statusCode, [response valueForHTTPHeaderField:@"Server"])) {
+        return YES;
+    }
     if (error && (error.domain == NSURLErrorDomain && (
         error.code == -1003 || // Unreachable
         error.code == -1001 // timed out

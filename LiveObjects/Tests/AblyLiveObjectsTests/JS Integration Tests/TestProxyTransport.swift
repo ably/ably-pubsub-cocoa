@@ -446,9 +446,9 @@ enum FakeNetworkResponse {
         case .requestTimeout:
             ARTRealtimeTransportError(error: error, type: .timeout, url: url)
         case let .hostInternalError(code):
-            ARTRealtimeTransportError(error: error, badResponseCode: code, url: url)
+            ARTRealtimeTransportError(error: error, badResponseCode: code, badResponseServerHeader: nil, url: url)
         case .host400BadRequest:
-            ARTRealtimeTransportError(error: error, badResponseCode: 400, url: url)
+            ARTRealtimeTransportError(error: error, badResponseCode: 400, badResponseServerHeader: nil, url: url)
         case .arbitraryError:
             ARTRealtimeTransportError(error: error, type: .other, url: url)
         }

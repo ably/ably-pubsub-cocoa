@@ -128,6 +128,9 @@ try await channel.publish("test-event", data: "hello world!")
 try await channel.presence.enter("present")
 ```
 
+> [!IMPORTANT]
+> The `async` functions in `AblyPubSubDeviceSwift` are experimental. Their names, signatures and the set of operations they cover may change in a minor release.
+
 ---
 
 ## LiveObjects

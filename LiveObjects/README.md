@@ -9,7 +9,7 @@
 The Ably LiveObjects plugin enables real-time collaborative data synchronization for the [ably-cocoa](https://github.com/ably/ably-cocoa/) SDK. LiveObjects provides a simple way to build collaborative applications with synchronized state across multiple clients in real-time. Built on [Ably's](https://ably.com/) core service, it abstracts complex details to enable efficient collaborative architectures.
 
 > [!NOTE]
-> The plugin lives in the [ably-cocoa](https://github.com/ably/ably-cocoa/) repository and is versioned and released as part of ably-cocoa: add the ably-cocoa package to your project and select its `AblyLiveObjects` product. It was previously developed in the [ably-liveobjects-swift-plugin](https://github.com/ably/ably-liveobjects-swift-plugin) repository; if you are coming from that package, see the [migration guide](#migrating-from-the-standalone-plugin-package).
+> The plugin lives in the [ably-pubsub-cocoa](https://github.com/ably/ably-pubsub-cocoa/) repository and is versioned and released as part of ably-pubsub-cocoa: add the ably-pubsub-cocoa package to your project and select its `AblyLiveObjects` product. It was previously developed in the [ably-liveobjects-swift-plugin](https://github.com/ably/ably-liveobjects-swift-plugin) repository; if you are coming from that package, see the [migration guide](#migrating-from-the-standalone-plugin-package).
 
 ---
 

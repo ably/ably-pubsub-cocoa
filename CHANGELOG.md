@@ -1,5 +1,77 @@
 # Change Log
 
+## [2.0.0](https://github.com/ably/ably-pubsub-cocoa/tree/2.0.0)
+
+The 2.0.0 release makes ably-cocoa a device-side SDK, for apps that run on an end user's device. A client is created through `PubSubDevice.createClient`, and every client it creates tells Ably that it runs on a device. That declaration determines how its traffic is counted: on an account billed by monthly active users, device traffic counts toward the total, the connection must carry a `clientId`, and that `clientId` is subject to a concurrency limit.
+
+The repository is renamed to `ably-pubsub-cocoa`, and the package is distributed through Swift Package Manager only. In Swift, a new `AblyPubSubDeviceSwift` module adds `async` versions of channel and presence operations.
+
+2.0 also brings the public API in line with the Ably client library specification: it renames types, removes the APIs deprecated in 1.x, and corrects types and nullability.
+
+Below is an overview of the major changes in this release.
+
+Please refer to the [v2 migration guide](./Docs/migration-guides/v2.md) for the full details, including a list of all breaking changes and instructions on how to address them.
+
+### Repository, package and distribution
+
+- Add the package from `https://github.com/ably/ably-pubsub-cocoa`. The old URL, `https://github.com/ably/ably-cocoa`, serves the 1.x line, which receives security and critical fixes only.
+- Swift Package Manager is the only distribution channel. 2.0 ships no CocoaPods pod and no Carthage framework, and both stay on the 1.x line.
+- The SDK is the `AblyPubSubDevice` product, which replaces `Ably`. The package also vends `AblyLiveObjects`, released at the same version.
+- In Swift, import `AblyPubSubDeviceSwift`. In Objective-C, import `AblyPubSubDevice`.
+
+### Creating clients
+
+- Create a client with `PubSubDevice.createClient(options:)`, `createClient(key:)` or `createClient(token:)`.
+- The client class's initializers are no longer public, and the `createWithOptions:`, `createWithKey:` and `createWithToken:` class factories are removed.
+- The SDK identifies itself to Ably as `ably-pubsub-cocoa`, where 1.x sent `ably-cocoa`. A client from `PubSubDevice.createClient` also sends a versionless `ably-pubsub-device` entry.
+
+### Swift API
+
+- Swift sees the SDK's types without the `ART` prefix: `ARTClientOptions` is `ClientOptions`, `ARTErrorInfo` is `ErrorInfo`, and so on. Objective-C keeps the prefix.
+- `AblyPubSubDeviceSwift` adds `async` versions of operations such as `attach`, `publish` and presence `enter`, which throw an `ErrorInfo`.
+
+### Client API naming
+
+- `ARTRealtime` is renamed `ARTPubSubClient`, and `ARTRealtimeProtocol` is renamed `ARTPubSubProtocol`.
+- `ARTRest` is renamed `ARTHttpClient`, along with `ARTHttpChannel`, `ARTHttpChannels`, `ARTHttpPresence` and `ARTHttpAnnotations`. These classes are now internal. An application reaches Ably through the realtime client.
+
+### Client options
+
+- `endpoint` replaces the `environment`, `restHost` and `realtimeHost` options, which are removed. A client that sets none of them connects to `main.realtime.ably.net`, with fallbacks at `main.[a-e].fallback.ably-realtime.com`.
+- `realtimeRequestTimeout` and `maxMessageSize` move from `ARTDefault` to `ARTClientOptions`, so each client can set its own. `maxFrameSize` is a new option.
+- With an empty `fallbackHosts` array, an unreachable host no longer fails the connection. The connection moves to DISCONNECTED and retries.
+
+### Types and nullability
+
+- `ARTStats` has no typed properties. Every statistic is in `entries`, keyed by its name.
+- `extras` is a dictionary on messages, presence messages and annotations.
+- `ARTCrypto.getDefaultParams:` takes an `ARTCipherParamOptions`, and a dictionary can no longer be passed as a channel's `cipher`.
+- `ARTDevicePushDetails.state` is an `ARTDevicePushState` enum.
+- `ARTMessageVersion` and `ARTMessageAnnotations` are immutable and `Sendable`.
+- `Message.version`, `Message.annotations`, `Annotation.timestamp` and the listener that `subscribe` returns are no longer optional. `Message.connectionId` is now optional.
+- When a system error stops an operation, the `ErrorInfo` has an Ably error code, and the system error is its underlying error.
+
+### Behaviour changes
+
+- `channels.release()` throws unless the channel is `initialized`, `detached` or `failed`. Detach a channel before releasing it.
+- Invalid arguments to `history`, `stats`, `request` and push `listSubscriptions` raise `NSInvalidArgumentException`, and those methods no longer return an error.
+- Subscribing on a channel in the FAILED state registers the listener.
+- The client falls back to another host after a `DISCONNECTED` with a 5xx error, or after a CloudFront error response.
+
+### Removed APIs
+
+- The members deprecated in 1.x: `fallbackHostsUseDefault`, `ARTConnection.recoveryKey` and `ARTStats.intervalGranularity`.
+- The `publish` overloads that take `clientId` or `extras` alongside `name` and `data`. Set them on a `Message` instead.
+- `didAblyPushRegistrationFail:`. Implement `didUpdateAblyPush:` instead.
+- `ARTDataQueryError`, `ARTRealtimeHistoryError` and `ARTCustomRequestError`.
+
+### Supported platforms changes
+
+- Support for macOS earlier than 12, iOS earlier than 15 and tvOS earlier than 15 has been dropped.
+- Building the SDK requires Xcode 26 or later (Swift 6.2).
+
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.4.1...2.0.0)
+
 ## [1.4.1](https://github.com/ably/ably-pubsub-cocoa/tree/1.4.1)
 
 ### What's Changed

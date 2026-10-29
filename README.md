@@ -45,7 +45,7 @@ Building the SDK requires Xcode 26 or later.
 
 ## Installation
 
-You can install Ably for iOS and macOS through [Swift package manager](#swift-package-manager) or [install manually](#manual-install). Upgrading from 1.x is covered by the [migration guide](Docs/migration-guides/v2.md).
+You can install Ably for iOS and macOS through [Swift package manager](#swift-package-manager). Upgrading from 1.x is covered by the [migration guide](Docs/migration-guides/v2.md).
 
 > [!IMPORTANT]
 > **CocoaPods and Carthage are not supported from 2.0.** Their last releases — the `Ably` pod and the
@@ -76,20 +76,6 @@ To install the `ably-pubsub-cocoa` package in another Swift package, add the fol
 ```
 
 See Apple's [adding package dependencies to your app](https://developer.apple.com/documentation/swift_packages/adding_package_dependencies_to_your_app) guide for more detail.
-</details>
-
-### Manual install
-
-The Ably Pub/Sub SDK includes manual installation support.
-
-<details>
-<summary>Manual installation details.</summary>
-
-* Download the [Ably Pub/Sub Cocoa SDK.](https://github.com/ably/ably-pubsub-cocoa)
-* Drag the `ably-cocoa/ably-cocoa` directory into your Xcode project as a group.
-
-Ably depends on our [MessagePack Fork](https://github.com/ably-forks/msgpack-objective-C) 0.2.0; get it [from the releases page](https://github.com/ably-forks/msgpack-objective-C/releases/tag/0.2.0-ably-1) and link it into your project.
-
 </details>
 
 ### Privacy manifest

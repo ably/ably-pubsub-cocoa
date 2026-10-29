@@ -12,7 +12,7 @@ class LaneConfig < Struct.new(:name, :devices)
   # targets against today's constructors; UTSDevice runs the UTS target with
   # UTS_SIDE=device, so the suite reaches the SDK through AblyPubSubDevice's factory
   # instead. Plans are declared in
-  # .swiftpm/xcode/xcshareddata/xcschemes/ably-cocoa.xcscheme.
+  # .swiftpm/xcode/xcshareddata/xcschemes/ably-pubsub-cocoa.xcscheme.
   def args_for_run_tests(suite: nil, test_plan: nil)
     ably_env = ENV['ABLY_ENV']
 
@@ -22,7 +22,10 @@ class LaneConfig < Struct.new(:name, :devices)
 
     args = {
       workspace: "Ably.xcworkspace",
-      scheme: "ably-cocoa",
+      # Fastlane checks the scheme name before it runs xcodebuild. It names the
+      # package's scheme after the checkout directory. The scheme file, this name
+      # and the repository name must therefore all be the same.
+      scheme: "ably-pubsub-cocoa",
       derived_data_path: "derived_data",
       test_without_building: false,
       # Retry only the tests that failed, in place (xcodebuild -retry-tests-on-failure).

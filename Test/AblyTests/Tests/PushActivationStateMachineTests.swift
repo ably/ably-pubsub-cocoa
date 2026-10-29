@@ -459,7 +459,7 @@ class PushActivationStateMachineTests: XCTestCase {
         expect(stateMachine.current).to(beAKindOf(ARTPushActivationStateNotActivated.self))
     }
 
-    // https://github.com/ably/ably-cocoa/issues/966
+    // https://github.com/ably/ably-pubsub-cocoa/issues/966
     func test__020__Activation_state_machine__State_WaitingForPushDeviceDetails__when_initializing_from_persistent_state_with_a_deviceToken__GotPushDeviceDetails_should_be_re_emitted() {
         beforeEach__Activation_state_machine__State_WaitingForPushDeviceDetails()
 

@@ -1,6 +1,6 @@
 # Ably Cocoa SDK Plugin Support Library
 
-This is an Ably-internal library that defines the private APIs that the [Ably Pub/Sub Cocoa SDK](https://github.com/ably/ably-cocoa) uses to communicate with its plugins.
+This is an Ably-internal library that defines the private APIs that the [Ably Pub/Sub Cocoa SDK](https://github.com/ably/ably-pubsub-cocoa) uses to communicate with its plugins.
 
 > [!note]
 > This library is an implementation detail of the Ably SDK and should not be used directly by end users of the SDK.

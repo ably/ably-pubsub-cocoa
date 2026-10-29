@@ -387,7 +387,7 @@ class RealtimeClientChannelTests: XCTestCase {
         }
     }
 
-    // RTL2g + https://github.com/ably/ably-cocoa/issues/1088
+    // RTL2g + https://github.com/ably/ably-pubsub-cocoa/issues/1088
     func test__007__Channel__EventEmitter__channel_states_and_events__should_not_emit_detached_event_on_an_already_detached_channel() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
@@ -678,7 +678,7 @@ class RealtimeClientChannelTests: XCTestCase {
         }
     }
 
-    // TO3g and https://github.com/ably/ably-cocoa/issues/1004
+    // TO3g and https://github.com/ably/ably-pubsub-cocoa/issues/1004
     func test__021__Channel__connection_state__changes_to_FAILED__should_keep_the_channels_attached_when_client_reconnected_successfully_and_queue_messages_is_disabled() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
@@ -858,7 +858,7 @@ class RealtimeClientChannelTests: XCTestCase {
         }
     }
 
-    // RTL3d - https://github.com/ably/ably-cocoa/issues/881
+    // RTL3d - https://github.com/ably/ably-pubsub-cocoa/issues/881
     func test__015__Channel__connection_state__should_attach_successfully_and_remain_attached_after_the_connection_goes_from_SUSPENDED_to_CONNECTED() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
@@ -3500,7 +3500,7 @@ class RealtimeClientChannelTests: XCTestCase {
             /* TODO: ->
              this callback called twice leading to a fail with "waitUntil(..) expects its completion closure to be only called once"
              however sometimes it called once thus succeeding this test!
-             https://github.com/ably/ably-cocoa/issues/1281
+             https://github.com/ably/ably-pubsub-cocoa/issues/1281
              */
             hook = channel.internal.testSuite_injectIntoMethod(after: #selector(channel.internal.onChannelMessage(_:))) {
                 done()
@@ -4494,7 +4494,7 @@ class RealtimeClientChannelTests: XCTestCase {
         }
     }
 
-    // https://github.com/ably/ably-cocoa/issues/614
+    // https://github.com/ably/ably-pubsub-cocoa/issues/614
     func test__002__Channel__should_not_crash_when_an_ATTACH_request_is_responded_with_a_DETACHED() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)

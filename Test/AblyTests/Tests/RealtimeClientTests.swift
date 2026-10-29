@@ -1271,7 +1271,7 @@ class RealtimeClientTests: XCTestCase {
         }
     }
 
-    // https://github.com/ably/ably-cocoa/issues/577
+    // https://github.com/ably/ably-pubsub-cocoa/issues/577
     func test__005__RealtimeClient__background_behaviour() {
         let test = Test()
         waitUntil(timeout: testTimeout) { done in
@@ -1422,7 +1422,7 @@ class RealtimeClientTests: XCTestCase {
         }
     }
 
-    // Issue https://github.com/ably/ably-cocoa/issues/640
+    // Issue https://github.com/ably/ably-pubsub-cocoa/issues/640
     func test__009__RealtimeClient__should_dispatch_in_user_queue_when_removing_an_observer() {
         let test = Test()
         let channelName = test.uniqueChannelName()

@@ -1516,7 +1516,7 @@ class HttpClientTests: XCTestCase {
         }
     }
 
-    // https://github.com/ably/ably-cocoa/issues/117
+    // https://github.com/ably/ably-pubsub-cocoa/issues/117
     func test__012__RestClient__should_indicate_an_error_if_there_is_no_way_to_renew_the_token() throws {
         let test = Test()
         let options = try AblyTests.clientOptions(for: test)
@@ -1537,7 +1537,7 @@ class HttpClientTests: XCTestCase {
         }
     }
 
-    // https://github.com/ably/ably-cocoa/issues/577
+    // https://github.com/ably/ably-pubsub-cocoa/issues/577
     func test__013__RestClient__background_behaviour() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
@@ -1551,7 +1551,7 @@ class HttpClientTests: XCTestCase {
         }
     }
 
-    // https://github.com/ably/ably-cocoa/issues/589
+    // https://github.com/ably/ably-pubsub-cocoa/issues/589
     func test__014__RestClient__client_should_handle_error_messages_in_plaintext_and_HTML_format() {
         let request = URLRequest(url: URL(string: "https://www.example.com")!)
         waitUntil(timeout: testTimeout) { done in

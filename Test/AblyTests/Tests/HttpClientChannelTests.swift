@@ -506,7 +506,7 @@ class HttpClientChannelTests: XCTestCase {
         }
     }
 
-    // https://github.com/ably/ably-cocoa/issues/1074 and related with RSL1m
+    // https://github.com/ably/ably-pubsub-cocoa/issues/1074 and related with RSL1m
     func test__001__publish__should_not_fail_sending_a_message_with_no_clientId_in_the_client_options_and_credentials_that_can_assume_any_clientId() throws {
         let test = Test()
         let options = try AblyTests.clientOptions(for: test)

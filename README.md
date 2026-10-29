@@ -1,6 +1,6 @@
 ![Ably Pub/Sub Cocoa Header](images/CocoaSDK-github.png)
-[![Latest Version](https://img.shields.io/github/v/release/ably/ably-cocoa)](https://swiftpackageindex.com/ably/ably-cocoa)
-[![License](https://badgen.net/github/license/ably/ably-cocoa)](https://github.com/ably/ably-cocoa/blob/main/LICENSE)
+[![Latest Version](https://img.shields.io/github/v/release/ably/ably-pubsub-cocoa)](https://swiftpackageindex.com/ably/ably-pubsub-cocoa)
+[![License](https://badgen.net/github/license/ably/ably-pubsub-cocoa)](https://github.com/ably/ably-pubsub-cocoa/blob/main/LICENSE)
 
 # Ably Pub/Sub Cocoa SDK
 
@@ -192,4 +192,4 @@ The [CHANGELOG.md](./CHANGELOG.md) contains details of the latest releases for t
 
 ## Support, feedback, and troubleshooting
 
-For help or technical support, visit Ably's [support page](https://ably.com/support) or [GitHub Issues](https://github.com/ably/ably-cocoa/issues) for community-reported bugs and discussions.
+For help or technical support, visit Ably's [support page](https://ably.com/support) or [GitHub Issues](https://github.com/ably/ably-pubsub-cocoa/issues) for community-reported bugs and discussions.

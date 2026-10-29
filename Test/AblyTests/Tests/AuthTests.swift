@@ -3033,7 +3033,7 @@ class AuthTests: XCTestCase {
         }
     }
 
-    // https://github.com/ably/ably-cocoa/issues/618
+    // https://github.com/ably/ably-pubsub-cocoa/issues/618
     func test__108__authorize__should_adhere_to_all_requirements_relating_to__authUrl_returning_TokenRequest_decodes_TTL_as_expected() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
@@ -3829,7 +3829,7 @@ class AuthTests: XCTestCase {
         }
     }
 
-    // https://github.com/ably/ably-cocoa/pull/508#discussion_r82577728
+    // https://github.com/ably/ably-pubsub-cocoa/pull/508#discussion_r82577728
     func test__126__TokenParams__timestamp__object_has_no_timestamp_value_unless_explicitly_set() {
         let params = TokenParams()
         XCTAssertNil(params.timestamp)
@@ -4440,7 +4440,7 @@ class AuthTests: XCTestCase {
         }
     }
 
-    // https://github.com/ably/ably-cocoa/issues/849
+    // https://github.com/ably/ably-pubsub-cocoa/issues/849
     func test__001__should_not_force_token_auth_when_clientId_is_set() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
@@ -4448,7 +4448,7 @@ class AuthTests: XCTestCase {
         XCTAssertTrue(options.isBasicAuth())
     }
 
-    // https://github.com/ably/ably-cocoa/issues/1093
+    // https://github.com/ably/ably-pubsub-cocoa/issues/1093
     func test__002__should_accept_authURL_response_with_timestamp_argument_as_string() throws {
         let test = Test()
         var capturedOriginalTokenRequest: TokenRequest?

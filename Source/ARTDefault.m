@@ -1,18 +1,13 @@
-#import "Ably.h"
+#import "AblyPubSubDevice.h"
 #import "ARTDefault+Private.h"
 #import "ARTNSArray+ARTFunctional.h"
 #import "ARTClientInformation+Private.h"
 
 static NSString *const ARTDefault_apiVersion = @"6"; // CSV2
 
-NSString *const ARTDefaultProduction = @"production";
-
-static NSString *const ARTDefault_restHost = @"rest.ably.io";
-static NSString *const ARTDefault_realtimeHost = @"realtime.ably.io";
+static NSString *const ARTDefault_endpoint = @"main";
 
 static NSTimeInterval _connectionStateTtl = 60.0;
-static NSInteger _maxProductionMessageSize = 65536;
-static NSInteger _maxSandboxMessageSize = 16384;
 
 @implementation ARTDefault
 
@@ -24,30 +19,23 @@ static NSInteger _maxSandboxMessageSize = 16384;
     return ARTClientInformation_libraryVersion;
 }
 
-+ (NSArray*)fallbackHostsWithEnvironment:(NSString *)environment {
-    NSArray<NSString *> * fallbacks = @[@"a", @"b", @"c", @"d", @"e"];
-    NSString *prefix = @"";
-    NSString *suffix = @"";
-    if (environment && ![environment isEqualToString:@""] && ![environment isEqualToString:ARTDefaultProduction]) {
-        prefix = [NSString stringWithFormat:@"%@-", environment];
-        suffix = @"-fallback";
-    }
++ (NSString *)endpoint {
+    return ARTDefault_endpoint;
+}
 
-    return [fallbacks artMap:^NSString *(NSString * fallback) {
-        return [NSString stringWithFormat:@"%@%@%@.ably-realtime.com", prefix, fallback, suffix];
++ (NSURL *)connectivityCheckUrl {
+    return [NSURL URLWithString:@"https://internet-up.ably-realtime.com/is-the-internet-up.txt"];
+}
+
++ (NSArray<NSString *> *)fallbackHostsForRoutingPolicyId:(NSString *)routingPolicyId domain:(NSString *)domain {
+    return [@[@"a", @"b", @"c", @"d", @"e"] artMap:^NSString *(NSString *letter) {
+        return [NSString stringWithFormat:@"%@.%@.fallback.%@", routingPolicyId, letter, domain];
     }];
 }
 
-+ (NSArray*)fallbackHosts {
-    return [self fallbackHostsWithEnvironment:nil];
-}
-
-+ (NSString*)restHost {
-    return ARTDefault_restHost;
-}
-
-+ (NSString*)realtimeHost {
-    return ARTDefault_realtimeHost;
+// REC2c1
++ (NSArray<NSString *> *)fallbackHosts {
+    return [self fallbackHostsForRoutingPolicyId:ARTDefault_endpoint domain:@"ably-realtime.com"];
 }
 
 + (int)port {
@@ -66,51 +54,9 @@ static NSInteger _maxSandboxMessageSize = 16384;
     return _connectionStateTtl;
 }
 
-+ (NSTimeInterval)realtimeRequestTimeout {
-    return 10.0;
-}
-
-+ (NSInteger)maxMessageSize {
-#if DEBUG
-    return _maxSandboxMessageSize;
-#else
-    return _maxProductionMessageSize;
-#endif
-}
-
-+ (NSInteger)maxSandboxMessageSize {
-    return _maxSandboxMessageSize;
-}
-
-+ (NSInteger)maxProductionMessageSize {
-    return _maxProductionMessageSize;
-}
-
 + (void)setConnectionStateTtl:(NSTimeInterval)value {
     @synchronized (self) {
         _connectionStateTtl = value;
-    }
-}
-
-+ (void)setMaxMessageSize:(NSInteger)value {
-    @synchronized (self) {
-#if DEBUG
-        _maxSandboxMessageSize = value;
-#else
-        _maxProductionMessageSize = value;
-#endif
-    }
-}
-
-+ (void)setMaxProductionMessageSize:(NSInteger)value {
-    @synchronized (self) {
-        _maxProductionMessageSize = value;
-    }
-}
-
-+ (void)setMaxSandboxMessageSize:(NSInteger)value {
-    @synchronized (self) {
-        _maxSandboxMessageSize = value;
     }
 }
 

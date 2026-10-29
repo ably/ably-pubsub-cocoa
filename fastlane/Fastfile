@@ -1,7 +1,19 @@
 default_platform(:ios)
 
 class LaneConfig < Struct.new(:name, :devices)
-  def args_for_run_tests
+  # `suite` selects which test targets run, so that the Universal Test Suite and the rest of the
+  # SDK's tests are separate CI legs: a UTS failure is then distinguishable from an AblyTests one at
+  # a glance, and either can be re-run without the other's ~40 minutes.
+  #
+  #   nil / "all" — every target in Test/Ably.xctestplan
+  #   "sdk"       — AblyTests, AblyTestsObjC and AblyPubSubDeviceSwiftTests
+  #   "uts"       — the UTS target alone
+  # `test_plan` selects an Xcode test plan by name. The default plan (Ably) runs the
+  # targets against today's constructors; UTSDevice runs the UTS target with
+  # UTS_SIDE=device, so the suite reaches the SDK through AblyPubSubDevice's factory
+  # instead. Plans are declared in
+  # .swiftpm/xcode/xcshareddata/xcschemes/ably-pubsub-cocoa.xcscheme.
+  def args_for_run_tests(suite: nil, test_plan: nil)
     ably_env = ENV['ABLY_ENV']
 
     unless ably_env && !ably_env.empty?
@@ -10,21 +22,37 @@ class LaneConfig < Struct.new(:name, :devices)
 
     args = {
       workspace: "Ably.xcworkspace",
-      scheme: "ably-cocoa",
+      # Fastlane checks the scheme name before it runs xcodebuild. It names the
+      # package's scheme after the checkout directory. The scheme file, this name
+      # and the repository name must therefore all be the same.
+      scheme: "ably-pubsub-cocoa",
       derived_data_path: "derived_data",
       test_without_building: false,
       # Retry only the tests that failed, in place (xcodebuild -retry-tests-on-failure).
       # Absorbs single-occurrence environmental timeouts on the CI runners; a genuine
       # regression still fails CI because it fails every attempt.
       number_of_retries: 2,
-      # Raise the test build's deployment target so the UTS test target — which links
-      # AblyLiveObjects (requires iOS 14 / tvOS 14) — compiles. This affects the test build only,
-      # not the shipped artifacts; the package's declared platform floor stays low. Mirrors
-      # LiveObjects/BuildTool's `testDeploymentTargetOverrides`. macOS needs no override (its
-      # default test-build floor already satisfies AblyLiveObjects).
-      xcargs: { ABLY_ENV: ably_env, CLANG_ANALYZER_OUTPUT: 'plist-html', IPHONEOS_DEPLOYMENT_TARGET: '14.0', TVOS_DEPLOYMENT_TARGET: '14.0' },
+      # Judge the lane on the final state of each test, not on attempts a retry
+      # went on to pass. Without this, scan's default, xcodebuild reports
+      # "Test Succeeded" and scan fails the lane anyway on the superseded
+      # attempts, so number_of_retries above absorbs nothing.
+      output_remove_retry_attempts: true,
+      xcargs: { ABLY_ENV: ably_env, CLANG_ANALYZER_OUTPUT: 'plist-html' },
       output_directory: "fastlane/test_output/sdk/#{name}"
     }
+
+    args[:testplan] = test_plan if test_plan && !test_plan.empty?
+
+    case suite
+    when 'uts'
+      args[:only_testing] = ['UTS']
+    when 'sdk'
+      args[:skip_testing] = ['UTS']
+    when nil, '', 'all'
+      # Everything the test plan lists.
+    else
+      raise "Unknown suite '#{suite}' — expected 'sdk', 'uts' or 'all'."
+    end
 
     if devices.nil?
       # macOS case - use destination instead of devices; from trial and error this seems to be the necessary incantation
@@ -49,8 +77,8 @@ platform :ios do
   ]
 
   LANE_CONFIGS.each do |lane_config|
-    lane(lane_config.name) do
-      run_tests(**lane_config.args_for_run_tests)
+    lane(lane_config.name) do |options|
+      run_tests(**lane_config.args_for_run_tests(suite: options[:suite], test_plan: options[:test_plan]))
     end
   end
 

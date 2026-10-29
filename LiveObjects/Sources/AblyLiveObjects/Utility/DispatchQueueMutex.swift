@@ -5,7 +5,6 @@ import Foundation
 /// In order to access or mutate the mutex's value, it is expected that you know whether or not you are already executing on the mutex's queue. If you are, then use ``withoutSync(_:)``, which simply performs a runtime check that the current queue is correct. If not, then use ``withSync(_:)``, which synchronously dispatches to the queue. ``withSync(_:)`` must not be called from the queue, as doing so would cause a deadlock (there is a runtime check which terminates execution in this case).
 ///
 /// This class is styled on Swift's built-in `Mutex` type.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal final class DispatchQueueMutex<T>: Sendable {
     /// The queue that this mutex uses to synchronise access to the wrapped value.
     internal let dispatchQueue: DispatchQueue

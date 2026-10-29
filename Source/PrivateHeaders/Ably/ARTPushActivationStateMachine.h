@@ -3,7 +3,7 @@
 @class ARTErrorInfo;
 @class ARTPushActivationState;
 @class ARTPushActivationEvent;
-@class ARTRest;
+@class ARTHttpClient;
 
 @protocol ARTDeviceStorage;
 

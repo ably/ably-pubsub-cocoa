@@ -1,4 +1,5 @@
-import Ably
+import AblyPubSubDevice
+import AblyPubSubDevice.Private
 import Nimble
 import XCTest
 
@@ -14,21 +15,21 @@ class RealtimeAnnotationsTests: XCTestCase {
         options.testOptions.channelNamePrefix = nil
 
         // Create realtime client
-        let realtimeClient = ARTRealtime(options: options)
+        let realtimeClient = PubSubClient(options: options)
         defer { realtimeClient.dispose(); realtimeClient.close() }
 
         // Channel name and options
         let channelName = test.uniqueChannelName(prefix: "mutable:")
-        let channelOptions = ARTRealtimeChannelOptions()
+        let channelOptions = RealtimeChannelOptions()
         channelOptions.modes = [.publish, .subscribe, .annotationPublish, .annotationSubscribe]
 
         // Get realtime channel with options
         let realtimeChannel = realtimeClient.channels.get(channelName, options: channelOptions)
 
         // Message and annotation to track
-        var capturedReceivedMessage: ARTMessage?
-        var receivedSummary: ARTMessage!
-        var capturedCreatedAnnotation: ARTAnnotation?
+        var capturedReceivedMessage: Message?
+        var receivedSummary: Message!
+        var capturedCreatedAnnotation: Annotation?
 
         // Filtered by type annotations subscription callback calls counter
         var filteredCallbackCalls = 0
@@ -37,7 +38,7 @@ class RealtimeAnnotationsTests: XCTestCase {
             let partialDone = AblyTests.splitDone(3, done: done)
 
             // Publish a message to annotate
-            let message = ARTMessage(name: "test", data: "test message")
+            let message = Message(name: "test", data: "test message")
             realtimeChannel.publish([message])
 
             // Subscribe to messages
@@ -46,7 +47,7 @@ class RealtimeAnnotationsTests: XCTestCase {
                     capturedReceivedMessage = message
 
                     // When message is received, create and publish annotation via realtime
-                    let annotation = ARTOutboundAnnotation(
+                    let annotation = OutboundAnnotation(
                         id: nil,
                         type: "reaction:multiple.v1",
                         clientId: nil,
@@ -69,7 +70,7 @@ class RealtimeAnnotationsTests: XCTestCase {
                     // Verify summary properties
                     XCTAssertEqual(receivedSummary.action, .messageSummary)
                     XCTAssertEqual(receivedSummary.serial, capturedReceivedMessage?.serial)
-                    XCTAssertEqual(receivedSummary.annotations?.summary?.count, 1)
+                    XCTAssertEqual(receivedSummary.annotations.summary?.count, 1)
 
                     partialDone()
                 }
@@ -88,6 +89,8 @@ class RealtimeAnnotationsTests: XCTestCase {
                 XCTAssertEqual(annotation.type, "reaction:multiple.v1")
                 XCTAssertEqual(annotation.name, "👍")
                 XCTAssertEqual(annotation.count?.intValue, 10)
+                // Ably can deliver an annotation without a timestamp of its own, and reading a missing one from Swift traps
+                XCTAssertGreaterThan(annotation.timestamp.timeIntervalSince1970, 0)
 
                 // Verify it matches the message
                 XCTAssertEqual(annotation.messageSerial, capturedReceivedMessage?.serial)
@@ -113,7 +116,7 @@ class RealtimeAnnotationsTests: XCTestCase {
 
         // RTAN2: Now delete the annotation
         waitUntil(timeout: testTimeout) { done in
-            let deleteAnnotation = ARTOutboundAnnotation(
+            let deleteAnnotation = OutboundAnnotation(
                 id: nil,
                 type: createdAnnotation.type,
                 clientId: nil,
@@ -171,12 +174,12 @@ class RealtimeAnnotationsTests: XCTestCase {
         options.testOptions.channelNamePrefix = nil
 
         // Create realtime client
-        let realtimeClient = ARTRealtime(options: options)
+        let realtimeClient = PubSubClient(options: options)
         defer { realtimeClient.dispose(); realtimeClient.close() }
 
         // Channel name and options
         let channelName = test.uniqueChannelName(prefix: "mutable:")
-        let channelOptions = ARTRealtimeChannelOptions()
+        let channelOptions = RealtimeChannelOptions()
         channelOptions.modes = [.publish, .subscribe, .annotationPublish] // miss `annotationSubscribe`
 
         // Get realtime channel with options
@@ -186,14 +189,14 @@ class RealtimeAnnotationsTests: XCTestCase {
             let partialDone = AblyTests.splitDone(3, done: done)
 
             // Publish a message to annotate
-            let message = ARTMessage(name: "test", data: "test message")
+            let message = Message(name: "test", data: "test message")
             realtimeChannel.publish([message])
 
             // Subscribe to messages
             realtimeChannel.subscribe { message in
                 if message.action == .create {
                     // When message is received, create and publish annotation via realtime
-                    let annotation = ARTOutboundAnnotation(
+                    let annotation = OutboundAnnotation(
                         id: nil,
                         type: "reaction:multiple.v1",
                         clientId: nil,
@@ -229,51 +232,141 @@ class RealtimeAnnotationsTests: XCTestCase {
         }
     }
 
+    // RTAN4b, with the TM2a and TM2f behaviour of messages
+    func test__an_annotation_without_an_id_or_timestamp_takes_them_from_its_protocol_message() throws {
+        let test = Test()
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
+        defer { client.dispose(); client.close() }
+
+        // Decoded from JSON, since an Annotation can't be built without a timestamp from Swift
+        let json = """
+        {
+            "action": 21,
+            "id": "protocolId",
+            "timestamp": 12345,
+            "annotations": [
+                { "action": 0, "type": "reaction:distinct.v1", "name": "👍", "serial": "a", "messageSerial": "m" },
+                { "action": 0, "type": "reaction:distinct.v1", "name": "🎉", "serial": "b", "messageSerial": "m", "id": "annotationId", "timestamp": 67890 }
+            ]
+        }
+        """
+        let jsonEncoder = ARTJsonLikeEncoder(delegate: ARTJsonEncoder(), timeProvider: SystemTimeProvider())
+        let protocolMessage = try jsonEncoder.decodeProtocolMessage(try XCTUnwrap(json.data(using: .utf8)))
+
+        let channel = client.channels.get(test.uniqueChannelName())
+        waitUntil(timeout: testTimeout) { done in
+            channel.attach { _ in
+                done()
+            }
+        }
+
+        var annotations: [AblyPubSubDevice.Annotation] = []
+        waitUntil(timeout: testTimeout) { done in
+            channel.annotations.subscribe { annotation in
+                annotations.append(annotation)
+                if annotations.count == 2 {
+                    done()
+                }
+            }
+            AblyTests.queue.async {
+                channel.internal.onChannelMessage(protocolMessage)
+            }
+        }
+
+        // The first annotation has neither, so takes both from the ProtocolMessage
+        XCTAssertEqual(annotations[0].id, "protocolId:0")
+        XCTAssertEqual(annotations[0].timestamp, Date(timeIntervalSince1970: 12.345))
+
+        // The second annotation keeps its own
+        XCTAssertEqual(annotations[1].id, "annotationId")
+        XCTAssertEqual(annotations[1].timestamp, Date(timeIntervalSince1970: 67.89))
+    }
+
+    // RTAN4b, when the ProtocolMessage has no timestamp either
+    func test__an_annotation_without_a_timestamp_in_a_protocol_message_without_one_takes_the_current_time() throws {
+        let test = Test()
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        let options = try AblyTests.clientOptions(for: test, key: "xxxx:xxxx")
+        options.autoConnect = false
+        options.testOptions.timeProvider = FixedWallClockTimeProvider(wallClockNow: now)
+        let client = PubSubClient(options: options)
+        defer { client.dispose(); client.close() }
+
+        let json = """
+        {
+            "action": 21,
+            "annotations": [
+                { "action": 0, "type": "reaction:distinct.v1", "name": "👍", "serial": "a", "messageSerial": "m" }
+            ]
+        }
+        """
+        let jsonEncoder = ARTJsonLikeEncoder(delegate: ARTJsonEncoder(), timeProvider: SystemTimeProvider())
+        let protocolMessage = try jsonEncoder.decodeProtocolMessage(try XCTUnwrap(json.data(using: .utf8)))
+
+        let channelOptions = RealtimeChannelOptions()
+        channelOptions.attachOnSubscribe = false
+        let channel = client.channels.get(test.uniqueChannelName(), options: channelOptions)
+
+        var receivedAnnotation: AblyPubSubDevice.Annotation?
+        waitUntil(timeout: testTimeout) { done in
+            channel.annotations.subscribe { annotation in
+                receivedAnnotation = annotation
+                done()
+            }
+            AblyTests.queue.async {
+                channel.internal.onChannelMessage(protocolMessage)
+            }
+        }
+
+        let annotation = try XCTUnwrap(receivedAnnotation)
+        XCTAssertEqual(annotation.timestamp, now)
+    }
+
     // RTAN4d, RTL7g
     func test__annotations_subscribe_should_implicitly_attach_the_channel_if_options_attachOnSubscribe_is_true() throws {
         let test = Test()
-        let client = ARTRealtime(options: try AblyTests.commonAppSetup(for: test))
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.dispose(); client.close() }
         let channel = client.channels.get(test.uniqueChannelName())
 
         // Initialized
-        XCTAssertEqual(channel.state, ARTRealtimeChannelState.initialized)
+        XCTAssertEqual(channel.state, RealtimeChannelState.initialized)
         channel.annotations.subscribe { _ in }
-        XCTAssertEqual(channel.state, ARTRealtimeChannelState.attaching)
-        expect(channel.state).toEventually(equal(ARTRealtimeChannelState.attached), timeout: testTimeout)
+        XCTAssertEqual(channel.state, RealtimeChannelState.attaching)
+        expect(channel.state).toEventually(equal(RealtimeChannelState.attached), timeout: testTimeout)
 
         // Detaching
         channel.detach()
         channel.annotations.subscribe { _ in }
-        XCTAssertEqual(channel.state, ARTRealtimeChannelState.detaching)
-        expect(channel.state).toEventually(equal(ARTRealtimeChannelState.attached), timeout: testTimeout)
+        XCTAssertEqual(channel.state, RealtimeChannelState.detaching)
+        expect(channel.state).toEventually(equal(RealtimeChannelState.attached), timeout: testTimeout)
 
         // Detached
         channel.detach()
-        expect(channel.state).toEventually(equal(ARTRealtimeChannelState.detached), timeout: testTimeout)
+        expect(channel.state).toEventually(equal(RealtimeChannelState.detached), timeout: testTimeout)
         channel.annotations.subscribe { _ in }
-        expect(channel.state).toEventually(equal(ARTRealtimeChannelState.attached), timeout: testTimeout)
+        expect(channel.state).toEventually(equal(RealtimeChannelState.attached), timeout: testTimeout)
     }
 
     // RTAN4d, RTL7h
     func test__annotations_subscribe_should_not_implicitly_attach_the_channel_if_options_attachOnSubscribe_is_false() throws {
         let test = Test()
-        let client = ARTRealtime(options: try AblyTests.commonAppSetup(for: test))
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.dispose(); client.close() }
 
-        let channelOptions = ARTRealtimeChannelOptions()
+        let channelOptions = RealtimeChannelOptions()
         channelOptions.attachOnSubscribe = false
         let channel = client.channels.get(test.uniqueChannelName(), options: channelOptions)
 
         // Initialized
-        XCTAssertEqual(channel.state, ARTRealtimeChannelState.initialized)
+        XCTAssertEqual(channel.state, RealtimeChannelState.initialized)
         channel.annotations.subscribe(attachCallback: { _ in
             fail("Attach callback should not be called.")
         }) { _ in }
         // Make sure that channel stays initialized
         waitUntil(timeout: testTimeout) { done in
             delay(1) {
-                XCTAssertEqual(channel.state, ARTRealtimeChannelState.initialized)
+                XCTAssertEqual(channel.state, RealtimeChannelState.initialized)
                 done()
             }
         }
@@ -282,12 +375,12 @@ class RealtimeAnnotationsTests: XCTestCase {
     // RTAN4d, RTL7g
     func test__annotations_subscribe_should_result_in_an_error_if_channel_is_in_the_FAILED_state_and_options_attachOnSubscribe_is_true() throws {
         let test = Test()
-        let client = ARTRealtime(options: try AblyTests.commonAppSetup(for: test))
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.dispose(); client.close() }
 
         let channel = client.channels.get(test.uniqueChannelName())
         channel.internal.onError(AblyTests.newErrorProtocolMessage())
-        XCTAssertEqual(channel.state, ARTRealtimeChannelState.failed)
+        XCTAssertEqual(channel.state, RealtimeChannelState.failed)
 
         waitUntil(timeout: testTimeout) { done in
             channel.annotations.subscribe(attachCallback: { errorInfo in
@@ -299,20 +392,24 @@ class RealtimeAnnotationsTests: XCTestCase {
                 }) { _ in }
             }) { _ in }
         }
+
+        // The listeners are registered even though the channel is FAILED
+        XCTAssertEqual(channel.internal.annotations.eventEmitter.anyListeners.count, 1)
+        XCTAssertEqual(channel.internal.annotations.eventEmitter.listeners.count, 1)
     }
 
     // RTAN4d, RTL7g
     func test__annotations_subscribe_should_not_result_in_an_error_if_channel_is_in_the_FAILED_state_and_options_attachOnSubscribe_is_false() throws {
         let test = Test()
-        let client = ARTRealtime(options: try AblyTests.commonAppSetup(for: test))
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.dispose(); client.close() }
 
-        let channelOptions = ARTRealtimeChannelOptions()
+        let channelOptions = RealtimeChannelOptions()
         channelOptions.attachOnSubscribe = false
         let channel = client.channels.get(test.uniqueChannelName(), options: channelOptions)
 
         channel.internal.onError(AblyTests.newErrorProtocolMessage())
-        XCTAssertEqual(channel.state, ARTRealtimeChannelState.failed)
+        XCTAssertEqual(channel.state, RealtimeChannelState.failed)
 
         channel.annotations.subscribe(attachCallback: { _ in
             fail("Attach callback should not be called.")
@@ -320,7 +417,7 @@ class RealtimeAnnotationsTests: XCTestCase {
         // Make sure that channel stays failed
         waitUntil(timeout: testTimeout) { done in
             delay(1) {
-                XCTAssertEqual(channel.state, ARTRealtimeChannelState.failed)
+                XCTAssertEqual(channel.state, RealtimeChannelState.failed)
                 done()
             }
         }
@@ -333,12 +430,12 @@ class RealtimeAnnotationsTests: XCTestCase {
         options.testOptions.channelNamePrefix = nil
 
         // Create realtime client
-        let realtimeClient = ARTRealtime(options: options)
+        let realtimeClient = PubSubClient(options: options)
         defer { realtimeClient.dispose(); realtimeClient.close() }
 
         // Channel name and options
         let channelName = test.uniqueChannelName(prefix: "mutable:")
-        let channelOptions = ARTRealtimeChannelOptions()
+        let channelOptions = RealtimeChannelOptions()
         channelOptions.modes = [.publish, .subscribe, .annotationPublish, .annotationSubscribe]
 
         // Get channel with options
@@ -357,7 +454,7 @@ class RealtimeAnnotationsTests: XCTestCase {
 
         waitUntil(timeout: testTimeout) { done in
             // Create annotation with large name
-            let annotation = ARTOutboundAnnotation(
+            let annotation = OutboundAnnotation(
                 id: nil,
                 type: "test",
                 clientId: nil,
@@ -392,13 +489,13 @@ class RealtimeAnnotationsTests: XCTestCase {
 
         // Create the channel with no cipher, so the annotations object would capture a
         // cipher-less encoder if it cached one.
-        let initialOptions = ARTRealtimeChannelOptions()
+        let initialOptions = RealtimeChannelOptions()
         initialOptions.modes = [.publish, .subscribe, .annotationPublish, .annotationSubscribe]
         let channel = realtimeClient.channels.get(channelName, options: initialOptions)
 
         // Now add a cipher.
-        let key = ARTCrypto.generateRandomKey()
-        let encryptedOptions = ARTRealtimeChannelOptions(cipherKey: key as ARTCipherKeyCompatible)
+        let key = Crypto.generateRandomKey()
+        let encryptedOptions = RealtimeChannelOptions(cipherKey: key as CipherKeyCompatible)
         encryptedOptions.modes = [.publish, .subscribe, .annotationPublish, .annotationSubscribe]
         waitUntil(timeout: testTimeout) { done in
             channel.setOptions(encryptedOptions) { error in
@@ -408,7 +505,7 @@ class RealtimeAnnotationsTests: XCTestCase {
         }
 
         let annotationData = "secret annotation data"
-        var receivedAnnotation: ARTAnnotation?
+        var receivedAnnotation: Annotation?
 
         waitUntil(timeout: testTimeout) { done in
             channel.subscribe { message in
@@ -417,7 +514,7 @@ class RealtimeAnnotationsTests: XCTestCase {
                 }
                 // multiple.v1 because an anonymous client may only publish the
                 // multiple.v1 and total.v1 aggregation methods
-                let annotation = ARTOutboundAnnotation(
+                let annotation = OutboundAnnotation(
                     id: nil,
                     type: "reaction:multiple.v1",
                     clientId: nil,
@@ -436,7 +533,7 @@ class RealtimeAnnotationsTests: XCTestCase {
                 done()
             }
 
-            channel.publish([ARTMessage(name: "test", data: "test message")])
+            channel.publish([Message(name: "test", data: "test message")])
         }
 
         // A stale encoder fails symmetrically: publish and receive would both use the same
@@ -446,7 +543,7 @@ class RealtimeAnnotationsTests: XCTestCase {
 
         let sentAnnotations = transport.protocolMessagesSent
             .filter { $0.action == .annotation }
-            .compactMap { $0.annotations }
+            .compactMap { $0.outboundAnnotations }
             .flatMap { $0 }
         let sentAnnotation = try XCTUnwrap(sentAnnotations.first, "No ANNOTATION protocol message was sent")
 
@@ -462,5 +559,18 @@ class RealtimeAnnotationsTests: XCTestCase {
         // handed is the original plaintext.
         let decodedAnnotation = try XCTUnwrap(receivedAnnotation, "No annotation received")
         XCTAssertEqual(decodedAnnotation.data as? String, annotationData)
+    }
+}
+
+/// A time provider whose wall clock always reads `wallClockNow`.
+private final class FixedWallClockTimeProvider: SystemTimeProvider, @unchecked Sendable {
+    private let fixedWallClockNow: Date
+
+    init(wallClockNow: Date) {
+        fixedWallClockNow = wallClockNow
+    }
+
+    override func wallClockNow() -> Date {
+        fixedWallClockNow
     }
 }

@@ -1,8 +1,7 @@
 internal import _AblyPluginSupportPrivate
-import Ably
+import AblyPubSubDevice
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
-public extension ARTRealtimeChannel {
+public extension AblyPubSubDevice.RealtimeChannel {
     /// The ``RealtimeObject`` for this channel — the entry point into the LiveObjects API.
     ///
     /// From here, ``RealtimeObject/get()`` returns a ``LiveMapPathObject`` rooted at the channel's

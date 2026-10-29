@@ -1,6 +1,6 @@
 import Foundation
-import Ably
-import Ably.Private
+import AblyPubSubDevice
+import AblyPubSubDevice.Private
 
 /// A `Sendable` description of a server-to-client protocol message that a test injects via
 /// `MockWebSocket.sendToClient(_:)` / `sendToClientAndClose(_:)`.
@@ -10,6 +10,7 @@ struct ProtocolMessage: Sendable {
         case connected(connectionId: String, connectionKey: String, maxIdleInterval: TimeInterval, connectionStateTtl: TimeInterval)
         case attached(channel: String, channelSerial: String)
         case error(code: Int, statusCode: Int, message: String)
+        case disconnected(code: Int, statusCode: Int, message: String)
         case ack(msgSerial: Int, count: Int)
         case closed
     }
@@ -39,6 +40,11 @@ struct ProtocolMessage: Sendable {
     /// An `ERROR` message (UTS `ProtocolMessage(action: ERROR, error: ErrorInfo(...))`).
     static func error(code: Int, statusCode: Int, message: String) -> ProtocolMessage {
         .init(kind: .error(code: code, statusCode: statusCode, message: message))
+    }
+
+    /// A `DISCONNECTED` message (UTS `ProtocolMessage(action: DISCONNECTED, error: ErrorInfo(...))`).
+    static func disconnected(code: Int, statusCode: Int, message: String) -> ProtocolMessage {
+        .init(kind: .disconnected(code: code, statusCode: statusCode, message: message))
     }
 
     /// An `ACK` message (UTS `ProtocolMessage(action: ACK, msgSerial: ..., count: ...)`).
@@ -77,7 +83,10 @@ struct ProtocolMessage: Sendable {
             message.channelSerial = channelSerial
         case let .error(code, statusCode, text):
             message.action = .error
-            message.error = ARTErrorInfo.create(withCode: code, status: statusCode, message: text)
+            message.error = ErrorInfo.create(withCode: code, status: statusCode, message: text)
+        case let .disconnected(code, statusCode, text):
+            message.action = .disconnected
+            message.error = ErrorInfo.create(withCode: code, status: statusCode, message: text)
         case let .ack(msgSerial, count):
             message.action = .ack
             message.msgSerial = NSNumber(value: msgSerial)

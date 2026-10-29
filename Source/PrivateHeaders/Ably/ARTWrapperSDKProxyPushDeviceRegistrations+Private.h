@@ -1,4 +1,4 @@
-#import <Ably/ARTWrapperSDKProxyPushDeviceRegistrations.h>
+#import <AblyPubSubDevice/ARTWrapperSDKProxyPushDeviceRegistrations.h>
 
 @class ARTWrapperSDKProxyOptions;
 

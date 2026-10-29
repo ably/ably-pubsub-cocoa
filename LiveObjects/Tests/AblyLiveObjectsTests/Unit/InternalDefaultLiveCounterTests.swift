@@ -1,7 +1,7 @@
 import _AblyPluginSupportPrivate
-import Ably
 @testable import AblyLiveObjects
 @testable import AblyLiveObjectsTesting
+import AblyPubSubDevice
 import Foundation
 import Testing
 
@@ -19,7 +19,7 @@ struct InternalDefaultLiveCounterTests {
             #expect {
                 _ = try counter.value(coreSDK: coreSDK)
             } throws: { error in
-                guard let errorInfo = error as? ARTErrorInfo else {
+                guard let errorInfo = error as? ErrorInfo else {
                     return false
                 }
 
@@ -566,7 +566,7 @@ struct InternalDefaultLiveCounterTests {
             await #expect {
                 try await counter.increment(amount: 10, coreSDK: coreSDK, realtimeObjects: realtimeObjects)
             } throws: { error in
-                guard let errorInfo = error as? ARTErrorInfo else {
+                guard let errorInfo = error as? ErrorInfo else {
                     return false
                 }
 
@@ -624,7 +624,7 @@ struct InternalDefaultLiveCounterTests {
             await #expect {
                 try await counter.increment(amount: 10, coreSDK: coreSDK, realtimeObjects: realtimeObjects)
             } throws: { error in
-                guard let errorInfo = error as? ARTErrorInfo else {
+                guard let errorInfo = error as? ErrorInfo else {
                     return false
                 }
                 return errorInfo.message.contains("Publish failed")

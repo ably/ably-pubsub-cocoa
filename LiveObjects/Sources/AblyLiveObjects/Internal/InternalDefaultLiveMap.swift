@@ -1,15 +1,13 @@
 internal import _AblyPluginSupportPrivate
-import Ably
+import AblyPubSubDevice
 
 /// Protocol for accessing objects from the ObjectsPool. This is used by a LiveMap when it needs to return an object given an object ID.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal protocol LiveMapObjectsPoolDelegate: AnyObject, Sendable {
     /// A snapshot of the objects pool.
     var nosync_objectsPool: ObjectsPool { get }
 }
 
 /// This provides the implementation behind ``PublicDefaultLiveMap``, via internal versions of the ``LiveMap`` API.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal final class InternalDefaultLiveMap: Sendable {
     internal let mutableStateMutex: DispatchQueueMutex<MutableState> // internal for AblyLiveObjectsTesting
 
@@ -71,8 +69,8 @@ internal final class InternalDefaultLiveMap: Sendable {
     // MARK: - Internal methods that back LiveMap conformance
 
     /// Returns the value associated with a given key, following RTLM5d specification.
-    internal func get(key: String, coreSDK: CoreSDK, delegate: LiveMapObjectsPoolDelegate) throws(ARTErrorInfo) -> InternalLiveMapValue? {
-        try mutableStateMutex.withSync { mutableState throws(ARTErrorInfo) in
+    internal func get(key: String, coreSDK: CoreSDK, delegate: LiveMapObjectsPoolDelegate) throws(ErrorInfo) -> InternalLiveMapValue? {
+        try mutableStateMutex.withSync { mutableState throws(ErrorInfo) in
             try mutableState.nosync_get(
                 key: key,
                 coreSDK: coreSDK,
@@ -81,8 +79,8 @@ internal final class InternalDefaultLiveMap: Sendable {
         }
     }
 
-    internal func size(coreSDK: CoreSDK, delegate: LiveMapObjectsPoolDelegate) throws(ARTErrorInfo) -> Int {
-        try mutableStateMutex.withSync { mutableState throws(ARTErrorInfo) in
+    internal func size(coreSDK: CoreSDK, delegate: LiveMapObjectsPoolDelegate) throws(ErrorInfo) -> Int {
+        try mutableStateMutex.withSync { mutableState throws(ErrorInfo) in
             try mutableState.nosync_size(
                 coreSDK: coreSDK,
                 objectsPool: delegate.nosync_objectsPool,
@@ -90,8 +88,8 @@ internal final class InternalDefaultLiveMap: Sendable {
         }
     }
 
-    internal func entries(coreSDK: CoreSDK, delegate: LiveMapObjectsPoolDelegate) throws(ARTErrorInfo) -> [(key: String, value: InternalLiveMapValue)] {
-        try mutableStateMutex.withSync { mutableState throws(ARTErrorInfo) in
+    internal func entries(coreSDK: CoreSDK, delegate: LiveMapObjectsPoolDelegate) throws(ErrorInfo) -> [(key: String, value: InternalLiveMapValue)] {
+        try mutableStateMutex.withSync { mutableState throws(ErrorInfo) in
             try mutableState.nosync_entries(
                 coreSDK: coreSDK,
                 objectsPool: delegate.nosync_objectsPool,
@@ -99,12 +97,12 @@ internal final class InternalDefaultLiveMap: Sendable {
         }
     }
 
-    internal func keys(coreSDK: CoreSDK, delegate: LiveMapObjectsPoolDelegate) throws(ARTErrorInfo) -> [String] {
+    internal func keys(coreSDK: CoreSDK, delegate: LiveMapObjectsPoolDelegate) throws(ErrorInfo) -> [String] {
         // RTLM12b: Identical to LiveMap#entries, except that it returns only the keys from the internal data map
         try entries(coreSDK: coreSDK, delegate: delegate).map(\.key)
     }
 
-    internal func values(coreSDK: CoreSDK, delegate: LiveMapObjectsPoolDelegate) throws(ARTErrorInfo) -> [InternalLiveMapValue] {
+    internal func values(coreSDK: CoreSDK, delegate: LiveMapObjectsPoolDelegate) throws(ErrorInfo) -> [InternalLiveMapValue] {
         // RTLM13b: Identical to LiveMap#entries, except that it returns only the values from the internal data map
         try entries(coreSDK: coreSDK, delegate: delegate).map(\.value)
     }
@@ -115,10 +113,10 @@ internal final class InternalDefaultLiveMap: Sendable {
     /// `publishAndApply` array (RTLM20h1) so the whole graph is committed atomically. A primitive
     /// `value` publishes the `MAP_SET` alone (RTLM20h2). The pooled objects for a blueprint are created
     /// by the ACK-time local apply of the batched creates (RTLM7g1/RTO6), exactly as for remote creates.
-    internal func set(key: String, value: LiveMapValue, coreSDK: CoreSDK, realtimeObjects: any InternalRealtimeObjectsProtocol) async throws(ARTErrorInfo) {
+    internal func set(key: String, value: LiveMapValue, coreSDK: CoreSDK, realtimeObjects: any InternalRealtimeObjectsProtocol) async throws(ErrorInfo) {
         // RTO26: check the write-API channel-state precondition up front, before any evaluation
         // (which may fetch server time) or publish. Fail fast, matching `RealtimeObjects.createMap`.
-        try mutableStateMutex.withSync { _ throws(ARTErrorInfo) in
+        try mutableStateMutex.withSync { _ throws(ErrorInfo) in
             try coreSDK.nosync_validateChannelStateForWriteAPI(operationDescription: "LiveMap.set")
         }
 
@@ -144,9 +142,9 @@ internal final class InternalDefaultLiveMap: Sendable {
             createMessages = evaluated.messages
         }
 
-        try await withCheckedContinuation { (continuation: CheckedContinuation<Result<Void, ARTErrorInfo>, _>) in
-            do throws(ARTErrorInfo) {
-                try mutableStateMutex.withSync { mutableState throws(ARTErrorInfo) in
+        try await withCheckedContinuation { (continuation: CheckedContinuation<Result<Void, ErrorInfo>, _>) in
+            do throws(ErrorInfo) {
+                try mutableStateMutex.withSync { mutableState throws(ErrorInfo) in
                     // RTLM20e: the MAP_SET ObjectMessage
                     let mapSetMessage = ProtocolTypes.OutboundObjectMessage(
                         operation: .init(
@@ -175,10 +173,10 @@ internal final class InternalDefaultLiveMap: Sendable {
         }.get()
     }
 
-    internal func remove(key: String, coreSDK: CoreSDK, realtimeObjects: any InternalRealtimeObjectsProtocol) async throws(ARTErrorInfo) {
-        try await withCheckedContinuation { (continuation: CheckedContinuation<Result<Void, ARTErrorInfo>, _>) in
-            do throws(ARTErrorInfo) {
-                try mutableStateMutex.withSync { mutableState throws(ARTErrorInfo) in
+    internal func remove(key: String, coreSDK: CoreSDK, realtimeObjects: any InternalRealtimeObjectsProtocol) async throws(ErrorInfo) {
+        try await withCheckedContinuation { (continuation: CheckedContinuation<Result<Void, ErrorInfo>, _>) in
+            do throws(ErrorInfo) {
+                try mutableStateMutex.withSync { mutableState throws(ErrorInfo) in
                     // RTO26
                     try coreSDK.nosync_validateChannelStateForWriteAPI(operationDescription: "LiveMap.remove")
 
@@ -207,8 +205,8 @@ internal final class InternalDefaultLiveMap: Sendable {
     }
 
     @discardableResult
-    internal func subscribe(listener: @escaping LiveObjectUpdateCallback<DefaultLiveMapUpdate>, coreSDK: CoreSDK) throws(ARTErrorInfo) -> any SubscribeResponse {
-        try mutableStateMutex.withSync { mutableState throws(ARTErrorInfo) in
+    internal func subscribe(listener: @escaping LiveObjectUpdateCallback<DefaultLiveMapUpdate>, coreSDK: CoreSDK) throws(ErrorInfo) -> any SubscribeResponse {
+        try mutableStateMutex.withSync { mutableState throws(ErrorInfo) in
             // swiftlint:disable:next trailing_closure
             try mutableState.liveObjectMutableState.nosync_subscribe(listener: listener, coreSDK: coreSDK, updateSelfLater: { [weak self] action in
                 guard let self else {
@@ -1035,7 +1033,7 @@ internal final class InternalDefaultLiveMap: Sendable {
         }
 
         /// Returns the value associated with a given key, following RTLM5d specification.
-        internal func nosync_get(key: String, coreSDK: CoreSDK, objectsPool: ObjectsPool) throws(ARTErrorInfo) -> InternalLiveMapValue? {
+        internal func nosync_get(key: String, coreSDK: CoreSDK, objectsPool: ObjectsPool) throws(ErrorInfo) -> InternalLiveMapValue? {
             // RTO25: If the channel is in the DETACHED or FAILED state, the library should indicate an error with code 90001
             try coreSDK.nosync_validateChannelStateForAccessAPI(operationDescription: "LiveMap.get")
 
@@ -1053,7 +1051,7 @@ internal final class InternalDefaultLiveMap: Sendable {
             return nosync_convertEntryToLiveMapValue(entry, objectsPool: objectsPool)
         }
 
-        internal func nosync_size(coreSDK: CoreSDK, objectsPool: ObjectsPool) throws(ARTErrorInfo) -> Int {
+        internal func nosync_size(coreSDK: CoreSDK, objectsPool: ObjectsPool) throws(ErrorInfo) -> Int {
             // RTO25: If the channel is in the DETACHED or FAILED state, the library should throw an ErrorInfo error with statusCode 400 and code 90001
             try coreSDK.nosync_validateChannelStateForAccessAPI(operationDescription: "LiveMap.size")
 
@@ -1063,7 +1061,7 @@ internal final class InternalDefaultLiveMap: Sendable {
             }
         }
 
-        internal func nosync_entries(coreSDK: CoreSDK, objectsPool: ObjectsPool) throws(ARTErrorInfo) -> [(key: String, value: InternalLiveMapValue)] {
+        internal func nosync_entries(coreSDK: CoreSDK, objectsPool: ObjectsPool) throws(ErrorInfo) -> [(key: String, value: InternalLiveMapValue)] {
             // RTO25: If the channel is in the DETACHED or FAILED state, the library should throw an ErrorInfo error with statusCode 400 and code 90001
             try coreSDK.nosync_validateChannelStateForAccessAPI(operationDescription: "LiveMap.entries")
 

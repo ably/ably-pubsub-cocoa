@@ -6,24 +6,18 @@
 @implementation ARTFallbackHosts
 
 + (nullable NSArray<NSString *> *)hostsFromOptions:(ARTClientOptions *)options {
-    if (options.fallbackHosts) {
+    if (options.fallbackHosts) { // REC2a2
         return options.fallbackHosts;
     }
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    if (options.fallbackHostsUseDefault) {
-        return [ARTDefault fallbackHosts];
+    // A custom port means a development server, which has no fallback hosts on that port.
+    if (options.hasCustomPort || options.hasCustomTlsPort) {
+        return @[];
     }
-#pragma clang diagnostic pop
-
-    if (options.hasEnvironmentDifferentThanProduction) {
-        return [ARTDefault fallbackHostsWithEnvironment:options.environment];
-    }
-    if (options.hasCustomRestHost || options.hasCustomRealtimeHost || options.hasCustomPort || options.hasCustomTlsPort) {
-        return nil;
-    }
-    return [ARTDefault fallbackHosts];
+    return options.endpointFallbackHosts; // REC2c
 }
 
 @end
+
+BOOL ARTIsCloudFrontError(NSInteger statusCode, NSString *serverHeader) {
+    return statusCode >= 400 && serverHeader && [serverHeader caseInsensitiveCompare:@"CloudFront"] == NSOrderedSame;
+}

@@ -1,10 +1,9 @@
 internal import _AblyPluginSupportPrivate
-import Ably
+import AblyPubSubDevice
 
 /// This is the equivalent of the `LiveObject` abstract class described in RTLO.
 ///
 /// ``InternalDefaultLiveCounter`` and ``InternalDefaultLiveMap`` include it by composition.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal struct LiveObjectMutableState<Update: Sendable> {
     // RTLO3a
     internal var objectID: String
@@ -83,7 +82,7 @@ internal struct LiveObjectMutableState<Update: Sendable> {
     internal typealias UpdateLiveObject = @Sendable (_ action: (inout Self) -> Void) -> Void
 
     @discardableResult
-    internal mutating func nosync_subscribe(listener: @escaping LiveObjectUpdateCallback<Update>, coreSDK: CoreSDK, updateSelfLater: @escaping UpdateLiveObject) throws(ARTErrorInfo) -> any AblyLiveObjects.SubscribeResponse {
+    internal mutating func nosync_subscribe(listener: @escaping LiveObjectUpdateCallback<Update>, coreSDK: CoreSDK, updateSelfLater: @escaping UpdateLiveObject) throws(ErrorInfo) -> any AblyLiveObjects.SubscribeResponse {
         // RTO25
         try coreSDK.nosync_validateChannelStateForAccessAPI(operationDescription: "subscribe")
 

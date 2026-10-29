@@ -2,6 +2,7 @@
 #import "ARTInternalLog.h"
 
 #import <CommonCrypto/CommonCrypto.h>
+#import "ARTStatus.h"
 
 #define ART_CBC_BLOCK_LENGTH (16)
 
@@ -96,16 +97,26 @@
     return YES;
 }
 
-- (ARTCipherParams *)toCipherParams {
-    return self;
-}
-
 @end
 
-@implementation NSDictionary (ARTCipherParamsCompatible)
+@implementation ARTCipherParamOptions
 
-- (ARTCipherParams *)toCipherParams {
-    return [ARTCrypto getDefaultParams:self];
+- (instancetype)initWithKey:(id<ARTCipherKeyCompatible>)key {
+    return [self initWithKey:key algorithm:nil keyLength:0 mode:nil];
+}
+
+- (instancetype)initWithKey:(id<ARTCipherKeyCompatible>)key
+                  algorithm:(NSString *)algorithm
+                  keyLength:(NSUInteger)keyLength
+                       mode:(NSString *)mode {
+    self = [super init];
+    if (self) {
+        _key = [key conformsToProtocol:@protocol(NSCopying)] ? [(id<NSCopying>)key copyWithZone:nil] : key;
+        _algorithm = [algorithm copy];
+        _keyLength = keyLength;
+        _mode = [mode copy];
+    }
+    return self;
 }
 
 @end
@@ -317,16 +328,24 @@
     return hash;
 }
 
-+ (ARTCipherParams *)getDefaultParams:(NSDictionary *)cipherParams {
-    NSString *algorithm = cipherParams[@"algorithm"];
-    if (algorithm == nil) {
-        algorithm = [ARTCrypto defaultAlgorithm];
-    }
-    NSString *key = cipherParams[@"key"];
-    if (key == nil) {
++ (ARTCipherParams *)getDefaultParams:(ARTCipherParamOptions *)options {
+    if (options.key == nil) {
         [ARTException raise:NSInvalidArgumentException format:@"missing key parameter"];
     }
-    return [[ARTCipherParams alloc] initWithAlgorithm:algorithm key:key];
+    // A string key that isn't valid base64 converts to nil, which would otherwise surface as a key length of 0.
+    NSData *keyData = [options.key toData];
+    if (keyData == nil) {
+        [ARTException raise:NSInvalidArgumentException format:@"key is not a valid base64 string"];
+    }
+    NSString *algorithm = options.algorithm ?: [ARTCrypto defaultAlgorithm];
+    if (options.mode != nil && [options.mode caseInsensitiveCompare:@"CBC"] != NSOrderedSame) {
+        [ARTException raise:NSInvalidArgumentException format:@"unsupported cipher mode: %@", options.mode];
+    }
+    ARTCipherParams *params = [[ARTCipherParams alloc] initWithAlgorithm:algorithm key:keyData];
+    if (options.keyLength != 0 && options.keyLength != params.keyLength) {
+        [ARTException raise:NSInvalidArgumentException format:@"keyLength %lu does not match the key's length of %lu bits", (unsigned long)options.keyLength, (unsigned long)params.keyLength];
+    }
+    return params;
 }
 
 + (NSData *)generateRandomKey {

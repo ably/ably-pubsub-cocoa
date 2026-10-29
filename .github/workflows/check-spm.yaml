@@ -3,7 +3,7 @@
 # It only COMPILES the root package (warnings-as-errors); it runs NO tests.
 # The same build also happens in liveobjects.yaml's build-and-test-spm job —
 # kept here as the core SDK's own required gate, independent of plugin CI.
-# UTS/AblyTests execute in integration-test.yaml; AblyLiveObjectsTests in
+# UTS executes in uts.yaml, AblyTests in integration-test.yaml; AblyLiveObjectsTests in
 # liveobjects.yaml.
 
 name: "Check SPM build"
@@ -14,6 +14,7 @@ on:
   push:
     branches:
       - main
+      - 'integration/**'
 
 permissions:
   contents: read
@@ -29,7 +30,7 @@ jobs:
           persist-credentials: false
       - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
         with:
-          xcode-version: 16.4
+          xcode-version: 26.2
 
       # https://forums.swift.org/t/warnings-as-errors-for-libraries-frameworks/58393/2
       - run: swift build -Xswiftc -warnings-as-errors

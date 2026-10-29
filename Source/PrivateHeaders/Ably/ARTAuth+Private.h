@@ -1,8 +1,8 @@
-#import <Ably/ARTAuth.h>
-#import <Ably/ARTEventEmitter.h>
+#import <AblyPubSubDevice/ARTAuth.h>
+#import <AblyPubSubDevice/ARTEventEmitter.h>
 #import "ARTQueuedDealloc.h"
 
-@class ARTRestInternal;
+@class ARTHttpClientInternal;
 @class ARTInternalLog;
 
 typedef NS_ENUM(NSUInteger, ARTAuthorizationState) {
@@ -76,7 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ARTAuthInternal (Private)
 
-- (instancetype)init:(ARTRestInternal *)rest withOptions:(ARTClientOptions *)options logger:(ARTInternalLog *)logger;
+- (instancetype)init:(ARTHttpClientInternal *)rest withOptions:(ARTClientOptions *)options logger:(ARTInternalLog *)logger;
 
 - (ARTAuthOptions *)mergeOptions:(ARTAuthOptions *)customOptions;
 - (ARTTokenParams *)mergeParams:(ARTTokenParams *)customParams;

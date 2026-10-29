@@ -1,7 +1,6 @@
 internal import _AblyPluginSupportPrivate
 
 /// A reference to a line within a source code file.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal struct CodeLocation: Equatable {
     /// A file identifier in the format used by Swift's `#fileID` macro. For example, `"AblyChat/Room.swift"`.
     internal var fileID: String
@@ -9,12 +8,10 @@ internal struct CodeLocation: Equatable {
     internal var line: Int
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal protocol Logger: Sendable {
     func log(_ message: String, level: _AblyPluginSupportPrivate.LogLevel, codeLocation: CodeLocation)
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension AblyLiveObjects.Logger {
     /// A convenience method that provides default values for `file` and `line`.
     func log(_ message: String, level: _AblyPluginSupportPrivate.LogLevel, fileID: String = #fileID, line: Int = #line) {
@@ -23,7 +20,6 @@ internal extension AblyLiveObjects.Logger {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal final class DefaultLogger: Logger {
     private let pluginLogger: _AblyPluginSupportPrivate.Logger
     private let pluginAPI: _AblyPluginSupportPrivate.PluginAPIProtocol

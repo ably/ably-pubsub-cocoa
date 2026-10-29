@@ -1,7 +1,7 @@
 import _AblyPluginSupportPrivate
-import Ably
 @testable import AblyLiveObjects
 @testable import AblyLiveObjectsTesting
+import AblyPubSubDevice
 import Foundation
 import Testing
 
@@ -12,7 +12,7 @@ struct DefaultInternalPluginTests {
 
     /// An empty marker conformer for `RealtimeChannel`.
     final class StubChannel: NSObject, _AblyPluginSupportPrivate.RealtimeChannel {}
-    /// An empty marker conformer for `RealtimeClient`.
+    /// An empty marker conformer for `PubSubClient`.
     final class StubClient: NSObject, _AblyPluginSupportPrivate.RealtimeClient {}
     /// An empty marker conformer for `Logger`.
     final class StubLogger: NSObject, _AblyPluginSupportPrivate.Logger {}
@@ -34,7 +34,7 @@ struct DefaultInternalPluginTests {
     final class MockPluginAPI: NSObject, _AblyPluginSupportPrivate.PluginAPIProtocol, @unchecked Sendable {
         let internalQueue: DispatchQueue
         let callbackQueue: DispatchQueue
-        let clientOptions: ARTClientOptions
+        let clientOptions: ClientOptions
         let connectionDetails: (any _AblyPluginSupportPrivate.ConnectionDetailsProtocol)?
         let channelName: String
 
@@ -44,7 +44,7 @@ struct DefaultInternalPluginTests {
         init(
             internalQueue: DispatchQueue,
             callbackQueue: DispatchQueue,
-            clientOptions: ARTClientOptions = ARTClientOptions(),
+            clientOptions: ClientOptions = ClientOptions(),
             connectionDetails: (any _AblyPluginSupportPrivate.ConnectionDetailsProtocol)?,
             channelName: String = "test-channel"
         ) {
@@ -153,5 +153,54 @@ struct DefaultInternalPluginTests {
     func seedsNilSiteCodeWhenNoConnectionDetails() {
         let engine = Self.prepareEngine(connectionDetails: nil)
         #expect(engine.testsOnly_siteCode == nil)
+    }
+
+    // MARK: - maxMessageSize
+
+    /// Reads `DefaultCoreSDK.nosync_maxMessageSize` for a client with the given options and latest connection details.
+    private static func coreSDKMaxMessageSize(clientOptions: ClientOptions, connectionDetails: (any _AblyPluginSupportPrivate.ConnectionDetailsProtocol)?) -> Int {
+        let internalQueue = DispatchQueue(label: "DefaultInternalPluginTests.internal")
+        let pluginAPI = MockPluginAPI(
+            internalQueue: internalQueue,
+            callbackQueue: .main,
+            clientOptions: clientOptions,
+            connectionDetails: connectionDetails,
+        )
+        let coreSDK = DefaultCoreSDK(channel: StubChannel(), client: StubClient(), pluginAPI: pluginAPI, logger: TestLogger())
+        return internalQueue.sync { coreSDK.nosync_maxMessageSize }
+    }
+
+    // RTO15d, CD2c: the connection's negotiated maxMessageSize takes precedence over the client option.
+    // @specPartial RTO15d — which maxMessageSize the size check uses
+    @Test
+    func maxMessageSizeComesFromConnectionDetails() {
+        let clientOptions = ClientOptions()
+        clientOptions.maxMessageSize = 1000
+        let maxMessageSize = Self.coreSDKMaxMessageSize(
+            clientOptions: clientOptions,
+            connectionDetails: StubConnectionDetails(siteCode: nil, maxMessageSize: 2048),
+        )
+        #expect(maxMessageSize == 2048)
+    }
+
+    // RTO15d, TO3l8: before CONNECTED, the client option applies.
+    // @specPartial RTO15d — which maxMessageSize the size check uses
+    @Test
+    func maxMessageSizeFallsBackToClientOptionWithoutConnectionDetails() {
+        let clientOptions = ClientOptions()
+        clientOptions.maxMessageSize = 1000
+        let maxMessageSize = Self.coreSDKMaxMessageSize(clientOptions: clientOptions, connectionDetails: nil)
+        #expect(maxMessageSize == 1000)
+    }
+
+    // RTO15d, TO3l8: a CONNECTED without a limit leaves the client option, which defaults to 65536.
+    // @specPartial RTO15d — which maxMessageSize the size check uses
+    @Test
+    func maxMessageSizeFallsBackToDefaultClientOptionWhenServerSendsNoLimit() {
+        let maxMessageSize = Self.coreSDKMaxMessageSize(
+            clientOptions: ClientOptions(),
+            connectionDetails: StubConnectionDetails(siteCode: nil, maxMessageSize: 0),
+        )
+        #expect(maxMessageSize == 65536)
     }
 }

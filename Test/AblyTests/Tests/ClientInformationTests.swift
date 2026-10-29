@@ -1,15 +1,15 @@
 import XCTest
-import Ably
+import AblyPubSubDevice
 
 final class ClientInformationTests: XCTestCase {
 
     // CR2, CR2a
     func testAgents() {
-        let agents = ARTClientInformation.agents
+        let agents = ClientInformation.agents
 
         XCTAssertEqual(agents.keys.count, 2)
 
-        XCTAssertEqual(agents["ably-cocoa"], "1.4.1")
+        XCTAssertEqual(agents["ably-pubsub-cocoa"], "2.0.0")
 
         #if os(iOS)
         XCTAssertTrue(agents.keys.contains("iOS"))
@@ -27,27 +27,27 @@ final class ClientInformationTests: XCTestCase {
     // CR3, CR3b
     func testAgentIdentifierWithAdditionalAgents_withNilAdditionalAgents() {
         let expectedIdentifier = [
-            "ably-cocoa/1.4.1",
-            ARTDefault.platformAgent()
+            "ably-pubsub-cocoa/2.0.0",
+            Default.platformAgent()
         ].sorted().joined(separator: " ")
 
-        XCTAssertEqual(ARTClientInformation.agentIdentifier(withAdditionalAgents: nil), expectedIdentifier)
+        XCTAssertEqual(ClientInformation.agentIdentifier(withAdditionalAgents: nil), expectedIdentifier)
     }
 
     // CR3, CR3b, CR3c
     func testAgentIdentifierWithAdditionalAgents_withNonNilAdditionalAgents() {
         let additionalAgents = [
             "demolib": "0.0.1",
-            "morelib": ARTClientInformationAgentNotVersioned
+            "morelib": clientInformationAgentNotVersioned
         ]
 
         let expectedIdentifier = [
-            "ably-cocoa/1.4.1",
+            "ably-pubsub-cocoa/2.0.0",
             "demolib/0.0.1",
             "morelib",
-            ARTDefault.platformAgent()
+            Default.platformAgent()
         ].sorted().joined(separator: " ")
 
-        XCTAssertEqual(ARTClientInformation.agentIdentifier(withAdditionalAgents: additionalAgents), expectedIdentifier)
+        XCTAssertEqual(ClientInformation.agentIdentifier(withAdditionalAgents: additionalAgents), expectedIdentifier)
     }
 }

@@ -1,4 +1,4 @@
-#import <Ably/ARTPresenceMessage.h>
+#import <AblyPubSubDevice/ARTPresenceMessage.h>
 
 @interface ARTPresenceMessage ()
 

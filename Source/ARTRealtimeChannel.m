@@ -2,7 +2,7 @@
 #import "ARTChannel+Private.h"
 #import "ARTDataQuery+Private.h"
 
-#import "ARTRealtime+Private.h"
+#import "ARTPubSubClient+Private.h"
 #import "ARTMessage.h"
 #import "ARTBaseMessage+Private.h"
 #import "ARTAuth.h"
@@ -14,9 +14,10 @@
 #import "ARTProtocolMessage.h"
 #import "ARTProtocolMessage+Private.h"
 #import "ARTNSArray+ARTFunctional.h"
+#import "ARTNSDictionary+ARTDictionaryUtil.h"
 #import "ARTStatus.h"
 #import "ARTDefault.h"
-#import "ARTRest.h"
+#import "ARTHttpClient.h"
 #import "ARTClientOptions.h"
 #import "ARTClientOptions+TestConfiguration.h"
 #import "ARTClientOptions+Private.h"
@@ -25,7 +26,7 @@
 #import "ARTTypes+Private.h"
 #import "ARTGCD.h"
 #import "ARTConnection+Private.h"
-#import "ARTRestChannels+Private.h"
+#import "ARTHttpChannels+Private.h"
 #import "ARTEventEmitter+Private.h"
 #import "ARTChannelStateChangeParams.h"
 #import "ARTAttachRequestParams.h"
@@ -63,11 +64,11 @@
     });
 }
 
-- (instancetype)initWithInternal:(ARTRealtimeChannelInternal *)internal realtimeInternal:(ARTRealtimeInternal *)realtimeInternal queuedDealloc:(ARTQueuedDealloc *)dealloc {
+- (instancetype)initWithInternal:(ARTRealtimeChannelInternal *)internal pubsubInternal:(ARTPubSubClientInternal *)pubsubInternal queuedDealloc:(ARTQueuedDealloc *)dealloc {
     self = [super init];
     if (self) {
         _internal = internal;
-        _realtimeInternal = realtimeInternal;
+        _realtimeInternal = pubsubInternal;
         _dealloc = dealloc;
     }
     return self;
@@ -119,30 +120,6 @@
 
 - (void)publish:(nullable NSString *)name data:(nullable id)data resultCallback:(nullable ARTPublishResultCallback)resultCallback {
     [_internal publish:name data:data resultCallback:resultCallback];
-}
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(NSString *)clientId {
-    [_internal publish:name data:data clientId:clientId];
-}
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(NSString *)clientId callback:(nullable ARTCallback)callback {
-    [_internal publish:name data:data clientId:clientId callback:callback];
-}
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data extras:(nullable id<ARTJsonCompatible>)extras {
-    [_internal publish:name data:data extras:extras];
-}
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data extras:(nullable id<ARTJsonCompatible>)extras callback:(nullable ARTCallback)callback {
-    [_internal publish:name data:data extras:extras callback:callback];
-}
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(NSString *)clientId extras:(nullable id<ARTJsonCompatible>)extras {
-    [_internal publish:name data:data clientId:clientId extras:extras];
-}
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(NSString *)clientId extras:(nullable id<ARTJsonCompatible>)extras callback:(nullable ARTCallback)callback {
-    [_internal publish:name data:data clientId:clientId extras:extras callback:callback];
 }
 
 - (void)publish:(NSArray<ARTMessage *> *)messages {
@@ -201,19 +178,19 @@
     [_internal detach:callback];
 }
 
-- (ARTEventListener *_Nullable)subscribe:(ARTMessageCallback)callback {
+- (ARTEventListener *)subscribe:(ARTMessageCallback)callback {
     return [_internal subscribe:callback];
 }
 
-- (ARTEventListener *_Nullable)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(ARTMessageCallback)cb {
+- (ARTEventListener *)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(ARTMessageCallback)cb {
     return [_internal subscribeWithAttachCallback:onAttach callback:cb];
 }
 
-- (ARTEventListener *_Nullable)subscribe:(NSString *)name callback:(ARTMessageCallback)cb {
+- (ARTEventListener *)subscribe:(NSString *)name callback:(ARTMessageCallback)cb {
     return [_internal subscribe:name callback:cb];
 }
 
-- (ARTEventListener *_Nullable)subscribe:(NSString *)name onAttach:(nullable ARTCallback)onAttach callback:(ARTMessageCallback)cb {
+- (ARTEventListener *)subscribe:(NSString *)name onAttach:(nullable ARTCallback)onAttach callback:(ARTMessageCallback)cb {
     return [_internal subscribe:name onAttach:onAttach callback:cb];
 }
 
@@ -229,8 +206,8 @@
     [_internal unsubscribe:name listener:listener];
 }
 
-- (BOOL)history:(ARTRealtimeHistoryQuery *_Nullable)query callback:(ARTPaginatedMessagesCallback)callback error:(NSError *_Nullable *_Nullable)errorPtr {
-    return [_internal history:query wrapperSDKAgents:nil callback:callback error:errorPtr];
+- (void)history:(ARTRealtimeHistoryQuery *_Nullable)query callback:(ARTPaginatedMessagesCallback)callback {
+    [_internal history:query wrapperSDKAgents:nil callback:callback];
 }
 
 - (ARTEventListener *)on:(ARTChannelStateCallback)cb {
@@ -305,12 +282,12 @@ NS_ASSUME_NONNULL_END
     ARTChannelMode _modes;
 }
 
-- (instancetype)initWithRealtime:(ARTRealtimeInternal *)realtime andName:(NSString *)name withOptions:(ARTRealtimeChannelOptions *)options logger:(ARTInternalLog *)logger {
-    self = [super initWithName:name andOptions:options rest:realtime.rest logger:logger];
+- (instancetype)initWithPubSub:(ARTPubSubClientInternal *)pubsub andName:(NSString *)name withOptions:(ARTRealtimeChannelOptions *)options logger:(ARTInternalLog *)logger {
+    self = [super initWithName:name andOptions:options rest:pubsub.rest logger:logger];
     if (self) {
-        _realtime = realtime;
-        _queue = realtime.rest.queue;
-        _userQueue = realtime.rest.userQueue;
+        _realtime = pubsub;
+        _queue = pubsub.rest.queue;
+        _userQueue = pubsub.rest.userQueue;
         _restChannel = [_realtime.rest.channels _getChannel:self.name options:options addPrefix:true];
         _state = ARTRealtimeChannelInitialized;
         _modes = 0;
@@ -322,8 +299,8 @@ NS_ASSUME_NONNULL_END
         _attachedEventEmitter = [[ARTInternalEventEmitter alloc] initWithQueue:_queue timeProvider:_realtime.rest.timeProvider];
         _detachedEventEmitter = [[ARTInternalEventEmitter alloc] initWithQueue:_queue timeProvider:_realtime.rest.timeProvider];
         _internalEventEmitter = [[ARTInternalEventEmitter alloc] initWithQueue:_queue timeProvider:_realtime.rest.timeProvider];
-        const id<ARTRetryDelayCalculator> attachRetryDelayCalculator = [[ARTBackoffRetryDelayCalculator alloc] initWithInitialRetryTimeout:realtime.options.channelRetryTimeout
-                                                                                                                jitterCoefficientGenerator:realtime.options.testOptions.jitterCoefficientGenerator];
+        const id<ARTRetryDelayCalculator> attachRetryDelayCalculator = [[ARTBackoffRetryDelayCalculator alloc] initWithInitialRetryTimeout:pubsub.options.channelRetryTimeout
+                                                                                                                jitterCoefficientGenerator:pubsub.options.testOptions.jitterCoefficientGenerator];
         _attachRetryState = [[ARTAttachRetryState alloc] initWithRetryDelayCalculator:attachRetryDelayCalculator
                                                                                logger:logger
                                                                      logMessagePrefix:[NSString stringWithFormat:@"RT: %p C:%p ", _realtime, self]];
@@ -334,9 +311,9 @@ NS_ASSUME_NONNULL_END
         [ARTPluginAPI registerSelf];
 
         // If the LiveObjects plugin has been provided, set up LiveObjects functionality for this channel.
-        id<APLiveObjectsInternalPluginProtocol> liveObjectsPlugin = realtime.options.liveObjectsPlugin;
+        id<APLiveObjectsInternalPluginProtocol> liveObjectsPlugin = pubsub.options.liveObjectsPlugin;
         if (liveObjectsPlugin) {
-            [liveObjectsPlugin nosync_prepareChannel:self client:realtime];
+            [liveObjectsPlugin nosync_prepareChannel:self client:pubsub];
         }
 #endif
     }
@@ -588,10 +565,8 @@ art_dispatch_sync(_queue, ^{
         if (onAttach && attachOnSubscribe) { // RTL7h
             onAttach([ARTErrorInfo createWithCode:ARTErrorChannelOperationFailedInvalidState message:@"attempted to subscribe while channel is in FAILED state."]);
         }
-        ARTLogWarn(self.logger, @"R:%p C:%p (%@) subscribe of '%@' has been ignored (attempted to subscribe while channel is in FAILED state)", self->_realtime, self, self.name, name == nil ? @"all" : name);
-        return;
-    }
-    if (self.shouldAttach && attachOnSubscribe) { // RTL7g
+        ARTLogWarn(self.logger, @"R:%p C:%p (%@) subscribe to '%@' event(s) while channel is in FAILED state; the listener receives messages once the channel is attached again", self->_realtime, self, self.name, name == nil ? @"all" : name);
+    } else if (self.shouldAttach && attachOnSubscribe) { // RTL7g
         [self _attach:onAttach];
     }
     listener = name == nil ? [self.messagesEventEmitter on:cb] : [self.messagesEventEmitter on:name callback:cb];
@@ -904,24 +879,17 @@ art_dispatch_sync(_queue, ^{
     int i = 0;
 
     ARTMessage *firstMessage = pm.messages.firstObject;
-    if (firstMessage.extras) {
-        NSError *extrasDecodeError;
-        NSDictionary *const extras = [firstMessage.extras toJSON:&extrasDecodeError];
-        if (extrasDecodeError) {
-            ARTLogError(self.logger, @"R:%p C:%p (%@) message extras %@ decode error: %@", _realtime, self, self.name, firstMessage.extras, extrasDecodeError);
+    // Typed lookups, so that malformed delta metadata is ignored rather than crashing
+    NSDictionary *const delta = [firstMessage.extras artTyped:[NSDictionary class] key:@"delta"];
+    NSString *const deltaFrom = [delta artString:@"from"];
+    if (deltaFrom && _lastPayloadMessageId && ![deltaFrom isEqualToString:_lastPayloadMessageId]) {
+        ARTErrorInfo *incompatibleIdError = [ARTErrorInfo createWithCode:ARTErrorUnableToDecodeMessage message:[NSString stringWithFormat:@"previous id '%@' is incompatible with message delta %@", _lastPayloadMessageId, firstMessage]];
+        ARTLogError(self.logger, @"R:%p C:%p (%@) %@", _realtime, self, self.name, incompatibleIdError.message);
+        for (int j = i + 1; j < pm.messages.count; j++) {
+            ARTLogVerbose(self.logger, @"R:%p C:%p (%@) message skipped %@", _realtime, self, self.name, pm.messages[j]);
         }
-        else {
-            NSString *const deltaFrom = [[extras objectForKey:@"delta"] objectForKey:@"from"];
-            if (deltaFrom && _lastPayloadMessageId && ![deltaFrom isEqualToString:_lastPayloadMessageId]) {
-                ARTErrorInfo *incompatibleIdError = [ARTErrorInfo createWithCode:ARTErrorUnableToDecodeMessage message:[NSString stringWithFormat:@"previous id '%@' is incompatible with message delta %@", _lastPayloadMessageId, firstMessage]];
-                ARTLogError(self.logger, @"R:%p C:%p (%@) %@", _realtime, self, self.name, incompatibleIdError.message);
-                for (int j = i + 1; j < pm.messages.count; j++) {
-                    ARTLogVerbose(self.logger, @"R:%p C:%p (%@) message skipped %@", _realtime, self, self.name, pm.messages[j]);
-                }
-                [self startDecodeFailureRecoveryWithErrorInfo:incompatibleIdError];
-                return;
-            }
-        }
+        [self startDecodeFailureRecoveryWithErrorInfo:incompatibleIdError];
+        return;
     }
 
     ARTDataEncoder *dataEncoder = self.dataEncoder;
@@ -946,7 +914,16 @@ art_dispatch_sync(_queue, ^{
         }
 
         if (!msg.timestamp) {
-            msg.timestamp = pm.timestamp;
+            msg.timestamp = pm.timestamp; // TM2f
+        }
+        // TM2s2: decoding set version.timestamp from the message's own timestamp, which may only now be set by TM2f. ARTMessageVersion is immutable, so this replaces it.
+        if (!msg.version.timestamp && msg.timestamp) {
+            ARTMessageVersion *version = msg.version;
+            msg.version = [[ARTMessageVersion alloc] initWithSerial:version.serial
+                                                          timestamp:msg.timestamp
+                                                           clientId:version.clientId
+                                                    descriptionText:version.descriptionText
+                                                           metadata:version.metadata];
         }
         if (!msg.id) {
             msg.id = [NSString stringWithFormat:@"%@:%d", pm.id, i];
@@ -1128,7 +1105,7 @@ art_dispatch_sync(_queue, ^{
             return;
         }
         // Set attach timer after the connection is active
-        [[self unlessStateChangesBefore:self.realtime.options.testOptions.realtimeRequestTimeout do:^{
+        [[self unlessStateChangesBefore:self.realtime.options.realtimeRequestTimeout do:^{
             // Timeout
             ARTErrorInfo *errorInfo = [ARTErrorInfo createWithCode:ARTStateAttachTimedOut message:@"attach timed out"];
             ARTChannelStateChangeParams *const params = [[ARTChannelStateChangeParams alloc] initWithState:ARTStateAttachTimedOut
@@ -1223,7 +1200,7 @@ art_dispatch_sync(_queue, ^{
 
     [self.realtime send:detachMessage sentCallback:nil ackCallback:nil];
 
-    [[self unlessStateChangesBefore:self.realtime.options.testOptions.realtimeRequestTimeout do:^{
+    [[self unlessStateChangesBefore:self.realtime.options.realtimeRequestTimeout do:^{
         if (!self.realtime) {
             return;
         }
@@ -1254,12 +1231,12 @@ art_dispatch_sync(_queue, ^{
 
 - (void)historyWithWrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
                          completion:(ARTPaginatedMessagesCallback)callback {
-    [self history:[[ARTRealtimeHistoryQuery alloc] init] wrapperSDKAgents:wrapperSDKAgents callback:callback error:nil];
+    [self history:[[ARTRealtimeHistoryQuery alloc] init] wrapperSDKAgents:wrapperSDKAgents callback:callback];
 }
 
-- (BOOL)history:(ARTRealtimeHistoryQuery *)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedMessagesCallback)callback error:(NSError **)errorPtr {
+- (void)history:(ARTRealtimeHistoryQuery *)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedMessagesCallback)callback {
     query.realtimeChannel = self;
-    return [_restChannel history:query wrapperSDKAgents:wrapperSDKAgents callback:callback error:errorPtr];
+    [_restChannel history:query wrapperSDKAgents:wrapperSDKAgents callback:callback];
 }
 
 - (void)startDecodeFailureRecoveryWithErrorInfo:(ARTErrorInfo *)error {

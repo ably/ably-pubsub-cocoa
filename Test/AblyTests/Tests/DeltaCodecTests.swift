@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 import AblyDeltaCodec
 import Nimble
 import XCTest
@@ -37,7 +37,7 @@ class DeltaCodecTests: XCTestCase {
         let client = AblyTests.newRealtime(options).client
         defer { client.dispose(); client.close() }
 
-        let channelOptions = ARTRealtimeChannelOptions()
+        let channelOptions = RealtimeChannelOptions()
         channelOptions.modes = [.subscribe, .publish]
         channelOptions.params = [
             "delta": "vcdiff",
@@ -56,7 +56,7 @@ class DeltaCodecTests: XCTestCase {
             fail("TestProxyTransport is not be assigned"); return
         }
 
-        var receivedMessages: [ARTMessage] = []
+        var receivedMessages: [Message] = []
         channel.subscribe { message in
             receivedMessages.append(message)
         }
@@ -140,7 +140,7 @@ class DeltaCodecTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
         let client = AblyTests.newRealtime(options).client
         defer { client.dispose(); client.close() }
-        let channelOptions = ARTRealtimeChannelOptions()
+        let channelOptions = RealtimeChannelOptions()
         channelOptions.params = ["delta": "vcdiff"]
         let channel = client.channels.get(test.uniqueChannelName(), options: channelOptions)
 
@@ -164,13 +164,13 @@ class DeltaCodecTests: XCTestCase {
                         "format": "vcdiff",
                         "from": "foo:1:0",
                     ],
-                ] as NSDictionary
+                ]
                 transport.setBeforeIncomingMessageModifier(nil)
             }
             return protocolMessage
         }
 
-        var receivedMessages: [ARTMessage] = []
+        var receivedMessages: [Message] = []
         channel.subscribe { message in
             receivedMessages.append(message)
         }
@@ -183,7 +183,7 @@ class DeltaCodecTests: XCTestCase {
             let partialDone = AblyTests.splitDone(2, done: done)
             channel.once(.attaching) { stateChange in
                 XCTAssertEqual(receivedMessages.count, 2) // third message and onward are discarded
-                XCTAssertEqual(stateChange.reason?.code, ARTErrorCode.unableToDecodeMessage.intValue)
+                XCTAssertEqual(stateChange.reason?.code, ErrorCode.unableToDecodeMessage.intValue)
                 partialDone()
             }
             channel.once(.attached) { _ in
@@ -200,7 +200,7 @@ class DeltaCodecTests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
         let client = AblyTests.newRealtime(options).client
         defer { client.dispose(); client.close() }
-        let channelOptions = ARTRealtimeChannelOptions()
+        let channelOptions = RealtimeChannelOptions()
         channelOptions.params = ["delta": "vcdiff"]
         let channel = client.channels.get(test.uniqueChannelName(), options: channelOptions)
 
@@ -225,7 +225,7 @@ class DeltaCodecTests: XCTestCase {
             return protocolMessage
         }
 
-        var receivedMessages: [ARTMessage] = []
+        var receivedMessages: [Message] = []
         channel.subscribe { message in
             receivedMessages.append(message)
         }
@@ -241,7 +241,7 @@ class DeltaCodecTests: XCTestCase {
                 guard let errorReason = stateChange.reason else {
                     fail("Reason should not be empty"); partialDone(); return
                 }
-                XCTAssertEqual(errorReason.code, ARTErrorCode.unableToDecodeMessage.intValue)
+                XCTAssertEqual(errorReason.code, ErrorCode.unableToDecodeMessage.intValue)
                 partialDone()
             }
             channel.once(.attached) { _ in
@@ -250,5 +250,50 @@ class DeltaCodecTests: XCTestCase {
         }
 
         expect(receivedMessages).toEventually(haveCount(testData.count))
+    }
+
+    // RTL20
+    func test__004__DeltaCodec__decoding__should_ignore_delta_metadata_that_is_not_an_object() throws {
+        let test = Test()
+        let options = try AblyTests.commonAppSetup(for: test)
+        let client = AblyTests.newRealtime(options).client
+        defer { client.dispose(); client.close() }
+        let channelOptions = RealtimeChannelOptions()
+        channelOptions.params = ["delta": "vcdiff"]
+        let channel = client.channels.get(test.uniqueChannelName(), options: channelOptions)
+
+        waitUntil(timeout: testTimeout) { done in
+            channel.attach { error in
+                XCTAssertNil(error)
+                done()
+            }
+        }
+
+        guard let transport = client.internal.transport as? TestProxyTransport else {
+            fail("TestProxyTransport is not be assigned"); return
+        }
+
+        transport.setBeforeIncomingMessageModifier { protocolMessage in
+            if protocolMessage.action == .message,
+               let thirdMessage = protocolMessage.messages?.filter({ $0.name == "2" }).first
+            {
+                thirdMessage.extras = ["delta": "invalid"]
+                transport.setBeforeIncomingMessageModifier(nil)
+            }
+            return protocolMessage
+        }
+
+        var receivedMessages: [Message] = []
+        channel.subscribe { message in
+            receivedMessages.append(message)
+        }
+
+        for (i, data) in testData.enumerated() {
+            channel.publish(String(i), data: data)
+        }
+
+        expect(receivedMessages).toEventually(haveCount(testData.count))
+        XCTAssertEqual(channel.state, .attached)
+        XCTAssertNil(channel.errorReason)
     }
 }

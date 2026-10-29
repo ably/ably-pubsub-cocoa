@@ -1,11 +1,11 @@
 import XCTest
 
-import Ably.ARTDefault // System under Test
+import AblyPubSubDevice.ARTDefault // System under Test
 
 class ARTDefaultTests: XCTestCase {
 
     func testVersions() {
-        XCTAssertEqual(ARTDefault.apiVersion(), "6")
-        XCTAssertEqual(ARTDefault.libraryVersion(), "1.4.1")
+        XCTAssertEqual(Default.apiVersion(), "6")
+        XCTAssertEqual(Default.libraryVersion(), "2.0.0")
     }
 }

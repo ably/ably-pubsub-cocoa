@@ -1,6 +1,6 @@
-#import <Ably/ARTChannels.h>
+#import <AblyPubSubDevice/ARTChannels.h>
 
-@class ARTRestChannel;
+@class ARTHttpChannel;
 @class ARTChannelOptions;
 
 NS_ASSUME_NONNULL_BEGIN

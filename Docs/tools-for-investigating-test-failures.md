@@ -13,14 +13,14 @@ You should probably use the [branch filter](https://test-observability.herokuapp
 
 ### Finding out more about the reason for a crashed test
 
-As of [`5cc6f06`](https://github.com/ably/ably-cocoa/commit/5cc6f067f567ad77fafbdfd6f8999e1dd05f8c7a), each test run will also upload the crash reports for any crashes that occurred during that run. These crash reports can be viewed on the failure details page; [here](https://test-observability.herokuapp.com/repos/ably/ably-cocoa/failures/c3a3db1c-6c7c-4e46-b8ab-a344a0b70ee0) is an example.
+As of [`5cc6f06`](https://github.com/ably/ably-pubsub-cocoa/commit/5cc6f067f567ad77fafbdfd6f8999e1dd05f8c7a), each test run will also upload the crash reports for any crashes that occurred during that run. These crash reports can be viewed on the failure details page; [here](https://test-observability.herokuapp.com/repos/ably/ably-cocoa/failures/c3a3db1c-6c7c-4e46-b8ab-a344a0b70ee0) is an example.
 
 ## Add further diagnostic information to the test suite
 
 If the existing logs don't give you much information about what's causing a failure, or if you want to investigate some hypothesis, you might want to:
 
 - add further log statements to the test suite or SDK
-- increase the logging level of the SDK for a particular test case - you can do this, for example, by passing the `debug: true` parameter to [`AblyTests.commonAppSetup`](../Test/AblyTests/Test%20Utilities/TestUtilities.swift#L176) which will turn on verbose logging in the created `ARTClientOptions`
+- increase the logging level of the SDK for a particular test case - you can do this, for example, by passing the `debug: true` parameter to [`AblyTests.commonAppSetup`](../Test/AblyTests/Test%20Utilities/TestUtilities.swift#L176) which will turn on verbose logging in the created `ClientOptions`
     - It's worth mentioning that increasing the log level seems to interfere with some tests – I found out that [turning on verbose logging for the entire test suite](https://test-observability.herokuapp.com/repos/ably/ably-cocoa/uploads?branches%5B%5D=1279-run-in-loop-with-extra-logging&createdBefore=&createdAfter=&failureMessage=) seemed to introduce test failures I'd not seen before.
 - try running a particular test case in isolation by disabling all other tests
 
@@ -28,10 +28,10 @@ You can then [run the tests in a loop](#running-the-tests-in-a-loop) on your fea
 
 ## Running the tests in a loop
 
-We have a branch [`1279-run-tests-in-loop`](https://github.com/ably/ably-cocoa/tree/1279-run-tests-in-loop), which has been modified so that:
+We have a branch [`1279-run-tests-in-loop`](https://github.com/ably/ably-pubsub-cocoa/tree/1279-run-tests-in-loop), which has been modified so that:
 
 - only the iOS CI job runs
-- the ably-cocoa test suite [runs continuously in a loop](https://github.com/ably/ably-cocoa/blob/1279-run-tests-in-loop/Scripts/continuously-run-tests-and-upload-results.sh) — it will stop itself after approximately 5hr 45min, to stop it from being killed by GitHub after 6 hours
+- the ably-cocoa test suite [runs continuously in a loop](https://github.com/ably/ably-pubsub-cocoa/blob/1279-run-tests-in-loop/Scripts/continuously-run-tests-and-upload-results.sh) — it will stop itself after approximately 5hr 45min, to stop it from being killed by GitHub after 6 hours
 - the full `xcodebuild` logs (including the test suite logs) are printed to the CI job log after each loop iteration
 - the test results are uploaded to the test observability server after each loop iteration
 
@@ -44,11 +44,11 @@ You can then use the [branch filter](https://test-observability.herokuapp.com/re
 
 ### Running for a long time or in parallel
 
-If you'd like to run the tests for more than 6 hours, or would to perform multiple test runs in parallel, you can use the script [`Scripts/set-ci-length-and-parallelism.sh`](https://github.com/ably/ably-cocoa/blob/1279-run-tests-in-loop/Scripts/set-ci-length-and-parallelism.sh). This script will modify / create extra GitHub workflow YAML files to allow you to increase the number of workflows and jobs per workflow. See the usage instructions in the script.
+If you'd like to run the tests for more than 6 hours, or would to perform multiple test runs in parallel, you can use the script [`Scripts/set-ci-length-and-parallelism.sh`](https://github.com/ably/ably-pubsub-cocoa/blob/1279-run-tests-in-loop/Scripts/set-ci-length-and-parallelism.sh). This script will modify / create extra GitHub workflow YAML files to allow you to increase the number of workflows and jobs per workflow. See the usage instructions in the script.
 
 ### Downloading all of the `xcodebuild` logs for a branch
 
-The aforementioned branch `1279-run-tests-in-loop` has a script, [`fetch-test-logs.sh`](https://github.com/ably/ably-cocoa/blob/1279-run-tests-in-loop/Scripts/fetch-test-logs.sh), which allows you to fetch the `xcodebuild` logs for one or more observability server uploads.
+The aforementioned branch `1279-run-tests-in-loop` has a script, [`fetch-test-logs.sh`](https://github.com/ably/ably-pubsub-cocoa/blob/1279-run-tests-in-loop/Scripts/fetch-test-logs.sh), which allows you to fetch the `xcodebuild` logs for one or more observability server uploads.
 
 The best source of documentation is the script itself, but to give an overview, you can either:
 

@@ -6,9 +6,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- Provides parameters for a request to perform an operation that may cause an `ARTRealtimeInternal` instance to emit a connection state change.
+ Provides parameters for a request to perform an operation that may cause an `ARTPubSubClientInternal` instance to emit a connection state change.
 
- `ARTRealtimeInternal` will incorporate this data into the `ARTConnectionStateChange` object that it emits as a result of the connection state change.
+ `ARTPubSubClientInternal` will incorporate this data into the `ARTConnectionStateChange` object that it emits as a result of the connection state change.
  */
 NS_SWIFT_NAME(ConnectionStateChangeParams)
 @interface ARTConnectionStateChangeParams: NSObject

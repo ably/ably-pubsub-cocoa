@@ -5,7 +5,7 @@
  */
 
 #import <XCTest/XCTest.h>
-#import <Ably/Ably.h>
+#import <AblyPubSubDevice/AblyPubSubDevice.h>
 
 class AblyVersionTestWrapper {
 

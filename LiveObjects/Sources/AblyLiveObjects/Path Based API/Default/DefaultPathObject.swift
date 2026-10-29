@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 import Foundation
 
 /// Default implementation of ``PathObject``, the untyped node in the path-addressed view of the
@@ -21,7 +21,6 @@ import Foundation
 /// `@unchecked Sendable`: a non-`final` base class cannot get a checked `Sendable` conformance, but
 /// every stored property here is an immutable `let` of a `Sendable` type, and the typed subclasses
 /// add no stored state — so the conformance is sound.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal class DefaultPathObject: PathObject, @unchecked Sendable {
     /// The channel's realtime-objects engine. Supplies the objects pool for resolution and backs the
     /// node accessors' pool-delegate parameter and the write path.
@@ -52,7 +51,7 @@ internal class DefaultPathObject: PathObject, @unchecked Sendable {
 
     // MARK: - PathObject
 
-    internal func instance() throws(ARTErrorInfo) -> Instance? {
+    internal func instance() throws(ErrorInfo) -> Instance? {
         try ChannelConfigGuards.throwIfInvalidAccessApiConfiguration(coreSDK: coreSDK, internalQueue: internalQueue) // RTPO8a
         // RTPO8e — unresolved path yields no instance.
         guard let resolved = try resolveValueAtCurrentPath() else {
@@ -62,7 +61,7 @@ internal class DefaultPathObject: PathObject, @unchecked Sendable {
         return Instance.from(internalValue: resolved, coreSDK: coreSDK, realtimeObjects: channelObject, internalQueue: internalQueue)
     }
 
-    internal func compactJson() throws(ARTErrorInfo) -> JSONValue? {
+    internal func compactJson() throws(ErrorInfo) -> JSONValue? {
         // Single access-guard site: `instance()` runs the RTPO14a (RTO25) preconditions — including the
         // RTO25a `object_subscribe` mode check that the delegated instance layer does not re-run — and
         // resolves the path (RTPO3c1 -> nil). RTPO14b recursive compaction (cycle markers, base64
@@ -70,13 +69,13 @@ internal class DefaultPathObject: PathObject, @unchecked Sendable {
         try instance()?.compactJson()
     }
 
-    internal func exists() throws(ARTErrorInfo) -> Bool {
+    internal func exists() throws(ErrorInfo) -> Bool {
         try ChannelConfigGuards.throwIfInvalidAccessApiConfiguration(coreSDK: coreSDK, internalQueue: internalQueue)
         // RTTS4a — a value exists iff the path resolves.
         return try resolveValueAtCurrentPath() != nil
     }
 
-    internal func type() throws(ARTErrorInfo) -> ValueType? {
+    internal func type() throws(ErrorInfo) -> ValueType? {
         try ChannelConfigGuards.throwIfInvalidAccessApiConfiguration(coreSDK: coreSDK, internalQueue: internalQueue)
         // RTTS4b3 — nil when nothing resolves at the path.
         guard let resolved = try resolveValueAtCurrentPath() else {
@@ -101,7 +100,7 @@ internal class DefaultPathObject: PathObject, @unchecked Sendable {
     }
 
     @discardableResult
-    internal func subscribe(options: PathObjectSubscriptionOptions?, listener: @escaping PathObjectSubscriptionCallback) throws(ARTErrorInfo) -> any Subscription {
+    internal func subscribe(options: PathObjectSubscriptionOptions?, listener: @escaping PathObjectSubscriptionCallback) throws(ErrorInfo) -> any Subscription {
         try ChannelConfigGuards.throwIfInvalidAccessApiConfiguration(coreSDK: coreSDK, internalQueue: internalQueue) // RTPO19b
         // RTPO19c1a — the shipped `PathObjectSubscriptionOptions.init(depth:)` is non-throwing
         // and frozen, so `depth <= 0` (40003) is validated here rather than in the initializer.
@@ -141,7 +140,7 @@ internal class DefaultPathObject: PathObject, @unchecked Sendable {
     ///
     /// The root is always present and always a map (RTO3b); the pool never replaces the root instance
     /// (RTO4b2, RTO5c2a), so looking it up per call is equivalent to holding the RTPO2b root reference.
-    internal func resolveValueAtCurrentPath() throws(ARTErrorInfo) -> InternalLiveMapValue? {
+    internal func resolveValueAtCurrentPath() throws(ErrorInfo) -> InternalLiveMapValue? {
         // Read the root map node on the internal queue (the `nosync_` pool accessor must run there).
         let rootNode = internalQueue.ably_syncNoDeadlock { channelObject.nosync_objectsPool.root }
         var current: InternalLiveMapValue = .liveMap(rootNode)

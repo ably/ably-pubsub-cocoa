@@ -2,6 +2,8 @@
 #import "ARTJsonEncoder.h"
 #import "ARTJsonLikeEncoder.h"
 #import "ARTAnnotation+Private.h"
+#import "ARTProtocolMessage.h"
+#import "ARTTimeProvider.h"
 #import "ARTNSArray+ARTFunctional.h"
 #import "ARTInternalLog.h"
 
@@ -18,7 +20,7 @@
                     serial:(NSString *)serial
              messageSerial:(NSString *)messageSerial
                       type:(NSString *)type
-                    extras:(id<ARTJsonCompatible>)extras {
+                    extras:(NSDictionary<NSString *, id> *)extras {
     if (self = [self init]) {
         _id = annotationId;
         _action = action;
@@ -85,53 +87,27 @@
     return ret;
 }
 
-- (id)encodeDataWithEncoder:(ARTDataEncoder*)encoder error:(NSError **)error {
-    ARTDataEncoderOutput *encoded = [encoder encode:self.data];
-    if (encoded.errorInfo && error) {
-        *error = [NSError errorWithDomain:ARTAblyErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey: @"encoding failed",
-                                                                               NSLocalizedFailureReasonErrorKey: encoded.errorInfo.message}];
-    }
-    id ret = [self copy];
-    ((ARTAnnotation *)ret)->_data = encoded.data;
-    ((ARTAnnotation *)ret)->_encoding = [NSString artAddEncoding:encoded.encoding toString:self.encoding];
-    return ret;
-}
-
-- (NSInteger)annotationSize {
-    // TO3l8*
-    NSInteger finalResult = 0;
-    finalResult += [self.name lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-    finalResult += [[self.extras toJSONString] lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-    finalResult += [self.clientId lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-    if (self.data) {
-        if ([self.data isKindOfClass:[NSString class]]) {
-            finalResult += [self.data lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-        }
-        else if ([self.data isKindOfClass:[NSData class]]) {
-            finalResult += [self.data length];
-        }
-        else {
-            NSError *error = nil;
-            NSJSONWritingOptions options;
-            if (@available(macOS 10.15, iOS 13.0, tvOS 13.0, *)) {
-                options = NSJSONWritingWithoutEscapingSlashes; // Copied from `ARTBaseMessage.messageSize`
-            }
-            else {
-                options = 0; //no specific format
-            }
-            NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self.data
-                                                               options:options
-                                                                 error:&error];
-            if (!error) {
-                finalResult += [jsonData length];
-            }
-        }
-    }
-    return finalResult;
-}
-
 - (BOOL)isIdEmpty {
     return self.id == nil || [self.id isEqualToString:@""];
+}
+
+- (ARTAnnotation *)annotationByPopulatingFieldsFromProtocolMessage:(ARTProtocolMessage *)protocolMessage index:(NSUInteger)index timeProvider:(id<ARTTimeProvider>)timeProvider {
+    const BOOL populatesId = self.isIdEmpty && protocolMessage.id != nil;
+    // The header declares `timestamp` nonnull, but an annotation received without one decodes to nil.
+    const BOOL populatesTimestamp = self.timestamp == nil;
+    if (!populatesId && !populatesTimestamp) {
+        return self;
+    }
+
+    ARTAnnotation *annotation = [self copy];
+    if (populatesId) {
+        annotation->_id = [NSString stringWithFormat:@"%@:%lu", protocolMessage.id, (unsigned long)index];
+    }
+    if (populatesTimestamp) {
+        // The wall-clock fallback is specific to ably-cocoa. TAN2h makes `timestamp` non-optional, so the header declares it nonnull, and Swift traps when it reads a nil one. Other SDKs have no such fallback: ably-js leaves the timestamp unset and ably-java leaves it 0.
+        annotation->_timestamp = protocolMessage.timestamp ?: [timeProvider wallClockNow];
+    }
+    return annotation;
 }
 
 @end

@@ -1,13 +1,12 @@
-import Ably
+import AblyPubSubDevice
 
 /// The default implementation of the public ``RealtimeObject`` entry point, backing
-/// ``ARTRealtimeChannel/object``.
+/// ``RealtimeChannel/object``.
 ///
 /// This is largely a wrapper around ``InternalDefaultRealtimeObjects``. The `Public` prefix
 /// expresses the contrast with that internal type, per the documented memory-management policy (the
 /// public proxy holds a strong reference to the internal object, not vice versa); hence it lives
 /// alongside the other proxy objects in `Public/Public Proxy Objects`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal final class PublicDefaultRealtimeObject: RealtimeObject {
     internal let proxied: InternalDefaultRealtimeObjects // internal for AblyLiveObjectsTesting
 
@@ -24,7 +23,7 @@ internal final class PublicDefaultRealtimeObject: RealtimeObject {
 
     // MARK: - `RealtimeObject` protocol
 
-    internal func get() async throws(ARTErrorInfo) -> any LiveMapPathObject {
+    internal func get() async throws(ErrorInfo) -> any LiveMapPathObject {
         // RTO23a — object_subscribe mode guard.
         try ChannelConfigGuards.throwIfMissingObjectSubscribeMode(coreSDK: coreSDK, internalQueue: proxied.internalQueue)
         // RTO23e / RTL33 — ensure the channel is usable: RTL33a (already ATTACHED/SUSPENDED),

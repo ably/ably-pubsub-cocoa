@@ -1,7 +1,7 @@
 import _AblyPluginSupportPrivate
-import Ably
 @testable import AblyLiveObjects
 @testable import AblyLiveObjectsTesting
+import AblyPubSubDevice
 import Foundation
 import Testing
 
@@ -96,7 +96,7 @@ struct PublicRealtimeObjectTests {
     func getOnFailedChannelThrows() async throws {
         let (publicObject, _, _, _) = Self.makePublicObject(channelState: .failed)
 
-        await #expect(throws: ARTErrorInfo.self) {
+        await #expect(throws: ErrorInfo.self) {
             _ = try await publicObject.get()
         }
     }
@@ -150,7 +150,7 @@ struct PublicRealtimeObjectTests {
     func getPropagatesImplicitAttachFailure() async throws {
         let (publicObject, _, coreSDK, _) = Self.makePublicObject(channelState: .detached)
 
-        let attachError = ARTErrorInfo.create(withCode: 90000, message: "attach failed")
+        let attachError = ErrorInfo.create(withCode: 90000, message: "attach failed")
         coreSDK.setAttachHandler { callback in
             callback(attachError)
         }
@@ -207,7 +207,7 @@ struct PublicRealtimeObjectTests {
             _ = try await getTask
             Issue.record("Expected the in-flight get() to be failed by the channel release")
         } catch {
-            let artError = try #require(error as? ARTErrorInfo)
+            let artError = try #require(error as? ErrorInfo)
             #expect(artError.code == 92008)
             // The release-specific cause distinguishes this from a plain dispose()/deinit teardown.
             let cause = try #require(artError.cause)

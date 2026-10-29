@@ -1,5 +1,5 @@
 #import "ARTBaseMessage+Private.h"
-#import "ARTStatus.h"
+#import "ARTErrorInfo.h"
 
 @implementation ARTBaseMessage
 
@@ -82,15 +82,8 @@
         }
         else {
             NSError *error = nil;
-            NSJSONWritingOptions options;
-            if (@available(macOS 10.15, iOS 13.0, tvOS 13.0, *)) {
-                options = NSJSONWritingWithoutEscapingSlashes;
-            }
-            else {
-                options = 0; //no specific format
-            }
             NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self.data
-                                                               options:options
+                                                               options:NSJSONWritingWithoutEscapingSlashes
                                                                  error:&error];
             if (!error) {
                 // TM6b: object/array data is measured as its string length (the number of UTF-16

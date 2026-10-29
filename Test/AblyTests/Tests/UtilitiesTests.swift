@@ -1,5 +1,5 @@
-import Ably
-import Ably.Private
+import AblyPubSubDevice
+import AblyPubSubDevice.Private
 import AblyTestingObjC
 import Foundation
 import Nimble
@@ -14,8 +14,8 @@ private var receivedBar: Int?
 private var receivedBarOnce: Int?
 private var receivedAll: Int?
 private var receivedAllOnce: Int?
-private weak var listenerFoo1: ARTEventListener?
-private weak var listenerAll: ARTEventListener?
+private weak var listenerFoo1: EventListener?
+private weak var listenerAll: EventListener?
 private let data = ["test": "test"]
 private let extras = ["push": ["key": "value"]]
 private let clientId = "clientId"
@@ -70,11 +70,11 @@ class UtilitiesTests: XCTestCase {
         let pm = ARTProtocolMessage()
         pm.action = .message
         pm.channel = "foo"
-        pm.messages = [ARTMessage(name: "status", data: NSDate(), clientId: "user")]
+        pm.messages = [Message(name: "status", data: NSDate(), clientId: "user")]
         var result: Data?
         expect { result = try jsonEncoder.encode(pm) }.to(throwError { error in
             let e = error as NSError
-            XCTAssertEqual(e.domain, ARTAblyErrorDomain)
+            XCTAssertEqual(e.domain, ablyErrorDomain)
             XCTAssertEqual(e.code, Int(ARTClientCodeError.invalidType.rawValue))
             expect(e.localizedDescription).to(contain("Invalid type in JSON write"))
         })
@@ -110,7 +110,7 @@ class UtilitiesTests: XCTestCase {
         beforeEach__Utilities__JSON_Encoder()
 
         let options = try AblyTests.commonAppSetup(for: test)
-        let realtime = ARTRealtime(options: options)
+        let realtime = PubSubClient(options: options)
         defer { realtime.close() }
         let channel = realtime.channels.get(test.uniqueChannelName())
         waitUntil(timeout: testTimeout) { done in
@@ -124,7 +124,7 @@ class UtilitiesTests: XCTestCase {
             }
         }
         waitUntil(timeout: testTimeout) { done in
-            channel.publish([ARTMessage(name: nil, data: NSDate()), ARTMessage(name: nil, data: NSDate())]) { error in
+            channel.publish([Message(name: nil, data: NSDate()), Message(name: nil, data: NSDate())]) { error in
                 guard let error = error else {
                     fail("Error shouldn't be nil"); done(); return
                 }
@@ -140,7 +140,7 @@ class UtilitiesTests: XCTestCase {
         beforeEach__Utilities__JSON_Encoder()
 
         let options = try AblyTests.commonAppSetup(for: test)
-        let realtime = ARTRealtime(options: options)
+        let realtime = PubSubClient(options: options)
         defer { realtime.close() }
         let channel = realtime.channels.get(test.uniqueChannelName())
 
@@ -180,7 +180,7 @@ class UtilitiesTests: XCTestCase {
         beforeEach__Utilities__JSON_Encoder()
 
         let options = try AblyTests.commonAppSetup(for: test)
-        let rest = ARTRest(options: options)
+        let rest = HttpClient(options: options)
         let channel = rest.channels.get(test.uniqueChannelName())
         waitUntil(timeout: testTimeout) { done in
             channel.publish("test", data: NSDate()) { error in
@@ -193,7 +193,7 @@ class UtilitiesTests: XCTestCase {
             }
         }
         waitUntil(timeout: testTimeout) { done in
-            channel.publish([ARTMessage(name: nil, data: NSDate()), ARTMessage(name: nil, data: NSDate())]) { error in
+            channel.publish([Message(name: nil, data: NSDate()), Message(name: nil, data: NSDate())]) { error in
                 guard let error = error else {
                     fail("Error shouldn't be nil"); done(); return
                 }
@@ -209,7 +209,7 @@ class UtilitiesTests: XCTestCase {
         beforeEach__Utilities__JSON_Encoder()
 
         let options = try AblyTests.commonAppSetup(for: test)
-        let rest = ARTRest(options: options)
+        let rest = HttpClient(options: options)
         let testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
         rest.internal.httpExecutor = testHTTPExecutor
         let channel = rest.channels.get(test.uniqueChannelName())
@@ -236,7 +236,7 @@ class UtilitiesTests: XCTestCase {
         beforeEach__Utilities__JSON_Encoder()
 
         let options = try AblyTests.commonAppSetup(for: test)
-        let rest = ARTRest(options: options)
+        let rest = HttpClient(options: options)
         let testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
         rest.internal.httpExecutor = testHTTPExecutor
 
@@ -252,8 +252,8 @@ class UtilitiesTests: XCTestCase {
         let request = URLRequest(url: URL(string: "https://www.example.com")!)
         waitUntil(timeout: testTimeout) { done in
             rest.internal.execute(request, wrapperSDKAgents:nil, completion: { response, _, error in
-                guard let error = error as? ARTErrorInfo else {
-                    fail("Should be ARTErrorInfo"); done(); return
+                guard let error = error as? ErrorInfo else {
+                    fail("Should be ErrorInfo"); done(); return
                 }
                 XCTAssertTrue(error.code == 40400)
                 XCTAssertTrue(error.statusCode == 404)
@@ -268,7 +268,7 @@ class UtilitiesTests: XCTestCase {
         beforeEach__Utilities__JSON_Encoder()
 
         let options = try AblyTests.commonAppSetup(for: test)
-        let rest = ARTRest(options: options)
+        let rest = HttpClient(options: options)
         let testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
         rest.internal.httpExecutor = testHTTPExecutor
 
@@ -287,8 +287,8 @@ class UtilitiesTests: XCTestCase {
         let request = URLRequest(url: URL(string: "https://www.example.com")!)
         waitUntil(timeout: testTimeout) { done in
             rest.internal.execute(request, wrapperSDKAgents:nil, completion: { response, _, error in
-                guard let error = error as? ARTErrorInfo else {
-                    fail("Should be ARTErrorInfo"); done(); return
+                guard let error = error as? ErrorInfo else {
+                    fail("Should be ErrorInfo"); done(); return
                 }
                 XCTAssertTrue(error.code == 40400)
                 XCTAssertTrue(error.statusCode == 404)
@@ -455,7 +455,7 @@ class UtilitiesTests: XCTestCase {
     func test__018__Utilities__EventEmitter__the_timed_method__should_not_call_onTimeout_if_the_deadline_isn_t_reached() {
         beforeEach__Utilities__EventEmitter()
 
-        weak var timer = listenerFoo1!.setTimer(0.2, onTimeout: {
+        weak let timer = listenerFoo1!.setTimer(0.2, onTimeout: {
             fail("onTimeout callback shouldn't have been called")
         })
         waitUntil(timeout: DispatchTimeInterval.seconds(1)) { done in
@@ -508,7 +508,7 @@ class UtilitiesTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.logLevel = .verbose
-        let realtime = ARTRealtime(options: options)
+        let realtime = PubSubClient(options: options)
         defer { realtime.close() }
         let channel = realtime.channels.get(test.uniqueChannelName())
 
@@ -527,22 +527,22 @@ class UtilitiesTests: XCTestCase {
     }
 
     func test__022__Utilities__maxMessageSize__calculates_maxMessageSize_of_a_Message_with_name_and_data() {
-        let message = ARTMessage(name: "this is name", data: data)
+        let message = Message(name: "this is name", data: data)
         let expectedSize = "{\"test\":\"test\"}".count + message.name!.count
         XCTAssertEqual(message.messageSize(), expectedSize)
     }
 
     func test__023__Utilities__maxMessageSize__calculates_maxMessageSize_of_a_Message_with_name__data_and_extras() {
-        let message = ARTMessage(name: "this is name", data: data)
-        message.extras = extras as ARTJsonCompatible
+        let message = Message(name: "this is name", data: data)
+        message.extras = extras
         let expectedSize = "{\"test\":\"test\"}".count + "{\"push\":{\"key\":\"value\"}}".count + message.name!.count
         XCTAssertEqual(message.messageSize(), expectedSize)
     }
 
     func test__024__Utilities__maxMessageSize__calculates_maxMessageSize_of_a_Message_with_name__data__clientId_and_extras() {
-        let message = ARTMessage(name: "this is name", data: data)
+        let message = Message(name: "this is name", data: data)
         message.clientId = clientId
-        message.extras = extras as ARTJsonCompatible
+        message.extras = extras
         let expectedSize = "{\"test\":\"test\"}".count + "{\"push\":{\"key\":\"value\"}}".count + clientId.count + message.name!.count
         XCTAssertEqual(message.messageSize(), expectedSize)
     }
@@ -554,17 +554,17 @@ class UtilitiesTests: XCTestCase {
     // 😊 is 4 UTF-8 bytes / 2 UTF-16 code units.
     func test__027__Utilities__maxMessageSize__measures_unicode_fields_per_documented_accounting() {
         // name (7) + clientId (7) + string data (7), all UTF-8 byte lengths.
-        let message = ARTMessage(name: "你😊", data: "你😊")
+        let message = Message(name: "你😊", data: "你😊")
         message.clientId = "你😊"
         XCTAssertEqual(message.messageSize(), 21)
 
         // extras: {"k":"你😊"} is 11 UTF-16 code units (versus 15 UTF-8 bytes).
-        let messageWithExtras = ARTMessage(name: nil, data: "")
-        messageWithExtras.extras = ["k": "你😊"] as ARTJsonCompatible
+        let messageWithExtras = Message(name: nil, data: "")
+        messageWithExtras.extras = ["k": "你😊"]
         XCTAssertEqual(messageWithExtras.messageSize(), 11)
 
         // object data: {"k":"你😊"} JSON-stringified is 11 UTF-16 code units.
-        let messageWithJSONData = ARTMessage(name: nil, data: ["k": "你😊"])
+        let messageWithJSONData = Message(name: nil, data: ["k": "你😊"])
         XCTAssertEqual(messageWithJSONData.messageSize(), 11)
     }
 
@@ -589,9 +589,9 @@ class UtilitiesTests: XCTestCase {
         var messages = try XCTUnwrap(pm.messages)
         XCTAssert(messages[0].action == .create)
         XCTAssert(messages[0].serial == "123")
-        XCTAssert(messages[0].version?.serial == "123")
+        XCTAssert(messages[0].version.serial == "123")
         XCTAssert(messages[0].timestamp == Date(timeIntervalSince1970: 12.345))
-        XCTAssert(messages[0].version?.timestamp == Date(timeIntervalSince1970: 12.345))
+        XCTAssert(messages[0].version.timestamp == Date(timeIntervalSince1970: 12.345))
 
         // for update
         json = """
@@ -610,9 +610,9 @@ class UtilitiesTests: XCTestCase {
         messages = try XCTUnwrap(pm.messages)
         XCTAssert(messages[0].action == .update)
         XCTAssert(messages[0].serial == "123")
-        XCTAssert(messages[0].version?.serial == "123")
+        XCTAssert(messages[0].version.serial == "123")
         XCTAssert(messages[0].timestamp == Date(timeIntervalSince1970: 12.345))
-        XCTAssert(messages[0].version?.timestamp == Date(timeIntervalSince1970: 12.345))
+        XCTAssert(messages[0].version.timestamp == Date(timeIntervalSince1970: 12.345))
 
         // partial
         json = """
@@ -636,11 +636,11 @@ class UtilitiesTests: XCTestCase {
         messages = try XCTUnwrap(pm.messages)
         XCTAssert(messages[0].action == .create)
         XCTAssert(messages[0].serial == "123")
-        XCTAssert(messages[0].version?.serial == "124")
-        XCTAssert(messages[0].version?.clientId == "testClient")
-        XCTAssert(messages[0].version?.descriptionText == "test operation")
+        XCTAssert(messages[0].version.serial == "124")
+        XCTAssert(messages[0].version.clientId == "testClient")
+        XCTAssert(messages[0].version.descriptionText == "test operation")
         XCTAssert(messages[0].timestamp == Date(timeIntervalSince1970: 12.345))
-        XCTAssert(messages[0].version?.timestamp == Date(timeIntervalSince1970: 12.345))
+        XCTAssert(messages[0].version.timestamp == Date(timeIntervalSince1970: 12.345))
     }
 
     /// - TM8a
@@ -665,8 +665,7 @@ class UtilitiesTests: XCTestCase {
         let message1 = messages1[0]
 
         // Verify annotations are always populated
-        XCTAssertNotNil(message1.annotations, "message.annotations should always be populated")
-        XCTAssertNotNil(message1.annotations?.summary, "message.annotations.summary should always be populated")
+        XCTAssertNotNil(message1.annotations.summary, "message.annotations.summary should always be populated")
 
         // Test with empty annotations object
         let json2 = """
@@ -686,8 +685,7 @@ class UtilitiesTests: XCTestCase {
         let message2 = messages2[0]
 
         // Verify annotations are always populated even with empty annotations object
-        XCTAssertNotNil(message2.annotations, "message.annotations should always be populated")
-        XCTAssertNotNil(message2.annotations?.summary, "message.annotations.summary should always be populated when not provided")
+        XCTAssertNotNil(message2.annotations.summary, "message.annotations.summary should always be populated when not provided")
 
         // Test with annotations containing summary
         let json3 = """
@@ -709,9 +707,8 @@ class UtilitiesTests: XCTestCase {
         let message3 = messages3[0]
 
         // Verify annotations and summary are properly decoded
-        XCTAssertNotNil(message3.annotations, "message.annotations should be populated")
-        XCTAssertNotNil(message3.annotations?.summary, "message.annotations.summary should be populated")
-        if let summary = message3.annotations?.summary as? [String: Any] {
+        XCTAssertNotNil(message3.annotations.summary, "message.annotations.summary should be populated")
+        if let summary = message3.annotations.summary {
             XCTAssertEqual(summary["count"] as? Int, 5)
             XCTAssertEqual(summary["type"] as? String, "test")
         } else {
@@ -746,21 +743,14 @@ class UtilitiesTests: XCTestCase {
         let message = messages[0]
 
         XCTAssert(message.action == .create)
-        XCTAssertNotNil(message.version)
         XCTAssert(message.serial == "123")
         XCTAssert(message.timestamp == Date(timeIntervalSince1970: 1234512.340))
-        XCTAssert(message.version?.serial == "124")
-        XCTAssert(message.version?.timestamp == Date(timeIntervalSince1970: 1234512.345))
-        XCTAssert(message.version?.clientId == "testClient")
-        XCTAssert(message.version?.descriptionText == "test operation")
-        XCTAssertNotNil(message.version?.metadata)
-        if let metadata = message.version?.metadata as? [String: Any] {
-            XCTAssertEqual(metadata["key"] as? String, "value")
-        } else {
-            XCTFail("metadata should be a dictionary with expected values")
-        }
-        XCTAssertNotNil(message.annotations)
-        XCTAssertNotNil(message.annotations?.summary)
+        XCTAssert(message.version.serial == "124")
+        XCTAssert(message.version.timestamp == Date(timeIntervalSince1970: 1234512.345))
+        XCTAssert(message.version.clientId == "testClient")
+        XCTAssert(message.version.descriptionText == "test operation")
+        XCTAssertEqual(message.version.metadata?["key"], "value")
+        XCTAssertNotNil(message.annotations.summary)
     }
 
     /// TM2s
@@ -770,24 +760,22 @@ class UtilitiesTests: XCTestCase {
         beforeEach__Utilities__JSON_Encoder()
 
         // Create a message with version and annotations
-        let message = ARTMessage()
+        let message = Message()
         message.action = .create
         message.serial = "123"
         message.timestamp = Date(timeIntervalSince1970: 1234512340)
 
         // Create version with all fields
-        let version = ARTMessageVersion()
-        version.serial = "124"
-        version.timestamp = Date(timeIntervalSince1970: 1234512345)
-        version.clientId = "testClient"
-        version.descriptionText = "test operation"
-        version.metadata = ["key": "value"]
-        message.version = version
+        message.version = MessageVersion(
+            serial: "124",
+            timestamp: Date(timeIntervalSince1970: 1234512345),
+            clientId: "testClient",
+            descriptionText: "test operation",
+            metadata: ["key": "value"]
+        )
 
         // Create annotations with summary
-        let annotations = ARTMessageAnnotations()
-        annotations.summary = ["count": 5, "type": "test"]
-        message.annotations = annotations
+        message.annotations = MessageAnnotations(summary: ["count": 5, "type": "test"])
 
         // Encode the message
         let encodedDict = jsonEncoder.message(toDictionary: message)
@@ -801,5 +789,110 @@ class UtilitiesTests: XCTestCase {
         XCTAssertEqual(encodedVersion["description"] as? String, "test operation")
         let encodedMetadata = encodedVersion["metadata"] as! [String: Any]
         XCTAssertEqual(encodedMetadata["key"] as? String, "value")
+    }
+
+    /// TM8a
+    func test__029_Utilities__message_summary_that_is_not_an_object_decodes_as_empty() throws {
+        beforeEach__Utilities__JSON_Encoder()
+        let json = """
+        {
+            "messages": [
+                { "action": 0, "serial": "1", "annotations": { "summary": null } },
+                { "action": 0, "serial": "2", "annotations": { "summary": "unexpected" } }
+            ]
+        }
+        """
+        let pm = try jsonEncoder.decodeProtocolMessage(json.data(using: .utf8)!)
+        let messages = try XCTUnwrap(pm.messages)
+
+        for message in messages {
+            let summary = try XCTUnwrap(message.annotations.summary)
+            XCTAssertTrue(summary.isEmpty)
+        }
+    }
+
+    func test__030_Utilities__message_version_metadata_keeps_only_string_values() throws {
+        beforeEach__Utilities__JSON_Encoder()
+        let json = """
+        {
+            "messages": [
+                {
+                    "action": 1,
+                    "serial": "123",
+                    "version": {
+                        "serial": "124",
+                        "metadata": { "reason": "typo", "count": 5, "nested": { "a": "b" } }
+                    }
+                }
+            ]
+        }
+        """
+        let pm = try jsonEncoder.decodeProtocolMessage(json.data(using: .utf8)!)
+        let message = try XCTUnwrap(pm.messages?.first)
+
+        XCTAssertEqual(message.version.metadata, ["reason": "typo"])
+    }
+
+    /// - TM2i
+    /// - TP3i
+    func test__031_Utilities__extras_that_are_not_an_object_decode_as_nil() throws {
+        beforeEach__Utilities__JSON_Encoder()
+        let json = """
+        {
+            "messages": [
+                { "extras": "not an object" },
+                { "extras": { "push": { "key": "value" } } }
+            ],
+            "presence": [
+                { "action": 2, "extras": ["not", "an", "object"] }
+            ]
+        }
+        """
+        let pm = try jsonEncoder.decodeProtocolMessage(json.data(using: .utf8)!)
+        let messages = try XCTUnwrap(pm.messages)
+
+        XCTAssertNil(messages[0].extras)
+        XCTAssertEqual(messages[1].extras as NSDictionary?, ["push": ["key": "value"]] as NSDictionary)
+        XCTAssertNil(try XCTUnwrap(pm.presence?.first).extras)
+    }
+
+    /// TM2s
+    /// TM2u
+    func test__032_Utilities__message_you_create_has_an_empty_version_and_annotations_that_are_not_encoded() throws {
+        beforeEach__Utilities__JSON_Encoder()
+
+        for message in [Message(), Message(name: "name", data: "data"), Message(name: "name", data: "data", clientId: "client")] {
+            XCTAssertNil(message.version.serial)
+            XCTAssertNil(message.version.timestamp)
+            XCTAssertNil(message.version.clientId)
+            XCTAssertNil(message.version.descriptionText)
+            XCTAssertNil(message.version.metadata)
+            XCTAssertNil(message.annotations.summary)
+
+            let encodedDict = jsonEncoder.message(toDictionary: message)
+            XCTAssertNil(encodedDict["version"])
+            XCTAssertNil(encodedDict["annotations"])
+        }
+    }
+
+    /// TM2c
+    func test__033_Utilities__message_connection_id_is_nil_when_there_is_none() throws {
+        beforeEach__Utilities__JSON_Encoder()
+
+        XCTAssertNil(Message(name: "name", data: "data").connectionId)
+
+        let json = """
+        {
+            "messages": [
+                { "action": 0, "serial": "1" },
+                { "action": 0, "serial": "2", "connectionId": "connection" }
+            ]
+        }
+        """
+        let pm = try jsonEncoder.decodeProtocolMessage(json.data(using: .utf8)!)
+        let messages = try XCTUnwrap(pm.messages)
+
+        XCTAssertNil(messages[0].connectionId)
+        XCTAssertEqual(messages[1].connectionId, "connection")
     }
 }

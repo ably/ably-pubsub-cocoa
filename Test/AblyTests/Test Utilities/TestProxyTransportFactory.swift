@@ -1,4 +1,4 @@
-import Ably.Private
+import AblyPubSubDevice.Private
 
 class TestProxyTransportFactory: RealtimeTransportFactory {
     // This value will be used by all TestProxyTransportFactory instances created by this factory (including those created before this property is updated).
@@ -9,7 +9,7 @@ class TestProxyTransportFactory: RealtimeTransportFactory {
 
     var transportCreatedEvent: ((ARTRealtimeTransport) -> Void)?
 
-    func transport(withRest rest: ARTRestInternal, options: ARTClientOptions, resumeKey: String?, logger: InternalLog) -> ARTRealtimeTransport {
+    func transport(withRest rest: ARTHttpClientInternal, options: ClientOptions, resumeKey: String?, logger: InternalLog) -> ARTRealtimeTransport {
         let testProxyTransport = TestProxyTransport(
             factory: self,
             rest: rest,

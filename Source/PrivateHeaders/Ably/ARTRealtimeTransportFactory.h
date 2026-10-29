@@ -1,6 +1,6 @@
 @import Foundation;
 
-@class ARTRestInternal;
+@class ARTHttpClientInternal;
 @class ARTClientOptions;
 @class ARTInternalLog;
 @protocol ARTRealtimeTransport;
@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(RealtimeTransportFactory)
 @protocol ARTRealtimeTransportFactory
 
-- (id<ARTRealtimeTransport>)transportWithRest:(ARTRestInternal *)rest
+- (id<ARTRealtimeTransport>)transportWithRest:(ARTHttpClientInternal *)rest
                                       options:(ARTClientOptions *)options
                                     resumeKey:(nullable NSString *)resumeKey
                                        logger:(ARTInternalLog *)logger;

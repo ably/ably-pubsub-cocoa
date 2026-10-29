@@ -1,6 +1,5 @@
 import Foundation
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension NSNumber {
     /// The `Double` closest to this number's value, which `doubleValue` does not always give.
     ///
@@ -25,7 +24,7 @@ internal extension NSNumber {
     /// text and let `Double(_: String)`, which is correctly rounded, do the conversion.
     ///
     /// This only makes a difference when the JSON protocol is in use, that is when
-    /// `ARTClientOptions.useBinaryProtocol` is `false` (it defaults to `true`). Under MessagePack a
+    /// `ClientOptions.useBinaryProtocol` is `false` (it defaults to `true`). Under MessagePack a
     /// number arrives as a float64 and is decoded into a plain `NSNumber` that already holds the
     /// closest `Double`, so nothing here changes the value; there is no decimal text to misread.
     ///

@@ -6,6 +6,7 @@ name: Docs Generation
 
 on:
   pull_request:
+  # Only main is listed. sdk-upload-action rejects a push to any other branch.
   push:
     branches:
       - main
@@ -26,9 +27,9 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Select Specific Xcode Version (16.4)
+      - name: Select Specific Xcode Version (26.2)
         run: |
-          sudo xcode-select -s /Applications/Xcode_16.4.app
+          sudo xcode-select -s /Applications/Xcode_26.2.app
           echo "Selected Xcode version:"
           xcodebuild -version
 
@@ -36,7 +37,6 @@ jobs:
         run: |
           make submodules
           bundle install
-          make update_carthage_dependencies_macos
 
       - name: Build Jazzy Documentation
         run: |
@@ -51,7 +51,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@67fbcbb121271f7775d2e7715933280b06314838 # v1.7.0
         with:
           aws-region: eu-west-2
-          role-to-assume: arn:aws:iam::${{ secrets.ABLY_AWS_ACCOUNT_ID_SDK }}:role/ably-sdk-builds-ably-cocoa
+          role-to-assume: arn:aws:iam::${{ secrets.ABLY_AWS_ACCOUNT_ID_SDK }}:role/ably-sdk-builds-ably-pubsub-cocoa
           role-session-name: "${{ github.run_id }}-${{ github.run_number }}"
 
       - name: Upload Jazzy Documentation

@@ -1,17 +1,17 @@
-import Ably
+import AblyPubSubDevice
 import Nimble
 import XCTest
 
 #if hasFeature(RetroactiveAttribute)
 // Swift isn't yet smart enough to do this automatically when bridging Objective-C APIs
-extension ARTRealtimeChannels: @retroactive Sequence {
+extension RealtimeChannels: @retroactive Sequence {
     public func makeIterator() -> NSFastEnumerationIterator {
         return NSFastEnumerationIterator(iterate())
     }
 }
 #else
 // Swift isn't yet smart enough to do this automatically when bridging Objective-C APIs
-extension ARTRealtimeChannels: Sequence {
+extension RealtimeChannels: Sequence {
     public func makeIterator() -> NSFastEnumerationIterator {
         return NSFastEnumerationIterator(iterate())
     }
@@ -22,7 +22,7 @@ class RealtimeClientChannelsTests: XCTestCase {
     // RTS2
     func test__001__Channels__should_exist_methods_to_check_if_a_channel_exists_or_iterate_through_the_existing_channels() throws {
         let test = Test()
-        let client = ARTRealtime(options: try AblyTests.commonAppSetup(for: test))
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.dispose(); client.close() }
         var disposable = [String]()
 
@@ -39,7 +39,7 @@ class RealtimeClientChannelsTests: XCTestCase {
         XCTAssertFalse(client.channels.exists("testX"))
 
         for channel in client.channels {
-            XCTAssertTrue(disposable.contains((channel as! ARTRealtimeChannel).name))
+            XCTAssertTrue(disposable.contains((channel as! RealtimeChannel).name))
         }
     }
 
@@ -49,7 +49,7 @@ class RealtimeClientChannelsTests: XCTestCase {
     func test__002__Channels__get__should_create_a_new_Channel_if_none_exists_or_return_the_existing_one() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
-        let client = ARTRealtime(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         XCTAssertEqual(client.channels.internal.collection.count, 0)
@@ -65,9 +65,9 @@ class RealtimeClientChannelsTests: XCTestCase {
     // RTS3b
     func test__003__Channels__get__should_be_possible_to_specify_a_ChannelOptions() throws {
         let test = Test()
-        let client = ARTRealtime(options: try AblyTests.commonAppSetup(for: test))
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.dispose(); client.close() }
-        let options = ARTRealtimeChannelOptions()
+        let options = RealtimeChannelOptions()
         let channel = client.channels.get(test.uniqueChannelName(), options: options)
         XCTAssertTrue(channel.options === options)
     }
@@ -75,20 +75,46 @@ class RealtimeClientChannelsTests: XCTestCase {
     // RTS3c
     func test__004__Channels__get__accessing_an_existing_Channel_with_options_should_update_the_options_and_then_return_the_object() throws {
         let test = Test()
-        let client = ARTRealtime(options: try AblyTests.commonAppSetup(for: test))
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.dispose(); client.close() }
         let channelName = test.uniqueChannelName()
         XCTAssertNil(client.channels.get(channelName).options)
-        let options = ARTRealtimeChannelOptions()
+        let options = RealtimeChannelOptions()
         let channel = client.channels.get(channelName, options: options)
         XCTAssertTrue(channel.options === options)
     }
 
-    // RTS4
-
-    func test__005__Channels__release__should_release_a_channel() throws {
+    // RTS4c
+    func test__005__Channels__release__should_do_nothing_if_the_channel_does_not_exist() throws {
         let test = Test()
-        let client = ARTRealtime(options: try AblyTests.commonAppSetup(for: test))
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
+        defer { client.dispose(); client.close() }
+
+        let channelName = test.uniqueChannelName()
+        try client.channels.release(channelName)
+        XCTAssertFalse(client.channels.exists(channelName))
+    }
+
+    // RTS4d
+    func test__006__Channels__release__should_remove_an_initialized_channel() throws {
+        let test = Test()
+        let options = try AblyTests.commonAppSetup(for: test)
+        options.autoConnect = false
+        let client = PubSubClient(options: options)
+        defer { client.dispose(); client.close() }
+
+        let channelName = test.uniqueChannelName()
+        let channel = client.channels.get(channelName)
+        XCTAssertEqual(channel.state, RealtimeChannelState.initialized)
+
+        try client.channels.release(channelName)
+        XCTAssertFalse(client.channels.exists(channelName))
+    }
+
+    // RTS4d
+    func test__007__Channels__release__should_remove_a_detached_channel() throws {
+        let test = Test()
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.dispose(); client.close() }
 
         let channelName = test.uniqueChannelName()
@@ -99,15 +125,19 @@ class RealtimeClientChannelsTests: XCTestCase {
         channel.presence.subscribe { _ in
             fail("shouldn't happen")
         }
+        expect(channel.state).toEventually(equal(RealtimeChannelState.attached), timeout: testTimeout)
         waitUntil(timeout: testTimeout) { done in
-            client.channels.release(channelName) { errorInfo in
-                XCTAssertNil(errorInfo)
-                XCTAssertEqual(channel.state, ARTRealtimeChannelState.detached)
+            channel.detach { error in
+                XCTAssertNil(error)
                 done()
             }
         }
 
+        try client.channels.release(channelName)
+        XCTAssertFalse(client.channels.exists(channelName))
+
         let sameChannel = client.channels.get(channelName)
+        XCTAssertFalse(sameChannel.internal === channel.internal)
         waitUntil(timeout: testTimeout) { done in
             sameChannel.subscribe { _ in
                 sameChannel.presence.enterClient("foo", data: nil) { _ in
@@ -118,12 +148,10 @@ class RealtimeClientChannelsTests: XCTestCase {
         }
     }
 
-    // RTS4b
-    func test__006__Channels__release__should_log_a_deprecation_warning_when_releasing_an_attached_channel() throws {
+    // RTS4e
+    func test__008__Channels__release__should_fail_without_releasing_an_attached_channel() throws {
         let test = Test()
-        let options = try AblyTests.commonAppSetup(for: test)
-        options.logHandler = ARTLog(capturingOutput: true)
-        let client = ARTRealtime(options: options)
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.dispose(); client.close() }
 
         let channelName = test.uniqueChannelName()
@@ -135,26 +163,39 @@ class RealtimeClientChannelsTests: XCTestCase {
             }
         }
 
-        waitUntil(timeout: testTimeout) { done in
-            client.channels.release(channelName) { errorInfo in
-                XCTAssertNil(errorInfo)
-                XCTAssertEqual(channel.state, ARTRealtimeChannelState.detached)
-                done()
+        XCTAssertThrowsError(try client.channels.release(channelName)) { error in
+            guard let error = error as? ErrorInfo else {
+                XCTFail("Expected an ErrorInfo, got \(error)")
+                return
             }
+            XCTAssertEqual(error.code, ErrorCode.channelReleaseInvalidState.intValue)
+            XCTAssertEqual(error.statusCode, 400)
         }
-        XCTAssertFalse(client.channels.exists(channelName))
-
-        let deprecationWarnings = options.logHandler.captured.filter { $0.level == .warn && $0.message.contains("is deprecated") }
-        XCTAssertEqual(deprecationWarnings.count, 1)
-        expect(deprecationWarnings.first?.message).to(contain("in the attached state"))
+        XCTAssertEqual(channel.state, RealtimeChannelState.attached)
+        XCTAssertTrue(client.channels.exists(channelName))
+        XCTAssertTrue(client.channels.get(channelName).internal === channel.internal)
     }
 
     // RTS4d
-    func test__007__Channels__release__should_not_log_a_deprecation_warning_when_releasing_a_detached_channel() throws {
+    func test__009__Channels__release__should_remove_a_failed_channel() throws {
         let test = Test()
-        let options = try AblyTests.commonAppSetup(for: test)
-        options.logHandler = ARTLog(capturingOutput: true)
-        let client = ARTRealtime(options: options)
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
+        defer { client.dispose(); client.close() }
+
+        let channelName = test.uniqueChannelName()
+        let channel = client.channels.get(channelName)
+        channel.internal.onError(AblyTests.newErrorProtocolMessage())
+        XCTAssertEqual(channel.state, RealtimeChannelState.failed)
+
+        try client.channels.release(channelName)
+        XCTAssertFalse(client.channels.exists(channelName))
+        XCTAssertFalse(client.channels.get(channelName).internal === channel.internal)
+    }
+
+    // RTS4e
+    func test__010__Channels__release__should_fail_without_releasing_a_suspended_channel() throws {
+        let test = Test()
+        let client = PubSubClient(options: try AblyTests.commonAppSetup(for: test))
         defer { client.dispose(); client.close() }
 
         let channelName = test.uniqueChannelName()
@@ -162,18 +203,22 @@ class RealtimeClientChannelsTests: XCTestCase {
         waitUntil(timeout: testTimeout) { done in
             channel.attach { error in
                 XCTAssertNil(error)
-                channel.detach { error in
-                    XCTAssertNil(error)
-                    done()
-                }
+                done()
             }
         }
-        XCTAssertEqual(channel.state, ARTRealtimeChannelState.detached)
+        client.internal.onSuspended()
+        XCTAssertEqual(channel.state, RealtimeChannelState.suspended)
 
-        client.channels.release(channelName)
-        XCTAssertFalse(client.channels.exists(channelName))
-
-        let deprecationWarnings = options.logHandler.captured.filter { $0.message.contains("is deprecated") }
-        XCTAssertTrue(deprecationWarnings.isEmpty)
+        XCTAssertThrowsError(try client.channels.release(channelName)) { error in
+            guard let error = error as? ErrorInfo else {
+                XCTFail("Expected an ErrorInfo, got \(error)")
+                return
+            }
+            XCTAssertEqual(error.code, ErrorCode.channelReleaseInvalidState.intValue)
+            XCTAssertEqual(error.statusCode, 400)
+        }
+        XCTAssertEqual(channel.state, RealtimeChannelState.suspended)
+        XCTAssertTrue(client.channels.exists(channelName))
+        XCTAssertTrue(client.channels.get(channelName).internal === channel.internal)
     }
 }

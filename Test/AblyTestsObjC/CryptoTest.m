@@ -1,6 +1,6 @@
 @import XCTest;
-@import Ably;
-@import Ably.Private;
+@import AblyPubSubDevice;
+@import AblyPubSubDevice.Private;
 @import AblyTesting;
 
 @interface CryptoTest : XCTestCase

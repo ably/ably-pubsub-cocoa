@@ -23,7 +23,7 @@
 // - RTLC12b/RTLC12c/RTLC12d (write-API preconditions) are replaced by RTO26 and live in
 //   `objects/unit/realtime_object.md`.
 
-import Ably
+import AblyPubSubDevice
 @testable import AblyLiveObjects
 import Foundation
 import Testing
@@ -114,7 +114,7 @@ struct InternalLiveCounterApiTests {
             try await fixture.root.get(key: "score").asLiveCounter().increment(amount: .nan)
             Issue.record("expected increment(NaN) to throw 40003")
         } catch {
-            // Assertions — typed throws: `error` is already an ARTErrorInfo.
+            // Assertions — typed throws: `error` is already an ErrorInfo.
             #expect(error.code == 40003)
         }
     }

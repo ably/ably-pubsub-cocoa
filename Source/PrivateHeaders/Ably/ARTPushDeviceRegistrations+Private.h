@@ -1,14 +1,14 @@
-#import <Ably/ARTPushDeviceRegistrations.h>
+#import <AblyPubSubDevice/ARTPushDeviceRegistrations.h>
 #import "ARTQueuedDealloc.h"
 
-@class ARTRestInternal;
+@class ARTHttpClientInternal;
 @class ARTInternalLog;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ARTPushDeviceRegistrationsInternal : NSObject
 
-- (instancetype)initWithRest:(ARTRestInternal *)rest logger:(ARTInternalLog *)logger;
+- (instancetype)initWithRest:(ARTHttpClientInternal *)rest logger:(ARTInternalLog *)logger;
 
 - (void)save:(ARTDeviceDetails *)deviceDetails wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTCallback)callback;
 

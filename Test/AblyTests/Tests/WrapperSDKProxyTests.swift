@@ -1,4 +1,5 @@
-import Ably
+import AblyPubSubDevice
+import AblyPubSubDevice.Private
 import XCTest
 import Nimble
 
@@ -193,7 +194,7 @@ class WrapperSDKProxyTests: XCTestCase {
         let test = Test()
 
         let options = try AblyTests.commonAppSetup(for: test)
-        let realtime = ARTRealtime(options: options)
+        let realtime = PubSubClient(options: options)
         defer { realtime.dispose(); realtime.close() }
 
         let testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
@@ -204,19 +205,14 @@ class WrapperSDKProxyTests: XCTestCase {
         // When: We call `request(…)` on the wrapper proxy SDK client
 
         waitUntil(timeout: testTimeout) { done in
-            do {
-                try proxyClient.request(
-                    "GET",
-                    path: "/time",
-                    params: nil,
-                    body: nil,
-                    headers: nil
-                ) { response, error in
-                    XCTAssertNil(error)
-                    done()
-                }
-            } catch {
-                XCTFail("request threw error: \(error)")
+            proxyClient.request(
+                "GET",
+                path: "/time",
+                params: nil,
+                body: nil,
+                headers: nil
+            ) { response, error in
+                XCTAssertNil(error)
                 done()
             }
         }
@@ -226,8 +222,8 @@ class WrapperSDKProxyTests: XCTestCase {
         let request = try XCTUnwrap(testHTTPExecutor.requests.first)
 
         let expectedIdentifier = [
-            "ably-cocoa/1.4.1",
-            ARTDefault.platformAgent(),
+            "ably-pubsub-cocoa/2.0.0",
+            Default.platformAgent(),
             "my-wrapper-sdk/1.0.0"
         ].sorted().joined(separator: " ")
         XCTAssertEqual(request.allHTTPHeaderFields?["Ably-Agent"], expectedIdentifier)
@@ -240,7 +236,7 @@ class WrapperSDKProxyTests: XCTestCase {
 
         let options = try AblyTests.commonAppSetup(for: test)
         options.testOptions.channelNamePrefix = nil // so that we can just use `channelName` in the `request` call below
-        let realtime = ARTRealtime(options: options)
+        let realtime = PubSubClient(options: options)
         defer { realtime.dispose(); realtime.close() }
 
         let testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
@@ -263,51 +259,46 @@ class WrapperSDKProxyTests: XCTestCase {
         // When: We call `request(…)` on the wrapper proxy SDK client and then fetch its `first()` and `next()` pages
 
         waitUntil(timeout: testTimeout) { done in
-            do {
-                try proxyClient.request(
-                    "GET",
-                    path: "/channels/\(channelName)/messages",
-                    params: ["limit": "1"],
-                    body: nil,
-                    headers: nil
-                ) { firstPage, error in
+            proxyClient.request(
+                "GET",
+                path: "/channels/\(channelName)/messages",
+                params: ["limit": "1"],
+                body: nil,
+                headers: nil
+            ) { firstPage, error in
+                XCTAssertNil(error)
+
+                guard let firstPage else {
+                    done()
+                    return
+                }
+
+                XCTAssertEqual(firstPage.items.count, 1)
+
+                firstPage.first { firstPageAgain, error in
                     XCTAssertNil(error)
 
-                    guard let firstPage else {
+                    guard let firstPageAgain else {
                         done()
                         return
                     }
 
-                    XCTAssertEqual(firstPage.items.count, 1)
+                    XCTAssertEqual(firstPageAgain.items.count, 1)
 
-                    firstPage.first { firstPageAgain, error in
+                    firstPageAgain.next { secondPage, error in
                         XCTAssertNil(error)
 
-                        guard let firstPageAgain else {
+                        guard let secondPage else {
                             done()
                             return
                         }
 
-                        XCTAssertEqual(firstPageAgain.items.count, 1)
+                        XCTAssertEqual(secondPage.items.count, 1)
 
-                        firstPageAgain.next { secondPage, error in
-                            XCTAssertNil(error)
-
-                            guard let secondPage else {
-                                done()
-                                return
-                            }
-
-                            XCTAssertEqual(secondPage.items.count, 1)
-
-                            done()
-                        }
+                        done()
                     }
-
                 }
-            } catch {
-                XCTFail("request threw error: \(error)")
-                done()
+
             }
         }
 
@@ -316,8 +307,8 @@ class WrapperSDKProxyTests: XCTestCase {
         XCTAssertEqual(testHTTPExecutor.requests.count, 3) // initial `request()`, `first()`, `next()`
 
         let expectedIdentifier = [
-            "ably-cocoa/1.4.1",
-            ARTDefault.platformAgent(),
+            "ably-pubsub-cocoa/2.0.0",
+            Default.platformAgent(),
             "my-wrapper-sdk/1.0.0"
         ].sorted().joined(separator: " ")
 
@@ -330,12 +321,12 @@ class WrapperSDKProxyTests: XCTestCase {
     func parameterizedTest_addsWrapperSDKAgentToRequests(
         test: Test,
         expectedRequestCount: Int = 1,
-        performRequest: @escaping (ARTWrapperSDKProxyRealtime) -> Void
+        performRequest: @escaping (WrapperSDKProxyRealtime) -> Void
     ) throws {
         // Given: a wrapper SDK proxy client
 
         let options = try AblyTests.commonAppSetup(for: test)
-        let realtime = ARTRealtime(options: options)
+        let realtime = PubSubClient(options: options)
         defer { realtime.dispose(); realtime.close() }
 
         let testHTTPExecutor = TestProxyHTTPExecutor(logger: .init(clientOptions: options))
@@ -350,8 +341,8 @@ class WrapperSDKProxyTests: XCTestCase {
         XCTAssertEqual(testHTTPExecutor.requests.count, expectedRequestCount)
 
         let expectedIdentifier = [
-            "ably-cocoa/1.4.1",
-            ARTDefault.platformAgent(),
+            "ably-pubsub-cocoa/2.0.0",
+            Default.platformAgent(),
             "my-wrapper-sdk/1.0.0"
         ].sorted().joined(separator: " ")
 
@@ -391,37 +382,32 @@ class WrapperSDKProxyTests: XCTestCase {
             }
 
             waitUntil(timeout: testTimeout) { done in
-                let query = ARTRealtimeHistoryQuery()
+                let query = RealtimeHistoryQuery()
                 query.limit = 1
 
-                do {
-                    try channel.history(query) { firstPage, error in
+                channel.history(query) { firstPage, error in
+                    XCTAssertNil(error)
+
+                    guard let firstPage else {
+                        done()
+                        return
+                    }
+
+                    // This test also doubles up as a smoke test that `-first` and `-next` on a normal PaginatedResult (as opposed to an HTTPPaginatedResponse) add the SDK agent
+
+                    firstPage.first { firstPageAgain, error in
                         XCTAssertNil(error)
 
-                        guard let firstPage else {
+                        guard let firstPageAgain else {
                             done()
                             return
                         }
 
-                        // This test also doubles up as a smoke test that `-first` and `-next` on a normal ARTPaginatedResult (as opposed to an ARTHTTPPaginatedResponse) add the SDK agent
-
-                        firstPage.first { firstPageAgain, error in
+                        firstPageAgain.next { _, error in
                             XCTAssertNil(error)
-
-                            guard let firstPageAgain else {
-                                done()
-                                return
-                            }
-
-                            firstPageAgain.next { _, error in
-                                XCTAssertNil(error)
-                                done()
-                            }
+                            done()
                         }
                     }
-                } catch {
-                    XCTFail("history threw error \(error)")
-                    done()
                 }
             }
         }
@@ -496,7 +482,7 @@ class WrapperSDKProxyTests: XCTestCase {
 
         try parameterizedTest_addsWrapperSDKAgentToRequests(test: test) { proxyClient in
             // These three lines are copied from PushChannelTests
-            let testIdentityTokenDetails = ARTDeviceIdentityTokenDetails(token: "xxxx-xxxx-xxx", issued: Date(), expires: Date.distantFuture, capability: "", clientId: "")
+            let testIdentityTokenDetails = DeviceIdentityTokenDetails(token: "xxxx-xxxx-xxx", issued: Date(), expires: Date.distantFuture, capability: "", clientId: "")
             proxyClient.device.setAndPersistIdentityTokenDetails(testIdentityTokenDetails)
             defer { proxyClient.device.setAndPersistIdentityTokenDetails(nil) }
 
@@ -505,7 +491,7 @@ class WrapperSDKProxyTests: XCTestCase {
             waitUntil(timeout: testTimeout) { done in
                 channel.push.subscribeDevice { error in
                     // (We expect this request to fail, because we're using a fake device token. Doesn't matter in this test, because all we care about is checking that the request contained the wrapper SDK agent)
-                    if (error?.domain == ARTAblyErrorDomain && error?.code == 40005) {
+                    if (error?.domain == ablyErrorDomain && error?.code == 40005) {
                         done()
                         return
                     }
@@ -538,7 +524,7 @@ class WrapperSDKProxyTests: XCTestCase {
     // WP7
     private func parameterizedTest_checkAttachProtocolMessage(
         wrapperProxyAgents: [String: String]?,
-        fetchProxyChannel: (ARTWrapperSDKProxyRealtime) -> ARTWrapperSDKProxyRealtimeChannel,
+        fetchProxyChannel: (WrapperSDKProxyRealtime) -> WrapperSDKProxyRealtimeChannel,
         verifyAttachProtocolMessage: (ARTProtocolMessage) -> Void
     ) throws {
         // Given
@@ -604,7 +590,7 @@ class WrapperSDKProxyTests: XCTestCase {
         try parameterizedTest_checkAttachProtocolMessage(
             wrapperProxyAgents: ["my-wrapper-sdk": "1.0.0"],
             fetchProxyChannel: { proxyClient in
-                let options = ARTRealtimeChannelOptions()
+                let options = RealtimeChannelOptions()
                 options.params = ["someKey": "someValue"] // arbitrary
                 options.modes = [.subscribe] // arbitrary
 
@@ -612,7 +598,7 @@ class WrapperSDKProxyTests: XCTestCase {
             },
             verifyAttachProtocolMessage: { attachProtocolMessage in
                 // Check the modes get preserved
-                XCTAssertEqual(attachProtocolMessage.flags & Int64(ARTChannelMode.subscribe.rawValue), Int64(ARTChannelMode.subscribe.rawValue))
+                XCTAssertEqual(attachProtocolMessage.flags & Int64(ChannelMode.subscribe.rawValue), Int64(ChannelMode.subscribe.rawValue))
 
                 // Check the params get merged
                 XCTAssertEqual(attachProtocolMessage.params, ["agent": "my-wrapper-sdk/1.0.0", "someKey": "someValue"])

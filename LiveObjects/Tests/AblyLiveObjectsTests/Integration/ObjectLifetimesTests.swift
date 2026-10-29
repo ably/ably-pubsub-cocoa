@@ -1,6 +1,6 @@
-import Ably.Private
 @testable import AblyLiveObjects
 @testable import AblyLiveObjectsTesting
+import AblyPubSubDevice.Private
 import Testing
 
 @Suite(.tags(.integration), .serialized)
@@ -12,9 +12,9 @@ struct ObjectLifetimesTests {
             /// The queue on which we expect ably-cocoa's QueuedDealloc mechanism to enqueue the relinquishing of `weakInternalRealtime`.
             var realtimeDeallocQueue: DispatchQueue
 
-            weak var weakPublicRealtime: ARTRealtime?
-            weak var weakInternalRealtime: ARTRealtimeInternal?
-            weak var weakPublicChannel: ARTRealtimeChannel?
+            weak var weakPublicRealtime: PubSubClient?
+            weak var weakInternalRealtime: ARTPubSubClientInternal?
+            weak var weakPublicChannel: RealtimeChannel?
             weak var weakInternalChannel: ARTRealtimeChannelInternal?
             var strongPublicRealtimeObject: PublicDefaultRealtimeObject
             weak var weakInternalRealtimeObjects: InternalDefaultRealtimeObjects?
@@ -26,7 +26,7 @@ struct ObjectLifetimesTests {
             var realtimeDeallocQueue: DispatchQueue
 
             // weakPublicRealtime is gone now
-            weak var weakInternalRealtime: ARTRealtimeInternal?
+            weak var weakInternalRealtime: ARTPubSubClientInternal?
             // weakPublicChannel is gone now
             weak var weakInternalChannel: ARTRealtimeChannelInternal?
             weak var weakPublicRealtimeObject: PublicDefaultRealtimeObject?
@@ -109,9 +109,9 @@ struct ObjectLifetimesTests {
             /// The queue on which we expect ably-cocoa's QueuedDealloc mechanism to enqueue the relinquishing of `weakInternalRealtime`.
             var realtimeDeallocQueue: DispatchQueue
 
-            weak var weakPublicRealtime: ARTRealtime?
-            weak var weakInternalRealtime: ARTRealtimeInternal?
-            weak var weakPublicChannel: ARTRealtimeChannel?
+            weak var weakPublicRealtime: PubSubClient?
+            weak var weakInternalRealtime: ARTPubSubClientInternal?
+            weak var weakPublicChannel: RealtimeChannel?
             weak var weakInternalChannel: ARTRealtimeChannelInternal?
             weak var weakPublicRealtimeObject: PublicDefaultRealtimeObject?
             weak var weakInternalRealtimeObjects: InternalDefaultRealtimeObjects?
@@ -124,7 +124,7 @@ struct ObjectLifetimesTests {
             var realtimeDeallocQueue: DispatchQueue
 
             // weakPublicRealtime is gone now
-            weak var weakInternalRealtime: ARTRealtimeInternal?
+            weak var weakInternalRealtime: ARTPubSubClientInternal?
             // weakPublicChannel is gone now
             weak var weakInternalChannel: ARTRealtimeChannelInternal?
             // weakPublicRealtimeObject is gone now

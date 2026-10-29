@@ -1,6 +1,6 @@
 ![Ably Pub/Sub Cocoa Header](images/CocoaSDK-github.png)
-[![Latest Version](https://img.shields.io/github/v/release/ably/ably-cocoa)](https://swiftpackageindex.com/ably/ably-cocoa)
-[![License](https://badgen.net/github/license/ably/ably-cocoa)](https://github.com/ably/ably-cocoa/blob/main/LICENSE)
+[![Latest Version](https://img.shields.io/github/v/release/ably/ably-pubsub-cocoa)](https://swiftpackageindex.com/ably/ably-pubsub-cocoa)
+[![License](https://badgen.net/github/license/ably/ably-pubsub-cocoa)](https://github.com/ably/ably-pubsub-cocoa/blob/main/LICENSE)
 
 # Ably Pub/Sub Cocoa SDK
 
@@ -32,9 +32,11 @@ The following platforms are supported:
 
 | Platform | Support |
 |----------|---------|
-| iOS| >= 10 |
-| macOS| >= 10.12 |
-| tvOS | >= 10 |
+| iOS| >= 14 |
+| macOS| >= 11 |
+| tvOS | >= 14 |
+
+Building the SDK requires Xcode 26 or later.
 
 > [!IMPORTANT]
 > Ably Cocoa SDK versions below 1.2.23 will be [deprecated](https://ably.com/docs/platform/deprecate/protocol-v1) from November 1, 2025.
@@ -43,7 +45,14 @@ The following platforms are supported:
 
 ## Installation
 
-You can install Ably for iOS and macOS through [Swift package manager](#swift-package-manager), [CocoaPods](#cocoapods), [Carthage](#carthage) or [install manually](#manual-install).
+You can install Ably for iOS and macOS through [Swift package manager](#swift-package-manager). Upgrading from 1.x is covered by the [migration guide](Docs/migration-guides/v2.md).
+
+> [!IMPORTANT]
+> **CocoaPods and Carthage are not supported from 2.0.** Their last releases — the `Ably` pod and the
+> Carthage `Ably.xcframework` — are on the 1.x line, which receives security and critical fixes only.
+> To take 2.0 or later, move to Swift Package Manager.
+
+
 
 To use the [Ably LiveObjects plugin](#liveobjects), see its installation notes below — it is
 available via Swift Package Manager only.
@@ -55,98 +64,18 @@ The Ably Pub/Sub SDK includes installation support for [Swift Package Manager](h
 <details>
 <summary>Swift Package Manager installation details.</summary>
 
-To install the `ably-cocoa` package in your Xcode project: 
+To install the `ably-pubsub-cocoa` package in your Xcode project:
 
-* Paste `https://github.com/ably/ably-cocoa` in the *Swift Packages* search box. ( *Xcode project*  &rarr;  *Swift Packages..* . &rarr; `+` button)
-* Select the `Ably` SDK for your target.
+* Paste `https://github.com/ably/ably-pubsub-cocoa` in the *Swift Packages* search box. (*Xcode project* &rarr; *Swift Packages…* &rarr; `+` button)
+* Select the `AblyPubSubDevice` SDK for your target.
 
-To install the `ably-cocoa` package in another Swift package, add the following to your `Package.Swift`:
+To install the `ably-pubsub-cocoa` package in another Swift package, add the following to your `Package.Swift`:
 
 ```swift
- .package(url: "https://github.com/ably/ably-cocoa", from: "1.4.1"),
+ .package(url: "https://github.com/ably/ably-pubsub-cocoa", from: "2.0.0"),
 ```
 
 See Apple's [adding package dependencies to your app](https://developer.apple.com/documentation/swift_packages/adding_package_dependencies_to_your_app) guide for more detail.
-</details>
-
-### CocoaPods
-
-The Ably Pub/Sub SDK includes installation support for [CocoaPods](https://cocoapods.org/).
-
-<details>
-<summary>CocoaPods installation details.</summary>
-
-If you intend to use Swift, using `use_frameworks!` in your Podfile is recommended (this will create a Framework that can be used in Swift natively).
-
-Add this line to your application's Podfile:
-
-```ruby
-# For Xcode 7.3 and newer
-pod 'Ably', '>= 1.2'
-```
-
-And then install the dependency:
-
-```bash
-$ pod install
-```
-
-</details>
-
-
-
-### Carthage
-
-The Ably Pub/Sub SDK includes installation support for [Carthage](https://github.com/Carthage/Carthage/).
-
-<details>
-<summary>Carthage installation details.</summary>
-
-Add the following line to your application's Cartfile:
-
-```ruby
-# For Xcode 7.3 and newer
-github "ably/ably-cocoa" >= 1.2
-```
-
-And then run one of the following commands required for your platform:
-
-| Platform | Command |
-|----------|---------|
-| iOS | `carthage update --use-xcframeworks --platform iOS --no-use-binaries` |
-| macOS | `carthage update --use-xcframeworks --platform macOS --no-use-binaries`|
-| tvOS | `carthage update --use-xcframeworks --platform tvOS --no-use-binaries` |
-
-After building the framework (located in `[PROJECT_ROOT]/Carthage/Build`), drag the following files into the **Frameworks**, **Libraries**, and **Embedded content** section of your Xcode target's **General** tab:
-
-* `Ably.xcframework`
-* `AblyDeltaCodec.xcframework`
-* `msgpack.xcframework`
-* For applications, select **Embed & Sign**
-* For other targets, select **Do Not Embed**
-
-If you encounter an error similar to the following, you've likely missed adding one or more required dependencies:
-
-```
-dyld: Library not loaded: @rpath/AblyDeltaCodec.framework/AblyDeltaCodec
-```
-
-For further information review the Carthage [adding frameworks to an application](https://github.com/Carthage/Carthage#adding-frameworks-to-an-application) guide.
-
-</details>
-
-### Manual install
-
-The Ably Pub/Sub SDK includes manual installation support.
-
-<details>
-<summary>Manual installation details.</summary>
-
-* Download the [Ably Pub/Sub Cocoa SDK.](https://github.com/ably/ably-cocoa)
-* Drag the `ably-cocoa/ably-cocoa` directory into your Xcode project as a group.
-
-Ably depends on our [MessagePack Fork](https://github.com/ably-forks/msgpack-objective-C) 0.2.0; get it [from the releases page](https://github.com/ably-forks/msgpack-objective-C/releases/tag/0.2.0-ably-1) and link it into your project.
-
 </details>
 
 ### Privacy manifest
@@ -159,9 +88,9 @@ The SDK ships a privacy manifest (`PrivacyInfo.xcprivacy`), which Xcode merges i
 
 ```swift
 // Initialize Ably Realtime client
-let clientOptions = ARTClientOptions(key: "your-ably-api-key")
+let clientOptions = ClientOptions(key: "your-ably-api-key")
 clientOptions.clientId = "me"
-let realtime = ARTRealtime(options: clientOptions)
+let realtime = PubSubDevice.createClient(options: clientOptions)
 
 // Wait for connection to be established
 realtime.connection.on { stateChange in
@@ -188,6 +117,17 @@ realtime.connection.on { stateChange in
 }
 ```
 
+In Swift, import `AblyPubSubDeviceSwift` to await operations such as attaching, publishing and entering presence instead of passing callbacks. Failures throw an `ErrorInfo`:
+
+```swift
+import AblyPubSubDeviceSwift
+
+let channel = realtime.channels.get("test-channel")
+try await channel.attach()
+try await channel.publish("test-event", data: "hello world!")
+try await channel.presence.enter("present")
+```
+
 ---
 
 ## LiveObjects
@@ -198,11 +138,10 @@ contains the Ably LiveObjects plugin, which enables LiveObjects on top of the co
 
 ### Install LiveObjects
 
-The plugin is available via **Swift Package Manager only** (there is no CocoaPods or Carthage
-distribution). There is no separate package or version to install: the plugin ships as a product
-of this package and is versioned and released as part of ably-cocoa.
+The plugin is available via **Swift Package Manager**. There is no separate package or version to install: the plugin ships as a product
+of this package and is versioned and released as part of ably-pubsub-cocoa.
 
-To install it in your Xcode project, add the `ably-cocoa` package [as above](#swift-package-manager)
+To install it in your Xcode project, add the `ably-pubsub-cocoa` package [as above](#swift-package-manager)
 and additionally select the `AblyLiveObjects` product for your target.
 
 To install it in another Swift package, add the product to your target's dependencies:
@@ -211,8 +150,8 @@ To install it in another Swift package, add the product to your target's depende
 .target(
     name: "MyTarget",
     dependencies: [
-        .product(name: "Ably", package: "ably-cocoa"),
-        .product(name: "AblyLiveObjects", package: "ably-cocoa"),
+        .product(name: "AblyPubSubDevice", package: "ably-pubsub-cocoa"),
+        .product(name: "AblyLiveObjects", package: "ably-pubsub-cocoa"),
     ]
 )
 ```
@@ -239,4 +178,4 @@ The [CHANGELOG.md](./CHANGELOG.md) contains details of the latest releases for t
 
 ## Support, feedback, and troubleshooting
 
-For help or technical support, visit Ably's [support page](https://ably.com/support) or [GitHub Issues](https://github.com/ably/ably-cocoa/issues) for community-reported bugs and discussions.
+For help or technical support, visit Ably's [support page](https://ably.com/support) or [GitHub Issues](https://github.com/ably/ably-pubsub-cocoa/issues) for community-reported bugs and discussions.

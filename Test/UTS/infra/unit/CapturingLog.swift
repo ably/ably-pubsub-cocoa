@@ -1,15 +1,15 @@
 import Foundation
-import Ably
+import AblyPubSubDevice
 
-/// An `ARTLog` that records every message the SDK logs, for tests that assert on log output (e.g.
-/// "an error is logged"). Install via `ARTClientOptions.logHandler`.
+/// A `Log` that records every message the SDK logs, for tests that assert on log output (e.g.
+/// "an error is logged"). Install via `ClientOptions.logHandler`.
 ///
 /// The SDK's internal logger forwards every message to the injected `logHandler` (only the level
-/// filter lives in `ARTLog.log:withLevel:`), so overriding `log(_:with:)` *without* calling `super`
+/// filter lives in `Log.log:withLevel:`), so overriding `log(_:with:)` *without* calling `super`
 /// captures everything regardless of `logLevel` — and keeps the console quiet.
-final class CapturingLog: ARTLog {
+final class CapturingLog: Log {
     struct Entry {
-        let level: ARTLogLevel
+        let level: LogLevel
         let message: String
     }
 
@@ -21,14 +21,14 @@ final class CapturingLog: ARTLog {
         return storedEntries
     }
 
-    override func log(_ message: String, with level: ARTLogLevel) {
+    override func log(_ message: String, with level: LogLevel) {
         lock.lock()
         storedEntries.append(Entry(level: level, message: message))
         lock.unlock()
     }
 
     /// Whether any captured message at `level` contains `substring` (case-insensitive).
-    func contains(level: ARTLogLevel, message substring: String) -> Bool {
+    func contains(level: LogLevel, message substring: String) -> Bool {
         entries.contains { $0.level == level && $0.message.localizedCaseInsensitiveContains(substring) }
     }
 }

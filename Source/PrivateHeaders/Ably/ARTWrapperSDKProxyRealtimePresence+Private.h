@@ -1,4 +1,4 @@
-#import <Ably/ARTWrapperSDKProxyRealtimePresence.h>
+#import <AblyPubSubDevice/ARTWrapperSDKProxyRealtimePresence.h>
 
 @class ARTWrapperSDKProxyOptions;
 

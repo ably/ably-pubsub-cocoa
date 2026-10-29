@@ -21,7 +21,7 @@
 // unit-tier counterpart — direct seeding + the publishAndApply capture/echo seam stand in for it. That
 // is an infra-driving choice, NOT a deviation. There are no genuine SDK deviations in this suite.
 
-import Ably
+import AblyPubSubDevice
 @testable import AblyLiveObjects
 @testable import AblyLiveObjectsTesting
 import Foundation
@@ -90,7 +90,7 @@ struct PathObjectMutationsTests {
             try await root.get(key: "score").asLiveMap().set(key: "key", value: "value")
             Issue.record("expected set() on a non-map to throw 92007")
         } catch {
-            // ASSERT error.code == 92007 (typed throws: `error` is already an ARTErrorInfo)
+            // ASSERT error.code == 92007 (typed throws: `error` is already an ErrorInfo)
             #expect(error.code == 92007)
         }
     }

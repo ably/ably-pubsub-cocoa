@@ -1,38 +1,31 @@
-import Ably
+import AblyPubSubDevice
 import Foundation
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal protocol WireEncodable {
     var toWireValue: WireValue { get }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal protocol WireDecodable {
-    init(wireValue: WireValue) throws(ARTErrorInfo)
+    init(wireValue: WireValue) throws(ErrorInfo)
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal typealias WireCodable = WireDecodable & WireEncodable
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal protocol WireObjectEncodable: WireEncodable {
     var toWireObject: [String: WireValue] { get }
 }
 
 // Default implementation of `WireEncodable` conformance for `WireObjectEncodable`
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension WireObjectEncodable {
     var toWireValue: WireValue {
         .object(toWireObject)
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal protocol WireObjectDecodable: WireDecodable {
-    init(wireObject: [String: WireValue]) throws(ARTErrorInfo)
+    init(wireObject: [String: WireValue]) throws(ErrorInfo)
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal enum WireValueDecodingError: Error {
     case valueIsNotObject
     case noValueForKey(String)
@@ -41,9 +34,8 @@ internal enum WireValueDecodingError: Error {
 }
 
 // Default implementation of `WireDecodable` conformance for `WireObjectDecodable`
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension WireObjectDecodable {
-    init(wireValue: WireValue) throws(ARTErrorInfo) {
+    init(wireValue: WireValue) throws(ErrorInfo) {
         guard case let .object(wireObject) = wireValue else {
             throw WireValueDecodingError.valueIsNotObject.toARTErrorInfo()
         }
@@ -52,20 +44,18 @@ internal extension WireObjectDecodable {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal typealias WireObjectCodable = WireObjectDecodable & WireObjectEncodable
 
 // MARK: - Extracting primitive values from a dictionary
 
 /// This extension adds some helper methods for extracting values from a dictionary of `WireValue` values; you may find them helpful when implementing `WireCodable`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension [String: WireValue] {
     /// If this dictionary contains a value for `key`, and this value has case `object`, this returns the associated value.
     ///
     /// - Throws:
     ///   - `WireValueDecodingError.noValueForKey` if the key is absent
     ///   - `WireValueDecodingError.wrongTypeForKey` if the value does not have case `object`
-    func objectValueForKey(_ key: String) throws(ARTErrorInfo) -> [String: WireValue] {
+    func objectValueForKey(_ key: String) throws(ErrorInfo) -> [String: WireValue] {
         guard let value = self[key] else {
             throw WireValueDecodingError.noValueForKey(key).toARTErrorInfo()
         }
@@ -80,7 +70,7 @@ internal extension [String: WireValue] {
     /// If this dictionary contains a value for `key`, and this value has case `object`, this returns the associated value. If this dictionary does not contain a value for `key`, or if the value for `key` has case `null`, it returns `nil`.
     ///
     /// - Throws: `WireValueDecodingError.wrongTypeForKey` if the value does not have case `object` or `null`
-    func optionalObjectValueForKey(_ key: String) throws(ARTErrorInfo) -> [String: WireValue]? {
+    func optionalObjectValueForKey(_ key: String) throws(ErrorInfo) -> [String: WireValue]? {
         guard let value = self[key] else {
             return nil
         }
@@ -101,7 +91,7 @@ internal extension [String: WireValue] {
     /// - Throws:
     ///   - `WireValueDecodingError.noValueForKey` if the key is absent
     ///   - `WireValueDecodingError.wrongTypeForKey` if the value does not have case `array`
-    func arrayValueForKey(_ key: String) throws(ARTErrorInfo) -> [WireValue] {
+    func arrayValueForKey(_ key: String) throws(ErrorInfo) -> [WireValue] {
         guard let value = self[key] else {
             throw WireValueDecodingError.noValueForKey(key).toARTErrorInfo()
         }
@@ -116,7 +106,7 @@ internal extension [String: WireValue] {
     /// If this dictionary contains a value for `key`, and this value has case `array`, this returns the associated value. If this dictionary does not contain a value for `key`, or if the value for `key` has case `null`, it returns `nil`.
     ///
     /// - Throws: `WireValueDecodingError.wrongTypeForKey` if the value does not have case `array` or `null`
-    func optionalArrayValueForKey(_ key: String) throws(ARTErrorInfo) -> [WireValue]? {
+    func optionalArrayValueForKey(_ key: String) throws(ErrorInfo) -> [WireValue]? {
         guard let value = self[key] else {
             return nil
         }
@@ -137,7 +127,7 @@ internal extension [String: WireValue] {
     /// - Throws:
     ///   - `WireValueDecodingError.noValueForKey` if the key is absent
     ///   - `WireValueDecodingError.wrongTypeForKey` if the value does not have case `string`
-    func stringValueForKey(_ key: String) throws(ARTErrorInfo) -> String {
+    func stringValueForKey(_ key: String) throws(ErrorInfo) -> String {
         guard let value = self[key] else {
             throw WireValueDecodingError.noValueForKey(key).toARTErrorInfo()
         }
@@ -152,7 +142,7 @@ internal extension [String: WireValue] {
     /// If this dictionary contains a value for `key`, and this value has case `string`, this returns the associated value. If this dictionary does not contain a value for `key`, or if the value for `key` has case `null`, it returns `nil`.
     ///
     /// - Throws: `WireValueDecodingError.wrongTypeForKey` if the value does not have case `string` or `null`
-    func optionalStringValueForKey(_ key: String) throws(ARTErrorInfo) -> String? {
+    func optionalStringValueForKey(_ key: String) throws(ErrorInfo) -> String? {
         guard let value = self[key] else {
             return nil
         }
@@ -173,7 +163,7 @@ internal extension [String: WireValue] {
     /// - Throws:
     ///   - `WireValueDecodingError.noValueForKey` if the key is absent
     ///   - `WireValueDecodingError.wrongTypeForKey` if the value does not have case `number`
-    func numberValueForKey(_ key: String) throws(ARTErrorInfo) -> NSNumber {
+    func numberValueForKey(_ key: String) throws(ErrorInfo) -> NSNumber {
         guard let value = self[key] else {
             throw WireValueDecodingError.noValueForKey(key).toARTErrorInfo()
         }
@@ -188,7 +178,7 @@ internal extension [String: WireValue] {
     /// If this dictionary contains a value for `key`, and this value has case `number`, this returns the associated value. If this dictionary does not contain a value for `key`, or if the value for `key` has case `null`, it returns `nil`.
     ///
     /// - Throws: `WireValueDecodingError.wrongTypeForKey` if the value does not have case `number` or `null`
-    func optionalNumberValueForKey(_ key: String) throws(ARTErrorInfo) -> NSNumber? {
+    func optionalNumberValueForKey(_ key: String) throws(ErrorInfo) -> NSNumber? {
         guard let value = self[key] else {
             return nil
         }
@@ -209,7 +199,7 @@ internal extension [String: WireValue] {
     /// - Throws:
     ///   - `WireValueDecodingError.noValueForKey` if the key is absent
     ///   - `WireValueDecodingError.wrongTypeForKey` if the value does not have case `bool`
-    func boolValueForKey(_ key: String) throws(ARTErrorInfo) -> Bool {
+    func boolValueForKey(_ key: String) throws(ErrorInfo) -> Bool {
         guard let value = self[key] else {
             throw WireValueDecodingError.noValueForKey(key).toARTErrorInfo()
         }
@@ -224,7 +214,7 @@ internal extension [String: WireValue] {
     /// If this dictionary contains a value for `key`, and this value has case `bool`, this returns the associated value. If this dictionary does not contain a value for `key`, or if the value for `key` has case `null`, it returns `nil`.
     ///
     /// - Throws: `WireValueDecodingError.wrongTypeForKey` if the value does not have case `bool` or `null`
-    func optionalBoolValueForKey(_ key: String) throws(ARTErrorInfo) -> Bool? {
+    func optionalBoolValueForKey(_ key: String) throws(ErrorInfo) -> Bool? {
         guard let value = self[key] else {
             return nil
         }
@@ -245,7 +235,7 @@ internal extension [String: WireValue] {
     /// - Throws:
     ///   - `WireValueDecodingError.noValueForKey` if the key is absent
     ///   - `WireValueDecodingError.wrongTypeForKey` if the value does not have case `data`
-    func dataValueForKey(_ key: String) throws(ARTErrorInfo) -> Data {
+    func dataValueForKey(_ key: String) throws(ErrorInfo) -> Data {
         guard let value = self[key] else {
             throw WireValueDecodingError.noValueForKey(key).toARTErrorInfo()
         }
@@ -260,7 +250,7 @@ internal extension [String: WireValue] {
     /// If this dictionary contains a value for `key`, and this value has case `data`, this returns the associated value. If this dictionary does not contain a value for `key`, or if the value for `key` has case `null`, it returns `nil`.
     ///
     /// - Throws: `WireValueDecodingError.wrongTypeForKey` if the value does not have case `data` or `null`
-    func optionalDataValueForKey(_ key: String) throws(ARTErrorInfo) -> Data? {
+    func optionalDataValueForKey(_ key: String) throws(ErrorInfo) -> Data? {
         guard let value = self[key] else {
             return nil
         }
@@ -279,14 +269,13 @@ internal extension [String: WireValue] {
 
 // MARK: - Extracting dates from a dictionary
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension [String: WireValue] {
     /// If this dictionary contains a value for `key`, and this value has case `number`, this returns a date created by interpreting this value as the number of milliseconds since the Unix epoch (which is the format used by Ably).
     ///
     /// - Throws:
     ///   - `WireValueDecodingError.noValueForKey` if the key is absent
     ///   - `WireValueDecodingError.wrongTypeForKey` if the value does not have case `number`
-    func ablyProtocolDateValueForKey(_ key: String) throws(ARTErrorInfo) -> Date {
+    func ablyProtocolDateValueForKey(_ key: String) throws(ErrorInfo) -> Date {
         let millisecondsSinceEpoch = try numberValueForKey(key).uint64Value
 
         return dateFromMillisecondsSinceEpoch(millisecondsSinceEpoch)
@@ -295,7 +284,7 @@ internal extension [String: WireValue] {
     /// If this dictionary contains a value for `key`, and this value has case `number`, this returns a date created by interpreting this value as the number of milliseconds since the Unix epoch (which is the format used by Ably). If this dictionary does not contain a value for `key`, or if the value for `key` has case `null`, it returns `nil`.
     ///
     /// - Throws: `WireValueDecodingError.wrongTypeForKey` if the value does not have case `number` or `null`
-    func optionalAblyProtocolDateValueForKey(_ key: String) throws(ARTErrorInfo) -> Date? {
+    func optionalAblyProtocolDateValueForKey(_ key: String) throws(ErrorInfo) -> Date? {
         guard let millisecondsSinceEpoch = try optionalNumberValueForKey(key)?.uint64Value else {
             return nil
         }
@@ -309,7 +298,6 @@ internal extension [String: WireValue] {
 
 // MARK: - Extracting RawRepresentable values from a dictionary
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension [String: WireValue] {
     /// If this dictionary contains a value for `key`, and this value has case `string`, this creates an instance of `T` using its `init(rawValue:)` initializer.
     ///
@@ -317,7 +305,7 @@ internal extension [String: WireValue] {
     ///   - `WireValueDecodingError.noValueForKey` if the key is absent
     ///   - `WireValueDecodingError.wrongTypeForKey` if the value does not have case `string`
     ///   - `WireValueDecodingError.failedToDecodeFromRawValue` if `init(rawValue:)` returns `nil`
-    func rawRepresentableValueForKey<T: RawRepresentable>(_ key: String, type _: T.Type = T.self) throws(ARTErrorInfo) -> T where T.RawValue == String {
+    func rawRepresentableValueForKey<T: RawRepresentable>(_ key: String, type _: T.Type = T.self) throws(ErrorInfo) -> T where T.RawValue == String {
         let rawValue = try stringValueForKey(key)
 
         return try rawRepresentableValueFromRawValue(rawValue, type: T.self)
@@ -328,7 +316,7 @@ internal extension [String: WireValue] {
     /// - Throws:
     ///   - `WireValueDecodingError.wrongTypeForKey` if the value does not have case `string` or `null`
     ///   - `WireValueDecodingError.failedToDecodeFromRawValue` if `init(rawValue:)` returns `nil`
-    func optionalRawRepresentableValueForKey<T: RawRepresentable>(_ key: String, type _: T.Type = T.self) throws(ARTErrorInfo) -> T? where T.RawValue == String {
+    func optionalRawRepresentableValueForKey<T: RawRepresentable>(_ key: String, type _: T.Type = T.self) throws(ErrorInfo) -> T? where T.RawValue == String {
         guard let rawValue = try optionalStringValueForKey(key) else {
             return nil
         }
@@ -336,7 +324,7 @@ internal extension [String: WireValue] {
         return try rawRepresentableValueFromRawValue(rawValue, type: T.self)
     }
 
-    private func rawRepresentableValueFromRawValue<T: RawRepresentable>(_ rawValue: String, type _: T.Type = T.self) throws(ARTErrorInfo) -> T where T.RawValue == String {
+    private func rawRepresentableValueFromRawValue<T: RawRepresentable>(_ rawValue: String, type _: T.Type = T.self) throws(ErrorInfo) -> T where T.RawValue == String {
         guard let value = T(rawValue: rawValue) else {
             throw WireValueDecodingError.failedToDecodeFromRawValue(rawValue).toARTErrorInfo()
         }
@@ -347,14 +335,13 @@ internal extension [String: WireValue] {
 
 // MARK: - Extracting WireEnum values from a dictionary
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension [String: WireValue] {
     /// If this dictionary contains a value for `key`, and this value has case `number`, this creates a `WireEnum` instance using its `init(rawValue:)` initializer.
     ///
     /// - Throws:
     ///   - `WireValueDecodingError.noValueForKey` if the key is absent
     ///   - `WireValueDecodingError.wrongTypeForKey` if the value does not have case `number`
-    func wireEnumValueForKey<Known: RawRepresentable>(_ key: String, type _: Known.Type = Known.self) throws(ARTErrorInfo) -> WireEnum<Known> where Known.RawValue == Int {
+    func wireEnumValueForKey<Known: RawRepresentable>(_ key: String, type _: Known.Type = Known.self) throws(ErrorInfo) -> WireEnum<Known> where Known.RawValue == Int {
         let rawValue = try numberValueForKey(key).intValue
         return WireEnum(rawValue: rawValue)
     }
@@ -362,7 +349,7 @@ internal extension [String: WireValue] {
     /// If this dictionary contains a value for `key`, and this value has case `number`, this creates a `WireEnum` instance using its `init(rawValue:)` initializer. If this dictionary does not contain a value for `key`, or if the value for `key` has case `null`, it returns `nil`.
     ///
     /// - Throws: `WireValueDecodingError.wrongTypeForKey` if the value does not have case `number` or `null`
-    func optionalWireEnumValueForKey<Known: RawRepresentable>(_ key: String, type _: Known.Type = Known.self) throws(ARTErrorInfo) -> WireEnum<Known>? where Known.RawValue == Int {
+    func optionalWireEnumValueForKey<Known: RawRepresentable>(_ key: String, type _: Known.Type = Known.self) throws(ErrorInfo) -> WireEnum<Known>? where Known.RawValue == Int {
         guard let rawValue = try optionalNumberValueForKey(key)?.intValue else {
             return nil
         }
@@ -372,14 +359,13 @@ internal extension [String: WireValue] {
 
 // MARK: - Extracting WireDecodable values from a dictionary
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension [String: WireValue] {
     /// If this dictionary contains a value for `key`, this attempts to decode it into an instance of `T` using its `init(wireValue:)` initializer.
     ///
     /// - Throws:
     ///   - `WireValueDecodingError.noValueForKey` if the key is absent
     ///   - Any error thrown by `T.init(wireValue:)`
-    func decodableValueForKey<T: WireDecodable>(_ key: String, type _: T.Type = T.self) throws(ARTErrorInfo) -> T {
+    func decodableValueForKey<T: WireDecodable>(_ key: String, type _: T.Type = T.self) throws(ErrorInfo) -> T {
         guard let value = self[key] else {
             throw WireValueDecodingError.noValueForKey(key).toARTErrorInfo()
         }
@@ -390,7 +376,7 @@ internal extension [String: WireValue] {
     /// If this dictionary contains a value for `key`, this attempts to decode it into an instance of `T` using its `init(wireValue:)` initializer. If this dictionary does not contain a value for `key`, or if the value for `key` has case `null`, it returns `nil`.
     ///
     /// - Throws: Any error thrown by `T.init(wireValue:)`
-    func optionalDecodableValueForKey<T: WireDecodable>(_ key: String, type _: T.Type = T.self) throws(ARTErrorInfo) -> T? {
+    func optionalDecodableValueForKey<T: WireDecodable>(_ key: String, type _: T.Type = T.self) throws(ErrorInfo) -> T? {
         guard let value = self[key] else {
             return nil
         }

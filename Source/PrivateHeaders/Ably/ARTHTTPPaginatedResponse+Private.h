@@ -1,8 +1,8 @@
-#import <Ably/ARTHTTPPaginatedResponse.h>
+#import <AblyPubSubDevice/ARTHTTPPaginatedResponse.h>
 
 #import "ARTPaginatedResult+Private.h"
 
-@class ARTRestInternal;
+@class ARTHttpClientInternal;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithResponse:(NSHTTPURLResponse *)response
                            items:(NSArray *)items
-                            rest:(ARTRestInternal *)rest
+                            rest:(ARTHttpClientInternal *)rest
                         relFirst:(NSMutableURLRequest *)relFirst
                       relCurrent:(NSMutableURLRequest *)relCurrent
                          relNext:(NSMutableURLRequest *)relNext
@@ -20,12 +20,12 @@ NS_ASSUME_NONNULL_BEGIN
                 wrapperSDKAgents:(nullable NSDictionary<NSString *, NSString *> *)wrapperSDKAgents
                           logger:(ARTInternalLog *)logger;
 
-+ (void)executePaginated:(ARTRestInternal *)rest
++ (void)executePaginated:(ARTHttpClientInternal *)rest
              withRequest:(NSMutableURLRequest *)request
     andResponseProcessor:(ARTPaginatedResultResponseProcessor)responseProcessor
                 callback:(void (^)(ARTPaginatedResult * _Nullable, ARTErrorInfo * _Nullable))callback UNAVAILABLE_ATTRIBUTE;
 
-+ (void)executePaginated:(ARTRestInternal *)rest
++ (void)executePaginated:(ARTHttpClientInternal *)rest
              withRequest:(NSMutableURLRequest *)request
         wrapperSDKAgents:(nullable NSDictionary<NSString *, NSString *> *)wrapperSDKAgents
                   logger:(ARTInternalLog *)logger

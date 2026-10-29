@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 import UIKit
 import CoreLocation
 
@@ -8,7 +8,7 @@ class AblyHelper: NSObject, ObservableObject {
 
     private var locationManager: CLLocationManager!
 
-    private(set) var realtime: ARTRealtime!
+    private(set) var client: PubSubClient!
 
     private let key = "" // Your API Key from your app's dashboard
 
@@ -16,7 +16,7 @@ class AblyHelper: NSObject, ObservableObject {
 
     var locationDeviceToken: String?
 
-    var activatePushCallback: ((String?, String?, ARTErrorInfo?) -> ())?
+    var activatePushCallback: ((String?, String?, ErrorInfo?) -> ())?
 
     @Published var isSubscribedToExampleChannel1 = false
     @Published var isSubscribedToExampleChannel2 = false
@@ -27,10 +27,10 @@ class AblyHelper: NSObject, ObservableObject {
         guard key != "" else {
             preconditionFailure("Obtain your API key at https://ably.com/accounts/")
         }
-        let options = ARTClientOptions(key: key)
+        let options = ClientOptions(key: key)
         options.clientId = "basic-apns-example"
         options.pushRegistererDelegate = self
-        self.realtime = ARTRealtime(options: options)
+        self.client = PubSubDevice.createClient(options: options)
         UNUserNotificationCenter.current().delegate = self
         locationManager = CLLocationManager()
         locationManager.delegate = self
@@ -40,28 +40,28 @@ class AblyHelper: NSObject, ObservableObject {
 
 extension AblyHelper {
 
-    func activatePush(_ callback: @escaping (String?, String?, ARTErrorInfo?) -> ()) {
+    func activatePush(_ callback: @escaping (String?, String?, ErrorInfo?) -> ()) {
         Self.requestUserNotificationAuthorization()
-        realtime.push.activate()
+        client.push.activate()
         activatePushCallback = callback
     }
 
     func activateLocationPush() {
         locationManager.startMonitoringLocationPushes { deviceToken, error in
             guard error == nil else {
-                return ARTPush.didFailToRegisterForLocationNotificationsWithError(error!, realtime: self.realtime)
+                return Push.didFailToRegisterForLocationNotificationsWithError(error!, pubsub: self.client)
             }
             self.locationDeviceToken = deviceToken!.deviceTokenString
-            ARTPush.didRegisterForLocationNotifications(withDeviceToken: deviceToken!, realtime: self.realtime)
+            Push.didRegisterForLocationNotifications(withDeviceToken: deviceToken!, pubsub: self.client)
         }
     }
 
     func deactivatePush() {
-        realtime.push.deactivate()
+        client.push.deactivate()
     }
 
     func printIdentityToken() {
-        let device = realtime.device
+        let device = client.device
         // identityTokenDetails may be nil if the device hasn't been activated for push
         if let details = device.identityTokenDetails {
             // The token is a credential; print only a short prefix so debug
@@ -73,14 +73,14 @@ extension AblyHelper {
         }
     }
 
-    func getDeviceDetails(_ callback: @escaping (ARTDeviceDetails?, ARTErrorInfo?) -> ()) {
-        realtime.push.admin.deviceRegistrations.get(realtime.device.id, callback: callback)
+    func getDeviceDetails(_ callback: @escaping (DeviceDetails?, ErrorInfo?) -> ()) {
+        client.push.admin.deviceRegistrations.get(client.device.id, callback: callback)
     }
 
     // For this to work you must turn on 'Push Admin' capability in your API key settings
     func sendAdminPush(title: String, body: String) {
         let recipient = [
-            "deviceId": realtime.device.id
+            "deviceId": client.device.id
         ]
         let data = [
             "notification": [
@@ -92,13 +92,13 @@ extension AblyHelper {
                 "baz": "qux"
             ]
         ]
-        realtime.push.admin.publish(recipient, data: data) { error in
+        client.push.admin.publish(recipient, data: data) { error in
             print("Publish result: \(error?.localizedDescription ?? "Success")")
         }
     }
 
     func sendPushToChannel(_ channel: Channel) {
-        let message = ARTMessage(name: "example", data: "rest data")
+        let message = Message(name: "example", data: "rest data")
         message.extras = [
             "push": [
                 "notification": [
@@ -110,9 +110,9 @@ extension AblyHelper {
                     "baz": "qux"
                 ]
             ]
-        ] as any ARTJsonCompatible
+        ]
 
-        realtime.channels.get(channel.rawValue).publish([message]) { error in
+        client.channels.get(channel.rawValue).publish([message]) { error in
             if let error {
                 print("Error sending push to \(channel.rawValue) with error: \(error.localizedDescription)")
             } else {
@@ -122,7 +122,7 @@ extension AblyHelper {
     }
 
     func subscribeToChannel(_ channel: Channel) {
-        realtime.channels.get(channel.rawValue).push.subscribeDevice { error in
+        client.channels.get(channel.rawValue).push.subscribeDevice { error in
             guard error == nil else {
                 print("Error subscribing to \(channel.rawValue) with error: \(error!.localizedDescription)")
                 return
@@ -139,7 +139,7 @@ extension AblyHelper {
     }
 
     func unsubscribeFromChannel(_ channel: Channel) {
-        realtime.channels.get(channel.rawValue).push.unsubscribeDevice { error in
+        client.channels.get(channel.rawValue).push.unsubscribeDevice { error in
             guard error == nil else {
                 print("Error subscribing to \(channel.rawValue) with error: \(error!.localizedDescription)")
                 return
@@ -156,9 +156,9 @@ extension AblyHelper {
     }
 }
 
-extension AblyHelper: ARTPushRegistererDelegate {
+extension AblyHelper: PushRegistererDelegate {
 
-    func didActivateAblyPush(_ error: ARTErrorInfo?) {
+    func didActivateAblyPush(_ error: ErrorInfo?) {
         print("Push activation: \(error?.localizedDescription ?? "Success")")
         activatePushCallback?(defaultDeviceToken, locationDeviceToken, error)
         activateLocationPush()
@@ -167,14 +167,14 @@ extension AblyHelper: ARTPushRegistererDelegate {
         }
     }
 
-    func didDeactivateAblyPush(_ error: ARTErrorInfo?) {
+    func didDeactivateAblyPush(_ error: ErrorInfo?) {
         print("Push deactivation: \(error?.localizedDescription ?? "Success")")
         if error == nil {
             isPushActivated = false
         }
     }
 
-    func didUpdateAblyPush(_ error: ARTErrorInfo?) {
+    func didUpdateAblyPush(_ error: ErrorInfo?) {
         print("Push update: \(error?.localizedDescription ?? "Success")")
         activatePushCallback?(defaultDeviceToken, locationDeviceToken, error)
     }

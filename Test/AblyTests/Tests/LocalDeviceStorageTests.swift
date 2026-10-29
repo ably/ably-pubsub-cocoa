@@ -1,6 +1,6 @@
 #if os(iOS)
-import Ably
-import Ably.Private
+import AblyPubSubDevice
+import AblyPubSubDevice.Private
 import AblyTesting
 import Security
 import XCTest
@@ -127,16 +127,16 @@ final class LocalDeviceStorageTests: XCTestCase {
     // MARK: RSH3h ordering
 
     // RSH3h (the device is loaded *by* the state machine, not by the caller):
-    // an ARTRealtime *without* a clientId doesn't load the device as a side effect
-    // of construction (a clientId would, via `ARTAuth setLocalDeviceClientId_nosync:`),
+    // a PubSubClient *without* a clientId doesn't load the device as a side effect
+    // of construction (a clientId would, via `Auth setLocalDeviceClientId_nosync:`),
     // so it stays unloaded until the activation state machine is created.
     func test_RSH3h_stateMachineConstructionLoadsTheDeviceWhenNotPreloaded() {
         let logger = InternalLog(core: MockInternalLogCore())
 
         // No clientId, and don't connect — nothing loads the device.
-        let options = ARTClientOptions(key: "fake:key")
+        let options = ClientOptions(key: "fake:key")
         options.autoConnect = false
-        let realtime = ARTRealtime(options: options)
+        let realtime = PubSubClient(options: options)
         defer { realtime.close() }
 
         let rest = realtime.internal.rest
@@ -170,7 +170,7 @@ final class LocalDeviceStorageTests: XCTestCase {
     //
     // This test pre-loads the device via `rest.device` before constructing the
     // machine. That mirrors the common case of a client *with* a clientId, where
-    // the device is already loaded (via `ARTAuth setLocalDeviceClientId_nosync:`)
+    // the device is already loaded (via `Auth setLocalDeviceClientId_nosync:`)
     // by the time the machine is created — so the RSH8a1 discard has already run
     // in step (1), and step (2) merely observes its NotActivated outcome.
     func test_RSH8a_RSH3h_persistedActivationStateDiscardedWhenDeviceDataIsIncomplete() {
@@ -189,7 +189,7 @@ final class LocalDeviceStorageTests: XCTestCase {
         }
         let storage = makeStorage(keychainSecretReader: reader)
 
-        let rest = ARTRest(key: "fake:key")
+        let rest = HttpClient(key: "fake:key")
         rest.internal.storage = storage
         rest.internal.resetDeviceSingleton()
         defer { rest.internal.resetDeviceSingleton() }
@@ -214,7 +214,7 @@ final class LocalDeviceStorageTests: XCTestCase {
     //
     // This test pre-loads the device via `rest.device` before constructing the
     // machine. That mirrors the common case of a client *with* a clientId, where
-    // the device is already loaded (via `ARTAuth setLocalDeviceClientId_nosync:`)
+    // the device is already loaded (via `Auth setLocalDeviceClientId_nosync:`)
     // by the time the machine is created — so step (2) just resumes the state
     // that the already-completed step (1) retained.
     func test_RSH8a_RSH3h_persistedActivationStateResumesWhenDeviceDataIsComplete() {
@@ -232,7 +232,7 @@ final class LocalDeviceStorageTests: XCTestCase {
         }
         let storage = makeStorage(keychainSecretReader: reader)
 
-        let rest = ARTRest(key: "fake:key")
+        let rest = HttpClient(key: "fake:key")
         rest.internal.storage = storage
         rest.internal.resetDeviceSingleton()
         defer { rest.internal.resetDeviceSingleton() }
@@ -385,7 +385,7 @@ extension LocalDeviceStorageTests {
     // An archived activation state, used by the RSH3h test so that its survival/absence
     // is what distinguishes "state retained" from "state discarded".
     private func archivedWaitingForDeviceRegistrationState(logger: InternalLog) -> Data {
-        let rest = ARTRest(key: "fake:key")
+        let rest = HttpClient(key: "fake:key")
         rest.internal.storage = MockDeviceStorage()
         let stateMachine = ARTPushActivationStateMachine(rest: rest.internal, delegate: StateMachineDelegate(), logger: logger)
         let state = ARTPushActivationStateWaitingForDeviceRegistration(machine: stateMachine, logger: logger)

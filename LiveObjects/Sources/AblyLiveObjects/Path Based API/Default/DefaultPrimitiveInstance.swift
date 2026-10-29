@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 import Foundation
 
 /// Default implementation of ``PrimitiveInstance``. Per RTTS6h, the six per-primitive `Instance`
@@ -7,7 +7,6 @@ import Foundation
 ///
 /// A primitive has no backing internal node, so the RTO25b access-precondition check is run by
 /// hopping onto the shared `internalQueue`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal final class DefaultPrimitiveInstance: PrimitiveInstance {
     private let primitive: Primitive
     private let valueType: ValueType
@@ -24,7 +23,7 @@ internal final class DefaultPrimitiveInstance: PrimitiveInstance {
     // MARK: - PrimitiveInstance
 
     internal var value: Primitive {
-        get throws(ARTErrorInfo) {
+        get throws(ErrorInfo) {
             // RTINS4a: access API preconditions per RTO25
             try sync_checkAccessPreconditionsOnQueue()
             // RTINS4c: return the value directly
@@ -37,7 +36,7 @@ internal final class DefaultPrimitiveInstance: PrimitiveInstance {
         valueType
     }
 
-    internal func compactJson() throws(ARTErrorInfo) -> JSONValue {
+    internal func compactJson() throws(ErrorInfo) -> JSONValue {
         // RTINS11a: access API preconditions per RTO25
         try sync_checkAccessPreconditionsOnQueue()
         // RTINS11b -> RTPO14: a primitive compacts to itself, with binary base64-encoded (RTPO14b1)
@@ -49,9 +48,9 @@ internal final class DefaultPrimitiveInstance: PrimitiveInstance {
     /// Performs its own synchronisation: hops onto the shared internal queue to run the RTO25b
     /// channel-state check (DETACHED/FAILED -> 90001), reusing the exact check the map/counter node
     /// accessors run (`value(coreSDK:)`, `get(...)`). Must NOT be called while already on the queue.
-    private func sync_checkAccessPreconditionsOnQueue() throws(ARTErrorInfo) {
-        let result: Result<Void, ARTErrorInfo> = internalQueue.ably_syncNoDeadlock {
-            do throws(ARTErrorInfo) {
+    private func sync_checkAccessPreconditionsOnQueue() throws(ErrorInfo) {
+        let result: Result<Void, ErrorInfo> = internalQueue.ably_syncNoDeadlock {
+            do throws(ErrorInfo) {
                 // RTO25b
                 try coreSDK.nosync_validateChannelStateForAccessAPI(operationDescription: "PrimitiveInstance")
                 return .success(())

@@ -1,6 +1,6 @@
-import Ably
 @testable import AblyLiveObjects
 @testable import AblyLiveObjectsTesting
+import AblyPubSubDevice
 import Testing
 
 /// Tests for `SyncCursor`'s parsing of an `OBJECT_SYNC` `channelSerial` (RTO5a1, RTO5a4).

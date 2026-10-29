@@ -1,4 +1,4 @@
-#import <Ably/ARTClientInformation.h>
+#import <AblyPubSubDevice/ARTClientInformation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

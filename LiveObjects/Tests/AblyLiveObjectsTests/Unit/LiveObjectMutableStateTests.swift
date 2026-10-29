@@ -1,7 +1,7 @@
 import _AblyPluginSupportPrivate
-import Ably
 @testable import AblyLiveObjects
 @testable import AblyLiveObjectsTesting
+import AblyPubSubDevice
 import Testing
 
 /// Tests for `LiveObjectMutableState`.
@@ -133,7 +133,7 @@ struct LiveObjectMutableStateTests {
                     try mutableState.nosync_subscribe(listener: subscriber.createListener(), coreSDK: coreSDK, updateSelfLater: { _ in fatalError("Not expected") })
                 }
             } throws: { error in
-                guard let errorInfo = error as? ARTErrorInfo else {
+                guard let errorInfo = error as? ErrorInfo else {
                     return false
                 }
 
@@ -174,8 +174,8 @@ struct LiveObjectMutableStateTests {
                 }
 
                 @discardableResult
-                func subscribe(listener: @escaping LiveObjectUpdateCallback<Update>, coreSDK: CoreSDK) throws(ARTErrorInfo) -> SubscribeResponse {
-                    try mutex.withSync { stored throws(ARTErrorInfo) in
+                func subscribe(listener: @escaping LiveObjectUpdateCallback<Update>, coreSDK: CoreSDK) throws(ErrorInfo) -> SubscribeResponse {
+                    try mutex.withSync { stored throws(ErrorInfo) in
                         try stored.nosync_subscribe(listener: listener, coreSDK: coreSDK, updateSelfLater: { [weak self] action in
                             guard let self else {
                                 return

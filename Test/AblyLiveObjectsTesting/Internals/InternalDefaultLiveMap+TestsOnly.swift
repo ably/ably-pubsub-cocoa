@@ -1,7 +1,6 @@
 @testable import AblyLiveObjects
 import Foundation
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension InternalDefaultLiveMap {
     var testsOnly_data: [String: InternalObjectsMapEntry] {
         mutableStateMutex.withSync { mutableState in

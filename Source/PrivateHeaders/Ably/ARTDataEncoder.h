@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 
-#import <Ably/ARTStatus.h>
-#import <Ably/ARTCrypto.h>
+#import <AblyPubSubDevice/ARTErrorInfo.h>
+#import <AblyPubSubDevice/ARTCrypto.h>
 
 @class ARTCipherParams;
 @class ARTPlugin;

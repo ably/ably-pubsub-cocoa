@@ -1,7 +1,6 @@
 import Foundation
 
 /// Like ``JSONValue``, but provides a flexible `number` case and an additional case named `extra`, which allows you to support additional types of data. It's used as a common base for the implementations of ``JSONValue`` and ``WireValue``, and for converting between them.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal indirect enum ExtendedJSONValue<Number, Extra> {
     case object([String: Self])
     case array([Self])
@@ -14,7 +13,6 @@ internal indirect enum ExtendedJSONValue<Number, Extra> {
 
 // MARK: - Bridging with Foundation
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ExtendedJSONValue {
     /// Creates an `ExtendedJSONValue` from an object.
     ///
@@ -68,7 +66,6 @@ internal extension ExtendedJSONValue {
 
 // MARK: - Transforming the extra data
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ExtendedJSONValue {
     /// Converts this `ExtendedJSONValue<Number, Extra>` to an `ExtendedJSONValue<NewNumber, NewExtra>` using given transformations.
     func map<NewNumber, NewExtra, Failure>(number transformNumber: @escaping (Number) throws(Failure) -> NewNumber, extra transformExtra: @escaping (Extra) throws(Failure) -> NewExtra) throws(Failure) -> ExtendedJSONValue<NewNumber, NewExtra> {

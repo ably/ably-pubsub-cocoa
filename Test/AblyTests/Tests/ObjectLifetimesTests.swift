@@ -1,9 +1,10 @@
-import Ably
+import AblyPubSubDevice
+import AblyPubSubDevice.Private
 import Nimble
 import XCTest
 
-private let options: ARTClientOptions = {
-    let options = ARTClientOptions(key: "fake:key")
+private let options: ClientOptions = {
+    let options = ClientOptions(key: "fake:key")
     options.autoConnect = false
     return options
 }()
@@ -17,10 +18,10 @@ class ObjectLifetimesTests: XCTestCase {
     }
 
     func test__001__ObjectLifetimes__user_code_releases_public_object__the_object_s_internal_child_s_back_reference_is_released_too() {
-        var realtime: ARTRealtime? = ARTRealtime(options: options)
-        weak var internalRealtime: ARTRealtimeInternal? = realtime!.internal
-        weak var internalConn: ARTConnectionInternal? = realtime!.connection.internal
-        weak var internalRest: ARTRestInternal? = realtime!.internal.rest
+        var realtime: PubSubClient? = PubSubClient(options: options)
+        weak let internalRealtime: ARTPubSubClientInternal? = realtime!.internal
+        weak let internalConn: ARTConnectionInternal? = realtime!.connection.internal
+        weak let internalRest: ARTHttpClientInternal? = realtime!.internal.rest
 
         waitUntil(timeout: testTimeout) { done in
             options.internalDispatchQueue.async {
@@ -45,7 +46,7 @@ class ObjectLifetimesTests: XCTestCase {
     }
 
     func test__002__ObjectLifetimes__user_code_holds_only_reference_to_public_object_s_public_child__still_can_access_parent_s_internal_object() {
-        let conn = ARTRealtime(options: options).connection
+        let conn = PubSubClient(options: options).connection
 
         waitUntil(timeout: testTimeout) { done in
             conn.ping { _ in
@@ -55,8 +56,8 @@ class ObjectLifetimesTests: XCTestCase {
     }
 
     func test__003__ObjectLifetimes__user_code_holds_only_reference_to_public_object_s_public_child__when_it_s_released__schedules_async_release_of_parent_s_internal_object_in_internal_queue() {
-        var conn: ARTConnection? = ARTRealtime(options: options).connection
-        weak var weakConn = conn!.internal_nosync
+        var conn: Connection? = PubSubClient(options: options).connection
+        weak let weakConn = conn!.internal_nosync
 
         waitUntil(timeout: testTimeout) { done in
             options.internalDispatchQueue.async {
@@ -80,9 +81,9 @@ class ObjectLifetimesTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
 
-        var client: ARTRealtime? = ARTRealtime(options: options)
+        var client: PubSubClient? = PubSubClient(options: options)
 
-        weak var weakClient = client!.internal
+        weak let weakClient = client!.internal
         XCTAssertNotNil(weakClient)
         defer { client?.close() }
 
@@ -90,7 +91,7 @@ class ObjectLifetimesTests: XCTestCase {
         waitUntil(timeout: testTimeout) { done in
             client!.channels.get(channelName).subscribe(attachCallback: { _ in
                 client = nil
-                ARTRest(options: options).channels.get(channelName).publish(nil, data: "bar")
+                HttpClient(options: options).channels.get(channelName).publish(nil, data: "bar")
             }, callback: { msg in
                 XCTAssertEqual(msg.data as? String, "bar")
                 done()
@@ -102,11 +103,11 @@ class ObjectLifetimesTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
 
-        var client: ARTRealtime? = ARTRealtime(options: options)
-        weak var weakClient = client!.internal
+        var client: PubSubClient? = PubSubClient(options: options)
+        weak let weakClient = client!.internal
 
-        var channel: ARTRealtimeChannel? = client!.channels.get(test.uniqueChannelName())
-        weak var weakChannel = channel!.internal
+        var channel: RealtimeChannel? = client!.channels.get(test.uniqueChannelName())
+        weak let weakChannel = channel!.internal
 
         waitUntil(timeout: testTimeout) { done in
             channel!.attach { errorInfo in

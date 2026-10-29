@@ -1,13 +1,20 @@
-#import <Ably/ARTDefault.h>
+#import <AblyPubSubDevice/ARTDefault.h>
 
-extern NSString *const ARTDefaultProduction;
+NS_ASSUME_NONNULL_BEGIN
 
 @interface ARTDefault (Private)
 
-+ (void)setConnectionStateTtl:(NSTimeInterval)value;
-+ (void)setMaxMessageSize:(NSInteger)value;
+/// The endpoint a client uses when `ARTClientOptions.endpoint` is nil (REC1a).
++ (NSString *)endpoint;
 
-+ (NSInteger)maxSandboxMessageSize;
-+ (NSInteger)maxProductionMessageSize;
+/// The URL a client requests to check its internet connection when `ARTClientOptions.connectivityCheckUrl` is nil (REC3a).
++ (NSURL *)connectivityCheckUrl;
+
+/// The five fallback hosts `[id].[a-e].fallback.[domain]` for a routing policy (REC2c).
++ (NSArray<NSString *> *)fallbackHostsForRoutingPolicyId:(NSString *)routingPolicyId domain:(NSString *)domain;
+
++ (void)setConnectionStateTtl:(NSTimeInterval)value;
 
 @end
+
+NS_ASSUME_NONNULL_END

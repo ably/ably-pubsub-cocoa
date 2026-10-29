@@ -1,13 +1,12 @@
-import Ably
+import AblyPubSubDevice
 
 /// Default implementation of ``PrimitivePathObject``, a terminal primitive view adding a
 /// type-narrowed ``value()`` on top of ``DefaultPathObject``. Per RTTS6h, the six per-primitive
 /// `PathObject` sub-classes of RTTS6c are collapsed into a single type fronting a ``Primitive`` enum.
 ///
 /// Spec: `RTTS6c`, `RTTS6h`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal final class DefaultPrimitivePathObject: DefaultPathObject, PrimitivePathObject, @unchecked Sendable {
-    internal func value() throws(ARTErrorInfo) -> Primitive? {
+    internal func value() throws(ErrorInfo) -> Primitive? {
         try ChannelConfigGuards.throwIfInvalidAccessApiConfiguration(coreSDK: coreSDK, internalQueue: internalQueue)
         // RTPO7f — path resolution fails -> nil (RTPO3c1).
         guard let resolved = try resolveValueAtCurrentPath() else {

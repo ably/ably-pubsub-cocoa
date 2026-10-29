@@ -1,13 +1,13 @@
-#import <Ably/ARTPaginatedResult.h>
+#import <AblyPubSubDevice/ARTPaginatedResult.h>
 
-@class ARTRestInternal;
+@class ARTHttpClientInternal;
 @class ARTInternalLog;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ARTPaginatedResult<ItemType> ()
 
-@property (nonatomic, readonly) ARTRestInternal *rest;
+@property (nonatomic, readonly) ARTHttpClientInternal *rest;
 @property (nonatomic, readonly) dispatch_queue_t userQueue;
 @property (nonatomic, readonly) dispatch_queue_t queue;
 @property (nonatomic, readonly) NSMutableURLRequest *relFirst;
@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NSArray<ItemType> *_Nullable(^ARTPaginatedResultResponseProcessor)(NSHTTPURLResponse *_Nullable, NSData *_Nullable, NSError *_Nullable *_Nullable);
 
 - (instancetype)initWithItems:(NSArray *)items
-                         rest:(ARTRestInternal *)rest
+                         rest:(ARTHttpClientInternal *)rest
                      relFirst:(NSMutableURLRequest *)relFirst
                    relCurrent:(NSMutableURLRequest *)relCurrent
                       relNext:(NSMutableURLRequest *)relNext
@@ -25,7 +25,7 @@ typedef NSArray<ItemType> *_Nullable(^ARTPaginatedResultResponseProcessor)(NSHTT
              wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
                        logger:(ARTInternalLog *)logger NS_DESIGNATED_INITIALIZER;
 
-+ (void)executePaginated:(ARTRestInternal *)rest
++ (void)executePaginated:(ARTHttpClientInternal *)rest
              withRequest:(NSMutableURLRequest *)request
     andResponseProcessor:(ARTPaginatedResultResponseProcessor)responseProcessor
         wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents

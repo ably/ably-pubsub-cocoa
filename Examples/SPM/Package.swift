@@ -1,4 +1,4 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.5
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -7,8 +7,8 @@ import Darwin.C
 let package = Package(
     name: "SPMIntegration",
     platforms: [
-        .iOS(.v9),
-        .macOS(.v10_11)
+        .iOS(.v15),
+        .macOS(.v12)
     ],
     dependencies: [
         .package(path: "../../")
@@ -17,7 +17,9 @@ let package = Package(
         .target(
             name: "SPMIntegration",
             dependencies: [
-                .product(name: "Ably", package: "ably-cocoa")
+                // `package:` is the dependency's identity, which for a path
+                // dependency is the directory name, not the manifest's `name`.
+                .product(name: "AblyPubSubDevice", package: "ably-pubsub-cocoa")
             ],
             swiftSettings: [
                 .unsafeFlags(["-warnings-as-errors"])

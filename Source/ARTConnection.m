@@ -1,6 +1,6 @@
 #import "ARTConnection+Private.h"
 #import "ARTDefault.h"
-#import "ARTRealtime+Private.h"
+#import "ARTPubSubClient+Private.h"
 #import "ARTEventEmitter+Private.h"
 #import "ARTQueuedDealloc.h"
 #import "ARTRealtimeChannels+Private.h"
@@ -26,13 +26,6 @@
 - (NSString *)key {
     return _internal.key;
 }
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-implementations"
-- (NSString *)recoveryKey {
-    return [_internal createRecoveryKey];
-}
-#pragma GCC diagnostic pop
 
 // RTN16g - recovery key as a JSON serialized version of [ARTConnectionRecoveryKey]
 - (NSString *)createRecoveryKey {
@@ -111,10 +104,10 @@
     ARTErrorInfo *_errorReason;
 }
 
-- (instancetype)initWithRealtime:(ARTRealtimeInternal *)realtime logger:(ARTInternalLog *)logger {
+- (instancetype)initWithPubSub:(ARTPubSubClientInternal *)pubsub logger:(ARTInternalLog *)logger {
     if (self = [super init]) {
-        _eventEmitter = [[ARTPublicEventEmitter alloc] initWithRest:realtime.rest logger:logger];
-        _realtime = realtime;
+        _eventEmitter = [[ARTPublicEventEmitter alloc] initWithRest:pubsub.rest logger:logger];
+        _realtime = pubsub;
         _queue = _realtime.rest.queue;
     }
     return self;
@@ -199,7 +192,7 @@ art_dispatch_sync(_queue, ^{
 - (NSInteger)maxMessageSize {
     if (_maxMessageSize)
         return _maxMessageSize;
-    return _realtime.options.isProductionEnvironment ? [ARTDefault maxProductionMessageSize] : [ARTDefault maxSandboxMessageSize];
+    return _realtime.options.maxMessageSize;
 }
 
 - (ARTRealtimeConnectionState)state_nosync {
@@ -264,13 +257,6 @@ art_dispatch_sync(_queue, ^{
 - (void)off:(ARTEventListener *)listener {
     [_eventEmitter off:listener];
 }
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-- (NSString *)recoveryKey {
-    return [self createRecoveryKey];
-}
-#pragma clang diagnostic pop
 
 - (NSString *)createRecoveryKey_nosync {
     if (_key == nil || IsInactiveConnectionState(_state)) { // RTN16g2

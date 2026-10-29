@@ -1,5 +1,5 @@
 @import Foundation;
-#import <Ably/ARTPaginatedResult.h>
+#import <AblyPubSubDevice/ARTPaginatedResult.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

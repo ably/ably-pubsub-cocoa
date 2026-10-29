@@ -1,5 +1,5 @@
 import XCTest
-import Ably.Private
+import AblyPubSubDevice.Private
 
 class DefaultJitterCoefficientGeneratorTests: XCTestCase {
     func test_generatesValuesInExpectedRange() {

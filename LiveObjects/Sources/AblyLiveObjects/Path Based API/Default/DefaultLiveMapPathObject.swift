@@ -1,10 +1,9 @@
-import Ably
+import AblyPubSubDevice
 
 /// Default implementation of ``LiveMapPathObject``, adding map
 /// navigation and read/write operations on top of ``DefaultPathObject``.
 ///
 /// Spec: `RTTS6a`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal final class DefaultLiveMapPathObject: DefaultPathObject, LiveMapPathObject, @unchecked Sendable {
     // MARK: - Navigation (RTPO5, RTPO6)
 
@@ -21,7 +20,7 @@ internal final class DefaultLiveMapPathObject: DefaultPathObject, LiveMapPathObj
 
     // MARK: - Reads (RTPO9, RTPO10, RTPO11, RTPO12)
 
-    internal func entries() throws(ARTErrorInfo) -> [(key: String, value: any PathObject)] {
+    internal func entries() throws(ErrorInfo) -> [(key: String, value: any PathObject)] {
         try ChannelConfigGuards.throwIfInvalidAccessApiConfiguration(coreSDK: coreSDK, internalQueue: internalQueue) // RTPO9a
         // RTPO9d — not a LiveMap (or unresolved) -> empty.
         guard let mapNode = try resolvedMapNode() else {
@@ -33,7 +32,7 @@ internal final class DefaultLiveMapPathObject: DefaultPathObject, LiveMapPathObj
         }
     }
 
-    internal func keys() throws(ARTErrorInfo) -> [String] {
+    internal func keys() throws(ErrorInfo) -> [String] {
         try ChannelConfigGuards.throwIfInvalidAccessApiConfiguration(coreSDK: coreSDK, internalQueue: internalQueue) // RTPO10a
         // RTPO10d — not a LiveMap (or unresolved) -> empty.
         guard let mapNode = try resolvedMapNode() else {
@@ -43,7 +42,7 @@ internal final class DefaultLiveMapPathObject: DefaultPathObject, LiveMapPathObj
         return try mapNode.keys(coreSDK: coreSDK, delegate: channelObject)
     }
 
-    internal func values() throws(ARTErrorInfo) -> [any PathObject] {
+    internal func values() throws(ErrorInfo) -> [any PathObject] {
         try ChannelConfigGuards.throwIfInvalidAccessApiConfiguration(coreSDK: coreSDK, internalQueue: internalQueue) // RTPO11a
         // RTPO11d — not a LiveMap (or unresolved) -> empty.
         guard let mapNode = try resolvedMapNode() else {
@@ -55,7 +54,7 @@ internal final class DefaultLiveMapPathObject: DefaultPathObject, LiveMapPathObj
         }
     }
 
-    internal func size() throws(ARTErrorInfo) -> Int? {
+    internal func size() throws(ErrorInfo) -> Int? {
         try ChannelConfigGuards.throwIfInvalidAccessApiConfiguration(coreSDK: coreSDK, internalQueue: internalQueue) // RTPO12a
         // RTPO12d — not a LiveMap (or unresolved) -> nil.
         guard let mapNode = try resolvedMapNode() else {
@@ -67,7 +66,7 @@ internal final class DefaultLiveMapPathObject: DefaultPathObject, LiveMapPathObj
 
     // MARK: - Writes (RTPO15, RTPO16)
 
-    internal func set(key: String, value: LiveMapValue) async throws(ARTErrorInfo) {
+    internal func set(key: String, value: LiveMapValue) async throws(ErrorInfo) {
         try ChannelConfigGuards.throwIfInvalidWriteApiConfiguration(coreSDK: coreSDK, internalQueue: internalQueue) // RTPO15b / RTO26
         // RTPO15c / RTPO3c2 — unresolved write path throws 92005.
         guard let resolved = try resolveValueAtCurrentPath() else {
@@ -81,7 +80,7 @@ internal final class DefaultLiveMapPathObject: DefaultPathObject, LiveMapPathObj
         try await mapInstance.set(key: key, value: value)
     }
 
-    internal func remove(key: String) async throws(ARTErrorInfo) {
+    internal func remove(key: String) async throws(ErrorInfo) {
         try ChannelConfigGuards.throwIfInvalidWriteApiConfiguration(coreSDK: coreSDK, internalQueue: internalQueue) // RTPO16b / RTO26
         // RTPO16c / RTPO3c2 — unresolved write path throws 92005.
         guard let resolved = try resolveValueAtCurrentPath() else {
@@ -99,7 +98,7 @@ internal final class DefaultLiveMapPathObject: DefaultPathObject, LiveMapPathObj
 
     /// Resolves the current path and narrows to the backing map node, or `nil` if the path is
     /// unresolved or does not resolve to a map (RTPO9d/RTPO10d/RTPO11d/RTPO12d).
-    private func resolvedMapNode() throws(ARTErrorInfo) -> InternalDefaultLiveMap? {
+    private func resolvedMapNode() throws(ErrorInfo) -> InternalDefaultLiveMap? {
         guard let resolved = try resolveValueAtCurrentPath(), case let .liveMap(mapNode) = resolved else {
             return nil
         }

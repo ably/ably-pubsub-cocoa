@@ -1,5 +1,5 @@
-import Ably
 import AblyLiveObjects
+import AblyPubSubDevice
 import SwiftUI
 
 @MainActor
@@ -8,16 +8,16 @@ final class TaskBoardViewModel: ObservableObject {
     @Published var isLoading = true
     @Published var errorMessage: String?
 
-    private var channel: ARTRealtimeChannel
+    private var channel: RealtimeChannel
     private var object: any RealtimeObject
     private var root: (any LiveMapPathObject)?
 
     private var subscriptions: [String: any Subscription] = [:]
 
-    init(realtime: ARTRealtime, channelName: String = "objects-live-map") {
-        let channelOptions = ARTRealtimeChannelOptions()
+    init(client: PubSubClient, channelName: String = "objects-live-map") {
+        let channelOptions = RealtimeChannelOptions()
         channelOptions.modes = [.objectPublish, .objectSubscribe]
-        channel = realtime.channels.get(channelName, options: channelOptions)
+        channel = client.channels.get(channelName, options: channelOptions)
         object = channel.object
 
         Task {

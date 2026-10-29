@@ -1,21 +1,22 @@
 #if os(iOS)
-import Ably
+import AblyPubSubDevice
+import AblyTestingObjC
 import Nimble
 import XCTest
 
 class PushChannelTests: XCTestCase {
     private struct TestEnvironment {
-        var rest: ARTRest
+        var rest: HttpClient
         var mockHttpExecutor: MockHTTPExecutor
         var userQueue: DispatchQueue
 
         init(test: Test) {
             mockHttpExecutor = MockHTTPExecutor()
-            let options = ARTClientOptions(key: "xxxx:xxxx")
+            let options = ClientOptions(key: "xxxx:xxxx")
             userQueue = AblyTests.createUserQueue(for: test)
             options.dispatchQueue = userQueue
             options.internalDispatchQueue = AblyTests.queue
-            rest = ARTRest(options: options)
+            rest = HttpClient(options: options)
             rest.internal.options.clientId = "tester"
             rest.internal.httpExecutor = mockHttpExecutor
             rest.internal.resetDeviceSingleton()
@@ -49,7 +50,7 @@ class PushChannelTests: XCTestCase {
         let testEnvironment = TestEnvironment(test: test)
         let rest = testEnvironment.rest
 
-        let testIdentityTokenDetails = ARTDeviceIdentityTokenDetails(token: "xxxx-xxxx-xxx", issued: Date(), expires: Date.distantFuture, capability: "", clientId: "")
+        let testIdentityTokenDetails = DeviceIdentityTokenDetails(token: "xxxx-xxxx-xxx", issued: Date(), expires: Date.distantFuture, capability: "", clientId: "")
         rest.device.setAndPersistIdentityTokenDetails(testIdentityTokenDetails)
         defer { rest.device.setAndPersistIdentityTokenDetails(nil) }
 
@@ -85,7 +86,7 @@ class PushChannelTests: XCTestCase {
         let testEnvironment = TestEnvironment(test: test)
         let rest = testEnvironment.rest
 
-        let testIdentityTokenDetails = ARTDeviceIdentityTokenDetails(token: "xxxx-xxxx-xxx", issued: Date(), expires: Date.distantFuture, capability: "", clientId: "")
+        let testIdentityTokenDetails = DeviceIdentityTokenDetails(token: "xxxx-xxxx-xxx", issued: Date(), expires: Date.distantFuture, capability: "", clientId: "")
         rest.device.setAndPersistIdentityTokenDetails(testIdentityTokenDetails)
         defer { rest.device.setAndPersistIdentityTokenDetails(nil) }
 
@@ -111,7 +112,7 @@ class PushChannelTests: XCTestCase {
         let testEnvironment = TestEnvironment(test: test)
         let rest = testEnvironment.rest
 
-        let testIdentityTokenDetails = ARTDeviceIdentityTokenDetails(token: "xxxx-xxxx-xxx", issued: Date(), expires: Date.distantFuture, capability: "", clientId: "")
+        let testIdentityTokenDetails = DeviceIdentityTokenDetails(token: "xxxx-xxxx-xxx", issued: Date(), expires: Date.distantFuture, capability: "", clientId: "")
         rest.device.setAndPersistIdentityTokenDetails(testIdentityTokenDetails)
         defer { rest.device.setAndPersistIdentityTokenDetails(nil) }
 
@@ -163,7 +164,7 @@ class PushChannelTests: XCTestCase {
         let testEnvironment = TestEnvironment(test: test)
         let rest = testEnvironment.rest
 
-        let testIdentityTokenDetails = ARTDeviceIdentityTokenDetails(token: "xxxx-xxxx-xxx", issued: Date(), expires: Date.distantFuture, capability: "", clientId: "")
+        let testIdentityTokenDetails = DeviceIdentityTokenDetails(token: "xxxx-xxxx-xxx", issued: Date(), expires: Date.distantFuture, capability: "", clientId: "")
         rest.device.setAndPersistIdentityTokenDetails(testIdentityTokenDetails)
         defer { rest.device.setAndPersistIdentityTokenDetails(nil) }
 
@@ -197,7 +198,7 @@ class PushChannelTests: XCTestCase {
         let testEnvironment = TestEnvironment(test: test)
         let rest = testEnvironment.rest
 
-        let testIdentityTokenDetails = ARTDeviceIdentityTokenDetails(token: "xxxx-xxxx-xxx", issued: Date(), expires: Date.distantFuture, capability: "", clientId: "")
+        let testIdentityTokenDetails = DeviceIdentityTokenDetails(token: "xxxx-xxxx-xxx", issued: Date(), expires: Date.distantFuture, capability: "", clientId: "")
         rest.device.setAndPersistIdentityTokenDetails(testIdentityTokenDetails)
         defer { rest.device.setAndPersistIdentityTokenDetails(nil) }
 
@@ -223,7 +224,7 @@ class PushChannelTests: XCTestCase {
         let testEnvironment = TestEnvironment(test: test)
         let rest = testEnvironment.rest
 
-        let testIdentityTokenDetails = ARTDeviceIdentityTokenDetails(token: "xxxx-xxxx-xxx", issued: Date(), expires: Date.distantFuture, capability: "", clientId: "")
+        let testIdentityTokenDetails = DeviceIdentityTokenDetails(token: "xxxx-xxxx-xxx", issued: Date(), expires: Date.distantFuture, capability: "", clientId: "")
         rest.device.setAndPersistIdentityTokenDetails(testIdentityTokenDetails)
         defer { rest.device.setAndPersistIdentityTokenDetails(nil) }
 
@@ -261,7 +262,7 @@ class PushChannelTests: XCTestCase {
         ]
         let channel = rest.channels.get(test.uniqueChannelName())
         waitUntil(timeout: testTimeout) { done in
-            try? channel.push.listSubscriptions(params) { result, error in
+            channel.push.listSubscriptions(params) { result, error in
                 XCTAssertNil(error)
                 XCTAssertNotNil(result)
                 done()
@@ -290,7 +291,7 @@ class PushChannelTests: XCTestCase {
         ]
         let channel = rest.channels.get(test.uniqueChannelName())
         waitUntil(timeout: testTimeout) { done in
-            try? channel.push.listSubscriptions(params) { result, error in
+            channel.push.listSubscriptions(params) { result, error in
                 XCTAssertNil(error)
                 XCTAssertNotNil(result)
                 done()
@@ -313,9 +314,7 @@ class PushChannelTests: XCTestCase {
         let testEnvironment = TestEnvironment(test: test)
 
         let channel = testEnvironment.rest.channels.get(test.uniqueChannelName())
-        expect { try channel.push.listSubscriptions([:]) { _, _ in } }.to(throwError { (error: NSError) in
-            XCTAssertEqual(error.code, ARTDataQueryError.missingRequiredFields.rawValue)
-        })
+        XCTAssertEqual(tryInObjC { channel.push.listSubscriptions([:]) { _, _ in } }?.name, .invalidArgumentException)
     }
 
     func test__012__Push_Channel__listSubscriptions__should_not_accept_both_deviceId_and_clientId_params_at_the_same_time() {
@@ -327,9 +326,7 @@ class PushChannelTests: XCTestCase {
             "clientId": "y",
         ]
         let channel = testEnvironment.rest.channels.get(test.uniqueChannelName())
-        expect { try channel.push.listSubscriptions(params) { _, _ in } }.to(throwError { (error: NSError) in
-            XCTAssertEqual(error.code, ARTDataQueryError.invalidParameters.rawValue)
-        })
+        XCTAssertEqual(tryInObjC { channel.push.listSubscriptions(params) { _, _ in } }?.name, .invalidArgumentException)
     }
 
     func test__013__Push_Channel__listSubscriptions__should_return_a_paginated_result_with_PushChannelSubscription() throws {
@@ -340,12 +337,12 @@ class PushChannelTests: XCTestCase {
         options.clientId = "tester"
         // Prevent channel name to be prefixed by test-*
         options.testOptions.channelNamePrefix = nil
-        let rest = ARTRest(options: options)
+        let rest = HttpClient(options: options)
         rest.internal.storage = MockDeviceStorage()
         rest.internal.setupLocalDevice_nosync()
 
         // Activate device
-        let testIdentityTokenDetails = ARTDeviceIdentityTokenDetails(token: "xxxx-xxxx-xxx", issued: Date(), expires: Date.distantFuture, capability: "", clientId: "")
+        let testIdentityTokenDetails = DeviceIdentityTokenDetails(token: "xxxx-xxxx-xxx", issued: Date(), expires: Date.distantFuture, capability: "", clientId: "")
         rest.device.setAndPersistIdentityTokenDetails(testIdentityTokenDetails)
         defer { rest.device.setAndPersistIdentityTokenDetails(nil) }
 
@@ -362,7 +359,7 @@ class PushChannelTests: XCTestCase {
             "channel": channel.name,
         ]
         waitUntil(timeout: testTimeout) { done in
-            try! channel.push.listSubscriptions(params) { result, error in
+            channel.push.listSubscriptions(params) { result, error in
                 XCTAssertNil(error)
                 guard let result = result else {
                     fail("Result is nil"); done(); return

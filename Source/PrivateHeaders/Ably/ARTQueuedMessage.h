@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import <Ably/ARTTypes.h>
+#import <AblyPubSubDevice/ARTTypes.h>
 #import "ARTMessageSendStatus.h"
 
 @class ARTProtocolMessage;

@@ -1,12 +1,10 @@
-// This module map is used by SPM. Xcode uses a separate one (../Ably.modulemap).
-
-module Ably {
-    umbrella header "Ably/Ably.h"
+module AblyPubSubDevice {
+    umbrella header "AblyPubSubDevice/AblyPubSubDevice.h"
 
     export *
     module * { export * }
 
-    // Allow access to the private API of the SDK by writing `import Ably.Private`. Intended only for testing.
+    // Allow access to the private API of the SDK by writing `import AblyPubSubDevice.Private`. Intended only for testing.
     explicit module Private {
         header "../PrivateHeaders/Ably/ARTConstants.h"
         header "../PrivateHeaders/Ably/ARTReachability.h"
@@ -20,12 +18,12 @@ module Ably {
         header "../PrivateHeaders/Ably/ARTDataQuery+Private.h"
         header "../PrivateHeaders/Ably/ARTDefault+Private.h"
         header "../PrivateHeaders/Ably/ARTEventEmitter+Private.h"
-        header "../PrivateHeaders/Ably/ARTRealtime+Private.h"
+        header "../PrivateHeaders/Ably/ARTPubSubClient+Private.h"
         header "../PrivateHeaders/Ably/ARTRealtimeChannel+Private.h"
         header "../PrivateHeaders/Ably/ARTRealtimeChannels+Private.h"
-        header "../PrivateHeaders/Ably/ARTRest+Private.h"
-        header "../PrivateHeaders/Ably/ARTRestChannels+Private.h"
-        header "../PrivateHeaders/Ably/ARTRestChannel+Private.h"
+        header "../PrivateHeaders/Ably/ARTHttpClient+Private.h"
+        header "../PrivateHeaders/Ably/ARTHttpChannels+Private.h"
+        header "../PrivateHeaders/Ably/ARTHttpChannel+Private.h"
         header "../PrivateHeaders/Ably/ARTPaginatedResult+Private.h"
         header "../PrivateHeaders/Ably/ARTPaginatedResult+Subclass.h"
         header "../PrivateHeaders/Ably/ARTPresence+Private.h"
@@ -43,12 +41,13 @@ module Ably {
         header "../PrivateHeaders/Ably/ARTCrypto+Private.h"
         header "../PrivateHeaders/Ably/ARTLog+Private.h"
         header "../PrivateHeaders/Ably/ARTRealtimePresence+Private.h"
-        header "../PrivateHeaders/Ably/ARTRestPresence+Private.h"
+        header "../PrivateHeaders/Ably/ARTHttpPresence+Private.h"
         header "../PrivateHeaders/Ably/ARTAnnotation+Private.h"
+        header "../PrivateHeaders/Ably/ARTOutboundAnnotation+Private.h"
         header "../PrivateHeaders/Ably/ARTRealtimeAnnotations+Private.h"
         header "../PrivateHeaders/Ably/ARTMessageVersion+Private.h"
         header "../PrivateHeaders/Ably/ARTMessageAnnotations+Private.h"
-        header "../PrivateHeaders/Ably/ARTRestAnnotations+Private.h"
+        header "../PrivateHeaders/Ably/ARTHttpAnnotations+Private.h"
         header "../PrivateHeaders/Ably/ARTFallback+Private.h"
         header "../PrivateHeaders/Ably/ARTFallbackHosts.h"
         header "../PrivateHeaders/Ably/ARTLocalDevice+Private.h"
@@ -64,9 +63,9 @@ module Ably {
         header "../PrivateHeaders/Ably/ARTPushActivationStateMachine+Private.h"
         header "../PrivateHeaders/Ably/ARTPushChannel+Private.h"
         header "../PrivateHeaders/Ably/ARTNSMutableRequest+ARTPush.h"
-        header "../PrivateHeaders/Ably/ARTNSMutableRequest+ARTRest.h"
+        header "../PrivateHeaders/Ably/ARTNSMutableRequest+ARTHttpClient.h"
         header "../PrivateHeaders/Ably/ARTHTTPPaginatedResponse+Private.h"
-        header "../PrivateHeaders/Ably/ARTHttp+Private.h"
+        header "../PrivateHeaders/Ably/ARTHTTPExecutor+Private.h"
         header "../PrivateHeaders/Ably/ARTNSHTTPURLResponse+ARTPaginated.h"
         header "../PrivateHeaders/Ably/ARTNSMutableURLRequest+ARTPaginated.h"
         header "../PrivateHeaders/Ably/ARTNSDate+ARTUtil.h"
@@ -107,7 +106,7 @@ module Ably {
         header "../PrivateHeaders/Ably/ARTLogAdapter.h"
         header "../PrivateHeaders/Ably/ARTLogAdapter+Testing.h"
         header "../PrivateHeaders/Ably/ARTDeviceIdentityTokenDetails+Private.h"
-        header "../PrivateHeaders/Ably/ARTHttp.h"
+        header "../PrivateHeaders/Ably/ARTHTTPExecutor.h"
         header "../PrivateHeaders/Ably/ARTAtomicFileStorage.h"
         header "../PrivateHeaders/Ably/ARTLocalDeviceStorage.h"
         header "../PrivateHeaders/Ably/ARTThrowingLocalDeviceStorage.h"
@@ -144,6 +143,7 @@ module Ably {
         header "../PrivateHeaders/Ably/ARTPluginAPI.h"
         header "../PrivateHeaders/Ably/ARTPublicRealtimeChannelUnderlyingObjects.h"
         header "../PrivateHeaders/Ably/ARTErrorInfo+Private.h"
+        header "../PrivateHeaders/Ably/ARTStatus.h"
         header "../PrivateHeaders/Ably/ARTDictionarySerializable.h"
         header "../PrivateHeaders/Ably/ARTMessageOperation+Private.h"
         header "../PrivateHeaders/Ably/ARTMessage+Private.h"

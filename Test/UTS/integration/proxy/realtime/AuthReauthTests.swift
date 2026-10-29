@@ -3,7 +3,7 @@
 
 import Testing
 import Foundation
-import Ably
+import AblyPubSubDevice
 
 /// Auth re-authorization (RTN22, RTC8a)
 /// Derived from ably/specification `uts/realtime/integration/proxy/auth_reauth.md`
@@ -33,14 +33,14 @@ final class AuthReauthTests: ProxyTestCase {
             // SDK config: Use authCallback so re-authentication can be observed.
             // Generate a JWT token signed with the sandbox key
             // (cocoa equivalent: a TokenRequest signed locally with the sandbox key by a separate
-            // TLS "token signer" ARTRest — the proxyClientOptions pattern, inlined here so the
+            // TLS "token signer" HttpClient — the proxyClientOptions pattern, inlined here so the
             // test can count the authCallback invocations itself)
-            let authCallbackInvocations = Captured<ARTTokenParams>()
-            let signerOptions = ARTClientOptions(key: app.defaultKey)
-            signerOptions.restHost = SandboxApp.sandboxHost
-            let tokenSigner = ARTRest(options: signerOptions)
+            let authCallbackInvocations = Captured<TokenParams>()
+            let signerOptions = ClientOptions(key: app.defaultKey)
+            signerOptions.endpoint = SandboxApp.sandboxEndpoint
+            let tokenSigner = HttpClient(options: signerOptions)
 
-            let options = ARTClientOptions()
+            let options = ClientOptions()
             options.authCallback = { params, callback in
                 authCallbackInvocations.append(params)
                 tokenSigner.auth.createTokenRequest(params, options: nil) { tokenRequest, error in
@@ -64,7 +64,7 @@ final class AuthReauthTests: ProxyTestCase {
                 #expect(originalAuthCallbackCount >= 1)
 
                 // Record state changes from this point
-                let stateChanges = Captured<ARTRealtimeConnectionState>()
+                let stateChanges = Captured<RealtimeConnectionState>()
                 client.connection.on { change in
                     stateChanges.append(change.current)
                 }

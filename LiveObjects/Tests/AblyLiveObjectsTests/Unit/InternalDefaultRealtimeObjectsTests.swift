@@ -1,7 +1,7 @@
 import _AblyPluginSupportPrivate
-import Ably
 @testable import AblyLiveObjects
 @testable import AblyLiveObjectsTesting
+import AblyPubSubDevice
 import Testing
 
 /// Tests for `InternalDefaultRealtimeObjects`.
@@ -829,7 +829,7 @@ struct InternalDefaultRealtimeObjectsTests {
             await #expect {
                 _ = try await realtimeObjects.getRoot(coreSDK: coreSDK)
             } throws: { error in
-                guard let errorInfo = error as? ARTErrorInfo else {
+                guard let errorInfo = error as? ErrorInfo else {
                     return false
                 }
 
@@ -1355,7 +1355,7 @@ struct InternalDefaultRealtimeObjectsTests {
             await #expect {
                 _ = try await realtimeObjects.createMap(entries: entries, coreSDK: coreSDK)
             } throws: { error in
-                guard let errorInfo = error as? ARTErrorInfo else {
+                guard let errorInfo = error as? ErrorInfo else {
                     return false
                 }
                 return errorInfo.code == 90001 && errorInfo.statusCode == 400
@@ -1510,7 +1510,7 @@ struct InternalDefaultRealtimeObjectsTests {
             await #expect {
                 _ = try await realtimeObjects.createCounter(count: 10.5, coreSDK: coreSDK)
             } throws: { error in
-                guard let errorInfo = error as? ARTErrorInfo else {
+                guard let errorInfo = error as? ErrorInfo else {
                     return false
                 }
                 return errorInfo.code == 90001 && errorInfo.statusCode == 400
@@ -1833,12 +1833,12 @@ struct InternalDefaultRealtimeObjectsTests {
             let coreSDK = MockCoreSDK(channelState: .attached, internalQueue: internalQueue)
 
             // Configure publish to throw an error
-            let publishError = ARTErrorInfo.create(withCode: 40000, message: "publish failed")
-            coreSDK.setPublishHandler { _ throws(ARTErrorInfo) in
+            let publishError = ErrorInfo.create(withCode: 40000, message: "publish failed")
+            coreSDK.setPublishHandler { _ throws(ErrorInfo) in
                 throw publishError
             }
 
-            let thrownError = try await #require(throws: ARTErrorInfo.self) {
+            let thrownError = try await #require(throws: ErrorInfo.self) {
                 try await realtimeObjects.createMap(entries: ["key": .string("value")], coreSDK: coreSDK)
             }
             #expect(thrownError === publishError)
@@ -1862,7 +1862,7 @@ struct InternalDefaultRealtimeObjectsTests {
 
             // The publish succeeds, but the local apply is skipped because siteCode is
             // missing. createMap then fails because the object isn't in the pool.
-            let error = try await #require(throws: ARTErrorInfo.self) {
+            let error = try await #require(throws: ErrorInfo.self) {
                 try await realtimeObjects.createMap(entries: ["key": .string("value")], coreSDK: coreSDK)
             }
             #expect(error.code == 50000)
@@ -1889,7 +1889,7 @@ struct InternalDefaultRealtimeObjectsTests {
 
             // The publish succeeds, but the local apply is skipped because the serials
             // length doesn't match. createMap then fails because the object isn't in the pool.
-            let error = try await #require(throws: ARTErrorInfo.self) {
+            let error = try await #require(throws: ErrorInfo.self) {
                 try await realtimeObjects.createMap(entries: ["key": .string("value")], coreSDK: coreSDK)
             }
             #expect(error.code == 50000)
@@ -2049,7 +2049,7 @@ struct InternalDefaultRealtimeObjectsTests {
                     }
                 }
             }
-            let error = try await #require(throws: ARTErrorInfo.self) {
+            let error = try await #require(throws: ErrorInfo.self) {
                 try await realtimeObjects.createCounter(count: 5, coreSDK: coreSDK)
             }
             #expect(error.code == 92008)
@@ -2240,7 +2240,7 @@ struct InternalDefaultRealtimeObjectsTests {
     ///
     /// Regression test for the deinit-on-internal-queue crash found by the objects UTS integration
     /// suites (ably/ably-cocoa#2226): ARC can run the engine's `deinit` *on* the internal queue —
-    /// e.g. when the owning `ARTRealtimeChannel` is deallocated during client/channel teardown,
+    /// e.g. when the owning `RealtimeChannel` is deallocated during client/channel teardown,
     /// which happens on that queue. The previous blocking `deinit { dispose() }` then tripped
     /// `ably_syncNoDeadlock`'s `.notOnQueue` precondition and crashed (SIGTRAP / EXC_BREAKPOINT).
     /// `deinit` now hops the queue-confined cleanup asynchronously (never sync-blocking its own

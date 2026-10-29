@@ -1,10 +1,10 @@
 #import <Foundation/Foundation.h>
 
-#import <Ably/ARTTypes.h>
-#import <Ably/ARTChannelProtocol.h>
-#import <Ably/ARTStringifiable.h>
+#import <AblyPubSubDevice/ARTTypes.h>
+#import <AblyPubSubDevice/ARTChannelProtocol.h>
+#import <AblyPubSubDevice/ARTStringifiable.h>
 
-@class ARTRest;
+@class ARTHttpClient;
 @class ARTChannelOptions;
 @class ARTMessage;
 @class ARTBaseMessage;
@@ -15,7 +15,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * The base class for `ARTRestChannel` and `ARTRealtimeChannel`.
+ * The base class for `ARTHttpChannel` and `ARTRealtimeChannel`.
  * Ably platform service organizes the message traffic within applications into named channels. Channels are the medium through which messages are distributed; clients attach to channels to subscribe to messages, and every message published to a unique channel is broadcast by Ably to all subscribers.
  *
  * @see See `ARTChannelProtocol` for details.
@@ -30,18 +30,6 @@ NS_SWIFT_SENDABLE
 - (void)publish:(nullable NSString *)name data:(nullable id)data callback:(nullable ARTCallback)callback;
 
 - (void)publish:(nullable NSString *)name data:(nullable id)data resultCallback:(nullable ARTPublishResultCallback)resultCallback;
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(NSString *)clientId;
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(NSString *)clientId callback:(nullable ARTCallback)callback;
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data extras:(nullable id<ARTJsonCompatible>)extras;
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data extras:(nullable id<ARTJsonCompatible>)extras callback:(nullable ARTCallback)callback;
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(NSString *)clientId extras:(nullable id<ARTJsonCompatible>)extras;
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(NSString *)clientId extras:(nullable id<ARTJsonCompatible>)extras callback:(nullable ARTCallback)callback;
 
 - (void)publish:(NSArray<ARTMessage *> *)messages;
 

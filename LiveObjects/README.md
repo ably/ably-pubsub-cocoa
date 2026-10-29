@@ -1,15 +1,15 @@
 ![Ably LiveObjects Swift Header](images/SwiftSDK-LiveObjects-github.png)
-[![SPM Swift Compatibility](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fably%2Fably-cocoa%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/ably/ably-cocoa)
-[![License](https://badgen.net/github/license/ably/ably-cocoa)](https://github.com/ably/ably-cocoa/blob/main/LICENSE)
+[![SPM Swift Compatibility](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fably%2Fably-pubsub-cocoa%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/ably/ably-pubsub-cocoa)
+[![License](https://badgen.net/github/license/ably/ably-pubsub-cocoa)](https://github.com/ably/ably-pubsub-cocoa/blob/main/LICENSE)
 
 ---
 
 # Ably LiveObjects Swift plugin
 
-The Ably LiveObjects plugin enables real-time collaborative data synchronization for the [ably-cocoa](https://github.com/ably/ably-cocoa/) SDK. LiveObjects provides a simple way to build collaborative applications with synchronized state across multiple clients in real-time. Built on [Ably's](https://ably.com/) core service, it abstracts complex details to enable efficient collaborative architectures.
+The Ably LiveObjects plugin enables real-time collaborative data synchronization for the [ably-pubsub-cocoa](https://github.com/ably/ably-pubsub-cocoa/) SDK. LiveObjects provides a simple way to build collaborative applications with synchronized state across multiple clients in real-time. Built on [Ably's](https://ably.com/) core service, it abstracts complex details to enable efficient collaborative architectures.
 
 > [!NOTE]
-> The plugin lives in the [ably-cocoa](https://github.com/ably/ably-cocoa/) repository and is versioned and released as part of ably-cocoa: add the ably-cocoa package to your project and select its `AblyLiveObjects` product. It was previously developed in the [ably-liveobjects-swift-plugin](https://github.com/ably/ably-liveobjects-swift-plugin) repository; if you are coming from that package, see the [migration guide](#migrating-from-the-standalone-plugin-package).
+> The plugin lives in the [ably-pubsub-cocoa](https://github.com/ably/ably-pubsub-cocoa/) repository and is versioned and released as part of ably-pubsub-cocoa: add the ably-pubsub-cocoa package to your project and select its `AblyLiveObjects` product. It was previously developed in the [ably-liveobjects-swift-plugin](https://github.com/ably/ably-liveobjects-swift-plugin) repository; if you are coming from that package, see the [migration guide](#migrating-from-the-standalone-plugin-package).
 
 ---
 
@@ -36,7 +36,7 @@ This plugin supports the following platforms:
 | tvOS     | >= 14.0 |
 
 > [!NOTE]
-> Xcode 16.3 or later is required.
+> Xcode 26 or later is required.
 
 ---
 
@@ -45,18 +45,18 @@ This plugin supports the following platforms:
 The examples below are a quick tour of the API. Check the [LiveObjects documentation](https://ably.com/docs/liveobjects) for a comprehensive guide — starting with the [Swift quickstart](https://ably.com/docs/liveobjects/quickstart/swift), it covers maps, counters, path objects, subscriptions, lifecycle events and more.
 
 After [installing the plugin](../README.md#liveobjects), pass it to the client via
-`ARTClientOptions`, and fetch channels with the LiveObjects channel modes:
+`ClientOptions`, and fetch channels with the LiveObjects channel modes:
 
 ```swift
-import Ably
+import AblyPubSubDevice
 import AblyLiveObjects
 
-let clientOptions = ARTClientOptions(key: "your-ably-api-key")
+let clientOptions = ClientOptions(key: "your-ably-api-key")
 clientOptions.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]
-let realtime = ARTRealtime(options: clientOptions)
+let realtime = PubSubDevice.createClient(options: clientOptions)
 
 // Fetch a channel, specifying the LiveObjects channel modes
-let channelOptions = ARTRealtimeChannelOptions()
+let channelOptions = RealtimeChannelOptions()
 channelOptions.modes = [.objectPublish, .objectSubscribe]
 let channel = realtime.channels.get("my-channel", options: channelOptions)
 ```
@@ -130,10 +130,10 @@ As of ably-cocoa 1.3.0, the plugin is developed, versioned and released from the
 Your imports and plugin registration are unchanged:
 
 ```swift
-import Ably
+import AblyPubSubDevice
 import AblyLiveObjects
 
-let clientOptions = ARTClientOptions(key: "your-ably-api-key")
+let clientOptions = ClientOptions(key: "your-ably-api-key")
 clientOptions.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]
 ```
 
@@ -207,4 +207,4 @@ Read the [CONTRIBUTING.md](./CONTRIBUTING.md) guidelines to contribute to Ably o
 
 ## Support, feedback and troubleshooting
 
-For help or technical support, visit Ably's [support page](https://ably.com/support). You can also view the [community-reported GitHub issues](https://github.com/ably/ably-cocoa/issues) or raise one yourself.
+For help or technical support, visit Ably's [support page](https://ably.com/support). You can also view the [community-reported GitHub issues](https://github.com/ably/ably-pubsub-cocoa/issues) or raise one yourself.

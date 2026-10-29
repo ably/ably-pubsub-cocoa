@@ -1,19 +1,21 @@
-// swift-tools-version: 6.1
+// swift-tools-version: 6.2
 
 import PackageDescription
 
 let package = Package(
-    name: "ably-cocoa",
+    name: "ably-pubsub-cocoa",
     platforms: [
-        .macOS(.v10_11),
-        .iOS(.v9),
-        .tvOS(.v10)
+        .macOS(.v12),
+        .iOS(.v15),
+        .tvOS(.v15)
     ],
     products: [
+        // The main SDK product.
         .library(
-            name: "Ably",
-            targets: ["Ably"]
+            name: "AblyPubSubDevice",
+            targets: ["AblyPubSubDevice", "AblyPubSubDeviceSwift"]
         ),
+        // The LiveObjects plugin.
         .library(
             name: "AblyLiveObjects",
             targets: ["AblyLiveObjects"]
@@ -25,15 +27,52 @@ let package = Package(
         .package(url: "https://github.com/quick/nimble", from: "11.2.2")
     ],
     targets: [
-        // The LiveObjects plugin. Formerly the separate
-        // ably-liveobjects-swift-plugin repository. Unlike the rest of the
-        // package it requires macOS 11 / iOS 14 / tvOS 14, which it declares
-        // through @available annotations on all of its top-level declarations
-        // (see Scripts/annotate-liveobjects-availability.py).
+        // The main SDK target.
+        .target(
+            name: "AblyPubSubDevice",
+            dependencies: [
+                .product(name: "msgpack", package: "msgpack-objective-C"),
+                .product(name: "AblyDeltaCodec", package: "delta-codec-cocoa"),
+                .target(name: "_AblyPluginSupportPrivate")
+            ],
+            path: "Source",
+            resources: [.copy("PrivacyInfo.xcprivacy")],
+            publicHeadersPath: "include",
+            cSettings: [
+                .define("ABLY_SUPPORTS_PLUGINS"),
+                .headerSearchPath("PrivateHeaders"),
+                .headerSearchPath("PrivateHeaders/Ably"),
+                .headerSearchPath("include/AblyPubSubDevice"),
+                .headerSearchPath("SocketRocket"),
+                .headerSearchPath("SocketRocket/Internal"),
+                .headerSearchPath("SocketRocket/Internal/Security"),
+                .headerSearchPath("SocketRocket/Internal/Proxy"),
+                .headerSearchPath("SocketRocket/Internal/Utilities"),
+                .headerSearchPath("SocketRocket/Internal/RunLoop"),
+                .headerSearchPath("SocketRocket/Internal/Delegate"),
+                .headerSearchPath("SocketRocket/Internal/IOConsumer"),
+            ]
+        ),
+        // The Swift overlay: re-exports the main SDK target and adds `async` versions of its callback-based operations. It is a separate module because SPM doesn't allow mixed-language targets, and the Objective-C module keeps the `AblyPubSubDevice` name so that `@import AblyPubSubDevice;` keeps working from Objective-C.
+        .target(
+            name: "AblyPubSubDeviceSwift",
+            dependencies: [
+                .target(name: "AblyPubSubDevice"),
+            ],
+            path: "Swift/Sources/AblyPubSubDeviceSwift"
+        ),
+        .testTarget(
+            name: "AblyPubSubDeviceSwiftTests",
+            dependencies: [
+                .target(name: "AblyPubSubDeviceSwift"),
+                .byName(name: "AblyTesting"),
+            ],
+            path: "Swift/Tests/AblyPubSubDeviceSwiftTests"
+        ),
         .target(
             name: "AblyLiveObjects",
             dependencies: [
-                .target(name: "Ably"),
+                .target(name: "AblyPubSubDevice"),
                 .target(name: "_AblyPluginSupportPrivate"),
             ],
             path: "LiveObjects/Sources/AblyLiveObjects"
@@ -43,9 +82,8 @@ let package = Package(
             dependencies: [
                 .target(name: "AblyLiveObjects"),
                 .target(name: "AblyLiveObjectsTesting"),
-                .target(name: "Ably"),
+                .target(name: "AblyPubSubDevice"),
                 .target(name: "_AblyPluginSupportPrivate"),
-                // Shared provisioning-retry helper + nonprod sandbox host constant.
                 .byName(name: "AblyTesting"),
             ],
             path: "LiveObjects/Tests/AblyLiveObjectsTests",
@@ -65,7 +103,7 @@ let package = Package(
             name: "AblyLiveObjectsTesting",
             dependencies: [
                 .target(name: "AblyLiveObjects"),
-                .target(name: "Ably"),
+                .target(name: "AblyPubSubDevice"),
                 .target(name: "_AblyPluginSupportPrivate"),
             ],
             path: "Test/AblyLiveObjectsTesting",
@@ -73,47 +111,15 @@ let package = Package(
                 "README.md"
             ]
         ),
-        // Private API of the core SDK, exposed to Ably-authored plugins. Formerly
-        // the separate ably-cocoa-plugin-support repository; deliberately not
-        // vended as a product.
+        // Private API of the SDK, exposed to Ably-authored plugins.
         .target(
             name: "_AblyPluginSupportPrivate",
             path: "_AblyPluginSupportPrivate"
         ),
-        .target(
-            name: "Ably",
-            dependencies: [
-                .product(name: "msgpack", package: "msgpack-objective-C"),
-                .product(name: "AblyDeltaCodec", package: "delta-codec-cocoa"),
-                .target(name: "_AblyPluginSupportPrivate")
-            ],
-            path: "Source",
-            exclude: [
-                "Info-iOS.plist",
-                "Info-tvOS.plist",
-                "Info-macOS.plist"
-            ],
-            resources: [.copy("PrivacyInfo.xcprivacy")],
-            publicHeadersPath: "include",
-            cSettings: [
-                .define("ABLY_SUPPORTS_PLUGINS"),
-                .headerSearchPath("PrivateHeaders"),
-                .headerSearchPath("PrivateHeaders/Ably"),
-                .headerSearchPath("include/Ably"),
-                .headerSearchPath("SocketRocket"),
-                .headerSearchPath("SocketRocket/Internal"),
-                .headerSearchPath("SocketRocket/Internal/Security"),
-                .headerSearchPath("SocketRocket/Internal/Proxy"),
-                .headerSearchPath("SocketRocket/Internal/Utilities"),
-                .headerSearchPath("SocketRocket/Internal/RunLoop"),
-                .headerSearchPath("SocketRocket/Internal/Delegate"),
-                .headerSearchPath("SocketRocket/Internal/IOConsumer"),
-            ]
-        ),
         .testTarget(
             name: "AblyTests",
             dependencies: [
-                .byName(name: "Ably"),
+                .byName(name: "AblyPubSubDevice"),
                 .byName(name: "AblyTesting"),
                 .byName(name: "AblyTestingObjC"),
                 .product(name: "Nimble", package: "nimble"),
@@ -130,11 +136,11 @@ let package = Package(
         ),
         // Universal Test Suite (UTS)
         // A standalone Swift Testing suite (import Testing / @Suite) derived from the language-neutral
-        // specs in the `ably/specification` repo (uts/). Deliberately does not depend on Nimble or XCTest.
+        // specs in the `ably/specification` repo (uts/).
         .testTarget(
             name: "UTS",
             dependencies: [
-                .byName(name: "Ably"),
+                .byName(name: "AblyPubSubDevice"),
                 .target(name: "_AblyPluginSupportPrivate"),
                 // The `objects` UTS module tests the LiveObjects plugin's public API.
                 .target(name: "AblyLiveObjects"),
@@ -156,11 +162,26 @@ let package = Package(
                 .swiftLanguageMode(.v6)
             ]
         ),
+        // A soak test: many realtime clients driven against faked HTTP, WebSocket and
+        // reachability implementations for twenty minutes. It is skipped unless
+        // RUN_SOAK_TEST is set in the environment, so `swift test` and CI never spend that
+        // time on it. See Test/AblySoakTests/SoakTest.swift.
+        .testTarget(
+            name: "AblySoakTests",
+            dependencies: [
+                .byName(name: "AblyPubSubDevice"),
+            ],
+            path: "Test/AblySoakTests",
+            swiftSettings: [
+                // This test code predates the Swift 6 language mode.
+                .swiftLanguageMode(.v5)
+            ]
+        ),
         // A handful of tests written in Objective-C (they can't be part of AblyTests because SPM doesn't allow mixed-language targets).
         .testTarget(
             name: "AblyTestsObjC",
             dependencies: [
-                .byName(name: "Ably"),
+                .byName(name: "AblyPubSubDevice"),
                 .byName(name: "AblyTesting"),
                 .byName(name: "AblyTestingObjC"),
             ],
@@ -170,7 +191,7 @@ let package = Package(
         .target(
             name: "AblyTesting",
             dependencies: [
-                .byName(name: "Ably"),
+                .byName(name: "AblyPubSubDevice"),
             ],
             path: "Test/AblyTesting",
             swiftSettings: [

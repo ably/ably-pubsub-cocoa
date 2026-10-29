@@ -1,4 +1,4 @@
-import Ably.Private
+import AblyPubSubDevice.Private
 import XCTest
 import _AblyPluginSupportPrivate
 import Nimble
@@ -19,10 +19,10 @@ class PluginAPITests: XCTestCase {
             let identifier = UUID().uuidString
         }
 
-        internal var receivedConnectionDetails: [(connectionDetails: (any ConnectionDetailsProtocol)?, channel: any RealtimeChannel)] = []
-        internal var receivedChannelAttached: [(channel: any RealtimeChannel, hasObjects: Bool)] = []
-        internal var receivedStateChanges: [(channel: any RealtimeChannel, state: RealtimeChannelState, reason: (any PublicErrorInfo)?)] = []
-        internal var receivedChannelReleased: [any RealtimeChannel] = []
+        internal var receivedConnectionDetails: [(connectionDetails: (any ConnectionDetailsProtocol)?, channel: any _AblyPluginSupportPrivate.RealtimeChannel)] = []
+        internal var receivedChannelAttached: [(channel: any _AblyPluginSupportPrivate.RealtimeChannel, hasObjects: Bool)] = []
+        internal var receivedStateChanges: [(channel: any _AblyPluginSupportPrivate.RealtimeChannel, state: _AblyPluginSupportPrivate.RealtimeChannelState, reason: (any PublicErrorInfo)?)] = []
+        internal var receivedChannelReleased: [any _AblyPluginSupportPrivate.RealtimeChannel] = []
 
         /// Resets all recorded mock state. Called in `setUp()` since this is a shared static instance.
         func clearState() {
@@ -34,11 +34,11 @@ class PluginAPITests: XCTestCase {
 
         var compatibleWithProtocolV6: Bool { true }
 
-        func nosync_prepare(_ channel: any RealtimeChannel, client: any RealtimeClient) {
+        func nosync_prepare(_ channel: any _AblyPluginSupportPrivate.RealtimeChannel, client: any _AblyPluginSupportPrivate.RealtimeClient) {
             // no-op
         }
 
-        func nosync_onChannelRelease(_ channel: any RealtimeChannel) {
+        func nosync_onChannelRelease(_ channel: any _AblyPluginSupportPrivate.RealtimeChannel) {
             receivedChannelReleased.append(channel)
         }
 
@@ -52,29 +52,29 @@ class PluginAPITests: XCTestCase {
             return ["mockMessageIdentifier": mockMessage.identifier]
         }
 
-        func nosync_onChannelAttached(_ channel: any RealtimeChannel, hasObjects: Bool) {
+        func nosync_onChannelAttached(_ channel: any _AblyPluginSupportPrivate.RealtimeChannel, hasObjects: Bool) {
             receivedChannelAttached.append((channel, hasObjects))
         }
 
-        func nosync_handleObjectProtocolMessage(withObjectMessages objectMessages: [any ObjectMessageProtocol], channel: any RealtimeChannel) {
+        func nosync_handleObjectProtocolMessage(withObjectMessages objectMessages: [any ObjectMessageProtocol], channel: any _AblyPluginSupportPrivate.RealtimeChannel) {
             // Method not currently tested
         }
 
-        func nosync_handleObjectSyncProtocolMessage(withObjectMessages objectMessages: [any ObjectMessageProtocol], protocolMessageChannelSerial: String?, channel: any RealtimeChannel) {
+        func nosync_handleObjectSyncProtocolMessage(withObjectMessages objectMessages: [any ObjectMessageProtocol], protocolMessageChannelSerial: String?, channel: any _AblyPluginSupportPrivate.RealtimeChannel) {
             // Method not currently tested
         }
 
-        func nosync_onConnected(withConnectionDetails connectionDetails: (any ConnectionDetailsProtocol)?, channel: any RealtimeChannel) {
+        func nosync_onConnected(withConnectionDetails connectionDetails: (any ConnectionDetailsProtocol)?, channel: any _AblyPluginSupportPrivate.RealtimeChannel) {
             receivedConnectionDetails.append((connectionDetails, channel))
         }
 
-        func nosync_onChannelStateChanged(_ channel: any RealtimeChannel, toState state: RealtimeChannelState, reason: (any PublicErrorInfo)?) {
+        func nosync_onChannelStateChanged(_ channel: any _AblyPluginSupportPrivate.RealtimeChannel, toState state: _AblyPluginSupportPrivate.RealtimeChannelState, reason: (any PublicErrorInfo)?) {
             receivedStateChanges.append((channel, state, reason))
         }
     }
 
-    static var liveObjectsChannelOptions: ARTRealtimeChannelOptions {
-        let options = ARTRealtimeChannelOptions()
+    static var liveObjectsChannelOptions: RealtimeChannelOptions {
+        let options = RealtimeChannelOptions()
         options.modes = [.objectPublish, .objectSubscribe]
         return options
     }
@@ -91,7 +91,7 @@ class PluginAPITests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
 
-        let client = ARTRealtime(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         var serverTimeRequestCount = 0
@@ -135,7 +135,7 @@ class PluginAPITests: XCTestCase {
 
         options.testOptions.transportFactory = TestProxyTransportFactory()
 
-        let client = ARTRealtime(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         let channels = ["a", "b"].map { test.uniqueChannelName(prefix: $0) }.map { client.channels.get($0) }
@@ -183,7 +183,7 @@ class PluginAPITests: XCTestCase {
 
         options.testOptions.transportFactory = TestProxyTransportFactory()
 
-        let client = ARTRealtime(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         let pluginAPI = DependencyStore.sharedInstance().fetchPluginAPI()
@@ -237,7 +237,7 @@ class PluginAPITests: XCTestCase {
         let options = try AblyTests.commonAppSetup(for: test)
         options.plugins = [.liveObjects: MockLiveObjectsPlugin.self]
 
-        let client = ARTRealtime(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         let channelWithoutObjects = client.channels.get(test.uniqueChannelName(prefix: "no-objects"))
@@ -272,7 +272,7 @@ class PluginAPITests: XCTestCase {
         options.plugins = [.liveObjects: MockLiveObjectsPlugin.self]
         options.testOptions.transportFactory = TestProxyTransportFactory()
 
-        let client = ARTRealtime(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         let channel = client.channels.get(test.uniqueChannelName())
@@ -305,7 +305,7 @@ class PluginAPITests: XCTestCase {
         states = stateChanges.map { $0.state }
         XCTAssertTrue(states.contains(.failed))
         let failed = try XCTUnwrap(stateChanges.first { $0.state == .failed })
-        XCTAssertEqual((failed.reason as? ARTErrorInfo)?.code, 50000)
+        XCTAssertEqual((failed.reason as? ErrorInfo)?.code, 50000)
     }
 
     // MARK: - Send object
@@ -318,7 +318,7 @@ class PluginAPITests: XCTestCase {
         options.useBinaryProtocol = false
         options.testOptions.transportFactory = TestProxyTransportFactory()
 
-        let client = ARTRealtime(options: options)
+        let client = PubSubClient(options: options)
         defer { client.dispose(); client.close() }
 
         let channel = client.channels.get(test.uniqueChannelName(), options: Self.liveObjectsChannelOptions)

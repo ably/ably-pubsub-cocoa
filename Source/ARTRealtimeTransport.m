@@ -13,10 +13,11 @@
     return self;
 }
 
-- (instancetype)initWithError:(NSError *)error badResponseCode:(NSInteger)badResponseCode url:(NSURL *)url {
+- (instancetype)initWithError:(NSError *)error badResponseCode:(NSInteger)badResponseCode badResponseServerHeader:(NSString *)badResponseServerHeader url:(NSURL *)url {
     self = [self initWithError:error type:ARTRealtimeTransportErrorTypeBadResponse url:url];
     if (self) {
         self.badResponseCode = badResponseCode;
+        self.badResponseServerHeader = badResponseServerHeader;
     }
     return self;
 }

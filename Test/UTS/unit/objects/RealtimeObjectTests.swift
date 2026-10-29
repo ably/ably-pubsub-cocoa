@@ -32,7 +32,7 @@
 //   PROTOCOL frame — so they are kept as comments and the ObjectMessage-level assertions are emitted.
 
 import _AblyPluginSupportPrivate
-import Ably
+import AblyPubSubDevice
 @testable import AblyLiveObjects
 @testable import AblyLiveObjectsTesting
 import Foundation
@@ -330,7 +330,7 @@ struct RealtimeObjectTests {
             Issue.record("expected get() to fail with 92008")
         } catch {
             // Assertions
-            let error = try #require(error as? ARTErrorInfo)
+            let error = try #require(error as? ErrorInfo)
             #expect(error.code == 92008) // ASSERT error.code == 92008
             #expect(error.statusCode == 400) // ASSERT error.statusCode == 400
         }
@@ -357,7 +357,7 @@ struct RealtimeObjectTests {
             Issue.record("expected get() to fail with 92008")
         } catch {
             // Assertions
-            let error = try #require(error as? ARTErrorInfo)
+            let error = try #require(error as? ErrorInfo)
             #expect(error.code == 92008) // ASSERT error.code == 92008
             #expect(error.statusCode == 400) // ASSERT error.statusCode == 400
         }
@@ -377,7 +377,7 @@ struct RealtimeObjectTests {
         let getTask = Task { try await f.object.get() }
         _ = await f.engine.testsOnly_waitingForSyncEvents.first { _ in true } // ASSERT get_future IS NOT complete
         // A channel ERROR moves the channel to FAILED and sets its errorReason (the injected error).
-        let failedReason = ARTErrorInfo.create(withCode: 90000, status: 400, message: "Channel failed")
+        let failedReason = ErrorInfo.create(withCode: 90000, status: 400, message: "Channel failed")
         Self.onQueue(f) { f.engine.nosync_onChannelStateChanged(toState: .failed, reason: failedReason) }
 
         do {
@@ -385,7 +385,7 @@ struct RealtimeObjectTests {
             Issue.record("expected get() to fail with 92008")
         } catch {
             // Assertions
-            let error = try #require(error as? ARTErrorInfo)
+            let error = try #require(error as? ErrorInfo)
             #expect(error.code == 92008) // ASSERT error.code == 92008
             #expect(error.statusCode == 400) // ASSERT error.statusCode == 400
             // RTO23c1 - cause is set to the channel's errorReason (the injected FAILED error).
@@ -553,8 +553,8 @@ struct RealtimeObjectTests {
     /// Shared orchestration for the two RTO20e1 cases: the publish parks in the RTO20e wait, then the
     /// channel enters the given state (driven from within the publish-callback handler, so the waiter
     /// is guaranteed parked before the drain — the race-free ordering the native twin uses, standing in
-    /// for `ASSERT inc_future IS NOT complete`). Returns the ARTErrorInfo the increment fails with.
-    private static func runPublishAndApplyFailingOnChannelState(_ state: ChannelState) async throws -> ARTErrorInfo {
+    /// for `ASSERT inc_future IS NOT complete`). Returns the ErrorInfo the increment fails with.
+    private static func runPublishAndApplyFailingOnChannelState(_ state: ChannelState) async throws -> ErrorInfo {
         // Setup
         let f = makeFixture()
         setupSyncedChannel(f)
@@ -578,7 +578,7 @@ struct RealtimeObjectTests {
             try await root.get(key: "score").asLiveCounter().increment(amount: 10)
             Issue.record("expected the increment to fail with 92008")
             throw CancellationError()
-        } catch let error as ARTErrorInfo {
+        } catch let error as ErrorInfo {
             return error
         }
     }

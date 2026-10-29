@@ -10,6 +10,7 @@
 #import "ARTPresence.h"
 #import "ARTPresenceMessage.h"
 #import "ARTAnnotation.h"
+#import "ARTOutboundAnnotation+Private.h"
 #import "ARTMessageVersion.h"
 #import "ARTMessageAnnotations.h"
 #import "ARTMessageVersion+Private.h"
@@ -22,8 +23,8 @@
 #import "ARTNSDictionary+ARTDictionaryUtil.h"
 #import "ARTNSDate+ARTUtil.h"
 #import "ARTInternalLog.h"
-#import "ARTHttp.h"
-#import "ARTStatus.h"
+#import "ARTHTTPExecutor.h"
+#import "ARTErrorInfo.h"
 #import "ARTTokenDetails.h"
 #import "ARTTokenRequest.h"
 #import "ARTAuthDetails.h"
@@ -34,7 +35,7 @@
 #import "ARTDevicePushDetails.h"
 #import "ARTDevicePushDetails+Private.h"
 #import "ARTConnectionDetails.h"
-#import "ARTRest+Private.h"
+#import "ARTHttpClient+Private.h"
 #import "ARTJsonEncoder.h"
 #import "ARTPushChannelSubscription.h"
 #import "ARTClientOptions+Private.h"
@@ -45,7 +46,7 @@
 #endif
 
 @implementation ARTJsonLikeEncoder {
-    __weak ARTRestInternal *_rest; // weak because rest owns self
+    __weak ARTHttpClientInternal *_rest; // weak because rest owns self
     ARTInternalLog *_logger;
     id<ARTTimeProvider> _timeProvider;
 }
@@ -60,7 +61,7 @@
     return self;
 }
 
-- (instancetype)initWithRest:(ARTRestInternal *)rest delegate:(id<ARTJsonLikeEncoderDelegate>)delegate logger:(ARTInternalLog *)logger {
+- (instancetype)initWithRest:(ARTHttpClientInternal *)rest delegate:(id<ARTJsonLikeEncoderDelegate>)delegate logger:(ARTInternalLog *)logger {
     if (self = [super init]) {
         _rest = rest;
         _logger = logger;
@@ -98,7 +99,7 @@
     return [self encode:[self messageToDictionary:message] error:error];
 }
 
-- (NSData *)encodeAnnotation:(ARTAnnotation *)annotation error:(NSError **)error {
+- (NSData *)encodeAnnotation:(ARTOutboundAnnotation *)annotation error:(NSError **)error {
     return [self encode:[self annotationToDictionary:annotation] error:error];
 }
 
@@ -110,7 +111,7 @@
     return [self encode:[self messagesToArray:messages] error:error];
 }
 
-- (NSData *)encodeAnnotations:(NSArray<ARTAnnotation *> *)annotations error:(NSError **)error {
+- (NSData *)encodeAnnotations:(NSArray<ARTOutboundAnnotation *> *)annotations error:(NSError **)error {
     return [self encode:[self annotationsToArray:annotations] error:error];
 }
 
@@ -306,36 +307,17 @@
     message.encoding = [input artString:@"encoding"];
     message.timestamp = [input artTimestamp:@"timestamp"];
     message.connectionId = [input artString:@"connectionId"];
-    message.extras = [input objectForKey:@"extras"];
+    message.extras = [input artTyped:[NSDictionary class] key:@"extras"]; // TM2i
 
+    // TM2s: there is always a version. TM2s1 and TM2s2: its serial and timestamp default to the message's own.
     id version = input[@"version"];
-    if ([version isKindOfClass:[NSDictionary class]]) {
-        message.version = [ARTMessageVersion createFromDictionary:version];
-    } else {
-        // TM2s
-        message.version = [[ARTMessageVersion alloc] init];
-    }
+    message.version = [ARTMessageVersion createFromDictionary:[version isKindOfClass:[NSDictionary class]] ? version : nil
+                                                defaultSerial:message.serial
+                                             defaultTimestamp:message.timestamp];
 
-    if (!message.version.serial) { // TM2s1
-        message.version.serial = message.serial;
-    }
-
-    if (!message.version.timestamp) { // TM2s2
-        message.version.timestamp = message.timestamp;
-    }
-
+    // TM2u: there are always annotations. TM8a: their summary defaults to an empty object.
     id annotations = input[@"annotations"];
-    if (annotations && [annotations isKindOfClass:[NSDictionary class]]) {
-        message.annotations = [ARTMessageAnnotations createFromDictionary:annotations];
-    } else {
-        // TM2u
-        message.annotations = [[ARTMessageAnnotations alloc] init];
-    }
-
-    if (!message.annotations.summary) {
-        // TM8a
-        message.annotations.summary = @{};
-    }
+    message.annotations = [ARTMessageAnnotations createFromDictionary:[annotations isKindOfClass:[NSDictionary class]] ? annotations : nil];
 
     return message;
 }
@@ -438,7 +420,7 @@
     message.action = [self presenceActionFromInt:action];
 
     message.connectionId = [input artString:@"connectionId"];
-    message.extras = [input objectForKey:@"extras"]; // TP3i
+    message.extras = [input artTyped:[NSDictionary class] key:@"extras"]; // TP3i
 
     return message;
 }
@@ -476,7 +458,7 @@
                                                            serial:[input artString:@"serial"]
                                                     messageSerial:[input artString:@"messageSerial"]
                                                              type:[input artString:@"type"]
-                                                           extras:[input objectForKey:@"extras"]];
+                                                           extras:[input artTyped:[NSDictionary class] key:@"extras"]]; // TAN2l
     return annotation;
 }
 
@@ -558,7 +540,7 @@
     return output;
 }
 
-- (NSDictionary *)annotationToDictionary:(ARTAnnotation *)annotation {
+- (NSDictionary *)annotationToDictionary:(ARTOutboundAnnotation *)annotation {
     NSMutableDictionary *output = [NSMutableDictionary dictionary];
 
     // Only encode fields that exist in ARTOutboundAnnotation (RSAN1a2)
@@ -721,7 +703,7 @@
 - (NSArray *)annotationsToArray:(NSArray *)annotations {
     NSMutableArray *output = [NSMutableArray array];
 
-    for (ARTAnnotation *annotation in annotations) {
+    for (ARTOutboundAnnotation *annotation in annotations) {
         NSDictionary *item = [self annotationToDictionary:annotation];
         [output addObject:item];
     }
@@ -792,8 +774,8 @@
         output[@"presence"] = [self presenceMessagesToArray:message.presence];
     }
 
-    if (message.annotations) {
-        output[@"annotations"] = [self annotationsToArray:message.annotations];
+    if (message.outboundAnnotations) {
+        output[@"annotations"] = [self annotationsToArray:message.outboundAnnotations];
     }
 
     if (message.auth) {
@@ -1022,7 +1004,11 @@
     }
 
     ARTDevicePushDetails *devicePushDetails = [[ARTDevicePushDetails alloc] init];
-    devicePushDetails.state = [input artString:@"state"];
+    NSString *state = [input artString:@"state"];
+    devicePushDetails.state = ARTDevicePushStateFromWireValue(state);
+    if (state && devicePushDetails.state == ARTDevicePushStateUnknown) {
+        ARTLogWarn(_logger, @"RS:%p ARTJsonLikeEncoder<%@>: unrecognised device push state \"%@\"", _rest, [_delegate formatAsString], state);
+    }
     NSDictionary *errorReason = [input valueForKey:@"errorReason"];
     if (errorReason) {
         devicePushDetails.errorReason = [ARTErrorInfo createWithCode:[[errorReason artNumber:@"code"] intValue] status:[[errorReason artNumber:@"statusCode"] intValue] message:[errorReason artString:@"message"]];
@@ -1169,99 +1155,40 @@
         return nil;
     }
 
-    return [[ARTStats alloc] initWithAll:[self statsMessageTypesFromDictionary:[input objectForKey:@"all"]]
-                                 inbound:[self statsMessageTrafficFromDictionary:[input objectForKey:@"inbound"]]
-                                outbound:[self statsMessageTrafficFromDictionary:[input objectForKey:@"outbound"]]
-                               persisted:[self statsMessageTypesFromDictionary:[input objectForKey:@"persisted"]]
-                             connections:[self statsConnectionTypesFromDictionary:[input objectForKey:@"connections"]]
-                                channels:[self statsResourceCountFromDictionary:[input objectForKey:@"channels"]]
-                             apiRequests:[self statsRequestCountFromDictionary:[input objectForKey:@"apiRequests"]]
-                           tokenRequests:[self statsRequestCountFromDictionary:[input objectForKey:@"tokenRequests"]]
-                                  pushes:[self statsPushCountFromDictionary:[input objectForKey:@"push"]]
-                              inProgress:[input artString:@"inProgress"]
-                                   count:[[input artNumber:@"count"] unsignedIntegerValue]
-                              intervalId:[input artString:@"intervalId"]];
+    return [[ARTStats alloc] initWithIntervalId:[input artString:@"intervalId"] // TS12a
+                                           unit:[self statsGranularityFromString:[input artString:@"unit"]] // TS12c
+                                     inProgress:[input artString:@"inProgress"] // TS12q
+                                        entries:[self statsEntriesFromJSONValue:input[@"entries"]] // TS12r
+                                         schema:[input artString:@"schema"] // TS12s
+                                          appId:[input artString:@"appId"]]; // TS12t
 }
 
-- (ARTStatsMessageTypes *)statsMessageTypesFromDictionary:(NSDictionary *)input {
-    if (![input isKindOfClass:[NSDictionary class]]) {
-        return [ARTStatsMessageTypes empty];
+/// TS12c: the unit comes from the JSON, not from the `intervalId`. Ably sends only these four values.
+- (ARTStatsGranularity)statsGranularityFromString:(nullable NSString *)unit {
+    if ([unit isEqualToString:@"hour"]) {
+        return ARTStatsGranularityHour;
     }
-
-    ARTStatsMessageCount *all = [self statsMessageCountFromDictionary:[input objectForKey:@"all"]];
-    ARTStatsMessageCount *messages = [self statsMessageCountFromDictionary:[input objectForKey:@"messages"]];
-    ARTStatsMessageCount *presence = [self statsMessageCountFromDictionary:[input objectForKey:@"presence"]];
-
-    if (all || messages || presence) {
-        return [[ARTStatsMessageTypes alloc] initWithAll:all messages:messages presence:presence];
+    if ([unit isEqualToString:@"day"]) {
+        return ARTStatsGranularityDay;
     }
-
-    return [ARTStatsMessageTypes empty];
+    if ([unit isEqualToString:@"month"]) {
+        return ARTStatsGranularityMonth;
+    }
+    return ARTStatsGranularityMinute;
 }
 
-- (ARTStatsMessageCount *)statsMessageCountFromDictionary:(NSDictionary *)input {
-    if (![input isKindOfClass:[NSDictionary class]]) {
-        return [ARTStatsMessageCount empty];
+/// Keeps only the string-to-number entries of a decoded `entries` value, which is all that the property's type allows.
+- (NSDictionary<NSString *, NSNumber *> *)statsEntriesFromJSONValue:(nullable id)value {
+    NSMutableDictionary<NSString *, NSNumber *> *entries = [NSMutableDictionary dictionary];
+    if (![value isKindOfClass:[NSDictionary class]]) {
+        return entries;
     }
-
-    NSNumber *count = [input artTyped:[NSNumber class] key:@"count"];
-    NSNumber *data = [input artTyped:[NSNumber class] key:@"data"];
-
-    return [[ARTStatsMessageCount alloc] initWithCount:count.doubleValue data:data.doubleValue];
-}
-
-- (ARTStatsMessageTraffic *)statsMessageTrafficFromDictionary:(NSDictionary *)input {
-    if (![input isKindOfClass:[NSDictionary class]]) {
-        return [ARTStatsMessageTraffic empty];
-    }
-
-    ARTStatsMessageTypes *all = [self statsMessageTypesFromDictionary:[input objectForKey:@"all"]];
-    ARTStatsMessageTypes *realtime = [self statsMessageTypesFromDictionary:[input objectForKey:@"realtime"]];
-    ARTStatsMessageTypes *rest = [self statsMessageTypesFromDictionary:[input objectForKey:@"rest"]];
-    ARTStatsMessageTypes *webhook = [self statsMessageTypesFromDictionary:[input objectForKey:@"webhook"]];
-
-    if (all || realtime || rest || webhook) {
-        return [[ARTStatsMessageTraffic alloc] initWithAll:all
-                                                  realtime:realtime
-                                                      rest:rest
-                                                   webhook:webhook];
-    }
-
-    return [ARTStatsMessageTraffic empty];
-}
-
-- (ARTStatsConnectionTypes *)statsConnectionTypesFromDictionary:(NSDictionary *)input {
-    if (![input isKindOfClass:[NSDictionary class]]) {
-        return [ARTStatsConnectionTypes empty];
-    }
-
-    ARTStatsResourceCount *all = [self statsResourceCountFromDictionary:[input objectForKey:@"all"]];
-    ARTStatsResourceCount *plain = [self statsResourceCountFromDictionary:[input objectForKey:@"plain"]];
-    ARTStatsResourceCount *tls = [self statsResourceCountFromDictionary:[input objectForKey:@"tls"]];
-
-    if (all || plain || tls) {
-        return [[ARTStatsConnectionTypes alloc] initWithAll:all plain:plain tls:tls];
-    }
-
-    return [ARTStatsConnectionTypes empty];
-}
-
-- (ARTStatsResourceCount *)statsResourceCountFromDictionary:(NSDictionary *)input {
-    if (![input isKindOfClass:[NSDictionary class]]) {
-        return [ARTStatsResourceCount empty];
-    }
-
-    NSNumber *opened = [input artTyped:[NSNumber class] key:@"opened"];
-    NSNumber *peak = [input artTyped:[NSNumber class] key:@"peak"];
-    NSNumber *mean = [input artTyped:[NSNumber class] key:@"mean"];
-    NSNumber *min = [input artTyped:[NSNumber class] key:@"min"];
-    NSNumber *refused = [input artTyped:[NSNumber class] key:@"refused"];
-
-    return [[ARTStatsResourceCount alloc] initWithOpened:opened.doubleValue
-                                                    peak:peak.doubleValue
-                                                    mean:mean.doubleValue
-                                                     min:min.doubleValue
-                                                 refused:refused.doubleValue];
+    [(NSDictionary *)value enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+        if ([key isKindOfClass:[NSString class]] && [obj isKindOfClass:[NSNumber class]]) {
+            entries[key] = obj;
+        }
+    }];
+    return entries;
 }
 
 - (ARTErrorInfo *)decodeErrorInfo:(NSData *)artError statusCode:(NSInteger)statusCode error:(NSError **)error {
@@ -1278,49 +1205,11 @@
                                     message:message ?: [NSString stringWithFormat:@"HTTP request failed with status code %ld", statusCode]];
     } else {
         // We expect `decodedError` as a dictionary from Ably REST API, but in case user sets custom authUrl in the auth options, it can be anything
-        // We'll address this in an upcoming proper fix for https://github.com/ably/ably-cocoa/issues/2135
+        // We'll address this in an upcoming proper fix for https://github.com/ably/ably-pubsub-cocoa/issues/2135
         return [ARTErrorInfo createWithCode:statusCode * 100
                                      status:statusCode
                                     message:[NSString stringWithFormat:@"HTTP request failed with status code %ld", statusCode]];
     }
-}
-
-- (ARTStatsRequestCount *)statsRequestCountFromDictionary:(NSDictionary *)input {
-    ARTLogVerbose(_logger, @"RS:%p ARTJsonLikeEncoder<%@>: statsRequestCountFromDictionary %@", _rest, [_delegate formatAsString], input);
-    if (![input isKindOfClass:[NSDictionary class]]) {
-        return [ARTStatsRequestCount empty];
-    }
-
-    NSNumber *succeeded = [input artTyped:[NSNumber class] key:@"succeeded"];
-    NSNumber *failed = [input artTyped:[NSNumber class] key:@"failed"];
-    NSNumber *refused = [input artTyped:[NSNumber class] key:@"refused"];
-
-    return [[ARTStatsRequestCount alloc] initWithSucceeded:succeeded.doubleValue
-                                                    failed:failed.doubleValue
-                                                   refused:refused.doubleValue];
-}
-
-- (ARTStatsPushCount *)statsPushCountFromDictionary:(NSDictionary *)input {
-    ARTLogVerbose(_logger, @"RS:%p ARTJsonLikeEncoder<%@>: statsPushCountFromDictionary %@", _rest, [_delegate formatAsString], input);
-    if (![input isKindOfClass:[NSDictionary class]]) {
-        return [ARTStatsPushCount empty];
-    }
-
-    NSNumber *messages = [input artNumber:@"messages"];
-    NSNumber *direct = [input artNumber:@"directPublishes"];
-
-    NSDictionary *notifications = input[@"notifications"];
-    NSNumber *succeeded = [notifications artNumber:@"successful"];
-    NSNumber *invalid = [notifications artNumber:@"invalid"];
-    NSNumber *attempted = [notifications artNumber:@"attempted"];
-    NSNumber *failed = [notifications artNumber:@"failed"];
-
-    return [[ARTStatsPushCount alloc] initWithSucceeded:succeeded.integerValue
-                                                invalid:invalid.integerValue
-                                              attempted:attempted.integerValue
-                                                 failed:failed.integerValue
-                                               messages:messages.integerValue
-                                                 direct:direct.integerValue];
 }
 
 - (void)writeData:(id)data encoding:(NSString *)encoding toDictionary:(NSMutableDictionary *)output {

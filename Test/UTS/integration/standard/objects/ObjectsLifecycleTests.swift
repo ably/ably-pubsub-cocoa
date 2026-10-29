@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-import Ably
+import AblyPubSubDevice
 import AblyLiveObjects
 
 /// Objects lifecycle (RTO23, RTPO15, RTPO17)

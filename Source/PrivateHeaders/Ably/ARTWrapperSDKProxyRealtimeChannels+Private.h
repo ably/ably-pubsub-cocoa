@@ -1,4 +1,4 @@
-#import <Ably/ARTWrapperSDKProxyRealtimeChannels.h>
+#import <AblyPubSubDevice/ARTWrapperSDKProxyRealtimeChannels.h>
 
 @class ARTWrapperSDKProxyOptions;
 

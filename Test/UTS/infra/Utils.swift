@@ -1,7 +1,7 @@
 import Foundation
 import Testing
-import Ably
-import Ably.Private
+import AblyPubSubDevice
+import AblyPubSubDevice.Private
 
 /// Shared helpers used by every tier (the cocoa counterpart of ably-java's `infra/Utils.kt`).
 ///
@@ -64,8 +64,8 @@ func pollUntil(_ description: String,
 /// terminal, so the expected state can no longer arrive; waiting out the timeout just hides the
 /// cause).
 @discardableResult
-func awaitState(_ client: ARTRealtime,
-                _ expected: ARTRealtimeConnectionState,
+func awaitState(_ client: PubSubClient,
+                _ expected: RealtimeConnectionState,
                 timeout: TimeInterval = 15,
                 sourceLocation: SourceLocation = #_sourceLocation) async -> Bool {
     let reached = Captured<Bool>()
@@ -83,7 +83,7 @@ func awaitState(_ client: ARTRealtime,
     } else if client.connection.state == .failed {
         failedReason.append(client.connection.errorReason?.message ?? "no reason")
     }
-    await pollUntil("connection.state == \(ARTRealtimeConnectionStateToStr(expected))",
+    await pollUntil("connection.state == \(realtimeConnectionStateToStr(expected))",
                     timeout: timeout, sourceLocation: sourceLocation) {
         reached.count > 0 || failedReason.count > 0
     }
@@ -91,7 +91,7 @@ func awaitState(_ client: ARTRealtime,
         return true
     }
     if let reason = failedReason.first {
-        Issue.record("connection entered FAILED while awaiting \(ARTRealtimeConnectionStateToStr(expected)): \(reason)",
+        Issue.record("connection entered FAILED while awaiting \(realtimeConnectionStateToStr(expected)): \(reason)",
                      sourceLocation: sourceLocation)
     }
     return false
@@ -100,8 +100,8 @@ func awaitState(_ client: ARTRealtime,
 /// Suspends until `channel.state == expected` (the integration tier's `AWAIT_STATE` for channels),
 /// latching the transition and short-circuiting on FAILED like `awaitState` above.
 @discardableResult
-func awaitChannelState(_ channel: ARTRealtimeChannel,
-                       _ expected: ARTRealtimeChannelState,
+func awaitChannelState(_ channel: RealtimeChannel,
+                       _ expected: RealtimeChannelState,
                        timeout: TimeInterval = 15,
                        sourceLocation: SourceLocation = #_sourceLocation) async -> Bool {
     let reached = Captured<Bool>()
@@ -119,7 +119,7 @@ func awaitChannelState(_ channel: ARTRealtimeChannel,
     } else if channel.state == .failed {
         failedReason.append(channel.errorReason?.message ?? "no reason")
     }
-    await pollUntil("channel '\(channel.name)'.state == \(ARTRealtimeChannelStateToStr(expected))",
+    await pollUntil("channel '\(channel.name)'.state == \(realtimeChannelStateToStr(expected))",
                     timeout: timeout, sourceLocation: sourceLocation) {
         reached.count > 0 || failedReason.count > 0
     }
@@ -127,7 +127,7 @@ func awaitChannelState(_ channel: ARTRealtimeChannel,
         return true
     }
     if let reason = failedReason.first {
-        Issue.record("channel '\(channel.name)' entered FAILED while awaiting \(ARTRealtimeChannelStateToStr(expected)): \(reason)",
+        Issue.record("channel '\(channel.name)' entered FAILED while awaiting \(realtimeChannelStateToStr(expected)): \(reason)",
                      sourceLocation: sourceLocation)
     }
     return false

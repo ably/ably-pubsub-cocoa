@@ -88,30 +88,6 @@ NS_ASSUME_NONNULL_END
     [self.underlyingChannel publish:name data:data resultCallback:resultCallback];
 }
 
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(nonnull NSString *)clientId {
-    [self.underlyingChannel publish:name data:data clientId:clientId];
-}
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(nonnull NSString *)clientId callback:(nullable ARTCallback)callback {
-    [self.underlyingChannel publish:name data:data clientId:clientId callback:callback];
-}
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(nonnull NSString *)clientId extras:(nullable id<ARTJsonCompatible>)extras {
-    [self.underlyingChannel publish:name data:data clientId:clientId extras:extras];
-}
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data clientId:(nonnull NSString *)clientId extras:(nullable id<ARTJsonCompatible>)extras callback:(nullable ARTCallback)callback {
-    [self.underlyingChannel publish:name data:data clientId:clientId extras:extras callback:callback];
-}
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data extras:(nullable id<ARTJsonCompatible>)extras {
-    [self.underlyingChannel publish:name data:data extras:extras];
-}
-
-- (void)publish:(nullable NSString *)name data:(nullable id)data extras:(nullable id<ARTJsonCompatible>)extras callback:(nullable ARTCallback)callback {
-    [self.underlyingChannel publish:name data:data extras:extras callback:callback];
-}
-
 - (void)getMessageWithSerial:(nonnull NSString *)serial callback:(nonnull ARTMessageErrorCallback)callback {
     [self.underlyingChannel.internal getMessageWithSerial:serial
                                          wrapperSDKAgents:self.proxyOptions.agents
@@ -167,8 +143,8 @@ NS_ASSUME_NONNULL_END
     [self.underlyingChannel detach:callback];
 }
 
-- (BOOL)history:(ARTRealtimeHistoryQuery * _Nullable)query callback:(nonnull ARTPaginatedMessagesCallback)callback error:(NSError * _Nullable __autoreleasing * _Nullable)errorPtr {
-    return [self.underlyingChannel.internal history:query wrapperSDKAgents:self.proxyOptions.agents callback:callback error:errorPtr];
+- (void)history:(ARTRealtimeHistoryQuery * _Nullable)query callback:(nonnull ARTPaginatedMessagesCallback)callback {
+    [self.underlyingChannel.internal history:query wrapperSDKAgents:self.proxyOptions.agents callback:callback];
 }
 
 - (void)off {
@@ -203,19 +179,19 @@ NS_ASSUME_NONNULL_END
     [self.underlyingChannel setOptions:options callback:callback];
 }
 
-- (ARTEventListener * _Nullable)subscribe:(nonnull ARTMessageCallback)callback {
+- (ARTEventListener *)subscribe:(nonnull ARTMessageCallback)callback {
     return [self.underlyingChannel subscribe:callback];
 }
 
-- (ARTEventListener * _Nullable)subscribe:(nonnull NSString *)name callback:(nonnull ARTMessageCallback)callback {
+- (ARTEventListener *)subscribe:(nonnull NSString *)name callback:(nonnull ARTMessageCallback)callback {
     return [self.underlyingChannel subscribe:name callback:callback];
 }
 
-- (ARTEventListener * _Nullable)subscribe:(nonnull NSString *)name onAttach:(nullable ARTCallback)onAttach callback:(nonnull ARTMessageCallback)callback {
+- (ARTEventListener *)subscribe:(nonnull NSString *)name onAttach:(nullable ARTCallback)onAttach callback:(nonnull ARTMessageCallback)callback {
     return [self.underlyingChannel subscribe:name onAttach:onAttach callback:callback];
 }
 
-- (ARTEventListener * _Nullable)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(nonnull ARTMessageCallback)callback {
+- (ARTEventListener *)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(nonnull ARTMessageCallback)callback {
     return [self.underlyingChannel subscribeWithAttachCallback:onAttach callback:callback];
 }
 

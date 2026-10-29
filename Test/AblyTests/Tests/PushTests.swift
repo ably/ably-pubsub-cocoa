@@ -1,11 +1,12 @@
 #if os(iOS)
-import Ably
+import AblyPubSubDevice
+import AblyPubSubDevice.Private
 import AblyTesting
 import AblyTestingObjC
 import Nimble
 import XCTest
 
-private var rest: ARTRest!
+private var rest: HttpClient!
 private var mockHttpExecutor: MockHTTPExecutor!
 private var storage: MockDeviceStorage!
 private var stateMachineDelegate: StateMachineDelegate!
@@ -45,7 +46,7 @@ class PushTests: XCTestCase {
         // Start from a clean on-disk device storage
         AblyTests.clearOnDiskDeviceStorage()
 
-        rest = ARTRest(key: "xxxx:xxxx")
+        rest = HttpClient(key: "xxxx:xxxx")
         mockHttpExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHttpExecutor
         storage = MockDeviceStorage()
@@ -117,12 +118,12 @@ class PushTests: XCTestCase {
             }
             rest.push.activate()
 
-            let error = NSError(domain: ARTAblyErrorDomain, code: 42, userInfo: nil)
-            ARTPush.didFailToRegisterForRemoteNotificationsWithError(error, rest: rest)
+            let error = NSError(domain: ablyErrorDomain, code: 42, userInfo: nil)
+            ARTPushInternal.didFailToRegisterForRemoteNotificationsWithError(error, rest: rest)
         }
     }
 
-    // https://github.com/ably/ably-cocoa/issues/877
+    // https://github.com/ably/ably-pubsub-cocoa/issues/877
     func test__005__activation__should_update_LocalDevice_clientId_when_it_s_null_with_auth_clientId() throws {
         let test = Test()
         let expectedClientId = "foo"
@@ -138,7 +139,7 @@ class PushTests: XCTestCase {
             })
         }
 
-        let rest = ARTRest(options: options)
+        let rest = HttpClient(options: options)
         let mockHttpExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHttpExecutor
         let storage = MockDeviceStorage()
@@ -199,7 +200,7 @@ class PushTests: XCTestCase {
         }
     }
 
-    // https://github.com/ably/ably-cocoa/issues/889
+    // https://github.com/ably/ably-pubsub-cocoa/issues/889
     func test__006__activation__should_store_the_device_token_data_as_string() {
         let expectedDeviceToken = TestDeviceToken.tokenString
         let expectedLocationDeviceToken = TestLocationDeviceToken.tokenString
@@ -211,8 +212,8 @@ class PushTests: XCTestCase {
                     partialDone()
                 }
             }
-            ARTPush.didRegisterForRemoteNotifications(withDeviceToken: TestDeviceToken.tokenData, rest: rest)
-            ARTPush.didRegisterForLocationNotifications(withDeviceToken: TestLocationDeviceToken.tokenData, rest: rest)
+            ARTPushInternal.didRegisterForRemoteNotifications(withDeviceToken: TestDeviceToken.tokenData, rest: rest)
+            ARTPushInternal.didRegisterForLocationNotifications(withDeviceToken: TestLocationDeviceToken.tokenData, rest: rest)
         }
         let expectedDeviceTokenKey = "ARTAPNSDeviceToken-default" // ARTAPNSDeviceTokenKeyOfType(nil)
         expect(storage.keysWritten.keys).to(contain([expectedDeviceTokenKey]))
@@ -223,10 +224,10 @@ class PushTests: XCTestCase {
         XCTAssertEqual(storage.keysWritten.at(expectedLocationDeviceTokenKey)?.value as? String, expectedLocationDeviceToken)
     }
 
-    // https://github.com/ably/ably-cocoa/issues/888
+    // https://github.com/ably/ably-pubsub-cocoa/issues/888
     func test__007__activation__should_not_sync_the_local_device_dispatched_in_internal_queue() {
         XCTAssertNil(tryInObjC {
-            ARTPush.didRegisterForRemoteNotifications(withDeviceToken: TestDeviceToken.tokenData, rest: rest)
+            ARTPushInternal.didRegisterForRemoteNotifications(withDeviceToken: TestDeviceToken.tokenData, rest: rest)
         })
     }
 
@@ -252,14 +253,14 @@ class PushTests: XCTestCase {
 
     // RSH8
     func test__008__LocalDevice__has_a_device_method_that_returns_a_LocalDevice() {
-        let _: ARTLocalDevice = ARTRest(key: "fake:key").device
-        let _: ARTLocalDevice = ARTRealtime(key: "fake:key").device
+        let _: LocalDevice = HttpClient(key: "fake:key").device
+        let _: LocalDevice = PubSubClient(key: "fake:key").device
     }
 
     // RSH8a
     func test__009__LocalDevice__the_device_is_lazily_populated_from_the_persisted_state() {
         let testToken = "testDeviceToken"
-        let testIdentity = ARTDeviceIdentityTokenDetails(
+        let testIdentity = DeviceIdentityTokenDetails(
             token: "123456",
             issued: Date(),
             expires: Date.distantFuture,
@@ -267,7 +268,7 @@ class PushTests: XCTestCase {
             clientId: "client1"
         )
 
-        let rest = ARTRest(key: "fake:key")
+        let rest = HttpClient(key: "fake:key")
         rest.internal.storage = storage
 
         storage.simulateOnNextRead(string: "testId", for: ARTDeviceIdKey)
@@ -287,15 +288,15 @@ class PushTests: XCTestCase {
     // RSH8d
 
     func test__012__LocalDevice__when_using_token_authentication__new_clientID_is_set() {
-        let options = ARTClientOptions(key: "fake:key")
+        let options = ClientOptions(key: "fake:key")
         options.autoConnect = false
         options.authCallback = { _, callback in
             delay(0.1) {
-                callback(ARTTokenDetails(token: "fake:token", expires: nil, issued: nil, capability: nil, clientId: "testClient"), nil)
+                callback(TokenDetails(token: "fake:token", expires: nil, issued: nil, capability: nil, clientId: "testClient"), nil)
             }
         }
 
-        let realtime = ARTRealtime(options: options)
+        let realtime = PubSubClient(options: options)
         let storage = MockDeviceStorage()
         realtime.internal.rest.storage = storage
 
@@ -315,11 +316,11 @@ class PushTests: XCTestCase {
     // RSH8d
 
     func test__013__LocalDevice__when_getting_a_client_ID_from_CONNECTED_message__new_clientID_is_set() {
-        let options = ARTClientOptions(key: "fake:key")
+        let options = ClientOptions(key: "fake:key")
         options.autoConnect = false
         options.testOptions.transportFactory = TestProxyTransportFactory()
 
-        let realtime = ARTRealtime(options: options)
+        let realtime = PubSubClient(options: options)
         let storage = MockDeviceStorage()
         realtime.internal.rest.storage = storage
 
@@ -344,7 +345,7 @@ class PushTests: XCTestCase {
     // RSH8e
     func test__010__LocalDevice__authentication_on_registered_device_sends_a_GotPushDeviceDetails_with_new_clientID() throws {
         let testDeviceToken = "testDeviceToken"
-        let testDeviceIdentity = ARTDeviceIdentityTokenDetails(
+        let testDeviceIdentity = DeviceIdentityTokenDetails(
             token: "123456",
             issued: Date(),
             expires: Date.distantFuture,
@@ -353,15 +354,15 @@ class PushTests: XCTestCase {
         )
         let expectedClient = "testClient"
 
-        let options = ARTClientOptions(key: "fake:key")
+        let options = ClientOptions(key: "fake:key")
         options.autoConnect = false
         options.authCallback = { _, callback in
             delay(0.1) {
-                callback(ARTTokenDetails(token: "fake:token", expires: nil, issued: nil, capability: nil, clientId: expectedClient), nil)
+                callback(TokenDetails(token: "fake:token", expires: nil, issued: nil, capability: nil, clientId: expectedClient), nil)
             }
         }
 
-        let realtime = ARTRealtime(options: options)
+        let realtime = PubSubClient(options: options)
         let mockHttpExecutor = MockHTTPExecutor()
         realtime.internal.rest.httpExecutor = mockHttpExecutor
 
@@ -431,7 +432,7 @@ class PushTests: XCTestCase {
 
         let stateMachineDelegate = StateMachineDelegateCustomCallbacks()
         stateMachineDelegate.onPushCustomRegisterIdentity = { _, _ in
-            ARTDeviceIdentityTokenDetails(
+            DeviceIdentityTokenDetails(
                 token: "123456",
                 issued: Date(),
                 expires: Date.distantFuture,
@@ -453,7 +454,7 @@ class PushTests: XCTestCase {
 
             rest.push.activate()
 
-            ARTPush.didRegisterForRemoteNotifications(withDeviceToken: "testDeviceToken".data(using: .utf8)!, rest: rest)
+            ARTPushInternal.didRegisterForRemoteNotifications(withDeviceToken: "testDeviceToken".data(using: .utf8)!, rest: rest)
         }
 
         XCTAssertEqual(rest.device.clientId, expectedClientId)
@@ -466,7 +467,7 @@ class PushTests: XCTestCase {
         options.key = "xxxx:xxxx"
         let pushRegistererDelegate = StateMachineDelegate()
         options.pushRegistererDelegate = pushRegistererDelegate
-        let rest = ARTRest(options: options)
+        let rest = HttpClient(options: options)
         waitUntil(timeout: testTimeout) { done in
             pushRegistererDelegate.onDidActivateAblyPush = { error in
                 XCTAssertNil(error)
@@ -477,7 +478,7 @@ class PushTests: XCTestCase {
             }
             rest.internal.httpExecutor = MockHTTPExecutor()
             rest.push.activate()
-            ARTPush.didRegisterForRemoteNotifications(withDeviceToken: TestDeviceToken.tokenData, rest: rest)
+            ARTPushInternal.didRegisterForRemoteNotifications(withDeviceToken: TestDeviceToken.tokenData, rest: rest)
         }
     }
 
@@ -487,7 +488,7 @@ class PushTests: XCTestCase {
         options.key = "xxxx:xxxx"
         var pushRegistererDelegate: StateMachineDelegate? = StateMachineDelegate()
         options.pushRegistererDelegate = pushRegistererDelegate
-        let rest = ARTRest(options: options)
+        let rest = HttpClient(options: options)
         XCTAssertNotNil(rest.internal.options.pushRegistererDelegate)
         pushRegistererDelegate = nil
         XCTAssertNil(rest.internal.options.pushRegistererDelegate)
@@ -521,7 +522,7 @@ class PushTests: XCTestCase {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
         options.key = "xxxx:xxxx"
-        let rest = ARTRest(options: options)
+        let rest = HttpClient(options: options)
         let mockHttpExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHttpExecutor
         let storage = MockDeviceStorage()
@@ -550,7 +551,7 @@ class PushTests: XCTestCase {
                 }
                 else if event is ARTPushActivationEventGotDeviceRegistration {
                     partialDone()
-                    ARTPush.didRegisterForRemoteNotifications(withDeviceToken: TestDeviceToken.tokenData, rest: rest)
+                    ARTPushInternal.didRegisterForRemoteNotifications(withDeviceToken: TestDeviceToken.tokenData, rest: rest)
                 }
                 else if event is ARTPushActivationEventRegistrationSynced {
                     stateMachine.transitions = nil
@@ -597,7 +598,7 @@ class PushTests: XCTestCase {
         options.key = "xxxx:xxxx"
         let pushRegistererDelegate = StateMachineDelegate()
         options.pushRegistererDelegate = pushRegistererDelegate
-        let rest = ARTRest(options: options)
+        let rest = HttpClient(options: options)
         let mockHttpExecutor = MockHTTPExecutor()
         rest.internal.httpExecutor = mockHttpExecutor
         let storage = MockDeviceStorage()
@@ -610,7 +611,7 @@ class PushTests: XCTestCase {
         defer { rest.device.setAndPersistAPNSDeviceToken(nil) }
 
         func requestLocationDeviceToken() {
-            ARTPush.didRegisterForLocationNotifications(withDeviceToken: TestLocationDeviceToken.tokenData, rest: rest)
+            ARTPushInternal.didRegisterForLocationNotifications(withDeviceToken: TestLocationDeviceToken.tokenData, rest: rest)
         }
 
         waitUntil(timeout: testTimeout) { done in

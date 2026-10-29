@@ -1,19 +1,18 @@
 internal import _AblyPluginSupportPrivate
-import Ably
+import AblyPubSubDevice
 
 /**
- Describes the errors that can be thrown by the LiveObjects SDK. Use ``toARTErrorInfo()`` to convert to an `ARTErrorInfo` that you can throw.
+ Describes the errors that can be thrown by the LiveObjects SDK. Use ``toARTErrorInfo()`` to convert to an `ErrorInfo` that you can throw.
  */
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal enum LiveObjectsError {
     // operationDescription should be a description of a method like "LiveCounter.value"; it will be interpolated into an error message
     case objectsOperationFailedInvalidChannelState(operationDescription: String, channelState: _AblyPluginSupportPrivate.RealtimeChannelState)
     case counterInitialValueInvalid(value: Double)
     case counterIncrementAmountInvalid(amount: Double)
     /// RTO20e1: The channel entered a non-`ATTACHED` state whilst a `publishAndApply` call was waiting for objects sync to complete.
-    case publishAndApplyFailedChannelStateChanged(channelState: _AblyPluginSupportPrivate.RealtimeChannelState, reason: ARTErrorInfo?)
+    case publishAndApplyFailedChannelStateChanged(channelState: _AblyPluginSupportPrivate.RealtimeChannelState, reason: ErrorInfo?)
     /// RTO23c1: The channel entered a non-`ATTACHED` state whilst a `get()` call was waiting for objects sync to complete.
-    case getFailedChannelStateChanged(channelState: _AblyPluginSupportPrivate.RealtimeChannelState, reason: ARTErrorInfo?)
+    case getFailedChannelStateChanged(channelState: _AblyPluginSupportPrivate.RealtimeChannelState, reason: ErrorInfo?)
     /// RTLMV3, RTLCV3: A newly created object was not found in the pool after `publishAndApply`.
     case newlyCreatedObjectNotInPool(objectID: String)
     /// RTO15d: The total size of the `ObjectMessage`s to be published (calculated per OM3) exceeds the connection's `maxMessageSize`.
@@ -42,8 +41,8 @@ internal enum LiveObjectsError {
     case other(Error)
 
     /// The numeric error code returned to callers. The path-based public-API codes
-    /// (92005/92007/40024/40019/40003) are absent from core `ARTErrorCode` and are returned as raw
-    /// integers; the remaining cases map to their `ARTErrorCode`.
+    /// (92005/92007/40024/40019/40003) are absent from core `ErrorCode` and are returned as raw
+    /// integers; the remaining cases map to their `ErrorCode`.
     internal var numericCode: Int {
         switch self {
         case .pathNotResolved:
@@ -61,24 +60,24 @@ internal enum LiveObjectsError {
         case .invalidInput:
             40003 // RTLMV4a/RTPO19c1a
         case .objectsOperationFailedInvalidChannelState:
-            Int(ARTErrorCode.channelOperationFailedInvalidState.rawValue)
+            Int(ErrorCode.channelOperationFailedInvalidState.rawValue)
         case .counterInitialValueInvalid, .counterIncrementAmountInvalid:
             // RTLCV4a, RTLC12e1
-            Int(ARTErrorCode.invalidParameterValue.rawValue)
+            Int(ErrorCode.invalidParameterValue.rawValue)
         case .publishAndApplyFailedChannelStateChanged, .getFailedChannelStateChanged:
             // RTO20e1, RTO23c1
-            Int(ARTErrorCode.unableToApplyObjectsOperationSyncDidNotComplete.rawValue)
+            Int(ErrorCode.unableToApplyObjectsOperationSyncDidNotComplete.rawValue)
         case .newlyCreatedObjectNotInPool:
-            Int(ARTErrorCode.internalError.rawValue)
+            Int(ErrorCode.internalError.rawValue)
         case .maxMessageSizeExceeded:
             // RTO15d
-            Int(ARTErrorCode.maxMessageLengthExceeded.rawValue)
+            Int(ErrorCode.maxMessageLengthExceeded.rawValue)
         case .other:
-            Int(ARTErrorCode.badRequest.rawValue)
+            Int(ErrorCode.badRequest.rawValue)
         }
     }
 
-    /// The ``ARTErrorInfo/statusCode`` that should be returned for this error.
+    /// The ``ErrorInfo/statusCode`` that should be returned for this error.
     internal var statusCode: Int {
         switch self {
         case .objectsOperationFailedInvalidChannelState,
@@ -101,7 +100,7 @@ internal enum LiveObjectsError {
         }
     }
 
-    /// The ``ARTErrorInfo/localizedDescription`` that should be returned for this error.
+    /// The ``ErrorInfo/localizedDescription`` that should be returned for this error.
     internal var localizedDescription: String {
         switch self {
         case let .objectsOperationFailedInvalidChannelState(operationDescription: operationDescription, channelState: channelState):
@@ -145,8 +144,8 @@ internal enum LiveObjectsError {
         }
     }
 
-    /// The ``ARTErrorInfo/cause`` that should be returned for this error.
-    internal var cause: ARTErrorInfo? {
+    /// The ``ErrorInfo/cause`` that should be returned for this error.
+    internal var cause: ErrorInfo? {
         switch self {
         case let .publishAndApplyFailedChannelStateChanged(channelState: _, reason: reason),
              let .getFailedChannelStateChanged(channelState: _, reason: reason):
@@ -169,14 +168,14 @@ internal enum LiveObjectsError {
         }
     }
 
-    internal func toARTErrorInfo() -> ARTErrorInfo {
+    internal func toARTErrorInfo() -> ErrorInfo {
         var userInfo: [String: Any] = [liveObjectsErrorUserInfoKey: self]
         if let cause {
-            // Note that here we're making use of an implementation detail of ably-cocoa (the fact that this user info key populates `ARTErrorInfo.cause`).
+            // Note that here we're making use of an implementation detail of ably-cocoa (the fact that this user info key populates `ErrorInfo.cause`).
             userInfo[NSUnderlyingErrorKey] = cause
         }
 
-        return ARTErrorInfo.create(
+        return ErrorInfo.create(
             withCode: numericCode,
             status: statusCode,
             message: localizedDescription,
@@ -189,68 +188,59 @@ internal enum LiveObjectsError {
 
 /// Protocol for types that can be converted to a `LiveObjectsError`.
 ///
-/// We deliberately do not conform `ARTErrorInfo` (or its parent types `NSError` or `Error`) to this protocol, so that we do not accidentally end up flattening an `ARTErrorInfo` into the `.other` `LiveObjectsError` case; if we have an `ARTErrorInfo` then it should just be thrown directly.
+/// We deliberately do not conform `ErrorInfo` (or its parent types `NSError` or `Error`) to this protocol, so that we do not accidentally end up flattening an `ErrorInfo` into the `.other` `LiveObjectsError` case; if we have an `ErrorInfo` then it should just be thrown directly.
 ///
 /// If you need to convert a non-specific `NSError` or `Error` to a `LiveObjects` error, then do so explicitly using `LiveObjectsError.other`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal protocol ConvertibleToLiveObjectsError {
     func toLiveObjectsError() -> LiveObjectsError
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal extension ConvertibleToLiveObjectsError {
-    /// Convenience method to convert directly to an `ARTErrorInfo`.
-    func toARTErrorInfo() -> ARTErrorInfo {
+    /// Convenience method to convert directly to an `ErrorInfo`.
+    func toARTErrorInfo() -> ErrorInfo {
         toLiveObjectsError().toARTErrorInfo()
     }
 }
 
 // MARK: - Conversion Extensions
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension DecodingError: ConvertibleToLiveObjectsError {
     internal func toLiveObjectsError() -> LiveObjectsError {
         .other(self)
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension WireValueDecodingError: ConvertibleToLiveObjectsError {
     internal func toLiveObjectsError() -> LiveObjectsError {
         .other(self)
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension WireValue.ConversionError: ConvertibleToLiveObjectsError {
     internal func toLiveObjectsError() -> LiveObjectsError {
         .other(self)
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension InboundWireObjectMessage.DecodingError: ConvertibleToLiveObjectsError {
     internal func toLiveObjectsError() -> LiveObjectsError {
         .other(self)
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension StringOrData.DecodingError: ConvertibleToLiveObjectsError {
     internal func toLiveObjectsError() -> LiveObjectsError {
         .other(self)
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension JSONObjectOrArray.ConversionError: ConvertibleToLiveObjectsError {
     internal func toLiveObjectsError() -> LiveObjectsError {
         .other(self)
     }
 }
 
-// MARK: - ARTErrorInfo Extension
+// MARK: - ErrorInfo Extension
 
-/// The `ARTErrorInfo.userInfo` key under which we store the underlying `LiveObjectsError` (see `toARTErrorInfo()`), preserving it for diagnostics.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
+/// The `ErrorInfo.userInfo` key under which we store the underlying `LiveObjectsError` (see `toARTErrorInfo()`), preserving it for diagnostics.
 internal let liveObjectsErrorUserInfoKey = "LiveObjectsError" // internal for AblyLiveObjectsTesting

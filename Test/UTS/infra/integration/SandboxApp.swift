@@ -17,11 +17,13 @@ import Foundation
 /// Mirrors ably-java's `infra/integration/SandboxApp.kt`.
 final class SandboxApp: Sendable {
 
-    /// The Ably **nonprod sandbox** host — the `nonprod:sandbox` endpoint (used uniformly across the
-    /// realtime/objects/rest integration specs), resolved to a hostname. Realtime and REST share
-    /// this single host, so point both transports at it: set `realtimeHost` and/or `restHost` from
-    /// here.
+    /// The Ably **nonprod sandbox** host. App provisioning sends its requests here directly,
+    /// without going through the SDK.
     static let sandboxHost = SandboxEnvironment.nonprodHost
+
+    /// The `nonprod:sandbox` endpoint, used uniformly across the realtime/objects/rest integration
+    /// specs. Clients that use a sandbox key set `endpoint` to this value.
+    static let sandboxEndpoint = SandboxEnvironment.nonprodEndpoint
 
     private static let sandboxBaseURL = URL(string: "https://\(sandboxHost)")!
 

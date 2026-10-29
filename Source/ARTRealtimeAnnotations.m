@@ -1,8 +1,8 @@
 #import "ARTRealtimeAnnotations+Private.h"
-#import "ARTRealtime+Private.h"
+#import "ARTPubSubClient+Private.h"
 #import "ARTChannel+Private.h"
 #import "ARTRealtimeChannel+Private.h"
-#import "ARTStatus.h"
+#import "ARTErrorInfo.h"
 #import "ARTDataQuery+Private.h"
 #import "ARTConnection+Private.h"
 #import "ARTNSArray+ARTFunctional.h"
@@ -10,12 +10,12 @@
 #import "ARTEventEmitter+Private.h"
 #import "ARTDataEncoder.h"
 #import "ARTAnnotation+Private.h"
-#import "ARTOutboundAnnotation.h"
+#import "ARTOutboundAnnotation+Private.h"
 #import "ARTProtocolMessage+Private.h"
 #import "ARTEventEmitter+Private.h"
 #import "ARTClientOptions.h"
 #import "ARTRealtimeChannelOptions.h"
-#import "ARTRestAnnotations+Private.h"
+#import "ARTHttpAnnotations+Private.h"
 #import "ARTGCD.h"
 
 @implementation ARTRealtimeAnnotations {
@@ -95,7 +95,7 @@
 
 @implementation ARTRealtimeAnnotationsInternal {
     __weak ARTRealtimeChannelInternal *_channel; // weak because channel owns self
-    __weak ARTRealtimeInternal *_realtime;
+    __weak ARTPubSubClientInternal *_realtime;
     dispatch_queue_t _userQueue;
     ARTEventEmitter<ARTEvent *, ARTAnnotation *> *_eventEmitter;
 }
@@ -133,23 +133,13 @@
         return;
     }
 
-    // Convert ARTOutboundAnnotation to ARTAnnotation for internal processing
-    ARTAnnotation *annotation = [[ARTAnnotation alloc] initWithId:nil
-                                                           action:action // RSAN1c1
-                                                         clientId:outboundAnnotation.clientId
-                                                             name:outboundAnnotation.name
-                                                            count:outboundAnnotation.count
-                                                             data:outboundAnnotation.data
-                                                         encoding:nil
-                                                        timestamp:nil
-                                                           serial:nil
-                                                    messageSerial:messageSerial // RSAN1c2
-                                                             type:outboundAnnotation.type
-                                                           extras:outboundAnnotation.extras];
+    ARTOutboundAnnotation *annotation = [outboundAnnotation annotationForPublishingWithId:nil
+                                                                                   action:action // RSAN1c1
+                                                                            messageSerial:messageSerial]; // RSAN1c2
 art_dispatch_sync(_queue, ^{
     NSError *error = nil;
     ARTDataEncoder *dataEncoder = self->_channel.dataEncoder;
-    ARTAnnotation *annotationToPublish = dataEncoder ? [annotation encodeDataWithEncoder:dataEncoder error:&error] : annotation; // RSAN1c3
+    ARTOutboundAnnotation *annotationToPublish = dataEncoder ? [annotation encodeDataWithEncoder:dataEncoder error:&error] : annotation; // RSAN1c3
     if (error) {
         if (callback) {
             callback([ARTErrorInfo createFromNSError:error]);
@@ -173,7 +163,7 @@ art_dispatch_sync(_queue, ^{
     ARTProtocolMessage *pm = [[ARTProtocolMessage alloc] init];
     pm.action = ARTProtocolMessageAnnotation;
     pm.channel = _channel.name;
-    pm.annotations = @[annotationToPublish];
+    pm.outboundAnnotations = @[annotationToPublish];
 
     // RTAN1b
     [_channel publishProtocolMessage:pm callback:^void(ARTMessageSendStatus *status) {
@@ -210,10 +200,8 @@ art_dispatch_sync(_queue, ^{
         if (onAttach && attachOnSubscribe) { // RTL7h
             onAttach([ARTErrorInfo createWithCode:ARTErrorChannelOperationFailedInvalidState message:@"attempted to subscribe while channel is in Failed state."]);
         }
-        ARTLogWarn(self.logger, @"R:%p C:%p (%@) anotation subscribe to '%@' action(s) has been ignored (attempted to subscribe while channel is in FAILED state)", self->_realtime, self->_channel, self->_channel.name, type);
-        return;
-    }
-    if (attachOnSubscribe) {
+        ARTLogWarn(self.logger, @"R:%p C:%p (%@) annotation subscribe to '%@' type while channel is in FAILED state; the listener receives annotations once the channel is attached again with the annotation_subscribe channel mode granted",self->_realtime, self->_channel, self->_channel.name, type == nil ? @"all" : type);
+    } else if (attachOnSubscribe) {
         NSString *warningTemplate = @"R:%p C:%p (%@) You are trying to add an annotation listener, but you haven't requested the annotation_subscribe channel mode in ChannelOptions, so this won't do anything (we only deliver annotations to clients who have explicitly requested them).";
         if (self->_channel.shouldAttach) { // RTP6c
             [self->_channel _attach:onAttach];
@@ -301,11 +289,12 @@ art_dispatch_sync(_queue, ^{
 
 - (void)onMessage:(ARTProtocolMessage *)message {
     ARTDataEncoder *dataEncoder = _channel.dataEncoder;
+    NSUInteger index = 0;
     for (ARTAnnotation *a in message.annotations) {
-        ARTAnnotation *annotation = a;
+        ARTAnnotation *annotation = [a annotationByPopulatingFieldsFromProtocolMessage:message index:index++ timeProvider:_realtime.rest.timeProvider];
         if (annotation.data && dataEncoder) {
             NSError *decodeError = nil;
-            annotation = [a decodeDataWithEncoder:dataEncoder error:&decodeError];
+            annotation = [annotation decodeDataWithEncoder:dataEncoder error:&decodeError];
             if (decodeError != nil) {
                 ARTErrorInfo *errorInfo = [ARTErrorInfo wrap:[ARTErrorInfo createWithCode:ARTErrorUnableToDecodeMessage message:decodeError.localizedFailureReason] prepend:@"Failed to decode data: "];
                 ARTLogError(self.logger, @"RT:%p C:%p (%@) %@", _realtime, _channel, _channel.name, errorInfo.message);

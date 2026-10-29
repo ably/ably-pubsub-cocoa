@@ -4,7 +4,7 @@ import Foundation
 ///
 /// This allows us to provide stable object identity for our public objects. Concretely, it allows us
 /// to consistently return the same `PublicDefaultRealtimeObject` instance across multiple calls to
-/// `ARTRealtimeChannel.object`. It mirrors the mechanism previously used for the (now-removed)
+/// `RealtimeChannel.object`. It mirrors the mechanism previously used for the (now-removed)
 /// `objects` API.
 ///
 /// - Note: We can only make a best-effort attempt to maintain the pointer identity of the public
@@ -12,7 +12,6 @@ import Foundation
 ///   whole reason that these objects exist is for us to know whether the user holds a strong reference
 ///   to them), if the user releases all of their strong references to a public object then the next
 ///   time they fetch the public object they will receive a new object.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 internal final class PublicObjectsStore: Sendable {
     // Used to synchronize access to mutable state
     private let mutex = NSLock()

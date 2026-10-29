@@ -1,7 +1,7 @@
 #import "ARTWebSocketTransport+Private.h"
 
-#import "ARTRest.h"
-#import "ARTRest+Private.h"
+#import "ARTHttpClient.h"
+#import "ARTHttpClient+Private.h"
 #import "ARTProtocolMessage.h"
 #import "ARTClientOptions.h"
 #import "ARTClientOptions+Private.h"
@@ -65,12 +65,15 @@ NS_ASSUME_NONNULL_END
       - the calls to `-[NSStream open]` (it's not clear to me what exactly is blocking here but it triggers an Xcode warning so let's avoid it)
      */
     _Nonnull dispatch_queue_t _websocketOpenQueue;
+
+    /// The host this transport connects to. It starts as the primary domain and changes to a fallback host when the client retries elsewhere.
+    NSString *_host;
 }
 
 @synthesize delegate = _delegate;
 @synthesize stateEmitter = _stateEmitter;
 
-- (instancetype)initWithRest:(ARTRestInternal *)rest options:(ARTClientOptions *)options resumeKey:(NSString *)resumeKey logger:(ARTInternalLog *)logger webSocketFactory:(id<ARTWebSocketFactory>)webSocketFactory {
+- (instancetype)initWithRest:(ARTHttpClientInternal *)rest options:(ARTClientOptions *)options resumeKey:(NSString *)resumeKey logger:(ARTInternalLog *)logger webSocketFactory:(id<ARTWebSocketFactory>)webSocketFactory {
     self = [super init];
     if (self) {
         _workQueue = rest.queue;
@@ -80,6 +83,7 @@ NS_ASSUME_NONNULL_END
         _encoder = rest.defaultEncoder;
         _logger = logger;
         _options = [options copy];
+        _host = _options.primaryDomain;
         _resumeKey = resumeKey;
         _stateEmitter = [[ARTInternalEventEmitter alloc] initWithQueue:_workQueue timeProvider:rest.timeProvider];
         _webSocketFactory = webSocketFactory;
@@ -188,9 +192,11 @@ NS_ASSUME_NONNULL_END
     }
 
     // URL
-    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:@"/"];
+    NSURLComponents *const urlComponents = [options realtimeUrlComponents];
+    urlComponents.host = self.host;
+    urlComponents.path = @"/";
     urlComponents.queryItems = [queryItems allValues];
-    NSURL *url = [urlComponents URLRelativeToURL:[options realtimeUrl]];
+    NSURL *const url = urlComponents.URL;
 
     ARTLogDebug(_logger, @"R:%p WS:%p url %@", _delegate, self, url);
 
@@ -245,11 +251,11 @@ NS_ASSUME_NONNULL_END
 }
 
 - (void)setHost:(NSString *)host {
-    self.options.realtimeHost = host;
+    _host = host;
 }
 
 - (NSString *)host {
-    return self.options.realtimeHost;
+    return _host;
 }
 
 - (ARTRealtimeTransportState)state {
@@ -327,11 +333,11 @@ NS_ASSUME_NONNULL_END
 - (void)webSocket:(id<ARTWebSocket>)webSocket didFailWithError:(NSError *)error {
     ARTLogDebug(self.logger, @"R:%p WS:%p websocket did receive error %@", _delegate, self, error);
 
-    [_delegate realtimeTransportFailed:self withError:[self classifyError:error]];
+    [_delegate realtimeTransportFailed:self withError:[self classifyError:error webSocket:webSocket]];
     _state = ARTRealtimeTransportStateClosed;
 }
 
-- (ARTRealtimeTransportError *)classifyError:(NSError *)error {
+- (ARTRealtimeTransportError *)classifyError:(NSError *)error webSocket:(id<ARTWebSocket>)webSocket {
     ARTRealtimeTransportErrorType type = ARTRealtimeTransportErrorTypeOther;
 
     if ([error.domain isEqualToString:@"com.squareup.SocketRocket"] && error.code == 504) {
@@ -343,8 +349,11 @@ NS_ASSUME_NONNULL_END
     } else if ([error.domain isEqualToString:ARTSRWebSocketErrorDomain] && error.code == 2132) {
         id status = error.userInfo[ARTSRHTTPResponseErrorKey];
         if (status) {
+            CFHTTPMessageRef const headers = webSocket.receivedHTTPHeaders;
+            NSString *const server = headers ? CFBridgingRelease(CFHTTPMessageCopyHeaderFieldValue(headers, CFSTR("Server"))) : nil;
             return [[ARTRealtimeTransportError alloc] initWithError:error
                                                     badResponseCode:[(NSNumber *)status integerValue]
+                                            badResponseServerHeader:server
                                                                 url:self.websocketURL];
         }
     }

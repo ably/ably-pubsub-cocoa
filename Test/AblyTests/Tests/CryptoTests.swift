@@ -1,4 +1,5 @@
-import Ably
+import AblyPubSubDevice
+import AblyPubSubDevice.Private
 import AblyTesting
 import AblyTestingObjC
 import Nimble
@@ -22,23 +23,23 @@ class CryptoTests: XCTestCase {
 
     // RSE1a, RSE1b
     func test__001__Crypto__getDefaultParams__returns_a_complete_CipherParams_instance__using_the_default_values_for_any_field_not_supplied() {
-        XCTAssertNotNil(tryInObjC {
-            _ = ARTCrypto.getDefaultParams(["nokey": "nokey"])
-        })
-
-        var params: ARTCipherParams = ARTCrypto.getDefaultParams([
-            "key": key,
-        ])
+        var params: CipherParams = Crypto.getDefaultParams(CipherParamOptions(key: key as NSString))
         XCTAssertEqual(params.algorithm, "AES")
         XCTAssertEqual(params.key, binaryKey as Data)
         XCTAssertEqual(params.keyLength, 128)
         XCTAssertEqual(params.mode, "CBC")
 
-        params = ARTCrypto.getDefaultParams([
-            "key": longKey,
-            "algorithm": "DES",
-        ])
+        params = Crypto.getDefaultParams(CipherParamOptions(key: longKey as NSData, algorithm: "DES", keyLength: 0, mode: nil))
         XCTAssertEqual(params.algorithm, "DES")
+        XCTAssertEqual(params.key, longKey as Data)
+        XCTAssertEqual(params.keyLength, 256)
+        XCTAssertEqual(params.mode, "CBC")
+    }
+
+    // RSE1b, CO2
+    func test__017__Crypto__getDefaultParams__accepts_all_CipherParamOptions_fields() {
+        let params = Crypto.getDefaultParams(CipherParamOptions(key: longKey as NSData, algorithm: "aes", keyLength: 256, mode: "cbc"))
+        XCTAssertEqual(params.algorithm, "aes")
         XCTAssertEqual(params.key, longKey as Data)
         XCTAssertEqual(params.keyLength, 256)
         XCTAssertEqual(params.mode, "CBC")
@@ -47,53 +48,84 @@ class CryptoTests: XCTestCase {
     // RSE1c
 
     func test__004__Crypto__getDefaultParams__key_parameter__can_be_a_binary() {
-        let params = ARTCrypto.getDefaultParams(["key": binaryKey])
+        let params = Crypto.getDefaultParams(CipherParamOptions(key: binaryKey as NSData))
         XCTAssertEqual(params.key, binaryKey as Data)
     }
 
     func test__005__Crypto__getDefaultParams__key_parameter__can_be_a_base64_encoded_string_with_standard_encoding() {
-        let params = ARTCrypto.getDefaultParams(["key": key])
+        let params = Crypto.getDefaultParams(CipherParamOptions(key: key as NSString))
         XCTAssertEqual(params.key, binaryKey as Data)
     }
 
     func test__006__Crypto__getDefaultParams__key_parameter__can_be_a_base64_encoded_string_with_URL_encoding() {
         let key = "-_h4eHh4eHh4eHh4eHh4eA=="
-        let params = ARTCrypto.getDefaultParams(["key": key])
+        let params = Crypto.getDefaultParams(CipherParamOptions(key: key as NSString))
         XCTAssertEqual(params.key, binaryKey as Data)
     }
 
     // RSE1d
     func test__002__Crypto__getDefaultParams__calculates_a_keyLength_from_the_key__its_size_in_bits_() {
-        var params = ARTCrypto.getDefaultParams(["key": binaryKey])
+        var params = Crypto.getDefaultParams(CipherParamOptions(key: binaryKey as NSData))
         XCTAssertEqual(params.keyLength, 128)
 
-        params = ARTCrypto.getDefaultParams(["key": longKey])
+        params = Crypto.getDefaultParams(CipherParamOptions(key: longKey as NSData))
         XCTAssertEqual(params.keyLength, 256)
     }
 
     // RSE1e
     func test__003__Crypto__getDefaultParams__should_check_that_keyLength_is_valid_for_algorithm() {
         XCTAssertNotNil(tryInObjC {
-            _ = ARTCrypto.getDefaultParams([
-                "key": binaryKey.subdata(in: 0 ..< 10),
-            ])
+            _ = Crypto.getDefaultParams(CipherParamOptions(key: binaryKey.subdata(in: 0 ..< 10) as NSData))
         })
+    }
+
+    // RSE1e
+    func test__018__Crypto__getDefaultParams__should_check_that_keyLength_matches_the_key() {
+        XCTAssertNotNil(tryInObjC {
+            _ = Crypto.getDefaultParams(CipherParamOptions(key: binaryKey as NSData, algorithm: nil, keyLength: 256, mode: nil))
+        })
+    }
+
+    // RSE1e, CO2d
+    func test__019__Crypto__getDefaultParams__should_reject_an_unsupported_mode() {
+        XCTAssertNotNil(tryInObjC {
+            _ = Crypto.getDefaultParams(CipherParamOptions(key: binaryKey as NSData, algorithm: nil, keyLength: 0, mode: "ECB"))
+        })
+    }
+
+    func test__021__Crypto__getDefaultParams__should_reject_a_key_that_is_not_valid_base64() {
+        let exception = tryInObjC {
+            _ = Crypto.getDefaultParams(CipherParamOptions(key: "not base64!" as NSString))
+        }
+        XCTAssertEqual(exception?.name, .invalidArgumentException)
+        XCTAssertEqual(exception?.reason, "key is not a valid base64 string")
+    }
+
+    // CO2
+    func test__020__CipherParamOptions__stores_a_copy_of_the_key() {
+        let mutableKey = NSMutableData(data: binaryKey)
+        let options = CipherParamOptions(key: mutableKey)
+        mutableKey.append(binaryKey)
+        XCTAssertEqual(options.key as? NSData, binaryKey as NSData)
+        XCTAssertEqual(options.keyLength, 0)
+        XCTAssertNil(options.algorithm)
+        XCTAssertNil(options.mode)
     }
 
     // RSE2
 
     // RSE2a, RSE2b
     func test__007__Crypto__generateRandomKey__takes_a_single_length_argument_and_returns_a_binary() {
-        var key: NSData = ARTCrypto.generateRandomKey(128) as NSData
+        var key: NSData = Crypto.generateRandomKey(128) as NSData
         XCTAssertEqual(key.length, 128 / 8)
 
-        key = ARTCrypto.generateRandomKey(256) as NSData
+        key = Crypto.generateRandomKey(256) as NSData
         XCTAssertEqual(key.length, 256 / 8)
     }
 
     // RSE2a, RSE2b
     func test__008__Crypto__generateRandomKey__takes_no_arguments_and_returns_the_default_algorithm_s_default_length() {
-        let key: NSData = ARTCrypto.generateRandomKey() as NSData
+        let key: NSData = Crypto.generateRandomKey() as NSData
         XCTAssertEqual(key.length, 256 / 8)
     }
 
@@ -101,14 +133,14 @@ class CryptoTests: XCTestCase {
         let string = "The quick brown fox jumps over the lazy dog"
         let expectedHash = "D7A8FBB307D7809469CA9ABCB0082E4F8D5651E46D3CDB762D02D0BF37C9E592" // hex
         let stringData = string.data(using: .utf8)!
-        let result = ARTCrypto.generateHashSHA256(stringData)
+        let result = Crypto.generateHashSHA256(stringData)
         XCTAssertEqual(result.hexString, expectedHash)
     }
 
     func test__010__Crypto__encrypt__should_generate_a_new_IV_every_time_it_s_called__and_should_be_the_first_block_encrypted() {
-        let params = ARTCipherParams(algorithm: "aes", key: key as ARTCipherKeyCompatible)
+        let params = CipherParams(algorithm: "aes", key: key as CipherKeyCompatible)
         let logger = InternalLog(core: MockInternalLogCore())
-        let cipher = ARTCrypto.cipher(with: params, logger: logger)
+        let cipher = Crypto.cipher(with: params, logger: logger)
         let data = "data".data(using: String.Encoding.utf8)!
 
         var distinctOutputs = Set<NSData>()
@@ -119,9 +151,9 @@ class CryptoTests: XCTestCase {
             distinctOutputs.insert(output!)
 
             let firstBlock = output!.subdata(with: NSMakeRange(0, Int((cipher as! ARTCbcCipher).blockLength)))
-            let paramsWithIV = ARTCipherParams(algorithm: "aes", key: key as ARTCipherKeyCompatible, iv: firstBlock)
+            let paramsWithIV = CipherParams(algorithm: "aes", key: key as CipherKeyCompatible, iv: firstBlock)
             var sameOutput: NSData?
-            ARTCrypto.cipher(with: paramsWithIV, logger: logger).encrypt(data, output: &sameOutput)
+            Crypto.cipher(with: paramsWithIV, logger: logger).encrypt(data, output: &sameOutput)
 
             XCTAssertEqual(output!, sameOutput!)
         }
@@ -138,11 +170,11 @@ class CryptoTests: XCTestCase {
         let (key, iv, items) = AblyTests.loadCryptoTestData(cryptoFixture.fileName)
         let logger = InternalLog(core: MockInternalLogCore())
         let decoder = ARTDataEncoder(cipherParams: nil, logger: logger, error: nil)
-        let cipherParams = ARTCipherParams(algorithm: "aes", key: key as ARTCipherKeyCompatible, iv: iv)
+        let cipherParams = CipherParams(algorithm: "aes", key: key as CipherKeyCompatible, iv: iv)
         let encrypter = ARTDataEncoder(cipherParams: cipherParams, logger: logger, error: nil)
 
-        func extractMessage(_ fixture: AblyTests.CryptoTestItem.TestMessage) -> ARTMessage {
-            let msg = ARTMessage(name: fixture.name, data: fixture.data)
+        func extractMessage(_ fixture: AblyTests.CryptoTestItem.TestMessage) -> Message {
+            let msg = Message(name: fixture.name, data: fixture.data)
             msg.encoding = fixture.encoding
             return msg
         }
@@ -156,11 +188,11 @@ class CryptoTests: XCTestCase {
                 expect(encryptedFixture.encoding).to(endWith("\(cryptoFixture.expectedEncryptedEncoding)/base64"))
 
                 var error: NSError?
-                let decoded = fixture.decode(with: decoder, error: &error) as! ARTMessage
+                let decoded = fixture.decode(with: decoder, error: &error) as! Message
                 XCTAssertNil(error)
                 XCTAssertNotNil(decoded)
 
-                let encrypted = try XCTUnwrap(decoded.encode(with: encrypter, error: &error) as? ARTMessage)
+                let encrypted = try XCTUnwrap(decoded.encode(with: encrypter, error: &error) as? Message)
                 XCTAssertNil(error)
                 XCTAssertNotNil(encrypted)
 
@@ -179,11 +211,11 @@ class CryptoTests: XCTestCase {
                 expect(encryptedFixture.encoding).to(endWith("\(cryptoFixture.expectedEncryptedEncoding)/base64"))
 
                 var error: NSError?
-                let decoded = fixture.decode(with: decoder, error: &error) as! ARTMessage
+                let decoded = fixture.decode(with: decoder, error: &error) as! Message
                 XCTAssertNil(error)
                 XCTAssertNotNil(decoded)
 
-                let decrypted = try XCTUnwrap(encryptedFixture.decode(with: encrypter, error: &error) as? ARTMessage)
+                let decrypted = try XCTUnwrap(encryptedFixture.decode(with: encrypter, error: &error) as? Message)
                 XCTAssertNil(error)
                 XCTAssertNotNil(decrypted)
 
@@ -204,11 +236,11 @@ class CryptoTests: XCTestCase {
     func reusableTestsTestManualDecryption(fileName: String, expectedEncryptedEncoding: String, keyLength: UInt) throws {
         let (key, iv, jsonItems) = AblyTests.loadCryptoTestRawData(fileName)
         let decoder = ARTDataEncoder(cipherParams: nil, logger: .init(core: MockInternalLogCore()), error: nil)
-        let cipherParams = ARTCipherParams(algorithm: "aes", key: key as ARTCipherKeyCompatible, iv: iv)
-        let channelOptions = ARTChannelOptions(cipher: cipherParams)
+        let cipherParams = CipherParams(algorithm: "aes", key: key as CipherKeyCompatible, iv: iv)
+        let channelOptions = ChannelOptions(cipher: cipherParams)
 
-        func extractMessage(_ rawFixture: CryptoData.Item.Encoded) -> ARTMessage {
-            let msg = ARTMessage(name: rawFixture.name, data: rawFixture.data)
+        func extractMessage(_ rawFixture: CryptoData.Item.Encoded) -> Message {
+            let msg = Message(name: rawFixture.name, data: rawFixture.data)
             msg.encoding = rawFixture.encoding
             return msg
         }
@@ -220,12 +252,12 @@ class CryptoTests: XCTestCase {
             expect(encryptedFixture.encoding).to(endWith("\(expectedEncryptedEncoding)/base64"))
 
             var error: NSError?
-            let decoded = fixture.decode(with: decoder, error: &error) as! ARTMessage
+            let decoded = fixture.decode(with: decoder, error: &error) as! Message
             XCTAssertNil(error)
             XCTAssertNotNil(decoded)
 
             let rawDictionary = try XCTUnwrap(JSONUtility.codableToDictionary(encryptedFixture))
-            let decrypted = try XCTUnwrap(ARTMessage.fromEncoded(rawDictionary, channelOptions: channelOptions))
+            let decrypted = try XCTUnwrap(Message.fromEncoded(rawDictionary, channelOptions: channelOptions))
             XCTAssertNotNil(decrypted)
 
             XCTAssertEqual(decrypted, decoded)
@@ -234,14 +266,14 @@ class CryptoTests: XCTestCase {
         // a bunch at once
         let encryptedFixtures = try jsonItems.map { try XCTUnwrap(JSONUtility.codableToDictionary($0.encrypted)) }
 
-        let decryptedArray = try XCTUnwrap(ARTMessage.fromEncodedArray(encryptedFixtures, channelOptions: channelOptions))
+        let decryptedArray = try XCTUnwrap(Message.fromEncodedArray(encryptedFixtures, channelOptions: channelOptions))
         XCTAssertEqual(decryptedArray.count, jsonItems.count)
 
         for i in 0..<jsonItems.count {
             let fixture = extractMessage(jsonItems[i].encoded)
 
             var error: NSError?
-            let decoded = fixture.decode(with: decoder, error: &error) as! ARTMessage
+            let decoded = fixture.decode(with: decoder, error: &error) as! Message
             XCTAssertNil(error)
             XCTAssertNotNil(decoded)
 

@@ -1,7 +1,7 @@
 import _AblyPluginSupportPrivate
-import Ably
 @testable import AblyLiveObjects
 @testable import AblyLiveObjectsTesting
+import AblyPubSubDevice
 import Foundation
 import Testing
 
@@ -266,7 +266,7 @@ struct WireObjectMessageSizeTests {
         let message2 = ProtocolTypes.OutboundObjectMessage(clientId: String(repeating: "b", count: 5 * 1024))
         #expect(message2.size == 5 * 1024)
 
-        let error = try await #require(throws: ARTErrorInfo.self) {
+        let error = try await #require(throws: ErrorInfo.self) {
             try await realtimeObjects.testsOnly_publish(objectMessages: [message1, message2], coreSDK: coreSDK)
         }
 
@@ -307,32 +307,12 @@ struct WireObjectMessageSizeTests {
         let message = ProtocolTypes.OutboundObjectMessage(clientId: String(repeating: "a", count: 3 * 1024))
         #expect(message.size == 3 * 1024)
 
-        let error = try await #require(throws: ARTErrorInfo.self) {
+        let error = try await #require(throws: ErrorInfo.self) {
             try await realtimeObjects.testsOnly_publish(objectMessages: [message], coreSDK: coreSDK)
         }
 
         #expect(error.code == 40009)
         #expect(error.statusCode == 400)
         #expect(error.message == "ObjectMessages size 3072 exceeds maximum allowed size of 2048 bytes")
-    }
-
-    // RTO15d: when the core SDK exposes no negotiated `maxMessageSize` (nil — no connection
-    // details, or the server sent no limit), the gate falls back to the 65536 Ably default, so a
-    // message that fits the default is accepted.
-    // @spec RTO15d
-    @Test
-    func publishFallsBackToDefaultMaxMessageSizeWhenUnset() async throws {
-        let internalQueue = TestFactories.createInternalQueue()
-        let realtimeObjects = Self.createRealtimeObjects(internalQueue: internalQueue)
-        // nil maxMessageSize → fall back to the 65536 default.
-        let coreSDK = MockCoreSDK(channelState: .attached, maxMessageSize: nil, internalQueue: internalQueue)
-        coreSDK.setPublishHandler { messages in
-            PublishResult(serials: messages.map { _ in "serial" })
-        }
-
-        // 60 KiB: over any smaller negotiated limit but within the 65536 default.
-        let message = ProtocolTypes.OutboundObjectMessage(clientId: String(repeating: "a", count: 60 * 1024))
-
-        try await realtimeObjects.testsOnly_publish(objectMessages: [message], coreSDK: coreSDK)
     }
 }

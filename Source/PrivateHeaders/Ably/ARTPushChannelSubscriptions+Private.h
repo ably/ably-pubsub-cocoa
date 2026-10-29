@@ -1,14 +1,14 @@
-#import <Ably/ARTPushChannelSubscriptions.h>
+#import <AblyPubSubDevice/ARTPushChannelSubscriptions.h>
 #import "ARTQueuedDealloc.h"
 
-@class ARTRestInternal;
+@class ARTHttpClientInternal;
 @class ARTInternalLog;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ARTPushChannelSubscriptionsInternal : NSObject
 
-- (instancetype)initWithRest:(ARTRestInternal *)rest logger:(ARTInternalLog *)logger;
+- (instancetype)initWithRest:(ARTHttpClientInternal *)rest logger:(ARTInternalLog *)logger;
 
 - (void)save:(ARTPushChannelSubscription *)channelSubscription wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTCallback)callback;
 

@@ -1,5 +1,5 @@
 import XCTest
-import Ably.Private
+import AblyPubSubDevice.Private
 
 class SystemTimeProviderTests: XCTestCase {
     func test_continuousClock_isAfter() {
@@ -34,7 +34,7 @@ class SystemTimeProviderTests: XCTestCase {
         // retain counter: 1
         var object = NSObject()
         // store reference for above weakified
-        weak var weakObject = object
+        weak let weakObject = object
 
         // schedule a block that captures `object`
         var handle: SchedulerHandle? = SystemTimeProvider().schedule(after: 0, queue: .main, block: { [object] in

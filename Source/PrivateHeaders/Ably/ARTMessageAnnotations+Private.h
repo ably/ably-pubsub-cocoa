@@ -1,5 +1,5 @@
 @import Foundation;
-#import <Ably/ARTMessageAnnotations.h>
+#import <AblyPubSubDevice/ARTMessageAnnotations.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -8,8 +8,8 @@ NS_ASSUME_NONNULL_BEGIN
 // Serialize the MessageAnnotations object
 - (void)writeToDictionary:(NSMutableDictionary<NSString *, id> *)dictionary;
 
-// Deserialize a MessageAnnotations object from a NSDictionary object
-+ (instancetype)createFromDictionary:(NSDictionary<NSString *, id> *)jsonObject;
+// Deserialize a MessageAnnotations object from a NSDictionary object. A missing summary, or one that is not a JSON object, becomes an empty summary. A nil dictionary gives an empty summary too.
++ (instancetype)createFromDictionary:(nullable NSDictionary<NSString *, id> *)jsonObject;
 
 @end
 

@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 import SwiftUI
 
 @main
@@ -17,11 +17,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         AblyHelper.shared.defaultDeviceToken = deviceToken.deviceTokenString
-        ARTPush.didRegisterForRemoteNotifications(withDeviceToken: deviceToken, realtime: AblyHelper.shared.realtime)
+        Push.didRegisterForRemoteNotifications(withDeviceToken: deviceToken, pubsub: AblyHelper.shared.client)
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        ARTPush.didFailToRegisterForRemoteNotificationsWithError(error, realtime: AblyHelper.shared.realtime)
+        Push.didFailToRegisterForRemoteNotificationsWithError(error, pubsub: AblyHelper.shared.client)
     }
 }
 

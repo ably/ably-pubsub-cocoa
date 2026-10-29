@@ -1,11 +1,11 @@
 import XCTest
-import Ably.Private
+import AblyPubSubDevice.Private
 
 class LogAdapterTests: XCTestCase {
-    class MockARTLog: ARTLog {
-        var lastReceivedLogMessageArguments: (message: String, level: ARTLogLevel)?
+    class MockARTLog: Log {
+        var lastReceivedLogMessageArguments: (message: String, level: LogLevel)?
 
-        override func log(_ message: String, with level: ARTLogLevel) {
+        override func log(_ message: String, with level: LogLevel) {
             lastReceivedLogMessageArguments = (message: message, level: level)
         }
     }
@@ -14,7 +14,7 @@ class LogAdapterTests: XCTestCase {
         let underlyingLogger = MockARTLog()
         let logger = LogAdapter(logger: underlyingLogger)
 
-        let logLevels: [ARTLogLevel] = [.verbose, .debug, .info, .warn, .error, .none]
+        let logLevels: [LogLevel] = [.verbose, .debug, .info, .warn, .error, .none]
         for (index, level) in logLevels.enumerated() {
             let message = "Message \(index)"
             logger.log(message, with: level, file: "myFile.m", line: 123)
@@ -26,7 +26,7 @@ class LogAdapterTests: XCTestCase {
     }
 
     func test_logLevel() {
-        let underlyingLogger = ARTLog()
+        let underlyingLogger = Log()
         underlyingLogger.logLevel = .info
         let logger = LogAdapter(logger: underlyingLogger)
 
@@ -34,7 +34,7 @@ class LogAdapterTests: XCTestCase {
     }
 
     func test_setLogLevel() {
-        let underlyingLogger = ARTLog()
+        let underlyingLogger = Log()
         underlyingLogger.logLevel = .info
         let logger = LogAdapter(logger: underlyingLogger)
 

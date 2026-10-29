@@ -1,5 +1,5 @@
 #import "ARTRealtimePresence+Private.h"
-#import "ARTRealtime+Private.h"
+#import "ARTPubSubClient+Private.h"
 #import "ARTChannel+Private.h"
 #import "ARTRealtimeChannel+Private.h"
 #import "ARTPresenceMessage.h"
@@ -109,19 +109,19 @@
     [_internal leaveClient:clientId data:data callback:cb];
 }
 
-- (ARTEventListener *_Nullable)subscribe:(ARTPresenceMessageCallback)callback {
+- (ARTEventListener *)subscribe:(ARTPresenceMessageCallback)callback {
     return [_internal subscribe:callback];
 }
 
-- (ARTEventListener *_Nullable)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(ARTPresenceMessageCallback)cb {
+- (ARTEventListener *)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(ARTPresenceMessageCallback)cb {
     return [_internal subscribeWithAttachCallback:onAttach callback:cb];
 }
 
-- (ARTEventListener *_Nullable)subscribe:(ARTPresenceAction)action callback:(ARTPresenceMessageCallback)cb {
+- (ARTEventListener *)subscribe:(ARTPresenceAction)action callback:(ARTPresenceMessageCallback)cb {
     return [_internal subscribe:action callback:cb];
 }
 
-- (ARTEventListener *_Nullable)subscribe:(ARTPresenceAction)action onAttach:(nullable ARTCallback)onAttach callback:(ARTPresenceMessageCallback)cb {
+- (ARTEventListener *)subscribe:(ARTPresenceAction)action onAttach:(nullable ARTCallback)onAttach callback:(ARTPresenceMessageCallback)cb {
     return [_internal subscribe:action onAttach:onAttach callback:cb];
 }
 
@@ -141,8 +141,8 @@
     [_internal historyWithWrapperSDKAgents:nil completion:callback];
 }
 
-- (BOOL)history:(ARTRealtimeHistoryQuery *_Nullable)query callback:(ARTPaginatedPresenceCallback)callback error:(NSError *_Nullable *_Nullable)errorPtr {
-    return [_internal history:query wrapperSDKAgents:nil callback:callback error:errorPtr];
+- (void)history:(ARTRealtimeHistoryQuery *_Nullable)query callback:(ARTPaginatedPresenceCallback)callback {
+    [_internal history:query wrapperSDKAgents:nil callback:callback];
 }
 
 @end
@@ -177,7 +177,7 @@ typedef NS_ENUM(NSUInteger, ARTPresenceSyncState) {
 
 @implementation ARTRealtimePresenceInternal {
     __weak ARTRealtimeChannelInternal *_channel; // weak because channel owns self
-    __weak ARTRealtimeInternal *_realtime;
+    __weak ARTPubSubClientInternal *_realtime;
     dispatch_queue_t _userQueue;
     NSMutableArray<ARTQueuedMessage *> *_pendingPresence;
     ARTEventEmitter<ARTEvent *, ARTPresenceMessage *> *_eventEmitter;
@@ -281,12 +281,12 @@ art_dispatch_async(_queue, ^{
 
 - (void)historyWithWrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
                          completion:(ARTPaginatedPresenceCallback)callback {
-    [self history:[[ARTRealtimeHistoryQuery alloc] init] wrapperSDKAgents:wrapperSDKAgents callback:callback error:nil];
+    [self history:[[ARTRealtimeHistoryQuery alloc] init] wrapperSDKAgents:wrapperSDKAgents callback:callback];
 }
 
-- (BOOL)history:(ARTRealtimeHistoryQuery *)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedPresenceCallback)callback error:(NSError **)errorPtr {
+- (void)history:(ARTRealtimeHistoryQuery *)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedPresenceCallback)callback {
     query.realtimeChannel = _channel;
-    return [_channel.restChannel.presence history:query wrapperSDKAgents:wrapperSDKAgents callback:callback error:errorPtr];
+    [_channel.restChannel.presence history:query wrapperSDKAgents:wrapperSDKAgents callback:callback];
 }
 
 // RTP8
@@ -512,10 +512,8 @@ art_dispatch_sync(_queue, ^{
         if (onAttach && attachOnSubscribe) { // RTL7h
             onAttach([ARTErrorInfo createWithCode:ARTErrorChannelOperationFailedInvalidState message:@"attempted to subscribe while channel is in Failed state."]);
         }
-        ARTLogWarn(self.logger, @"R:%p C:%p (%@) presence subscribe to '%@' action(s) has been ignored (attempted to subscribe while channel is in FAILED state)", self->_realtime, self->_channel, self->_channel.name, ARTPresenceActionToStr(action));
-        return;
-    }
-    if (self->_channel.shouldAttach && attachOnSubscribe) { // RTP6c
+        ARTLogWarn(self.logger, @"R:%p C:%p (%@) presence subscribe to '%@' action(s) while channel is in FAILED state; the listener receives presence messages once the channel is attached again", self->_realtime, self->_channel, self->_channel.name, ARTPresenceActionToStr(action));
+    } else if (self->_channel.shouldAttach && attachOnSubscribe) { // RTP6c
         [self->_channel _attach:onAttach];
     }
     listener = action == ARTPresenceActionAll ? [_eventEmitter on:cb] : [_eventEmitter on:[ARTEvent newWithPresenceAction:action] callback:cb];

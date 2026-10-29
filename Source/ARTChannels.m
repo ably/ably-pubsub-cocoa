@@ -1,9 +1,9 @@
 #import "ARTChannels+Private.h"
 
-#import "ARTRest+Private.h"
+#import "ARTHttpClient+Private.h"
 #import "ARTChannel+Private.h"
 #import "ARTChannelOptions.h"
-#import "ARTRestChannel.h"
+#import "ARTHttpChannel.h"
 #import "ARTGCD.h"
 
 @interface ARTChannels() {
@@ -71,8 +71,8 @@ art_dispatch_sync(_queue, ^{
     [self->_channels removeObjectForKey:[self addPrefix:name]];
 }
 
-- (ARTRestChannel *)getChannel:(NSString *)name options:(ARTChannelOptions *)options {
-    __block ARTRestChannel *channel;
+- (ARTHttpChannel *)getChannel:(NSString *)name options:(ARTChannelOptions *)options {
+    __block ARTHttpChannel *channel;
 art_dispatch_sync(_queue, ^{
     channel = [self _getChannel:name options:options addPrefix:true];
 });

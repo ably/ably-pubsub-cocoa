@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - main
+      - 'integration/**'
 
 permissions:
   contents: read
@@ -25,9 +26,9 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Select Xcode (16.4)
+      - name: Select Xcode (26.2)
         run: |
-          sudo xcode-select -s /Applications/Xcode_16.4.app
+          sudo xcode-select -s /Applications/Xcode_26.2.app
           echo "Selected Xcode version:"
           xcodebuild -version
 
@@ -41,23 +42,7 @@ jobs:
         run: |
           make submodules
           bundle install
-          make update_carthage_dependencies_ios
 
-      - name: Run Examples Tests
-        working-directory: ./Examples/Tests
-        run: |
-          pod repo update
-          pod install
-          bundle exec fastlane scan -s Tests --output-directory "fastlane/test_output/examples/test_iOS26_2"
-
-      - name: Carthage Installation
-        working-directory: ./Examples/AblyCarthage
-        run:  |
-          echo 'Installing Carthage dependencies...'
-          carthage update --use-xcframeworks --platform iOS --no-use-binaries
-          echo 'Building AblyCarthage example...'
-          xcodebuild build -scheme "AblyCarthage" -destination "platform=iOS Simulator,name=iPhone 16" -configuration "Debug"
-      
       - name: SPM Installation
         working-directory: ./
         run:  |

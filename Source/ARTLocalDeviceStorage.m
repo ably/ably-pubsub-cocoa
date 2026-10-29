@@ -66,7 +66,7 @@ NSString *const ARTMigratedFromLegacyStorageKey = @"ARTMigratedFromLegacyStorage
         // LocalDevice is first required; for simplicity we are instead
         // performing it eagerly at storage init (and thus at client init).
         // We'll address this later if it turns out to cause problems; tracking
-        // in https://github.com/ably/ably-cocoa/issues/2214.
+        // in https://github.com/ably/ably-pubsub-cocoa/issues/2214.
         [self migrateLegacyDataIfNeeded];
     }
     return self;

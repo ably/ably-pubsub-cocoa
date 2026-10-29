@@ -1,6 +1,6 @@
 import Foundation
-import Ably
-import Ably.Private
+import AblyPubSubDevice
+import AblyPubSubDevice.Private
 
 /// A deterministic `ARTTimeProvider` for UTS unit tests.
 ///

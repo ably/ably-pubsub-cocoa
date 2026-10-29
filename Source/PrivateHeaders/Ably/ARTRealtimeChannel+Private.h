@@ -4,11 +4,11 @@
 //
 
 #import "ARTChannel.h"
-#import "ARTRestChannel+Private.h"
-#import <Ably/ARTRealtimeChannel.h>
-#import <Ably/ARTEventEmitter.h>
+#import "ARTHttpChannel+Private.h"
+#import <AblyPubSubDevice/ARTRealtimeChannel.h>
+#import <AblyPubSubDevice/ARTEventEmitter.h>
 #import "ARTMessageSendStatus.h"
-#import "ARTRealtime+Private.h"
+#import "ARTPubSubClient+Private.h"
 #import "ARTQueuedDealloc.h"
 #import "ARTPushChannel+Private.h"
 
@@ -58,8 +58,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)shouldAttach;
 - (BOOL)isAnnotationSubscribeGranted;
 
-@property (readonly, weak, nonatomic) ARTRealtimeInternal *realtime; // weak because realtime owns self
-@property (readonly, nonatomic) ARTRestChannelInternal *restChannel;
+@property (readonly, weak, nonatomic) ARTPubSubClientInternal *realtime; // weak because realtime owns self
+@property (readonly, nonatomic) ARTHttpChannelInternal *restChannel;
 @property (readwrite, nonatomic, nullable) NSString *attachSerial;
 @property (readwrite, nonatomic, nullable) NSString *channelSerial; // CP2b
 @property (readonly, nullable, getter=getClientId) NSString *clientId;
@@ -69,7 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (readwrite, nonatomic) BOOL attachResume;
 
-- (instancetype)initWithRealtime:(ARTRealtimeInternal *)realtime andName:(NSString *)name withOptions:(ARTRealtimeChannelOptions *)options logger:(ARTInternalLog *)logger;
+- (instancetype)initWithPubSub:(ARTPubSubClientInternal *)pubsub andName:(NSString *)name withOptions:(ARTRealtimeChannelOptions *)options logger:(ARTInternalLog *)logger;
 
 - (void)proceedAttachDetachWithParams:(ARTAttachRequestParams *)params;
 
@@ -93,13 +93,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)detach:(nullable ARTCallback)callback;
 
-- (ARTEventListener *_Nullable)subscribe:(ARTMessageCallback)callback;
+- (ARTEventListener *)subscribe:(ARTMessageCallback)callback;
 
-- (ARTEventListener *_Nullable)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(ARTMessageCallback)callback;
+- (ARTEventListener *)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(ARTMessageCallback)callback;
 
-- (ARTEventListener *_Nullable)subscribe:(NSString *)name callback:(ARTMessageCallback)callback;
+- (ARTEventListener *)subscribe:(NSString *)name callback:(ARTMessageCallback)callback;
 
-- (ARTEventListener *_Nullable)subscribe:(NSString *)name onAttach:(nullable ARTCallback)onAttach callback:(ARTMessageCallback)callback;
+- (ARTEventListener *)subscribe:(NSString *)name onAttach:(nullable ARTCallback)onAttach callback:(ARTMessageCallback)callback;
 
 - (void)unsubscribe;
 
@@ -109,7 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)historyWithWrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
                          completion:(ARTPaginatedMessagesCallback)callback;
-- (BOOL)history:(ARTRealtimeHistoryQuery *_Nullable)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedMessagesCallback)callback error:(NSError *_Nullable *_Nullable)errorPtr;
+- (void)history:(ARTRealtimeHistoryQuery *_Nullable)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedMessagesCallback)callback;
 
 - (void)setOptions:(ARTRealtimeChannelOptions *_Nullable)options callback:(nullable ARTCallback)callback;
 
@@ -166,12 +166,12 @@ ART_EMBED_INTERFACE_EVENT_EMITTER(ARTChannelEvent, ARTChannelStateChange *)
 @interface ARTRealtimeChannel ()
 
 @property (nonatomic, readonly) ARTRealtimeChannelInternal *internal;
-@property (nonatomic, readonly) ARTRealtimeInternal *realtimeInternal;
+@property (nonatomic, readonly) ARTPubSubClientInternal *realtimeInternal;
 
 - (void)internalAsync:(void (^)(ARTRealtimeChannelInternal *))use;
 - (void)internalSync:(void (^)(ARTRealtimeChannelInternal *))use;
 
-- (instancetype)initWithInternal:(ARTRealtimeChannelInternal *)internal realtimeInternal:(ARTRealtimeInternal *)realtimeInternal queuedDealloc:(ARTQueuedDealloc *)dealloc;
+- (instancetype)initWithInternal:(ARTRealtimeChannelInternal *)internal pubsubInternal:(ARTPubSubClientInternal *)pubsubInternal queuedDealloc:(ARTQueuedDealloc *)dealloc;
 
 @end
 

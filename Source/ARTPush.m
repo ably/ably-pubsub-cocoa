@@ -1,7 +1,7 @@
 #import "ARTPush+Private.h"
 #import "ARTDeviceDetails.h"
 #import "ARTDevicePushDetails.h"
-#import "ARTRest+Private.h"
+#import "ARTHttpClient+Private.h"
 #import "ARTJsonEncoder.h"
 #import "ARTJsonLikeEncoder.h"
 #import "ARTEventEmitter.h"
@@ -15,7 +15,7 @@
 #import "ARTPushAdmin+Private.h"
 #import "ARTLocalDevice+Private.h"
 #import "ARTDeviceStorage.h"
-#import "ARTRealtime+Private.h"
+#import "ARTPubSubClient+Private.h"
 #import "ARTInternalLog.h"
 #import "ARTGCD.h"
 
@@ -38,36 +38,20 @@
 
 #if TARGET_OS_IOS
 
-+ (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken rest:(ARTRest *)rest; {
-    return [ARTPushInternal didRegisterForRemoteNotificationsWithDeviceToken:deviceToken rest:rest];
++ (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken pubsub:(ARTPubSubClient *)pubsub; {
+    return [ARTPushInternal didRegisterForRemoteNotificationsWithDeviceToken:deviceToken pubsub:pubsub];
 }
 
-+ (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken realtime:(ARTRealtime *)realtime; {
-    return [ARTPushInternal didRegisterForRemoteNotificationsWithDeviceToken:deviceToken realtime:realtime];
++ (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error pubsub:(ARTPubSubClient *)pubsub; {
+    return [ARTPushInternal didFailToRegisterForRemoteNotificationsWithError:error pubsub:pubsub];
 }
 
-+ (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error rest:(ARTRest *)rest; {
-    return [ARTPushInternal didFailToRegisterForRemoteNotificationsWithError:error rest:rest];
++ (void)didRegisterForLocationNotificationsWithDeviceToken:(NSData *)deviceToken pubsub:(ARTPubSubClient *)pubsub; {
+    return [ARTPushInternal didRegisterForLocationNotificationsWithDeviceToken:deviceToken pubsub:pubsub];
 }
 
-+ (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error realtime:(ARTRealtime *)realtime; {
-    return [ARTPushInternal didFailToRegisterForRemoteNotificationsWithError:error realtime:realtime];
-}
-
-+ (void)didRegisterForLocationNotificationsWithDeviceToken:(NSData *)deviceToken rest:(ARTRest *)rest; {
-    return [ARTPushInternal didRegisterForLocationNotificationsWithDeviceToken:deviceToken rest:rest];
-}
-
-+ (void)didRegisterForLocationNotificationsWithDeviceToken:(NSData *)deviceToken realtime:(ARTRealtime *)realtime; {
-    return [ARTPushInternal didRegisterForLocationNotificationsWithDeviceToken:deviceToken realtime:realtime];
-}
-
-+ (void)didFailToRegisterForLocationNotificationsWithError:(NSError *)error rest:(ARTRest *)rest; {
-    return [ARTPushInternal didFailToRegisterForLocationNotificationsWithError:error rest:rest];
-}
-
-+ (void)didFailToRegisterForLocationNotificationsWithError:(NSError *)error realtime:(ARTRealtime *)realtime; {
-    return [ARTPushInternal didFailToRegisterForLocationNotificationsWithError:error realtime:realtime];
++ (void)didFailToRegisterForLocationNotificationsWithError:(NSError *)error pubsub:(ARTPubSubClient *)pubsub; {
+    return [ARTPushInternal didFailToRegisterForLocationNotificationsWithError:error pubsub:pubsub];
 }
 
 - (void)registerPushToStartToken:(NSData *)token {
@@ -87,14 +71,14 @@
 @end
 
 @implementation ARTPushInternal {
-    __weak ARTRestInternal *_rest; // weak because rest owns self
+    __weak ARTHttpClientInternal *_rest; // weak because rest owns self
     ARTInternalLog *_logger;
     dispatch_queue_t _queue;
     ARTPushActivationStateMachine *_activationMachine;
     NSLock *_activationMachineLock;
 }
 
-- (instancetype)initWithRest:(ARTRestInternal *)rest logger:(ARTInternalLog *)logger {
+- (instancetype)initWithRest:(ARTHttpClientInternal *)rest logger:(ARTInternalLog *)logger {
     if (self = [super init]) {
         _rest = rest;
         _logger = logger;
@@ -134,7 +118,7 @@
             __block id extendedLifetimeRest = _rest;
 
             if (!extendedLifetimeRest) {
-                // My understanding is that this shouldn't be possible: either getActivationMachine is being invoked as a result of a user's interaction with an ARTPush public method, in which case our ARTQueuedDealloc mechanism should have kept _rest alive, or it's being invoked _by_ _rest (upon fetching a token) or it's being invoked by ARTRealtimeInternal, which is keeping _rest alive.
+                // My understanding is that this shouldn't be possible: either getActivationMachine is being invoked as a result of a user's interaction with an ARTPush public method, in which case our ARTQueuedDealloc mechanism should have kept _rest alive, or it's being invoked _by_ _rest (upon fetching a token) or it's being invoked by ARTPubSubClientInternal, which is keeping _rest alive.
                 ARTLogWarn(_logger, @"_rest has already been deallocated in getActivationMachine:, skipping creation of machine and calling callback with nil");
                 callbackWithUnlock(nil);
                 return;
@@ -185,74 +169,74 @@
     return machine;
 }
 
-+ (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceTokenData restInternal:(ARTRestInternal *)rest {
++ (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceTokenData restInternal:(ARTHttpClientInternal *)rest {
     ARTLogDebug(rest.logger_onlyForUseInClassMethodsAndTests, @"ARTPush: device token data received: %@", [deviceTokenData base64EncodedStringWithOptions:0]);
     [rest setAndPersistAPNSDeviceTokenData:deviceTokenData tokenType:ARTAPNSDeviceDefaultTokenType];
 }
 
-+ (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken realtime:(ARTRealtime *)realtime {
-    [realtime internalAsync:^(ARTRealtimeInternal *realtime) {
-        [ARTPushInternal didRegisterForRemoteNotificationsWithDeviceToken:deviceToken restInternal:realtime.rest];
++ (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken pubsub:(ARTPubSubClient *)pubsub {
+    [pubsub internalAsync:^(ARTPubSubClientInternal *pubsub) {
+        [ARTPushInternal didRegisterForRemoteNotificationsWithDeviceToken:deviceToken restInternal:pubsub.rest];
     }];
 }
 
-+ (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken rest:(ARTRest *)rest {
-    [rest internalAsync:^(ARTRestInternal *rest) {
++ (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken rest:(ARTHttpClient *)rest {
+    [rest internalAsync:^(ARTHttpClientInternal *rest) {
         [ARTPushInternal didRegisterForRemoteNotificationsWithDeviceToken:deviceToken restInternal:rest];
     }];
 }
 
-+ (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error restInternal:(ARTRestInternal *)rest {
++ (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error restInternal:(ARTHttpClientInternal *)rest {
     ARTLogError(rest.logger_onlyForUseInClassMethodsAndTests, @"ARTPush: device token not received (%@)", [error localizedDescription]);
     [rest.push getActivationMachine:^(ARTPushActivationStateMachine *_Nullable stateMachine) {
         [stateMachine sendEvent:[ARTPushActivationEventGettingPushDeviceDetailsFailed newWithError:[ARTErrorInfo createFromNSError:error]]];
     }];
 }
 
-+ (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error realtime:(ARTRealtime *)realtime {
-    [realtime internalAsync:^(ARTRealtimeInternal *realtime) {
-        [ARTPushInternal didFailToRegisterForRemoteNotificationsWithError:error restInternal:realtime.rest];
++ (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error pubsub:(ARTPubSubClient *)pubsub {
+    [pubsub internalAsync:^(ARTPubSubClientInternal *pubsub) {
+        [ARTPushInternal didFailToRegisterForRemoteNotificationsWithError:error restInternal:pubsub.rest];
     }];
 }
 
-+ (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error rest:(ARTRest *)rest {
-    [rest internalAsync:^(ARTRestInternal *rest) {
++ (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error rest:(ARTHttpClient *)rest {
+    [rest internalAsync:^(ARTHttpClientInternal *rest) {
         [ARTPushInternal didFailToRegisterForRemoteNotificationsWithError:error restInternal:rest];
     }];
 }
 
-+ (void)didRegisterForLocationNotificationsWithDeviceToken:(NSData *)deviceTokenData restInternal:(ARTRestInternal *)rest {
++ (void)didRegisterForLocationNotificationsWithDeviceToken:(NSData *)deviceTokenData restInternal:(ARTHttpClientInternal *)rest {
     ARTLogDebug(rest.logger_onlyForUseInClassMethodsAndTests, @"ARTPush: location push device token data received: %@", [deviceTokenData base64EncodedStringWithOptions:0]);
     [rest setAndPersistAPNSDeviceTokenData:deviceTokenData tokenType:ARTAPNSDeviceLocationTokenType];
 }
 
-+ (void)didRegisterForLocationNotificationsWithDeviceToken:(NSData *)deviceToken realtime:(ARTRealtime *)realtime {
-    [realtime internalAsync:^(ARTRealtimeInternal *realtime) {
-        [ARTPushInternal didRegisterForLocationNotificationsWithDeviceToken:deviceToken restInternal:realtime.rest];
++ (void)didRegisterForLocationNotificationsWithDeviceToken:(NSData *)deviceToken pubsub:(ARTPubSubClient *)pubsub {
+    [pubsub internalAsync:^(ARTPubSubClientInternal *pubsub) {
+        [ARTPushInternal didRegisterForLocationNotificationsWithDeviceToken:deviceToken restInternal:pubsub.rest];
     }];
 }
 
-+ (void)didRegisterForLocationNotificationsWithDeviceToken:(NSData *)deviceToken rest:(ARTRest *)rest {
-    [rest internalAsync:^(ARTRestInternal *rest) {
++ (void)didRegisterForLocationNotificationsWithDeviceToken:(NSData *)deviceToken rest:(ARTHttpClient *)rest {
+    [rest internalAsync:^(ARTHttpClientInternal *rest) {
         [ARTPushInternal didRegisterForLocationNotificationsWithDeviceToken:deviceToken restInternal:rest];
     }];
 }
 
-+ (void)didFailToRegisterForLocationNotificationsWithError:(NSError *)error restInternal:(ARTRestInternal *)rest {
++ (void)didFailToRegisterForLocationNotificationsWithError:(NSError *)error restInternal:(ARTHttpClientInternal *)rest {
     ARTLogError(rest.logger_onlyForUseInClassMethodsAndTests, @"ARTPush: location push device token not received (%@)", [error localizedDescription]);
     [rest.push getActivationMachine:^(ARTPushActivationStateMachine *_Nullable stateMachine) {
         [stateMachine sendEvent:[ARTPushActivationEventGettingPushDeviceDetailsFailed newWithError:[ARTErrorInfo createFromNSError:error]]];
     }];
 }
 
-+ (void)didFailToRegisterForLocationNotificationsWithError:(NSError *)error realtime:(ARTRealtime *)realtime {
-    [realtime internalAsync:^(ARTRealtimeInternal *realtime) {
-        [ARTPushInternal didFailToRegisterForLocationNotificationsWithError:error restInternal:realtime.rest];
++ (void)didFailToRegisterForLocationNotificationsWithError:(NSError *)error pubsub:(ARTPubSubClient *)pubsub {
+    [pubsub internalAsync:^(ARTPubSubClientInternal *pubsub) {
+        [ARTPushInternal didFailToRegisterForLocationNotificationsWithError:error restInternal:pubsub.rest];
     }];
 }
 
-+ (void)didFailToRegisterForLocationNotificationsWithError:(NSError *)error rest:(ARTRest *)rest {
-    [rest internalAsync:^(ARTRestInternal *rest) {
++ (void)didFailToRegisterForLocationNotificationsWithError:(NSError *)error rest:(ARTHttpClient *)rest {
+    [rest internalAsync:^(ARTHttpClientInternal *rest) {
         [ARTPushInternal didFailToRegisterForLocationNotificationsWithError:error restInternal:rest];
     }];
 }

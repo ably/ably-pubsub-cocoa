@@ -1,9 +1,13 @@
 #import "ARTPresenceMessage+Private.h"
+#import "ARTStatus.h"
 
 NSString *const ARTPresenceMessageException = @"ARTPresenceMessageException";
 NSString *const ARTAblyMessageInvalidPresenceId = @"Received presence message id is invalid %@";
 
 @implementation ARTPresenceMessage
+
+// TP3d: a presence member always belongs to a realtime connection, so a presence message has a connection ID. A message may not (TM2c): one published without a connection, for example by a server over REST, has none, and a history request has no ProtocolMessage to take one from. The redeclaration in the header only narrows the type; the storage is ARTBaseMessage's.
+@dynamic connectionId;
 
 - (instancetype)init {
     self = [super init];

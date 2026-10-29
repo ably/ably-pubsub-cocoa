@@ -23,7 +23,7 @@
 //   (objects-mapping §6), so the invalid input cannot be constructed. The spec pseudocode is retained
 //   as comments; only the runtime-expressible subset (RTLCV4a's non-finite `Double`) is a real assertion.
 
-import Ably
+import AblyPubSubDevice
 @testable import AblyLiveObjects
 import Foundation
 import Testing

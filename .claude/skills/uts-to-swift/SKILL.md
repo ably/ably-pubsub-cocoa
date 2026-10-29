@@ -141,7 +141,7 @@ through the steps in order.
 written in a language-agnostic pseudocode that mirrors the *ably-js* API; for modules whose ably-cocoa
 types diverge, the notes map each spec symbol to its ably-cocoa equivalent. Skipping them yields tests
 that read like ably-js and won't compile. A module's notes may also **override parts of the generic flow
-below** — Step 3's infrastructure reading list, Step 4's `import Ably.Private` internal-access ladder,
+below** — Step 3's infrastructure reading list, Step 4's `import AblyPubSubDevice.Private` internal-access ladder,
 Step 4's method-naming rule, and Step 6's deviations-file location; where the notes override, they win.
 (If the notes file is still the "intentionally empty" placeholder, stop and tell the user — see Step A.)
 
@@ -208,17 +208,17 @@ the **Integration tests** section instead. A module whose translation notes over
 
 Apply the translation rules below, then write the file.
 
-### Accessing SDK internals (`import Ably.Private`)
+### Accessing SDK internals (`import AblyPubSubDevice.Private`)
 
 > **A module's translation notes may override this ladder** (Step 1) — a module whose SDK layer isn't
-> the core Objective-C SDK can specify its own internal-access mechanism instead of `import Ably.Private`;
+> the core Objective-C SDK can specify its own internal-access mechanism instead of `import AblyPubSubDevice.Private`;
 > follow the notes where they do. The rest of this section is for the core Objective-C SDK.
 
 The SDK is Objective-C, so Swift access levels (`internal`/`package`/`private`) don't apply to it —
 visibility is controlled by **headers + the module map**:
 
-- `import Ably` → the public API (headers in `Source/include/Ably/`).
-- `import Ably.Private` → the internal API: the private headers listed in the `explicit module Private`
+- `import AblyPubSubDevice` → the public API (headers in `Source/include/AblyPubSubDevice/`).
+- `import AblyPubSubDevice.Private` → the internal API: the private headers listed in the `explicit module Private`
   block of `Source/include/module.modulemap` (files under `Source/PrivateHeaders/Ably/`, e.g.
   `ARTClientOptions+TestConfiguration.h` for `testOptions`, `ART*+Private.h` for class internals). This is
   how the UTS infra reaches the injection seams, and how a test reaches internal fields the spec asserts
@@ -227,12 +227,11 @@ visibility is controlled by **headers + the module map**:
 When a spec needs an internal class/method/field, work down this list:
 
 1. **Check it's already exposed**: `grep -r "<symbol>" Source/PrivateHeaders/Ably/` — if it's declared in a
-   listed private header, just `import Ably.Private` and use it.
+   listed private header, just `import AblyPubSubDevice.Private` and use it.
 2. **Declared only in a `.m` file** (class extension, ivar, private method)? It is invisible to Swift,
    period. To expose it, declare it in a header under `Source/PrivateHeaders/Ably/` and register that
-   header in **both** module maps (`Source/include/module.modulemap` for SPM and `Source/Ably.modulemap`
-   for Xcode) — the repo's CLAUDE.md convention. Only do this for small, test-motivated exposure; mirror
-   how existing `+Private.h` headers are written.
+   header in `Source/include/module.modulemap` — the repo's CLAUDE.md convention. Only do this for
+   small, test-motivated exposure; mirror how existing `+Private.h` headers are written.
 3. **Truly private state with no reasonable seam** (or exposing it would distort the SDK)? Don't hack
    around it — keep the spec's line as a comment, note why no assertion is emitted (see "Comments and
    assertion fidelity"), and record it in `deviations.md` under **Mock Infrastructure Limitations**.
@@ -493,7 +492,7 @@ matching `makeProtocolMessage()` case) if you need another action:
 | `ProtocolMessage(action: CLOSED)` | `.closed()` |
 | `CONNECTED_MESSAGE` (ready-made default) | `.connectedMessage` |
 | `connectionStateTtl: 2000` (wire ms) | seconds here: `connectionStateTtl: 2` |
-| `ConnectionState.connected` / `ChannelState.attached` | `.connected` / `.attached` (`ARTRealtimeConnectionState` / `ARTRealtimeChannelState`) |
+| `ConnectionState.connected` / `ChannelState.attached` | `.connected` / `.attached` (`RealtimeConnectionState` / `RealtimeChannelState`) |
 
 ### Awaiting state
 
@@ -571,7 +570,7 @@ no assertion is emitted. Never delete the spec line.
 #expect(recovered.connectionId == "connection-1")
 
 // ASSERT connection.errorReason IS null
-// (no assertion: ARTConnection exposes no errorReason getter in this state — see deviations.md)
+// (no assertion: Connection exposes no errorReason getter in this state — see deviations.md)
 ```
 
 A dropped or weakened assertion that is *not* annotated this way is a bug — Step 7 re-checks for it.
@@ -585,7 +584,7 @@ Use Swift Testing macros (`import Testing`, **not** `XCTest`):
 | `ASSERT x == y` | `#expect(x == y)` |
 | `ASSERT x IS NOT null` | `let x = try #require(optional)` (or `#expect(x != nil)`) |
 | `ASSERT x IS null` | `#expect(x == nil)` |
-| `ASSERT x IS Auth` (type check) | `#expect(x is ARTAuth)` — or `let auth = try #require(x as? ARTAuth)` when later lines use the value |
+| `ASSERT x IS Auth` (type check) | `#expect(x is Auth)` — or `let auth = try #require(x as? Auth)` when later lines use the value |
 | `ASSERT x matches pattern "..."` | `#expect(x.range(of: "...", options: .regularExpression) != nil)` |
 | `ASSERT list CONTAINS_IN_ORDER [a, b, c]` | `#expect(list.filter { [a, b, c].contains($0) } == [a, b, c])` — or walk an index as the spec does |
 | `ASSERT "k" IN map` / `NOT IN` | `#expect(map["k"] != nil)` / `#expect(map["k"] == nil)` |
@@ -600,7 +599,7 @@ REST calls will callback (e.g. `rest.time { ... }`) — make the test `async thr
 method that bridges the completion handler with a continuation:
 
 ```swift
-private func awaitTime(_ rest: ARTRest, sourceLocation: SourceLocation = #_sourceLocation) async -> Date {
+private func awaitTime(_ rest: HttpClient, sourceLocation: SourceLocation = #_sourceLocation) async -> Date {
     await withCheckedContinuation { (continuation: CheckedContinuation<Date, Never>) in
         rest.time { date, error in
             if let error { Issue.record("time() failed: \(error)", sourceLocation: sourceLocation) }
@@ -641,8 +640,8 @@ the file templates in the **Integration tests** section instead, not from this o
 ```swift
 import Testing
 import Foundation
-import Ably
-import Ably.Private
+import AblyPubSubDevice
+import AblyPubSubDevice.Private
 
 /// <Feature> (<spec points>)
 /// Derived from <spec URL>
@@ -689,7 +688,7 @@ swift build --build-tests
 ```
 
 Fix any compilation errors and recompile until clean. Common issues:
-- Missing `import Ably.Private` when the test touches internals.
+- Missing `import AblyPubSubDevice.Private` when the test touches internals.
 - Mock method names differing from what you read in Step 3's files — use the exact signatures.
 - Swift 6 `@Sendable` capture errors — a plain `var` captured in a mock handler is a compile error; use
   `Captured<T>` (see "Capturing connection attempts / requests").
@@ -965,14 +964,14 @@ generated tests — integration suites run ungated (they just need network; see 
 
 Suites subclass `IntegrationTestCase` and wrap the scenario in the scoped-resource methods:
 `withSandboxApp { app in … }` provisions a throwaway sandbox app and always deletes it;
-`withRealtimeClient(options) { client in … }` builds a real `ARTRealtime` and always closes it (waiting
+`withRealtimeClient(options) { client in … }` builds a real `PubSubClient` and always closes it (waiting
 for CLOSED).
 
 **Client wiring** — point both transports at the sandbox host; TLS stays on, so the plain sandbox key
 works (RSA1). Explicit hosts auto-disable fallback hosts (REC2c2), so no `fallbackHosts`:
 
 ```swift
-let options = ARTClientOptions(key: app.defaultKey)
+let options = ClientOptions(key: app.defaultKey)
 options.realtimeHost = SandboxApp.sandboxHost   // sandbox.realtime.ably-nonprod.net
 options.restHost = SandboxApp.sandboxHost
 options.useBinaryProtocol = useBinaryProtocol
@@ -1052,7 +1051,7 @@ file) stay in the per-file extension as usual.
 ```swift
 import Testing
 import Foundation
-import Ably
+import AblyPubSubDevice
 
 /// <Feature> (<spec points>)
 /// Derived from <spec URL>
@@ -1063,7 +1062,7 @@ final class <className>: IntegrationTestCase {
     @Test(arguments: [false, true]) // useBinaryProtocol: false = JSON, true = msgpack
     func test_<SPEC>_<description>(useBinaryProtocol: Bool) async throws {
         try await withSandboxApp { app in
-            let options = ARTClientOptions(key: app.defaultKey)   // TLS stays on → plain key auth is fine
+            let options = ClientOptions(key: app.defaultKey)   // TLS stays on → plain key auth is fine
             options.realtimeHost = SandboxApp.sandboxHost
             options.restHost = SandboxApp.sandboxHost
             options.useBinaryProtocol = useBinaryProtocol
@@ -1105,8 +1104,8 @@ integration spec** — they hold the exact method signatures. `SandboxApp` and `
   `IntegrationTestCase`): `withProxySession(rules:)` and `proxyClientOptions(for:through:)`.
 
 The `SandboxApp` and `ProxySession` methods are all **`async`** — call them with `try await` inside the
-scoped bodies. Imports are simple: `import Testing`, `import Foundation`, `import Ably` (+
-`import Ably.Private` only if the spec asserts on SDK internals) — the whole UTS target is one module, so
+scoped bodies. Imports are simple: `import Testing`, `import Foundation`, `import AblyPubSubDevice` (+
+`import AblyPubSubDevice.Private` only if the spec asserts on SDK internals) — the whole UTS target is one module, so
 the infra helpers need no imports.
 
 ### Proxy test class docstring
@@ -1151,7 +1150,7 @@ try await withProxySession(rules: [wsConnectRule(action: ["type": "refuse_connec
 
 ### Connecting through the proxy
 
-Call `options.connectThroughProxy(session)` on the client options. It is an `ARTClientOptions` extension
+Call `options.connectThroughProxy(session)` on the client options. It is a `ClientOptions` extension
 (in `ProxySession.swift`) that wires the SDK through the proxy:
 
 | Proxy-def option | What `connectThroughProxy` sets |
@@ -1169,20 +1168,20 @@ automatically (REC2c2), so don't add `fallbackHosts`.
 The proxy serves plain ws (`tls = false`) and basic (key) auth is TLS-only (**RSA1**), so a proxied client
 can't just use the sandbox key. Where the pseudocode "generates a JWT from the key parts", the idiomatic
 ably-cocoa equivalent is a **locally-signed `TokenRequest`** from the same sandbox key — no JWT library
-required: a separate TLS "token signer" `ARTRest` calls `auth.createTokenRequest(params, options:)` inside
+required: a separate TLS "token signer" `HttpClient` calls `auth.createTokenRequest(params, options:)` inside
 an `authCallback`, and the realtime client exchanges it for a token through the proxy.
 
 The base class packages all of this: **`proxyClientOptions(for: app, through: session)`** returns
-`ARTClientOptions` with the token-signer `authCallback` and `connectThroughProxy` already wired. Its body
+`ClientOptions` with the token-signer `authCallback` and `connectThroughProxy` already wired. Its body
 (in `ProxyTestCase.swift`) is the pattern to inline when a spec needs to count or intercept the auth
 callbacks itself:
 
 ```swift
-let signerOptions = ARTClientOptions(key: app.defaultKey)
+let signerOptions = ClientOptions(key: app.defaultKey)
 signerOptions.restHost = SandboxApp.sandboxHost
-let tokenSigner = ARTRest(options: signerOptions)   // TLS, real host — local signing plus one token fetch
+let tokenSigner = HttpClient(options: signerOptions)   // TLS, real host — local signing plus one token fetch
 
-let options = ARTClientOptions()
+let options = ClientOptions()
 options.authCallback = { params, callback in
     tokenSigner.auth.createTokenRequest(params, options: nil) { tokenRequest, error in
         callback(tokenRequest, error)
@@ -1191,7 +1190,7 @@ options.authCallback = { params, callback in
 options.connectThroughProxy(session)
 ```
 
-(The auth types are top-level classes in cocoa — `ARTTokenParams`, `ARTTokenRequest`, `ARTAuthDetails` —
+(The auth types are top-level classes in cocoa — `TokenParams`, `TokenRequest`, `AuthDetails` —
 unlike ably-java, where `TokenParams`/`TokenRequest` are nested in `Auth` and `AuthDetails` in
 `ProtocolMessage`.)
 
@@ -1264,7 +1263,7 @@ access.
 
 import Testing
 import Foundation
-import Ably
+import AblyPubSubDevice
 
 /// Proxy integration test against Ably Sandbox endpoint.
 ///

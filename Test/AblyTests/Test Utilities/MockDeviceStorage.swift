@@ -1,5 +1,6 @@
 #if os(iOS)
-import Ably
+import AblyPubSubDevice
+import AblyPubSubDevice.Private
 
 class MockDeviceStorage: NSObject, ARTDeviceStorage {
 

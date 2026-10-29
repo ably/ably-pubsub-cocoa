@@ -3,6 +3,7 @@
 #import "ARTGCD.h"
 #import "ARTSystemTimeProvider.h"
 #import "ARTTimeProvider.h"
+#import "ARTStatus.h"
 
 static const char *logLevelName(ARTLogLevel level) {
     switch(level) {

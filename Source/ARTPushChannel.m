@@ -1,8 +1,8 @@
 #import "ARTPushChannel+Private.h"
-#import "ARTHttp.h"
+#import "ARTHTTPExecutor.h"
 #import "ARTInternalLog.h"
 #import "ARTJsonLikeEncoder.h"
-#import "ARTRest+Private.h"
+#import "ARTHttpClient+Private.h"
 #import "ARTClientOptions.h"
 #import "ARTPaginatedResult+Private.h"
 #import "ARTPushChannelSubscription.h"
@@ -56,10 +56,9 @@
     [_internal unsubscribeClientWithWrapperSDKAgents:nil completion:callback];
 }
 
-- (BOOL)listSubscriptions:(NSStringDictionary *)params
-                 callback:(ARTPaginatedPushChannelCallback)callback
-                    error:(NSError *_Nullable *_Nullable)errorPtr {
-    return [_internal listSubscriptions:params wrapperSDKAgents:nil callback:callback error:errorPtr];
+- (void)listSubscriptions:(NSStringDictionary *)params
+                 callback:(ARTPaginatedPushChannelCallback)callback {
+    [_internal listSubscriptions:params wrapperSDKAgents:nil callback:callback];
 }
 
 @end
@@ -71,12 +70,12 @@ const NSUInteger ARTDefaultLimit = 100;
     dispatch_queue_t _queue;
     dispatch_queue_t _userQueue;
 @public
-    __weak ARTRestInternal *_rest; // weak because rest may own self and always outlives it
+    __weak ARTHttpClientInternal *_rest; // weak because rest may own self and always outlives it
     ARTInternalLog *_logger;
     __weak ARTChannel *_channel; // weak because channel owns self
 }
 
-- (instancetype)init:(ARTRestInternal *)rest withChannel:(ARTChannel *)channel logger:(ARTInternalLog *)logger {
+- (instancetype)init:(ARTHttpClientInternal *)rest withChannel:(ARTChannel *)channel logger:(ARTInternalLog *)logger {
     if (self == [super self]) {
         _rest = rest;
         _queue = rest.queue;
@@ -245,10 +244,16 @@ art_dispatch_async(_queue, ^{
 });
 }
 
-- (BOOL)listSubscriptions:(NSStringDictionary *)params
+- (void)listSubscriptions:(NSStringDictionary *)params
          wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
-                 callback:(ARTPaginatedPushChannelCallback)callback
-                    error:(NSError * __autoreleasing *)errorPtr {
+                 callback:(ARTPaginatedPushChannelCallback)callback {
+    if (!params[@"deviceId"] && !params[@"clientId"]) {
+        [NSException raise:NSInvalidArgumentException format:@"cannot list subscriptions with null device ID or null client ID"];
+    }
+    if (params[@"deviceId"] && params[@"clientId"]) {
+        [NSException raise:NSInvalidArgumentException format:@"cannot list subscriptions with device ID and client ID"];
+    }
+
     if (callback) {
         ARTPaginatedPushChannelCallback userCallback = callback;
         callback = ^(ARTPaginatedResult<ARTPushChannelSubscription *> *result, ARTErrorInfo *error) {
@@ -258,29 +263,8 @@ art_dispatch_async(_queue, ^{
         };
     }
 
-    __block BOOL ret;
 art_dispatch_sync(_queue, ^{
-    NSMutableDictionary<NSString *, NSString *> *mutableParams = params ? [NSMutableDictionary dictionaryWithDictionary:params] : [[NSMutableDictionary alloc] init];
-
-    if (!mutableParams[@"deviceId"] && !mutableParams[@"clientId"]) {
-        if (errorPtr) {
-            *errorPtr = [NSError errorWithDomain:ARTAblyErrorDomain
-                                            code:ARTDataQueryErrorMissingRequiredFields
-                                        userInfo:@{NSLocalizedDescriptionKey:@"cannot list subscriptions with null device ID or null client ID"}];
-        }
-        ret = NO;
-        return;
-    }
-    if (mutableParams[@"deviceId"] && mutableParams[@"clientId"]) {
-        if (errorPtr) {
-            *errorPtr = [NSError errorWithDomain:ARTAblyErrorDomain
-                                            code:ARTDataQueryErrorInvalidParameters
-                                        userInfo:@{NSLocalizedDescriptionKey:@"cannot list subscriptions with device ID and client ID"}];
-        }
-        ret = NO;
-        return;
-    }
-
+    NSMutableDictionary<NSString *, NSString *> *mutableParams = [NSMutableDictionary dictionaryWithDictionary:params];
     mutableParams[@"concatFilters"] = @"true";
 
     NSURLComponents *components = [[NSURLComponents alloc] initWithURL:[NSURL URLWithString:@"/push/channelSubscriptions"] resolvingAgainstBaseURL:NO];
@@ -293,9 +277,7 @@ art_dispatch_sync(_queue, ^{
     };
 
     [ARTPaginatedResult executePaginated:self->_rest withRequest:request andResponseProcessor:responseProcessor wrapperSDKAgents:wrapperSDKAgents logger:self->_logger callback:callback];
-    ret = YES;
 });
-    return ret;
 }
 
 - (ARTLocalDevice *)getDevice:(ARTCallback)callback {

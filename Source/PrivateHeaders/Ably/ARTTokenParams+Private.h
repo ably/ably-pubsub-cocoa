@@ -1,4 +1,4 @@
-#import <Ably/ARTTokenParams.h>
+#import <AblyPubSubDevice/ARTTokenParams.h>
 
 @interface ARTTokenParams (Private)
 

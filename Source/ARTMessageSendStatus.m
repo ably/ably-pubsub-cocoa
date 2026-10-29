@@ -1,5 +1,6 @@
 #import "ARTMessageSendStatus.h"
 #import "ARTPublishResult.h"
+#import "ARTStatus.h"
 
 @implementation ARTMessageSendStatus
 

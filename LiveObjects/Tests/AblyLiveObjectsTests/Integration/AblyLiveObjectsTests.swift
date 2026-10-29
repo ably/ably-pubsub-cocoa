@@ -1,7 +1,7 @@
 import _AblyPluginSupportPrivate
-import Ably
 @testable import AblyLiveObjects
 @testable import AblyLiveObjectsTesting
+import AblyPubSubDevice.Private
 import Testing
 
 @Suite(.tags(.integration), .serialized)
@@ -10,18 +10,44 @@ struct AblyLiveObjectsTests {
     func objectsProperty() async throws {
         // Given
 
-        let clientOptions = ARTClientOptions(key: "foo:bar")
+        let clientOptions = ClientOptions(key: "foo:bar")
         clientOptions.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]
         // Don't need to connect
         clientOptions.autoConnect = false
 
-        let realtime = ARTRealtime(options: clientOptions)
+        let realtime = PubSubClient(options: clientOptions)
 
         let channel = realtime.channels.get("someChannel")
 
         // Then
 
         // Check that the `channel.object` property works and gives the internal type we expect
+        #expect(channel.object is PublicDefaultRealtimeObject)
+    }
+
+    /// An application reaches Ably through `PubSubDevice.createClient(options:)`, which builds its
+    /// client from a copy of the caller's options. This checks that a client built that way still
+    /// resolves the plugin, so `channel.object` gives the same type it does for a client built
+    /// through the initializer.
+    @Test
+    func objectsPropertyOnAClientFromTheDeviceFactory() async throws {
+        // Given
+
+        let clientOptions = ClientOptions(key: "foo:bar")
+        clientOptions.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]
+        // Don't need to connect
+        clientOptions.autoConnect = false
+
+        let realtime = PubSubDevice.createClient(options: clientOptions)
+
+        let channel = realtime.channels.get("someChannel")
+
+        // Then
+
+        // A client built without the plugin traps on `channel.object`, so check that the copy
+        // carried it before reaching for the property: losing it should fail this test rather
+        // than kill the test process.
+        try #require(realtime.internal.options.plugins?[.liveObjects] != nil)
         #expect(channel.object is PublicDefaultRealtimeObject)
     }
 
@@ -32,7 +58,7 @@ struct AblyLiveObjectsTests {
         clientOptions.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]
         clientOptions.useBinaryProtocol = useBinaryProtocol
 
-        let realtime = ARTRealtime(options: clientOptions)
+        let realtime = PubSubClient(options: clientOptions)
         defer { realtime.close() }
 
         // 1. Create a Map on a channel using the REST API.
@@ -41,10 +67,10 @@ struct AblyLiveObjectsTests {
         let channelName = UUID().uuidString
 
         // swiftlint:disable:next force_cast
-        let restClientOptions = clientOptions.copy() as! ARTClientOptions
+        let restClientOptions = clientOptions.copy() as! ClientOptions
         // TODO: Understand why the LiveObjects REST API is failing when I try to use MessagePack (asked in https://ably-real-time.slack.com/archives/CURL4U2FP/p1749739112276359); for now am just using a separate client that always uses JSON.
         restClientOptions.useBinaryProtocol = false
-        let rest = ARTRest(options: restClientOptions)
+        let rest = HttpClient(options: restClientOptions)
 
         let currentAblyTimestamp = UInt64(Date().timeIntervalSince1970) * MSEC_PER_SEC
 
@@ -73,7 +99,7 @@ struct AblyLiveObjectsTests {
         let restCreatedMapObjectID = try #require((mapCreateResponse.items.first?["objectIds"] as? [String])?.first)
 
         // 2. Attach to the channel on which we just created the Map.
-        let channelOptions = ARTRealtimeChannelOptions()
+        let channelOptions = RealtimeChannelOptions()
         channelOptions.modes = [.objectPublish, .objectSubscribe]
         let channel = realtime.channels.get(channelName, options: channelOptions)
         try await channel.attachAsync()
@@ -120,7 +146,7 @@ struct AblyLiveObjectsTests {
         #expect(receivedMapCreateObjectMessage.operation?.action == .known(.mapCreate))
 
         // 7. Now, send an invalid OBJECT ProtocolMessage to check that ably-cocoa correctly reports on its NACK.
-        let invalidObjectThrownError = try await #require(throws: ARTErrorInfo.self) {
+        let invalidObjectThrownError = try await #require(throws: ErrorInfo.self) {
             try await objects.testsOnly_publish(objectMessages: [
                 .init(),
             ], coreSDK: coreSDK)

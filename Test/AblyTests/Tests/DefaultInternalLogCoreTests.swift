@@ -1,10 +1,10 @@
 import XCTest
-import Ably.Private
+import AblyPubSubDevice.Private
 
 class DefaultInternalLogCoreTests: XCTestCase {
     func test_initWithClientOptions_whenClientOptionsLogLevelIsNotNone() throws {
         // Given: client options whose logLevel is .verbose (arbitrarily chosen, not .none), and whose logHandler has logLevel .info (arbitrarily chosen, not equal to .verbose)
-        let clientOptions = ARTClientOptions()
+        let clientOptions = ClientOptions()
         clientOptions.logLevel = .verbose
         clientOptions.logHandler.logLevel = .info
 
@@ -21,7 +21,7 @@ class DefaultInternalLogCoreTests: XCTestCase {
     func test_initWithClientOptions_whenClientOptionsLogLevelIsNone() throws {
         // Given: client options whose logLevel is .none, and whose logHandler has logLevel .info (arbitrarily chosen, not equal to .none)
 
-        let clientOptions = ARTClientOptions()
+        let clientOptions = ClientOptions()
         clientOptions.logLevel = .none
         clientOptions.logHandler.logLevel = .info
 
@@ -39,7 +39,7 @@ class DefaultInternalLogCoreTests: XCTestCase {
         let mock = MockVersion2Log()
         let core = DefaultInternalLogCore(logger: mock)
 
-        let logLevels: [ARTLogLevel] = [.verbose, .debug, .info, .warn, .error, .none]
+        let logLevels: [LogLevel] = [.verbose, .debug, .info, .warn, .error, .none]
         for (index, level) in logLevels.enumerated() {
             let message = "Message \(index)"
             core.log(message, with: level, file: "/foo/bar/myFile.m", line: 123)

@@ -7,16 +7,16 @@ import ObjectiveC.NSObject
 ///
 /// For example:
 /// ```swift
-/// import Ably
+/// import AblyPubSubDevice
 /// import AblyLiveObjects
 ///
-/// let clientOptions = ARTClientOptions(key: /* <insert your Ably API key here> */)
+/// let clientOptions = ClientOptions(key: /* <insert your Ably API key here> */)
 /// clientOptions.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]
 ///
-/// let realtime = ARTRealtime(options: clientOptions)
+/// let realtime = PubSubDevice.createClient(options: clientOptions)
 ///
 /// // Fetch a channel, specifying the `.objectPublish` and `.objectSubscribe` modes
-/// let channelOptions = ARTRealtimeChannelOptions()
+/// let channelOptions = RealtimeChannelOptions()
 /// channelOptions.modes = [.objectPublish, .objectSubscribe]
 /// let channel = realtime.channels.get("myChannel", options: channelOptions)
 ///
@@ -35,7 +35,6 @@ import ObjectiveC.NSObject
 /// let root = try await channel.object.get()
 /// // …and so on
 /// ```
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 @objc
 public class Plugin: NSObject {
     /// The `_AblyPluginSupportPrivate.PluginAPIProtocol` that the LiveObjects plugin should use by default (i.e. when one hasn't been injected for test purposes).

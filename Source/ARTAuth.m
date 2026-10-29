@@ -4,8 +4,8 @@
 #import <UIKit/UIKit.h>
 #endif
 
-#import "ARTRest+Private.h"
-#import "ARTHttp.h"
+#import "ARTHttpClient+Private.h"
+#import "ARTHTTPExecutor.h"
 #import "ARTClientOptions.h"
 #import "ARTAuthOptions.h"
 #import "ARTTokenDetails.h"
@@ -100,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_ASSUME_NONNULL_END
 
 @implementation ARTAuthInternal {
-    __weak ARTRestInternal *_rest; // weak because rest owns auth
+    __weak ARTHttpClientInternal *_rest; // weak because rest owns auth
     dispatch_queue_t _userQueue;
     ARTTokenParams *_tokenParams;
     // Dedicated to Protocol Message
@@ -110,7 +110,7 @@ NS_ASSUME_NONNULL_END
     id<ARTTimeProvider> _timeProvider;
 }
 
-- (instancetype)init:(ARTRestInternal *)rest withOptions:(ARTClientOptions *)options logger:(ARTInternalLog *)logger {
+- (instancetype)init:(ARTHttpClientInternal *)rest withOptions:(ARTClientOptions *)options logger:(ARTInternalLog *)logger {
     if (self = [super init]) {
         _rest = rest;
         _userQueue = rest.userQueue;
@@ -811,7 +811,7 @@ art_dispatch_sync(_queue, ^{
 }
 
 - (void)fetchServerTimeWithCompletion:(void (^)(NSDate * _Nullable, ARTErrorInfo * _Nullable))completion {
-    // TODO: I don't know why elsewhere we use hasTimeOffsetWithValue; it's causing us to ignore the offset in the case where the stored time offset indicates that the local clock is ahead of the server clock. See https://github.com/ably/ably-cocoa/issues/2148
+    // TODO: I don't know why elsewhere we use hasTimeOffsetWithValue; it's causing us to ignore the offset in the case where the stored time offset indicates that the local clock is ahead of the server clock. See https://github.com/ably/ably-pubsub-cocoa/issues/2148
 
     if ([self hasTimeOffset]) {
         NSDate *serverTime = [self currentDate];

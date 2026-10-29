@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ably-cocoa is the Ably pub/sub SDK for iOS, macOS, and tvOS. It is written in Objective-C with a public Objective-C API that is also consumed from Swift. It implements the [Ably client library specification](https://github.com/ably/specification).
 
+**ably-cocoa is device-side only**: it serves apps running on an end user's device, and such a client declares that to Ably, which is what determines how its traffic counts toward an account's monthly active users. The matching server side belongs to the server-capable SDKs (ably-js, ably-java, ably-go, ably-dotnet, ably-python, ably-ruby, ably-php), so do not add a server package, a server factory, or the `ably-pubsub-server` agent identifier here, and do not document this SDK as a choice between two sides — its reader has one option. Server-side Swift is tracked separately as `ably-swift`.
+
+The SPM products are **`AblyPubSubDevice`** the SDK, which applications reach through `PubSubDevice.createClient(options:)`, and `AblyLiveObjects`. The SDK is written in one Objective-C target and module named `AblyPubSubDevice`. The product also contains the Swift overlay, `AblyPubSubDeviceSwift` (see below), which is the module Swift users import. `import Ably` does not exist.
+
 ## Build and Test
 
 ```bash
@@ -46,21 +50,34 @@ make lint
 
 All SDK source is in `Source/`, written entirely in Objective-C:
 
-- `Source/include/Ably/` — Public headers. Umbrella headers: `AblyPublic.h` (general use) and `AblyInternal.h` (for Ably-authored SDKs only).
+- `Source/include/AblyPubSubDevice/` — Public headers. Umbrella headers: `AblyPublic.h` (general use) and `AblyInternal.h` (for Ably-authored SDKs only).
 - `Source/PrivateHeaders/Ably/` — Internal headers.
 - `Source/*.m` — Implementations.
 - `Source/SocketRocket/` — Vendored WebSocket implementation.
-- `Source/Ably.modulemap` — Module map defining public/private module interfaces.
+- `Source/include/module.modulemap` — Module map defining the public and private module interfaces.
 
-Key classes follow the `ART` prefix convention: `ARTRealtime`, `ARTRest`, `ARTAuth`, `ARTChannel`, `ARTConnection`, `ARTPresence`, `ARTPush`.
+Key classes follow the `ART` prefix convention: `ARTPubSubClient`, `ARTHttpClient`, `ARTAuth`, `ARTChannel`, `ARTConnection`, `ARTPresence`, `ARTPush`.
+
+Swift sees these names without the prefix: `PubSubClient`, `HttpClient`, `Auth` and so on. Every declaration in the module's public headers carries an `NS_SWIFT_NAME` that strips `ART`, so a new public declaration needs one too. Objective-C keeps the prefix everywhere.
+
+The private headers were not swept. Most of them keep the prefix in Swift as well, so a test reaching internals through `import AblyPubSubDevice.Private` writes `ARTProtocolMessage`. Some carry an `NS_SWIFT_NAME` of their own, though — `InternalLog`, `WebSocketFactory` and `SystemTimeProvider` among them — so read the header rather than assuming either spelling.
+
+### Swift Overlay
+
+`Swift/Sources/AblyPubSubDeviceSwift/` is a Swift target that re-exports `AblyPubSubDevice` and adds `async throws(ErrorInfo)` versions of callback-based operations. Swift doesn't import the callback methods as `async` itself, because `ARTCallback`'s error parameter is an `ARTErrorInfo` rather than exactly an `NSError`, and the parameters are named `callback`.
+
+- The Objective-C module keeps the `AblyPubSubDevice` name: Objective-C code that writes `@import` on a Swift module doesn't see what that module re-exports.
+- Each `async` function is `nonisolated(nonsending)`, so it runs on the caller's actor: the SDK object it's called on (which may be a non-`Sendable` protocol existential) and its arguments, such as `Any?` message data, are never sent across an isolation boundary. Bridge through the helpers in `CallbackBridging.swift`.
+- A result does cross, from the SDK's callback queue to the caller, so `withResultCallback` requires it to be `Sendable`. It returns the result as optional, because the SDK can call back with neither a result nor an error (a publish acknowledged without serials), which is a success. Never wrap a non-`Sendable` result in an `@unchecked Sendable` box to get around this. Presence `get` returns the SDK's own member objects, and `PaginatedResult` is only marked `Sendable` in its header while its items are mutable, so `get`, `history` and paging are left out until that's resolved.
+- Tests are in `Swift/Tests/AblyPubSubDeviceSwiftTests/` (Swift Testing, against the sandbox): `swift test --filter AblyPubSubDeviceSwiftTests`.
 
 ### Plugin System
 
-Plugins are passed via `ARTClientOptions.plugins`. Plugin support is gated behind `#ifdef ABLY_SUPPORTS_PLUGINS` (enabled only in SPM builds). See `Docs/plugins.md`.
+Plugins are passed via `ARTClientOptions.plugins`. Plugin support is gated behind `#ifdef ABLY_SUPPORTS_PLUGINS`, which `Package.swift` defines for the `AblyPubSubDevice` target. See `Docs/plugins.md`.
 
 ## LiveObjects
 
-The LiveObjects plugin (the `AblyLiveObjects` product, in Swift) lives in `LiveObjects/`, which has its own CLAUDE.md with build/test/lint instructions; consult it when working on LiveObjects code. Its targets are declared in this repo's root `Package.swift`, and every top-level declaration in its sources must carry an `@available` annotation (enforced by `Scripts/annotate-liveobjects-availability.py`; see that script for details).
+The LiveObjects plugin (the `AblyLiveObjects` product, in Swift) lives in `LiveObjects/`, which has its own CLAUDE.md with build/test/lint instructions; consult it when working on LiveObjects code. Its targets are declared in this repo's root `Package.swift`.
 
 ## Test Structure
 
@@ -73,12 +90,12 @@ The LiveObjects plugin (the `AblyLiveObjects` product, in Swift) lives in `LiveO
 
 ## Adding New Files
 
-Do **not** edit `Ably.xcodeproj/project.pbxproj` — ask the user to add files to the Xcode project manually. SPM discovers source files automatically, so `swift build` and `swift test` will work without Xcode project changes.
+SPM discovers source files automatically, so a new file needs no manifest change to be compiled.
 
 When adding new Objective-C files:
 
-- **Public headers** go in `Source/include/Ably/` and must be imported in the appropriate umbrella header (`AblyPublic.h` or `AblyInternal.h`).
-- **Private headers** go in `Source/PrivateHeaders/Ably/` and must be declared in both module map files (`Source/Ably.modulemap` and `Source/include/module.modulemap`).
+- **Public headers** go in `Source/include/AblyPubSubDevice/` and must be imported in the appropriate umbrella header (`AblyPublic.h` or `AblyInternal.h`). Every class, protocol, enum, typedef, function and constant they declare needs an `NS_SWIFT_NAME` that drops the `ART` prefix.
+- **Private headers** go in `Source/PrivateHeaders/Ably/` and must be declared in the `Private` module in `Source/include/module.modulemap`.
 - **Implementation files** go in `Source/`.
 
 ## Coding Standards
@@ -88,4 +105,4 @@ When adding new Objective-C files:
 
 ## Distribution
 
-The SDK is distributed via CocoaPods, Carthage, and Swift Package Manager. Changes to dependencies must be kept in sync across `Cartfile`, `Ably.podspec`, and `Package.swift`.
+2.x is distributed via Swift Package Manager only; it ships neither a CocoaPods pod nor a Carthage framework, both of which stay on the maintenance-only 1.x line. Dependencies are declared in `Package.swift`.

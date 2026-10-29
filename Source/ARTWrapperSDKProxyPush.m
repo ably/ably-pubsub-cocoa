@@ -39,36 +39,20 @@ NS_ASSUME_NONNULL_END
     [self.underlyingPush deactivate];
 }
 
-+ (void)didFailToRegisterForLocationNotificationsWithError:(nonnull NSError *)error realtime:(nonnull ARTRealtime *)realtime {
-    [ARTPush didFailToRegisterForLocationNotificationsWithError:error realtime:realtime];
++ (void)didFailToRegisterForLocationNotificationsWithError:(nonnull NSError *)error pubsub:(nonnull ARTPubSubClient *)pubsub {
+    [ARTPush didFailToRegisterForLocationNotificationsWithError:error pubsub:pubsub];
 }
 
-+ (void)didFailToRegisterForLocationNotificationsWithError:(nonnull NSError *)error rest:(nonnull ARTRest *)rest {
-    [ARTPush didFailToRegisterForLocationNotificationsWithError:error rest:rest];
++ (void)didFailToRegisterForRemoteNotificationsWithError:(nonnull NSError *)error pubsub:(nonnull ARTPubSubClient *)pubsub {
+    [ARTPush didFailToRegisterForRemoteNotificationsWithError:error pubsub:pubsub];
 }
 
-+ (void)didFailToRegisterForRemoteNotificationsWithError:(nonnull NSError *)error realtime:(nonnull ARTRealtime *)realtime {
-    [ARTPush didFailToRegisterForRemoteNotificationsWithError:error realtime:realtime];
++ (void)didRegisterForLocationNotificationsWithDeviceToken:(nonnull NSData *)deviceToken pubsub:(nonnull ARTPubSubClient *)pubsub {
+    [ARTPush didRegisterForLocationNotificationsWithDeviceToken:deviceToken pubsub:pubsub];
 }
 
-+ (void)didFailToRegisterForRemoteNotificationsWithError:(nonnull NSError *)error rest:(nonnull ARTRest *)rest {
-    [ARTPush didFailToRegisterForRemoteNotificationsWithError:error rest:rest];
-}
-
-+ (void)didRegisterForLocationNotificationsWithDeviceToken:(nonnull NSData *)deviceToken realtime:(nonnull ARTRealtime *)realtime {
-    [ARTPush didRegisterForLocationNotificationsWithDeviceToken:deviceToken realtime:realtime];
-}
-
-+ (void)didRegisterForLocationNotificationsWithDeviceToken:(nonnull NSData *)deviceToken rest:(nonnull ARTRest *)rest {
-    [ARTPush didRegisterForLocationNotificationsWithDeviceToken:deviceToken rest:rest];
-}
-
-+ (void)didRegisterForRemoteNotificationsWithDeviceToken:(nonnull NSData *)deviceToken realtime:(nonnull ARTRealtime *)realtime {
-    [ARTPush didRegisterForRemoteNotificationsWithDeviceToken:deviceToken realtime:realtime];
-}
-
-+ (void)didRegisterForRemoteNotificationsWithDeviceToken:(nonnull NSData *)deviceToken rest:(nonnull ARTRest *)rest {
-    [ARTPush didRegisterForRemoteNotificationsWithDeviceToken:deviceToken rest:rest];
++ (void)didRegisterForRemoteNotificationsWithDeviceToken:(nonnull NSData *)deviceToken pubsub:(nonnull ARTPubSubClient *)pubsub {
+    [ARTPush didRegisterForRemoteNotificationsWithDeviceToken:deviceToken pubsub:pubsub];
 }
 
 #endif

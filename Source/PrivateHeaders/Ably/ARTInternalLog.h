@@ -1,5 +1,5 @@
 @import Foundation;
-#import <Ably/ARTLog.h>
+#import <AblyPubSubDevice/ARTLog.h>
 
 #ifdef ABLY_SUPPORTS_PLUGINS
 @import _AblyPluginSupportPrivate;
@@ -50,7 +50,7 @@ NS_SWIFT_NAME(InternalLog)
  - they do not have access to any more appropriate logger
  - their signature is already locked since they are part of the public API of the library
 
- Currently, this returns a logger that will not actually output any log messages, but I've created https://github.com/ably/ably-cocoa/issues/1652 for us to revisit this.
+ Currently, this returns a logger that will not actually output any log messages, but I've created https://github.com/ably/ably-pubsub-cocoa/issues/1652 for us to revisit this.
  */
 @property (nonatomic, readonly, class) ARTInternalLog *sharedClassMethodLogger_readDocumentationBeforeUsing;
 

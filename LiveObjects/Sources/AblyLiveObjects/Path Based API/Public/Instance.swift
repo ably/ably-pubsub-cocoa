@@ -1,4 +1,4 @@
-import Ably
+import AblyPubSubDevice
 
 // MARK: - Instance (RTINS / RTTS9)
 
@@ -23,7 +23,6 @@ import Ably
 /// > Note: This enum shape is a Swift-specific decision (chosen over the language-agnostic
 /// > base-type + `as*`-cast model of spec `RTTS9`, so that discrimination is compile-time-exhaustive
 /// > and there is no undefined mismatch path). Spec: `RTINS1`, `RTTS9`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public enum Instance: Sendable {
     case liveMap(any LiveMapInstance)
     case liveCounter(any LiveCounterInstance)
@@ -45,7 +44,7 @@ public enum Instance: Sendable {
     /// Spec: `RTINS11`, `RTINS11c` (never `nil`), `RTTS7a`.
     ///
     /// - Complexity: O(n) in the size of the wrapped value's subtree.
-    public func compactJson() throws(ARTErrorInfo) -> JSONValue {
+    public func compactJson() throws(ErrorInfo) -> JSONValue {
         switch self {
         case let .liveMap(instance):
             try instance.compactJson()
@@ -61,58 +60,56 @@ public enum Instance: Sendable {
 
 /// An ``Instance`` payload exposing the members applicable when the wrapped value is a map.
 /// Spec: `RTTS10`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public protocol LiveMapInstance: Sendable {
     /// The `objectId` of the wrapped map. Spec: `RTINS3`.
     var id: String { get }
 
     /// Looks up `key` and returns an ``Instance`` wrapping the result, or `nil` if absent.
     /// Spec: `RTINS5`, `RTINS5c`.
-    func get(key: String) throws(ARTErrorInfo) -> Instance?
+    func get(key: String) throws(ErrorInfo) -> Instance?
 
     /// Returns an array of `[key, Instance]` pairs for the wrapped map. Spec: `RTINS6`.
     ///
     /// - Complexity: O(n) in the number of entries.
-    func entries() throws(ARTErrorInfo) -> [(key: String, value: Instance)]
+    func entries() throws(ErrorInfo) -> [(key: String, value: Instance)]
 
     /// Returns the keys of the wrapped map. Spec: `RTINS7`.
     ///
     /// - Complexity: O(n) in the number of entries.
-    func keys() throws(ARTErrorInfo) -> [String]
+    func keys() throws(ErrorInfo) -> [String]
 
     /// Returns an ``Instance`` for each value of the wrapped map. Spec: `RTINS8`.
     ///
     /// - Complexity: O(n) in the number of entries.
-    func values() throws(ARTErrorInfo) -> [Instance]
+    func values() throws(ErrorInfo) -> [Instance]
 
     /// Returns the number of entries in the wrapped map. Spec: `RTTS10a`, `RTINS9`.
     ///
     /// Non-optional: an `Instance` is bound to an already-resolved map, so this always yields a value
     /// (`throws` only for the `RTO25` access-precondition check).
-    var size: Int { get throws(ARTErrorInfo) }
+    var size: Int { get throws(ErrorInfo) }
 
     /// Sends an operation to set `key` to `value` on the wrapped map. Spec: `RTINS12`.
-    func set(key: String, value: LiveMapValue) async throws(ARTErrorInfo)
+    func set(key: String, value: LiveMapValue) async throws(ErrorInfo)
 
     /// Sends an operation to remove `key` from the wrapped map. Spec: `RTINS13`.
-    func remove(key: String) async throws(ARTErrorInfo)
+    func remove(key: String) async throws(ErrorInfo)
 
     /// Registers a listener that is called each time the wrapped map is updated. Spec: `RTINS16`.
     @discardableResult
-    func subscribe(listener: @escaping InstanceSubscriptionCallback) throws(ARTErrorInfo) -> any Subscription
+    func subscribe(listener: @escaping InstanceSubscriptionCallback) throws(ErrorInfo) -> any Subscription
 
     /// A JSON-serializable, recursively-compacted representation of the wrapped map.
     /// Spec: `RTINS11`, `RTINS11c` (never `nil`).
     ///
     /// - Complexity: O(n) in the size of the map's subtree.
-    func compactJson() throws(ARTErrorInfo) -> JSONValue
+    func compactJson() throws(ErrorInfo) -> JSONValue
 }
 
 // MARK: - LiveCounterInstance (RTINS / RTTS10, counter subset)
 
 /// An ``Instance`` payload exposing the members applicable when the wrapped value is a counter.
 /// Spec: `RTTS10`.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public protocol LiveCounterInstance: Sendable {
     /// The `objectId` of the wrapped counter. Spec: `RTINS3`.
     var id: String { get }
@@ -121,32 +118,31 @@ public protocol LiveCounterInstance: Sendable {
     ///
     /// Non-optional: an `Instance` is bound to an already-resolved counter, so this always yields a
     /// value (`throws` only for the `RTO25` access-precondition check).
-    var value: Double { get throws(ARTErrorInfo) }
+    var value: Double { get throws(ErrorInfo) }
 
     /// Sends an operation to increment the wrapped counter. Spec: `RTINS14`.
-    func increment(amount: Double) async throws(ARTErrorInfo)
+    func increment(amount: Double) async throws(ErrorInfo)
 
     /// Sends an operation to decrement the wrapped counter. Spec: `RTINS15`.
-    func decrement(amount: Double) async throws(ARTErrorInfo)
+    func decrement(amount: Double) async throws(ErrorInfo)
 
     /// Registers a listener that is called each time the wrapped counter is updated. Spec: `RTINS16`.
     @discardableResult
-    func subscribe(listener: @escaping InstanceSubscriptionCallback) throws(ARTErrorInfo) -> any Subscription
+    func subscribe(listener: @escaping InstanceSubscriptionCallback) throws(ErrorInfo) -> any Subscription
 
     /// A JSON-serializable, recursively-compacted representation of the wrapped counter.
     /// Spec: `RTINS11`, `RTINS11c` (never `nil`).
-    func compactJson() throws(ARTErrorInfo) -> JSONValue
+    func compactJson() throws(ErrorInfo) -> JSONValue
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public extension LiveCounterInstance {
     /// Sends an operation to increment the wrapped counter by 1. Spec: `RTINS14`.
-    func increment() async throws(ARTErrorInfo) {
+    func increment() async throws(ErrorInfo) {
         try await increment(amount: 1)
     }
 
     /// Sends an operation to decrement the wrapped counter by 1. Spec: `RTINS15`.
-    func decrement() async throws(ARTErrorInfo) {
+    func decrement() async throws(ErrorInfo) {
         try await decrement(amount: 1)
     }
 }
@@ -155,66 +151,64 @@ public extension LiveCounterInstance {
 
 /// An ``Instance`` payload exposing the members applicable when the wrapped value is a primitive.
 /// Spec: `RTTS10`. (See ``Primitive`` for the note on collapsing the six spec primitive sub-types.)
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public protocol PrimitiveInstance: Sendable {
     /// The wrapped primitive value. Spec: `RTTS10c`, `RTINS4`.
     ///
     /// Non-optional: an `Instance` is bound to an already-resolved primitive, so this always yields a
     /// value (`throws` only for the `RTO25` access-precondition check).
-    var value: Primitive { get throws(ARTErrorInfo) }
+    var value: Primitive { get throws(ErrorInfo) }
 
     /// The specific primitive type of the wrapped value (e.g. ``ValueType/string``, ``ValueType/number``).
     /// Spec: `RTTS8`.
     var type: ValueType { get }
 
     /// A JSON-serializable representation of the wrapped primitive. Spec: `RTINS11`, `RTINS11c` (never `nil`).
-    func compactJson() throws(ARTErrorInfo) -> JSONValue
+    func compactJson() throws(ErrorInfo) -> JSONValue
 }
 
 /// Convenience accessors for a single expected primitive type.
 ///
 /// Each of these reads ``PrimitiveInstance/value`` and then the correspondingly-named getter on the
 /// resulting ``Primitive``, so `nil` means that the wrapped primitive is of a different case.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public extension PrimitiveInstance {
     /// If the wrapped primitive has case `string`, this returns the associated value. Else, it returns `nil`.
     var stringValue: String? {
-        get throws(ARTErrorInfo) {
+        get throws(ErrorInfo) {
             try value.stringValue
         }
     }
 
     /// If the wrapped primitive has case `number`, this returns the associated value. Else, it returns `nil`.
     var numberValue: Double? {
-        get throws(ARTErrorInfo) {
+        get throws(ErrorInfo) {
             try value.numberValue
         }
     }
 
     /// If the wrapped primitive has case `bool`, this returns the associated value. Else, it returns `nil`.
     var boolValue: Bool? {
-        get throws(ARTErrorInfo) {
+        get throws(ErrorInfo) {
             try value.boolValue
         }
     }
 
     /// If the wrapped primitive has case `data`, this returns the associated value. Else, it returns `nil`.
     var dataValue: Data? {
-        get throws(ARTErrorInfo) {
+        get throws(ErrorInfo) {
             try value.dataValue
         }
     }
 
     /// If the wrapped primitive has case `jsonArray`, this returns the associated value. Else, it returns `nil`.
     var jsonArrayValue: [JSONValue]? {
-        get throws(ARTErrorInfo) {
+        get throws(ErrorInfo) {
             try value.jsonArrayValue
         }
     }
 
     /// If the wrapped primitive has case `jsonObject`, this returns the associated value. Else, it returns `nil`.
     var jsonObjectValue: [String: JSONValue]? {
-        get throws(ARTErrorInfo) {
+        get throws(ErrorInfo) {
             try value.jsonObjectValue
         }
     }
@@ -223,12 +217,11 @@ public extension PrimitiveInstance {
 // MARK: - AsyncSequence subscription variants
 
 /// `AsyncStream`-based subscription for map instances.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public extension LiveMapInstance {
     /// Returns an `AsyncSequence` that emits an ``InstanceSubscriptionEvent`` each time the wrapped
     /// map is updated. The underlying subscription is removed when the stream is terminated.
     /// Spec: `RTINS16`.
-    func events() throws(ARTErrorInfo) -> AsyncStream<InstanceSubscriptionEvent> {
+    func events() throws(ErrorInfo) -> AsyncStream<InstanceSubscriptionEvent> {
         let (stream, continuation) = AsyncStream.makeStream(of: InstanceSubscriptionEvent.self)
         let subscription = try subscribe { event in
             continuation.yield(event)
@@ -241,12 +234,11 @@ public extension LiveMapInstance {
 }
 
 /// `AsyncStream`-based subscription for counter instances.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 public extension LiveCounterInstance {
     /// Returns an `AsyncSequence` that emits an ``InstanceSubscriptionEvent`` each time the wrapped
     /// counter is updated. The underlying subscription is removed when the stream is terminated.
     /// Spec: `RTINS16`.
-    func events() throws(ARTErrorInfo) -> AsyncStream<InstanceSubscriptionEvent> {
+    func events() throws(ErrorInfo) -> AsyncStream<InstanceSubscriptionEvent> {
         let (stream, continuation) = AsyncStream.makeStream(of: InstanceSubscriptionEvent.self)
         let subscription = try subscribe { event in
             continuation.yield(event)

@@ -1,4 +1,4 @@
-#import <Ably/ARTRealtimeAnnotations.h>
+#import <AblyPubSubDevice/ARTRealtimeAnnotations.h>
 #import "ARTRealtimeChannel+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -6,7 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface ARTRealtimeAnnotationsInternal : NSObject<ARTRealtimeAnnotationsProtocol>
 
 @property (readonly, nonatomic) ARTEventEmitter<ARTEvent *, ARTAnnotation *> *eventEmitter;
-@property (readonly, weak, nonatomic) ARTRealtimeInternal *realtime; // weak because realtime owns self
+@property (readonly, weak, nonatomic) ARTPubSubClientInternal *realtime; // weak because realtime owns self
 
 - (instancetype)initWithChannel:(ARTRealtimeChannelInternal *)channel logger:(ARTInternalLog *)logger;
 

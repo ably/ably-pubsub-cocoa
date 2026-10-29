@@ -3,7 +3,7 @@
 
 import Foundation
 import Testing
-import Ably
+import AblyPubSubDevice
 
 /// Base class for **proxy** integration suites:
 /// `@Suite(.serialized) final class FooTests: ProxyTestCase`.
@@ -43,12 +43,12 @@ class ProxyTestCase: IntegrationTestCase {
     /// (`tls = false`) and basic (key) auth is TLS-only (RSA1), so the client authenticates via an
     /// `authCallback` that signs a `TokenRequest` locally using the sandbox key (through a
     /// separate TLS "token signer" client, as in ably-java's proxy tests).
-    func proxyClientOptions(for app: SandboxApp, through session: ProxySession) -> ARTClientOptions {
-        let signerOptions = ARTClientOptions(key: app.defaultKey)
-        signerOptions.restHost = SandboxApp.sandboxHost
-        let tokenSigner = ARTRest(options: signerOptions)
+    func proxyClientOptions(for app: SandboxApp, through session: ProxySession) -> ClientOptions {
+        let signerOptions = ClientOptions(key: app.defaultKey)
+        signerOptions.endpoint = SandboxApp.sandboxEndpoint
+        let tokenSigner = HttpClient(options: signerOptions)
 
-        let options = ARTClientOptions()
+        let options = ClientOptions()
         options.authCallback = { params, callback in
             tokenSigner.auth.createTokenRequest(params, options: nil) { tokenRequest, error in
                 callback(tokenRequest, error)

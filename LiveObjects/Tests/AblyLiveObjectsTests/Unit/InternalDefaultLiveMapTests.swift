@@ -1,7 +1,7 @@
 import _AblyPluginSupportPrivate
-import Ably
 @testable import AblyLiveObjects
 @testable import AblyLiveObjectsTesting
+import AblyPubSubDevice
 import Foundation
 import Testing
 
@@ -18,7 +18,7 @@ struct InternalDefaultLiveMapTests {
             #expect {
                 _ = try map.get(key: "test", coreSDK: MockCoreSDK(channelState: channelState, internalQueue: internalQueue), delegate: MockLiveMapObjectsPoolDelegate(internalQueue: internalQueue))
             } throws: { error in
-                guard let errorInfo = error as? ARTErrorInfo else {
+                guard let errorInfo = error as? ErrorInfo else {
                     return false
                 }
 
@@ -443,7 +443,7 @@ struct InternalDefaultLiveMapTests {
                 #expect("\(propertyName) should throw") {
                     _ = try action()
                 } throws: { error in
-                    guard let errorInfo = error as? ARTErrorInfo else {
+                    guard let errorInfo = error as? ErrorInfo else {
                         return false
                     }
                     return errorInfo.code == 90001 && errorInfo.statusCode == 400
@@ -1799,7 +1799,7 @@ struct InternalDefaultLiveMapTests {
             await #expect {
                 try await map.set(key: "test", value: .primitive(.string("value")), coreSDK: coreSDK, realtimeObjects: realtimeObjects)
             } throws: { error in
-                guard let errorInfo = error as? ARTErrorInfo else {
+                guard let errorInfo = error as? ErrorInfo else {
                     return false
                 }
 
@@ -1885,7 +1885,7 @@ struct InternalDefaultLiveMapTests {
             await #expect {
                 try await map.set(key: "testKey", value: .primitive(.string("testValue")), coreSDK: coreSDK, realtimeObjects: realtimeObjects)
             } throws: { error in
-                guard let errorInfo = error as? ARTErrorInfo else {
+                guard let errorInfo = error as? ErrorInfo else {
                     return false
                 }
                 return errorInfo.message.contains("Publish failed")
@@ -1907,7 +1907,7 @@ struct InternalDefaultLiveMapTests {
             await #expect {
                 try await map.remove(key: "test", coreSDK: coreSDK, realtimeObjects: realtimeObjects)
             } throws: { error in
-                guard let errorInfo = error as? ARTErrorInfo else {
+                guard let errorInfo = error as? ErrorInfo else {
                     return false
                 }
 
@@ -1969,7 +1969,7 @@ struct InternalDefaultLiveMapTests {
             await #expect {
                 try await map.remove(key: "testKey", coreSDK: coreSDK, realtimeObjects: realtimeObjects)
             } throws: { error in
-                guard let errorInfo = error as? ARTErrorInfo else {
+                guard let errorInfo = error as? ErrorInfo else {
                     return false
                 }
                 return errorInfo.message.contains("Publish failed")

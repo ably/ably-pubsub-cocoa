@@ -1,4 +1,4 @@
-#import <Ably/ARTRealtimePresence.h>
+#import <AblyPubSubDevice/ARTRealtimePresence.h>
 #import "ARTRealtimeChannel+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -53,13 +53,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)leaveClient:(NSString *)clientId data:(id _Nullable)data callback:(nullable ARTCallback)callback;
 
-- (ARTEventListener *_Nullable)subscribe:(ARTPresenceMessageCallback)callback;
+- (ARTEventListener *)subscribe:(ARTPresenceMessageCallback)callback;
 
-- (ARTEventListener *_Nullable)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(ARTPresenceMessageCallback)callback;
+- (ARTEventListener *)subscribeWithAttachCallback:(nullable ARTCallback)onAttach callback:(ARTPresenceMessageCallback)callback;
 
-- (ARTEventListener *_Nullable)subscribe:(ARTPresenceAction)action callback:(ARTPresenceMessageCallback)callback;
+- (ARTEventListener *)subscribe:(ARTPresenceAction)action callback:(ARTPresenceMessageCallback)callback;
 
-- (ARTEventListener *_Nullable)subscribe:(ARTPresenceAction)action onAttach:(nullable ARTCallback)onAttach callback:(ARTPresenceMessageCallback)callback;
+- (ARTEventListener *)subscribe:(ARTPresenceAction)action onAttach:(nullable ARTCallback)onAttach callback:(ARTPresenceMessageCallback)callback;
 
 - (void)unsubscribe;
 
@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)historyWithWrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents
                          completion:(ARTPaginatedPresenceCallback)callback;
 
-- (BOOL)history:(ARTRealtimeHistoryQuery *_Nullable)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedPresenceCallback)callback error:(NSError *_Nullable *_Nullable)errorPtr;
+- (void)history:(ARTRealtimeHistoryQuery *_Nullable)query wrapperSDKAgents:(nullable NSStringDictionary *)wrapperSDKAgents callback:(ARTPaginatedPresenceCallback)callback;
 
 @end
 

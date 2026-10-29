@@ -1,5 +1,5 @@
-import Ably
 import AblyLiveObjects
+import AblyPubSubDevice
 import SwiftUI
 
 struct ContentView: View {
@@ -7,16 +7,16 @@ struct ContentView: View {
     @StateObject private var viewModel2: LiveCounterViewModel
     @StateObject private var taskViewModel1: TaskBoardViewModel
     @StateObject private var taskViewModel2: TaskBoardViewModel
-    private let realtime1: ARTRealtime
-    private let realtime2: ARTRealtime
+    private let client1: PubSubClient
+    private let client2: PubSubClient
 
-    init(realtime1: ARTRealtime, realtime2: ARTRealtime) {
-        _viewModel1 = StateObject(wrappedValue: LiveCounterViewModel(realtime: realtime1))
-        _viewModel2 = StateObject(wrappedValue: LiveCounterViewModel(realtime: realtime2))
-        _taskViewModel1 = StateObject(wrappedValue: TaskBoardViewModel(realtime: realtime1))
-        _taskViewModel2 = StateObject(wrappedValue: TaskBoardViewModel(realtime: realtime2))
-        self.realtime1 = realtime1
-        self.realtime2 = realtime2
+    init(client1: PubSubClient, client2: PubSubClient) {
+        _viewModel1 = StateObject(wrappedValue: LiveCounterViewModel(client: client1))
+        _viewModel2 = StateObject(wrappedValue: LiveCounterViewModel(client: client2))
+        _taskViewModel1 = StateObject(wrappedValue: TaskBoardViewModel(client: client1))
+        _taskViewModel2 = StateObject(wrappedValue: TaskBoardViewModel(client: client2))
+        self.client1 = client1
+        self.client2 = client2
     }
 
     var body: some View {

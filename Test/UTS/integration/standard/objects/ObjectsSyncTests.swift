@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-import Ably
+import AblyPubSubDevice
 import AblyLiveObjects
 
 /// Objects sync (RTO4, RTO5, RTO17)
@@ -156,29 +156,31 @@ final class ObjectsSyncTests: IntegrationTestCase {
 extension ObjectsSyncTests {
     /// Awaits the channel detach acknowledgement (the spec's `AWAIT channel.detach()`), recording
     /// an issue on error.
-    private func awaitDetach(_ channel: ARTRealtimeChannel,
+    private func awaitDetach(_ channel: RealtimeChannel,
                              sourceLocation: SourceLocation = #_sourceLocation) async {
-        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+        let failure: String? = await withCheckedContinuation { continuation in
             channel.detach { error in
-                if let error {
-                    Issue.record("detach() failed: \(error)", sourceLocation: sourceLocation)
-                }
-                continuation.resume()
+                continuation.resume(returning: error.map { "\($0)" })
             }
+        }
+
+        if let failure {
+            Issue.record("detach() failed: \(failure)", sourceLocation: sourceLocation)
         }
     }
 
     /// Awaits the channel attach acknowledgement (the spec's `AWAIT channel.attach()`), recording
     /// an issue on error.
-    private func awaitAttach(_ channel: ARTRealtimeChannel,
+    private func awaitAttach(_ channel: RealtimeChannel,
                              sourceLocation: SourceLocation = #_sourceLocation) async {
-        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+        let failure: String? = await withCheckedContinuation { continuation in
             channel.attach { error in
-                if let error {
-                    Issue.record("attach() failed: \(error)", sourceLocation: sourceLocation)
-                }
-                continuation.resume()
+                continuation.resume(returning: error.map { "\($0)" })
             }
+        }
+
+        if let failure {
+            Issue.record("attach() failed: \(failure)", sourceLocation: sourceLocation)
         }
     }
 }

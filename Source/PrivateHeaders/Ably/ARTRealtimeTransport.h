@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import <Ably/ARTEventEmitter.h>
+#import <AblyPubSubDevice/ARTEventEmitter.h>
 
 @protocol ARTRealtimeTransport;
 
@@ -7,7 +7,7 @@
 @class ARTStatus;
 @class ARTErrorInfo;
 @class ARTClientOptions;
-@class ARTRestInternal;
+@class ARTHttpClientInternal;
 @class ARTInternalLog;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -36,10 +36,14 @@ typedef NS_ENUM(NSUInteger, ARTRealtimeTransportState) {
  This meaning of this property is only defined if the error is of type `ARTRealtimeTransportErrorTypeBadResponse`.
  */
 @property (nonatomic) NSInteger badResponseCode;
+/**
+ The value of the `Server` header in the bad response, if it had one. This meaning of this property is only defined if the error is of type `ARTRealtimeTransportErrorTypeBadResponse`.
+ */
+@property (nullable, nonatomic, copy) NSString *badResponseServerHeader;
 @property (nonatomic) NSURL *url;
 
 - (instancetype)initWithError:(NSError *)error type:(ARTRealtimeTransportErrorType)type url:(NSURL *)url;
-- (instancetype)initWithError:(NSError *)error badResponseCode:(NSInteger)badResponseCode url:(NSURL *)url;
+- (instancetype)initWithError:(NSError *)error badResponseCode:(NSInteger)badResponseCode badResponseServerHeader:(nullable NSString *)badResponseServerHeader url:(NSURL *)url;
 
 - (NSString *)description;
 

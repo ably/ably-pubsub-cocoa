@@ -1,7 +1,7 @@
 import Foundation
 import Testing
-import Ably
-import Ably.Private
+import AblyPubSubDevice
+import AblyPubSubDevice.Private
 
 /// Base class for UTS-derived unit tests.
 ///
@@ -28,7 +28,7 @@ class UTSTestCase {
 
     private var installedWebSocketProvider: MockWebSocketProvider?
     private var installedMockHTTPClient: MockHTTPClient?
-    private var clients: [ARTRealtime] = []
+    private var clients: [PubSubClient] = []
 
     // MARK: Enable fake timers
 
@@ -54,11 +54,11 @@ class UTSTestCase {
 
     // MARK: Client construction
 
-    /// Builds an `ARTRealtime` wired to the currently installed `MockWebSocketProvider` and the
+    /// Builds a `PubSubClient` wired to the currently installed `MockWebSocketProvider` and the
     /// shared `MockTimeProvider`. A provider must be installed first via `installMock(_:)`. Like the
     /// UTS specs, this leaves the SDK's `autoConnect` default (`true`) in place; tests that need to
     /// control connection timing set `options.autoConnect = false` in the `configure` closure.
-    func makeRealtime(configure: (ARTClientOptions) -> Void = { _ in }, sourceLocation: SourceLocation = #_sourceLocation) -> ARTRealtime {
+    func makeRealtime(configure: (ClientOptions) -> Void = { _ in }, sourceLocation: SourceLocation = #_sourceLocation) -> PubSubClient {
         guard let wsProvider = installedWebSocketProvider else {
             Issue.record("No MockWebSocketProvider installed — call installMock(_:) before makeRealtime()", sourceLocation: sourceLocation)
             fatalError("No MockWebSocketProvider installed")
@@ -66,7 +66,7 @@ class UTSTestCase {
 
         // Seed a dummy key (ably-java's ClientOptionsBuilder does the same) so specs that don't
         // exercise auth need no explicit key; the configure block can override it.
-        let options = ARTClientOptions(key: "appId.keyId:keySecret")
+        let options = ClientOptions(key: "appId.keyId:keySecret")
         options.useBinaryProtocol = false
 
         let suffix = UUID().uuidString
@@ -86,14 +86,14 @@ class UTSTestCase {
 
         configure(options)
 
-        let client = ARTRealtime(options: options)
+        let client = makeRealtimeForSide(options: options)
         clients.append(client)
         return client
     }
 
-    /// Builds an `ARTRest` whose HTTP layer is the currently installed `MockHTTPClient` (so requests are
+    /// Builds a `HttpClient` whose HTTP layer is the currently installed `MockHTTPClient` (so requests are
     /// intercepted, not sent over the network). A mock must be installed first via `installMock(_:)`.
-    func makeRest(configure: (ARTClientOptions) -> Void = { _ in }, sourceLocation: SourceLocation = #_sourceLocation) -> ARTRest {
+    func makeRest(configure: (ClientOptions) -> Void = { _ in }, sourceLocation: SourceLocation = #_sourceLocation) -> HttpClient {
         guard let mockHTTP = installedMockHTTPClient else {
             Issue.record("No MockHTTPClient installed — call installMock(_:) before makeRest()", sourceLocation: sourceLocation)
             fatalError("No MockHTTPClient installed")
@@ -101,7 +101,7 @@ class UTSTestCase {
 
         // Seed a dummy key (ably-java's ClientOptionsBuilder does the same) so specs that don't
         // exercise auth need no explicit key; the configure block can override it.
-        let options = ARTClientOptions(key: "appId.keyId:keySecret")
+        let options = ClientOptions(key: "appId.keyId:keySecret")
         options.useBinaryProtocol = false
 
         let suffix = UUID().uuidString
@@ -115,29 +115,29 @@ class UTSTestCase {
 
         configure(options)
 
-        let rest = ARTRest(options: options)
+        let rest = HttpClient(options: options)
         return rest
     }
 
     // MARK: AWAIT_STATE
 
     /// Waits until `client.connection.state == expected` (UTS `AWAIT_STATE`).
-    func awaitConnectionState(_ client: ARTRealtime,
-                              _ expected: ARTRealtimeConnectionState,
+    func awaitConnectionState(_ client: PubSubClient,
+                              _ expected: RealtimeConnectionState,
                               timeout: TimeInterval = defaultAwaitTimeout,
                               sourceLocation: SourceLocation = #_sourceLocation) {
-        poll("connection.state == \(ARTRealtimeConnectionStateToStr(expected))",
+        poll("connection.state == \(realtimeConnectionStateToStr(expected))",
              timeout: timeout, sourceLocation: sourceLocation) {
             client.connection.state == expected
         }
     }
 
     /// Waits until `channel.state == expected` (UTS `AWAIT_STATE`).
-    func awaitChannelState(_ channel: ARTRealtimeChannel,
-                           _ expected: ARTRealtimeChannelState,
+    func awaitChannelState(_ channel: RealtimeChannel,
+                           _ expected: RealtimeChannelState,
                            timeout: TimeInterval = defaultAwaitTimeout,
                            sourceLocation: SourceLocation = #_sourceLocation) {
-        poll("channel '\(channel.name)'.state == \(ARTRealtimeChannelStateToStr(expected))",
+        poll("channel '\(channel.name)'.state == \(realtimeChannelStateToStr(expected))",
              timeout: timeout, sourceLocation: sourceLocation) {
             channel.state == expected
         }
@@ -175,7 +175,7 @@ class UTSTestCase {
     }
 
     /// Closes a client (UTS `CLOSE_CLIENT`).
-    func closeClient(_ client: ARTRealtime) {
+    func closeClient(_ client: PubSubClient) {
         client.close()
     }
 

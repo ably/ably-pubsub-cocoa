@@ -183,7 +183,7 @@ For each release, the following needs to be done:
 * Confirm that none of our `Package.swift` dependencies are specified using a fixed `.revision`. (The plugin-support library used to be the likeliest offender here; it is now the in-repo `_AblyPluginSupportPrivate` target rather than an external dependency, so it no longer needs its own release.)
 * Create a new branch `release/x.x.x` (where `x.x.x` is the new version number) from the `main` branch
 * Run `make bump_[major|minor|patch]` to bump the new version number. This will create a Git commit, push it to origin: `git push -u origin release/x.x.x`
-* Go to [Github releases](https://github.com/ably/ably-cocoa/releases) and press the `Draft a new release` button. Choose your new branch as a target
+* Go to [Github releases](https://github.com/ably/ably-pubsub-cocoa/releases) and press the `Draft a new release` button. Choose your new branch as a target
 * Press the `Choose a tag` dropdown and start typing a new tag, Github will suggest the `Create new tag x.x.x on publish` option. After you select it Github will unveil the `Generate release notes` button
 * From the newly generated changes remove everything that doesn't make much sense to the library user
 * Copy the final list of changes to the top of the `CHANGELOG.md` file. Modify as necessary to fit the existing format of this file

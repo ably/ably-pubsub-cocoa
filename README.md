@@ -1,6 +1,6 @@
 ![Ably Pub/Sub Cocoa Header](images/CocoaSDK-github.png)
-[![Latest Version](https://img.shields.io/github/v/release/ably/ably-cocoa)](https://swiftpackageindex.com/ably/ably-cocoa)
-[![License](https://badgen.net/github/license/ably/ably-cocoa)](https://github.com/ably/ably-cocoa/blob/main/LICENSE)
+[![Latest Version](https://img.shields.io/github/v/release/ably/ably-pubsub-cocoa)](https://swiftpackageindex.com/ably/ably-pubsub-cocoa)
+[![License](https://badgen.net/github/license/ably/ably-pubsub-cocoa)](https://github.com/ably/ably-pubsub-cocoa/blob/main/LICENSE)
 
 # Ably Pub/Sub Cocoa SDK
 
@@ -45,7 +45,7 @@ Building the SDK requires Xcode 26 or later.
 
 ## Installation
 
-You can install Ably for iOS and macOS through [Swift package manager](#swift-package-manager) or [install manually](#manual-install). Upgrading from 1.x is covered by the [migration guide](Docs/migration-guides/v2.md).
+You can install Ably for iOS and macOS through [Swift package manager](#swift-package-manager). Upgrading from 1.x is covered by the [migration guide](Docs/migration-guides/v2.md).
 
 > [!IMPORTANT]
 > **CocoaPods and Carthage are not supported from 2.0.** Their last releases — the `Ably` pod and the
@@ -64,32 +64,18 @@ The Ably Pub/Sub SDK includes installation support for [Swift Package Manager](h
 <details>
 <summary>Swift Package Manager installation details.</summary>
 
-To install the `ably-cocoa` package in your Xcode project: 
+To install the `ably-pubsub-cocoa` package in your Xcode project:
 
-* Paste `https://github.com/ably/ably-cocoa` in the *Swift Packages* search box. (*Xcode project* &rarr; *Swift Packages…* &rarr; `+` button)
+* Paste `https://github.com/ably/ably-pubsub-cocoa` in the *Swift Packages* search box. (*Xcode project* &rarr; *Swift Packages…* &rarr; `+` button)
 * Select the `AblyPubSubDevice` SDK for your target.
 
-To install the `ably-cocoa` package in another Swift package, add the following to your `Package.Swift`:
+To install the `ably-pubsub-cocoa` package in another Swift package, add the following to your `Package.Swift`:
 
 ```swift
- .package(url: "https://github.com/ably/ably-cocoa", from: "2.0.0"),
+ .package(url: "https://github.com/ably/ably-pubsub-cocoa", from: "2.0.0"),
 ```
 
 See Apple's [adding package dependencies to your app](https://developer.apple.com/documentation/swift_packages/adding_package_dependencies_to_your_app) guide for more detail.
-</details>
-
-### Manual install
-
-The Ably Pub/Sub SDK includes manual installation support.
-
-<details>
-<summary>Manual installation details.</summary>
-
-* Download the [Ably Pub/Sub Cocoa SDK.](https://github.com/ably/ably-cocoa)
-* Drag the `ably-cocoa/ably-cocoa` directory into your Xcode project as a group.
-
-Ably depends on our [MessagePack Fork](https://github.com/ably-forks/msgpack-objective-C) 0.2.0; get it [from the releases page](https://github.com/ably-forks/msgpack-objective-C/releases/tag/0.2.0-ably-1) and link it into your project.
-
 </details>
 
 ### Privacy manifest
@@ -153,9 +139,9 @@ contains the Ably LiveObjects plugin, which enables LiveObjects on top of the co
 ### Install LiveObjects
 
 The plugin is available via **Swift Package Manager**. There is no separate package or version to install: the plugin ships as a product
-of this package and is versioned and released as part of ably-cocoa.
+of this package and is versioned and released as part of ably-pubsub-cocoa.
 
-To install it in your Xcode project, add the `ably-cocoa` package [as above](#swift-package-manager)
+To install it in your Xcode project, add the `ably-pubsub-cocoa` package [as above](#swift-package-manager)
 and additionally select the `AblyLiveObjects` product for your target.
 
 To install it in another Swift package, add the product to your target's dependencies:
@@ -164,8 +150,8 @@ To install it in another Swift package, add the product to your target's depende
 .target(
     name: "MyTarget",
     dependencies: [
-        .product(name: "AblyPubSubDevice", package: "ably-cocoa"),
-        .product(name: "AblyLiveObjects", package: "ably-cocoa"),
+        .product(name: "AblyPubSubDevice", package: "ably-pubsub-cocoa"),
+        .product(name: "AblyLiveObjects", package: "ably-pubsub-cocoa"),
     ]
 )
 ```
@@ -192,4 +178,4 @@ The [CHANGELOG.md](./CHANGELOG.md) contains details of the latest releases for t
 
 ## Support, feedback, and troubleshooting
 
-For help or technical support, visit Ably's [support page](https://ably.com/support) or [GitHub Issues](https://github.com/ably/ably-cocoa/issues) for community-reported bugs and discussions.
+For help or technical support, visit Ably's [support page](https://ably.com/support) or [GitHub Issues](https://github.com/ably/ably-pubsub-cocoa/issues) for community-reported bugs and discussions.

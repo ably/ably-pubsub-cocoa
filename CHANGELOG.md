@@ -1,13 +1,13 @@
 # Change Log
 
-## [1.4.1](https://github.com/ably/ably-cocoa/tree/1.4.1)
+## [1.4.1](https://github.com/ably/ably-pubsub-cocoa/tree/1.4.1)
 
 ### What's Changed
 
-* Fix crash when a connection attempt fails synchronously by @maratal in https://github.com/ably/ably-cocoa/pull/2322
-* Deprecate releasing a channel that isn't detached (RTS4b) by @SimonWoolf in https://github.com/ably/ably-cocoa/pull/2314
-* Don't mark the device ID as used for tracking in the privacy manifest by @maratal in https://github.com/ably/ably-cocoa/pull/2338
-* LiveObjects: preserve exact `Double` values for numbers read over the JSON protocol by @maratal in https://github.com/ably/ably-cocoa/pull/2261
+* Fix crash when a connection attempt fails synchronously by @maratal in https://github.com/ably/ably-pubsub-cocoa/pull/2322
+* Deprecate releasing a channel that isn't detached (RTS4b) by @SimonWoolf in https://github.com/ably/ably-pubsub-cocoa/pull/2314
+* Don't mark the device ID as used for tracking in the privacy manifest by @maratal in https://github.com/ably/ably-pubsub-cocoa/pull/2338
+* LiveObjects: preserve exact `Double` values for numbers read over the JSON protocol by @maratal in https://github.com/ably/ably-pubsub-cocoa/pull/2261
 
 CocoaPods and Carthage consumers receive only the `Ably` product, which gets the first three changes; the LiveObjects fix (#2261) is in the `AblyLiveObjects` product, available via Swift Package Manager only.
 
@@ -20,16 +20,16 @@ What this means for your app:
 * Xcode's privacy report no longer lists Device ID as used for tracking, so the SDK no longer requires you to declare it under "Data Used to Track You" on your App Store privacy label.
 * If your app doesn't use push notifications, the SDK never sends the device ID off the device, and you can leave Device ID off your App Store privacy label.
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.4.0...1.4.1
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.4.0...1.4.1
 
-## [1.4.0](https://github.com/ably/ably-cocoa/tree/1.4.0)
+## [1.4.0](https://github.com/ably/ably-pubsub-cocoa/tree/1.4.0)
 
 ### What's Changed
 
-* Read the channel's data encoder live when encoding annotations by @SimonWoolf in https://github.com/ably/ably-cocoa/pull/2231
-* Render `JSONValue` as compact JSON text by @maratal in https://github.com/ably/ably-cocoa/pull/2257
-* Add per-case value accessors to the primitive path object and instance by @maratal in https://github.com/ably/ably-cocoa/pull/2260
-* Expand the LiveObjects README usage section and point to the web docs by @sacOO7 in https://github.com/ably/ably-cocoa/pull/2258
+* Read the channel's data encoder live when encoding annotations by @SimonWoolf in https://github.com/ably/ably-pubsub-cocoa/pull/2231
+* Render `JSONValue` as compact JSON text by @maratal in https://github.com/ably/ably-pubsub-cocoa/pull/2257
+* Add per-case value accessors to the primitive path object and instance by @maratal in https://github.com/ably/ably-pubsub-cocoa/pull/2260
+* Expand the LiveObjects README usage section and point to the web docs by @sacOO7 in https://github.com/ably/ably-pubsub-cocoa/pull/2258
 
 CocoaPods and Carthage consumers receive only the `Ably` product, for which the sole change in this release is the annotations fix (#2231); everything else is in the `AblyLiveObjects` product, available via Swift Package Manager only.
 
@@ -40,22 +40,22 @@ The `AblyLiveObjects` public API changed in this release:
 * `PrimitivePathObject` gains six per-case value accessors (`stringValue()` … `jsonObjectValue()`), and `PrimitiveInstance` gains the same six as throwing properties, for reading a primitive whose type is known at the call site.
 * The per-case getters on `Primitive` (`stringValue`, `numberValue`, `boolValue`, `dataValue`, `jsonArrayValue`, `jsonObjectValue`) and the same six on `LiveMapValue` are no longer public. Read one expected primitive type through the new accessors on `PrimitivePathObject` (`try node.asPrimitive().stringValue()`) or `PrimitiveInstance` (`try instance.stringValue`), or `switch` over `Primitive`'s cases. `LiveMapValue` keeps `primitiveValue`, `liveMapValue`, `liveCounterValue` and its `ExpressibleBy*Literal` conformances.
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.3.0...1.4.0
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.3.0...1.4.0
 
-## [1.3.0](https://github.com/ably/ably-cocoa/tree/1.3.0)
+## [1.3.0](https://github.com/ably/ably-pubsub-cocoa/tree/1.3.0)
 
 ### What's Changed
 
-* The Ably LiveObjects plugin now lives in this repository and has a new path-based API. It is available as the `AblyLiveObjects` product of this package, and LiveObjects data is now accessed through `channel.object`, which returns a `RealtimeObject` exposing `PathObject`s — stable references to locations within the channel object that resolve to values dynamically at runtime, instead of explicit `LiveMap`/`LiveCounter` instances. See the [PathObject documentation](https://ably.com/docs/liveobjects/concepts/path-object) for details, and the breaking changes below if you are migrating from the standalone [ably-liveobjects-swift-plugin](https://github.com/ably/ably-liveobjects-swift-plugin) package. LiveObjects remains experimental: breaking changes to the `AblyLiveObjects` API may be made in minor or patch releases, and ably-cocoa's semantic versioning guarantees apply only to the `Ably` product. This work was integrated by @sacOO7 in https://github.com/ably/ably-cocoa/pull/2230 and delivered through the following PRs:
-  * Merge LiveObjects plugin and plugin-support into ably-cocoa by @lawrence-forooghian in https://github.com/ably/ably-cocoa/pull/2222
-  * Add path-based LiveObjects public API by @sacOO7 in https://github.com/ably/ably-cocoa/pull/2227
-  * Move `_AblyPluginSupportPrivate` out of `Sources/` to the repo root by @maratal in https://github.com/ably/ably-cocoa/pull/2228
-  * Implement path-based public API end-to-end with UTS tests by @sacOO7 in https://github.com/ably/ably-cocoa/pull/2234
-  * Enable UTS integration test suites for the objects tier by @sacOO7 in https://github.com/ably/ably-cocoa/pull/2235
-  * Restructure LiveObjects test-support and native test suites by role and tier by @sacOO7 in https://github.com/ably/ably-cocoa/pull/2239
-  * Align UTS objects test helpers with the spec's `standard_test_pool` by @sacOO7 in https://github.com/ably/ably-cocoa/pull/2240
-* Universal Test Suite (UTS) integration and proxy test infrastructure by @sacOO7 in https://github.com/ably/ably-cocoa/pull/2223
-* First spec-derived UTS integration and proxy tests via the rewritten uts-to-swift skill by @sacOO7 in https://github.com/ably/ably-cocoa/pull/2224
+* The Ably LiveObjects plugin now lives in this repository and has a new path-based API. It is available as the `AblyLiveObjects` product of this package, and LiveObjects data is now accessed through `channel.object`, which returns a `RealtimeObject` exposing `PathObject`s — stable references to locations within the channel object that resolve to values dynamically at runtime, instead of explicit `LiveMap`/`LiveCounter` instances. See the [PathObject documentation](https://ably.com/docs/liveobjects/concepts/path-object) for details, and the breaking changes below if you are migrating from the standalone [ably-liveobjects-swift-plugin](https://github.com/ably/ably-liveobjects-swift-plugin) package. LiveObjects remains experimental: breaking changes to the `AblyLiveObjects` API may be made in minor or patch releases, and ably-cocoa's semantic versioning guarantees apply only to the `Ably` product. This work was integrated by @sacOO7 in https://github.com/ably/ably-pubsub-cocoa/pull/2230 and delivered through the following PRs:
+  * Merge LiveObjects plugin and plugin-support into ably-cocoa by @lawrence-forooghian in https://github.com/ably/ably-pubsub-cocoa/pull/2222
+  * Add path-based LiveObjects public API by @sacOO7 in https://github.com/ably/ably-pubsub-cocoa/pull/2227
+  * Move `_AblyPluginSupportPrivate` out of `Sources/` to the repo root by @maratal in https://github.com/ably/ably-pubsub-cocoa/pull/2228
+  * Implement path-based public API end-to-end with UTS tests by @sacOO7 in https://github.com/ably/ably-pubsub-cocoa/pull/2234
+  * Enable UTS integration test suites for the objects tier by @sacOO7 in https://github.com/ably/ably-pubsub-cocoa/pull/2235
+  * Restructure LiveObjects test-support and native test suites by role and tier by @sacOO7 in https://github.com/ably/ably-pubsub-cocoa/pull/2239
+  * Align UTS objects test helpers with the spec's `standard_test_pool` by @sacOO7 in https://github.com/ably/ably-pubsub-cocoa/pull/2240
+* Universal Test Suite (UTS) integration and proxy test infrastructure by @sacOO7 in https://github.com/ably/ably-pubsub-cocoa/pull/2223
+* First spec-derived UTS integration and proxy tests via the rewritten uts-to-swift skill by @sacOO7 in https://github.com/ably/ably-pubsub-cocoa/pull/2224
 * Swift Package Manager consumers of this package now require Xcode 16.3 or later (the package manifest's swift-tools-version is now 6.1). CocoaPods and Carthage consumers are unaffected.
 * The `AblyLiveObjects` product is available via Swift Package Manager only. CocoaPods and Carthage consumers receive the core `Ably` product alone; for them this release contains no functional changes.
 
@@ -66,50 +66,50 @@ This release replaces the previous experimental instance-based LiveObjects API (
 * The `channel.objects` property (returning `RealtimeObjects`, with `getRoot()`) has been replaced by the `channel.object` property (returning `RealtimeObject`, with `get()`)
 * Instead of obtaining and operating on explicit `LiveMap`/`LiveCounter` instances, data is accessed and mutated through `PathObject` references
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.62...1.3.0
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.62...1.3.0
 
-## [1.2.62](https://github.com/ably/ably-cocoa/tree/1.2.62)
-
-### What's Changed
-
-* Add API for registering Live Activity push-to-start token by @ttypic in https://github.com/ably/ably-cocoa/pull/2219
-
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.61...1.2.62
-
-## [1.2.61](https://github.com/ably/ably-cocoa/tree/1.2.61)
+## [1.2.62](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.62)
 
 ### What's Changed
 
-* Remove `logExceptionReportingUrl` client option by @lawrence-forooghian in https://github.com/ably/ably-cocoa/pull/2215
-* Store all persisted data atomically in a single file with None protection by @maratal in https://github.com/ably/ably-cocoa/pull/2207
+* Add API for registering Live Activity push-to-start token by @ttypic in https://github.com/ably/ably-pubsub-cocoa/pull/2219
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.60...1.2.61
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.61...1.2.62
 
-## [1.2.60](https://github.com/ably/ably-cocoa/tree/1.2.60)
+## [1.2.61](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.61)
 
 ### What's Changed
 
-Adds missing `onAttach` callback variants to `ARTRealtimeAnnotations` subscribe ([#2199](https://github.com/ably/ably-cocoa/pull/2199)).
+* Remove `logExceptionReportingUrl` client option by @lawrence-forooghian in https://github.com/ably/ably-pubsub-cocoa/pull/2215
+* Store all persisted data atomically in a single file with None protection by @maratal in https://github.com/ably/ably-pubsub-cocoa/pull/2207
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.59...1.2.60
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.60...1.2.61
 
-## [1.2.59](https://github.com/ably/ably-cocoa/tree/1.2.59)
+## [1.2.60](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.60)
+
+### What's Changed
+
+Adds missing `onAttach` callback variants to `ARTRealtimeAnnotations` subscribe ([#2199](https://github.com/ably/ably-pubsub-cocoa/pull/2199)).
+
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.59...1.2.60
+
+## [1.2.59](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.59)
 
 ## What's Changed
 
 Adds support for the upcoming version 0.4.0 of the [LiveObjects plugin](https://github.com/ably/ably-liveobjects-swift-plugin) and removes support for earlier versions of the plugin.
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.58...1.2.59
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.58...1.2.59
 
-## [1.2.58](https://github.com/ably/ably-cocoa/tree/1.2.58)
+## [1.2.58](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.58)
 
 ### What's Changed
 
-* Decode and encode extras on presence messages (TP3i) by @AndyTWF in https://github.com/ably/ably-cocoa/pull/2186
+* Decode and encode extras on presence messages (TP3i) by @AndyTWF in https://github.com/ably/ably-pubsub-cocoa/pull/2186
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.57...1.2.58
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.57...1.2.58
 
-## [1.2.57](https://github.com/ably/ably-cocoa/tree/1.2.57)
+## [1.2.57](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.57)
 
 ### What's Changed
 
@@ -133,9 +133,9 @@ channel.publish("foo", data: nil) { publishResult, error in
 
 For more information, see the [documentation on updating and deleting messages](https://ably.com/docs/messages/updates-deletes).
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.56...1.2.57
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.56...1.2.57
 
-## [1.2.56](https://github.com/ably/ably-cocoa/tree/1.2.56)
+## [1.2.56](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.56)
 
 ## What's Changed
 
@@ -148,81 +148,81 @@ This release introduces the ability to:
 
 For more information, see the [documentation on updating and deleting messages](https://ably.com/docs/messages/updates-deletes).
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.55...1.2.56
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.55...1.2.56
 
-## [1.2.55](https://github.com/ably/ably-cocoa/tree/1.2.55)
+## [1.2.55](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.55)
 
 This release contains no user-facing changes; it corrects a mistake in the internal version data that version 1.2.54 submits to Ably.
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.54...1.2.55
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.54...1.2.55
 
-## [1.2.54](https://github.com/ably/ably-cocoa/tree/1.2.54)
+## [1.2.54](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.54)
 
 ## What's Changed
 
 - Documents that the `ARTMessage.action` property is ignored for user-supplied messages.
 - Adds support for version 0.3.0 of the [LiveObjects plugin](https://github.com/ably/ably-liveobjects-swift-plugin) and removes support for earlier versions of the plugin.
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.53...1.2.54
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.53...1.2.54
 
-## [1.2.53](https://github.com/ably/ably-cocoa/tree/1.2.53)
+## [1.2.53](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.53)
 
 ## What's Changed
 
-- Fixes a crash that resulted from the mishandling of non-success `authUrl` responses ([#2136](https://github.com/ably/ably-cocoa/pull/2136)).
-- Bumps the AblyDeltaCodec dependency version ([#2140](https://github.com/ably/ably-cocoa/pull/2140)).
+- Fixes a crash that resulted from the mishandling of non-success `authUrl` responses ([#2136](https://github.com/ably/ably-pubsub-cocoa/pull/2136)).
+- Bumps the AblyDeltaCodec dependency version ([#2140](https://github.com/ably/ably-pubsub-cocoa/pull/2140)).
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.52...1.2.53
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.52...1.2.53
 
-## [1.2.52](https://github.com/ably/ably-cocoa/tree/1.2.52)
-
-### What's Changed
-
-Fixes an infrequent crash that resulted from dispatching to a `nil` queue ([#2138](https://github.com/ably/ably-cocoa/pull/2138)).
-
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.51...1.2.52
-
-## [1.2.51](https://github.com/ably/ably-cocoa/tree/1.2.51)
+## [1.2.52](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.52)
 
 ### What's Changed
 
-Fixes an intermittent hang when using ably-cocoa from the main thread. ([#2133](https://github.com/ably/ably-cocoa/pull/2133))
+Fixes an infrequent crash that resulted from dispatching to a `nil` queue ([#2138](https://github.com/ably/ably-pubsub-cocoa/pull/2138)).
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.50...1.2.51
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.51...1.2.52
 
-## [1.2.50](https://github.com/ably/ably-cocoa/tree/1.2.50)
+## [1.2.51](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.51)
 
 ### What's Changed
 
-Fixes a thread priority inversion issue reported by Xcode's Thread Performance Checker when using ably-cocoa from the main thread. ([#2128](https://github.com/ably/ably-cocoa/pull/2128))
+Fixes an intermittent hang when using ably-cocoa from the main thread. ([#2133](https://github.com/ably/ably-pubsub-cocoa/pull/2133))
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.49...1.2.50
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.50...1.2.51
 
-## [1.2.49](https://github.com/ably/ably-cocoa/tree/1.2.49)
+## [1.2.50](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.50)
+
+### What's Changed
+
+Fixes a thread priority inversion issue reported by Xcode's Thread Performance Checker when using ably-cocoa from the main thread. ([#2128](https://github.com/ably/ably-pubsub-cocoa/pull/2128))
+
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.49...1.2.50
+
+## [1.2.49](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.49)
 
 ### What's Changed
 
 This release introduces experimental support for the Pub/Sub annotations feature. For more information, see the [blog post](https://ably.com/blog/introducing-annotations).
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.48...1.2.49
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.48...1.2.49
 
-## [1.2.48](https://github.com/ably/ably-cocoa/tree/1.2.48)
-
-### What's Changed
-
-* Fixes a bug where `ARTRealtime`'s `clientId` property would be `nil` when using token-based auth ([#2122](https://github.com/ably/ably-cocoa/pull/2122)).
-
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.47...1.2.48
-
-## [1.2.47](https://github.com/ably/ably-cocoa/tree/1.2.47)
+## [1.2.48](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.48)
 
 ### What's Changed
 
-This release contains an internal change intended to avoid potential SPM dependency resolution failure when new versions of the LiveObjects plugin are released ([#2118](https://github.com/ably/ably-cocoa/pull/2118)).
+* Fixes a bug where `ARTRealtime`'s `clientId` property would be `nil` when using token-based auth ([#2122](https://github.com/ably/ably-pubsub-cocoa/pull/2122)).
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.46...1.2.47
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.47...1.2.48
 
-## [1.2.46](https://github.com/ably/ably-cocoa/tree/1.2.46)
+## [1.2.47](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.47)
+
+### What's Changed
+
+This release contains an internal change intended to avoid potential SPM dependency resolution failure when new versions of the LiveObjects plugin are released ([#2118](https://github.com/ably/ably-pubsub-cocoa/pull/2118)).
+
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.46...1.2.47
+
+## [1.2.46](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.46)
 
 ### What's Changed
 
@@ -230,21 +230,21 @@ This release fixes an issue in version 1.2.45 which causes package resolution in
 
 > 'ably-cocoa' >= 1.2.45 cannot be used because package 'ably-cocoa' is required using a stable-version but 'ably-cocoa' depends on an unstable-version package 'ably-cocoa-plugin-support' and no versions of 'ably-cocoa' match the requirement 1.2.46..<2.0.0.
 
-* Unpin ably-cocoa-plugin-support by @lawrence-forooghian in https://github.com/ably/ably-cocoa/pull/2115
+* Unpin ably-cocoa-plugin-support by @lawrence-forooghian in https://github.com/ably/ably-pubsub-cocoa/pull/2115
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.45...1.2.46
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.45...1.2.46
 
-## [1.2.45](https://github.com/ably/ably-cocoa/tree/1.2.45)
+## [1.2.45](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.45)
 
 ### What's Changed
 
-* [ECO-5377] Adopt new plugin APIs with improved threading by @lawrence-forooghian in https://github.com/ably/ably-cocoa/pull/2100
-* Add additional user info param to `ARTErrorInfo` creation by @lawrence-forooghian in https://github.com/ably/ably-cocoa/pull/2101
-* Implement a nested message structure based on protocol v4 by @ttypic in https://github.com/ably/ably-cocoa/pull/2112
+* [ECO-5377] Adopt new plugin APIs with improved threading by @lawrence-forooghian in https://github.com/ably/ably-pubsub-cocoa/pull/2100
+* Add additional user info param to `ARTErrorInfo` creation by @lawrence-forooghian in https://github.com/ably/ably-pubsub-cocoa/pull/2101
+* Implement a nested message structure based on protocol v4 by @ttypic in https://github.com/ably/ably-pubsub-cocoa/pull/2112
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.44...1.2.45
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.44...1.2.45
 
-## [1.2.44](https://github.com/ably/ably-cocoa/tree/1.2.44)
+## [1.2.44](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.44)
 
 ### What's Changed
 
@@ -256,227 +256,227 @@ Learn [about Ably LiveObjects.](https://ably.com/docs/liveobjects)
 
 [Ably LiveObjects Swift Plugin Repo](https://github.com/ably/ably-liveobjects-swift-plugin) 
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.43...1.2.44
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.43...1.2.44
 
-## [1.2.43](https://github.com/ably/ably-cocoa/tree/1.2.43)
+## [1.2.43](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.43)
 
 ### What's Changed
 
 * Fixes an issue in which missing Sendable annotations caused Swift 6 errors
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.42...1.2.43
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.42...1.2.43
 
-## [1.2.42](https://github.com/ably/ably-cocoa/tree/1.2.42)
+## [1.2.42](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.42)
 
 ### What's Changed
 
-* Fix bugs with decoding of delta messages (https://github.com/ably/ably-cocoa/pull/2083) in the following scenarios:
+* Fix bugs with decoding of delta messages (https://github.com/ably/ably-pubsub-cocoa/pull/2083) in the following scenarios:
   * JSON-valued message data
   * when the `useBinaryProtocol` client option is false
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.41...1.2.42
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.41...1.2.42
 
-## [1.2.41](https://github.com/ably/ably-cocoa/tree/1.2.41)
-
-### What's Changed
-
-* Make some classes private by @lawrence-forooghian in https://github.com/ably/ably-cocoa/pull/2038
-* Implemented connection sequence for RTN14d by @maratal in https://github.com/ably/ably-cocoa/pull/2041
-* Add annotations by @maratal in https://github.com/ably/ably-cocoa/pull/2066
-
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.40...1.2.41
-
-## [1.2.40](https://github.com/ably/ably-cocoa/tree/1.2.40)
+## [1.2.41](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.41)
 
 ### What's Changed
 
-* Introduce new `ARTMessageOperation` type. Used when editing and deleting messages in the Chat SDK. (https://github.com/ably/ably-cocoa/pull/2036)
+* Make some classes private by @lawrence-forooghian in https://github.com/ably/ably-pubsub-cocoa/pull/2038
+* Implemented connection sequence for RTN14d by @maratal in https://github.com/ably/ably-pubsub-cocoa/pull/2041
+* Add annotations by @maratal in https://github.com/ably/ably-pubsub-cocoa/pull/2066
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.39...1.2.40
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.40...1.2.41
 
-## [1.2.39](https://github.com/ably/ably-cocoa/tree/1.2.39)
+## [1.2.40](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.40)
+
+### What's Changed
+
+* Introduce new `ARTMessageOperation` type. Used when editing and deleting messages in the Chat SDK. (https://github.com/ably/ably-pubsub-cocoa/pull/2036)
+
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.39...1.2.40
+
+## [1.2.39](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.39)
 
 ### What's Changed
 
 #### Bug fixes
 
-* Fix bug where fallback hosts were not working correctly in custom environments (https://github.com/ably/ably-cocoa/pull/2017)
+* Fix bug where fallback hosts were not working correctly in custom environments (https://github.com/ably/ably-pubsub-cocoa/pull/2017)
 
 #### Other changes
 
-* Improvements to the Ably-internal API introduced in v1.2.38 (https://github.com/ably/ably-cocoa/pull/2031)
+* Improvements to the Ably-internal API introduced in v1.2.38 (https://github.com/ably/ably-pubsub-cocoa/pull/2031)
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.38...1.2.39
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.38...1.2.39
 
-## [1.2.38](https://github.com/ably/ably-cocoa/tree/1.2.38)
-
-### What's Changed
-
-* Add `NSCopying` support to `ART*ChannelOptions` by @lawrence-forooghian in https://github.com/ably/ably-cocoa/pull/2018
-* Introduction of a new API intended for use by Ably-authored SDKs by @lawrence-forooghian in https://github.com/ably/ably-cocoa/pull/2014
-
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.37...1.2.38
-
-## [1.2.37](https://github.com/ably/ably-cocoa/tree/1.2.37)
-
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.36...1.2.37
+## [1.2.38](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.38)
 
 ### What's Changed
 
-* Reverts a breaking change by moving `presence` back to `ARTRealtime` https://github.com/ably/ably-cocoa/pull/2015
+* Add `NSCopying` support to `ART*ChannelOptions` by @lawrence-forooghian in https://github.com/ably/ably-pubsub-cocoa/pull/2018
+* Introduction of a new API intended for use by Ably-authored SDKs by @lawrence-forooghian in https://github.com/ably/ably-pubsub-cocoa/pull/2014
 
-## [1.2.36](https://github.com/ably/ably-cocoa/tree/1.2.36)
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.37...1.2.38
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.35...1.2.36
+## [1.2.37](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.37)
 
-### What's Changed
-
-* Updated fields within `ARTMessage` to support upcoming chat SDK features https://github.com/ably/ably-cocoa/pull/2005
-
-## [1.2.35](https://github.com/ably/ably-cocoa/tree/1.2.35)
-
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.34...1.2.35
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.36...1.2.37
 
 ### What's Changed
 
-* Added new fields to the `ARTMessage` to support upcoming chat SDK https://github.com/ably/ably-cocoa/pull/1998
+* Reverts a breaking change by moving `presence` back to `ARTRealtime` https://github.com/ably/ably-pubsub-cocoa/pull/2015
 
-## [1.2.34](https://github.com/ably/ably-cocoa/tree/1.2.34)
+## [1.2.36](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.36)
 
-**Full Changelog**: https://github.com/ably/ably-cocoa/compare/1.2.33...1.2.34
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.35...1.2.36
+
+### What's Changed
+
+* Updated fields within `ARTMessage` to support upcoming chat SDK features https://github.com/ably/ably-pubsub-cocoa/pull/2005
+
+## [1.2.35](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.35)
+
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.34...1.2.35
+
+### What's Changed
+
+* Added new fields to the `ARTMessage` to support upcoming chat SDK https://github.com/ably/ably-pubsub-cocoa/pull/1998
+
+## [1.2.34](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.34)
+
+**Full Changelog**: https://github.com/ably/ably-pubsub-cocoa/compare/1.2.33...1.2.34
 
 **What's Changed:**
 
-* Prepare library for swift 6 concurrency by @maratal in https://github.com/ably/ably-cocoa/pull/1963, https://github.com/ably/ably-cocoa/pull/1988
-* Preparing for use with Xcode 16 by @maratal in https://github.com/ably/ably-cocoa/pull/1978
-* Added `attachOnSubscribe` to `ARTRealtimeChannelOptions` by @maratal in https://github.com/ably/ably-cocoa/pull/1976
+* Prepare library for swift 6 concurrency by @maratal in https://github.com/ably/ably-pubsub-cocoa/pull/1963, https://github.com/ably/ably-pubsub-cocoa/pull/1988
+* Preparing for use with Xcode 16 by @maratal in https://github.com/ably/ably-pubsub-cocoa/pull/1978
+* Added `attachOnSubscribe` to `ARTRealtimeChannelOptions` by @maratal in https://github.com/ably/ably-pubsub-cocoa/pull/1976
 
-## [1.2.33](https://github.com/ably/ably-cocoa/tree/1.2.33)
+## [1.2.33](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.33)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.32...1.2.33)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.32...1.2.33)
 
 **What's Changed:**
 
-- Attach according to RTL7c by @maratal in https://github.com/ably/ably-cocoa/pull/1935
-- Enforce RTP6c attach rule for presence. by @maratal in https://github.com/ably/ably-cocoa/pull/1942
-- Max message size fix by @maratal in https://github.com/ably/ably-cocoa/pull/1947
-- Respect RSH3a3a by @maratal in https://github.com/ably/ably-cocoa/pull/1952
+- Attach according to RTL7c by @maratal in https://github.com/ably/ably-pubsub-cocoa/pull/1935
+- Enforce RTP6c attach rule for presence. by @maratal in https://github.com/ably/ably-pubsub-cocoa/pull/1942
+- Max message size fix by @maratal in https://github.com/ably/ably-pubsub-cocoa/pull/1947
+- Respect RSH3a3a by @maratal in https://github.com/ably/ably-pubsub-cocoa/pull/1952
 
-## [1.2.32](https://github.com/ably/ably-cocoa/tree/1.2.32)
+## [1.2.32](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.32)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.31...1.2.32)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.31...1.2.32)
 
 **Fixed issues:**
 
-- Thread priority inversion runtime warning [\#1897](https://github.com/ably/ably-cocoa/issues/1897)
+- Thread priority inversion runtime warning [\#1897](https://github.com/ably/ably-pubsub-cocoa/issues/1897)
 
-- Fix for ignored `ARTProtocolMessage.resumed` property [\#1920](https://github.com/ably/ably-cocoa/issues/1920)
+- Fix for ignored `ARTProtocolMessage.resumed` property [\#1920](https://github.com/ably/ably-pubsub-cocoa/issues/1920)
 
-## [1.2.31](https://github.com/ably/ably-cocoa/tree/1.2.31)
+## [1.2.31](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.31)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.30...1.2.31)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.30...1.2.31)
 
 **Fixed issues:**
 
 - Ensures the privacy manifest is included when installed via SPM or Cocoapods
 
-## [1.2.30](https://github.com/ably/ably-cocoa/tree/1.2.30)
+## [1.2.30](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.30)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.29...1.2.30)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.29...1.2.30)
 
 **Implemented features:**
 
 - Includes PrivacyManifest in line with Apple's new release guidelines [here](https://developer.apple.com/news/?id=3d8a9yyh)
 
-## [1.2.29](https://github.com/ably/ably-cocoa/tree/1.2.29)
+## [1.2.29](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.29)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.28...1.2.29)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.28...1.2.29)
 
 **Fixed issues:**
 
 - Fixes typo which caused previous Push Notifiication corner cases fix to fail
 
-## [1.2.28](https://github.com/ably/ably-cocoa/tree/1.2.28)
+## [1.2.28](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.28)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.27...1.2.28)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.27...1.2.28)
 
 **Fixed issues:**
 
 - Push Notification corner cases as initially reported in ably-java [\#993](https://github.com/ably/ably-java/issues/993)
 
-## [1.2.27](https://github.com/ably/ably-cocoa/tree/1.2.27)
+## [1.2.27](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.27)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.26...1.2.27)
-
-**Implemented features:**
-
-- Updated example app [\#1879](https://github.com/ably/ably-cocoa/pull/1879)
-
-**Fixed issues:**
-
-- Device registration flow omits `deviceSecret` [\#1892](https://github.com/ably/ably-cocoa/issues/1892)
-
-## [1.2.26](https://github.com/ably/ably-cocoa/tree/1.2.26)
-
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.25...1.2.26)
-
-**Fixed issues:**
-
-- Singleton realtime instance obtains multiple connections and confuses them [\#1882](https://github.com/ably/ably-cocoa/issues/1882)
-
-## [1.2.25](https://github.com/ably/ably-cocoa/tree/1.2.25)
-
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.24...1.2.25)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.26...1.2.27)
 
 **Implemented features:**
 
-- Realtime protocol v2 implementation (with no `connectionSerial`) [\#1494](https://github.com/ably/ably-cocoa/issues/1494)
-
-## [1.2.24](https://github.com/ably/ably-cocoa/tree/1.2.24)
-
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.23...1.2.24)
+- Updated example app [\#1879](https://github.com/ably/ably-pubsub-cocoa/pull/1879)
 
 **Fixed issues:**
 
-- Push device deregistration does not clear device details. [\#1177](https://github.com/ably/ably-cocoa/issues/1177)
-- Unrecognized selector sent to instance. [\#1837](https://github.com/ably/ably-cocoa/issues/1837)
+- Device registration flow omits `deviceSecret` [\#1892](https://github.com/ably/ably-pubsub-cocoa/issues/1892)
 
-## [1.2.23](https://github.com/ably/ably-cocoa/tree/1.2.23)
+## [1.2.26](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.26)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.22...1.2.23)
-
-**Fixed issues:**
-
-- Push device deregistration does not clear device details. [\#1177](https://github.com/ably/ably-cocoa/issues/1177)
-- App build fails due to missing dependencies. [\#1755](https://github.com/ably/ably-cocoa/issues/1755) and [\#1824](https://github.com/ably/ably-cocoa/issues/1824)
-
-## [1.2.22](https://github.com/ably/ably-cocoa/tree/1.2.22)
-
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.21...1.2.22)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.25...1.2.26)
 
 **Fixed issues:**
 
-- Fixes an issue where certain errors will cause a Realtime connection to transition to `FAILED` when it should be transitioning to `DISCONNECTED` and retrying the connection attempt. [\#1817](https://github.com/ably/ably-cocoa/issues/1817)
+- Singleton realtime instance obtains multiple connections and confuses them [\#1882](https://github.com/ably/ably-pubsub-cocoa/issues/1882)
 
-## [1.2.21](https://github.com/ably/ably-cocoa/tree/1.2.21)
+## [1.2.25](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.25)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.20...1.2.21)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.24...1.2.25)
 
 **Implemented features:**
 
-- Location pushes [\#1771](https://github.com/ably/ably-cocoa/issues/1771)
-- Incremental backoff and jitter [\#1431](https://github.com/ably/ably-cocoa/issues/1431)
-- Handle os connectivity event while CONNECTING [\#1626](https://github.com/ably/ably-cocoa/issues/1626)
+- Realtime protocol v2 implementation (with no `connectionSerial`) [\#1494](https://github.com/ably/ably-pubsub-cocoa/issues/1494)
+
+## [1.2.24](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.24)
+
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.23...1.2.24)
+
+**Fixed issues:**
+
+- Push device deregistration does not clear device details. [\#1177](https://github.com/ably/ably-pubsub-cocoa/issues/1177)
+- Unrecognized selector sent to instance. [\#1837](https://github.com/ably/ably-pubsub-cocoa/issues/1837)
+
+## [1.2.23](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.23)
+
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.22...1.2.23)
+
+**Fixed issues:**
+
+- Push device deregistration does not clear device details. [\#1177](https://github.com/ably/ably-pubsub-cocoa/issues/1177)
+- App build fails due to missing dependencies. [\#1755](https://github.com/ably/ably-pubsub-cocoa/issues/1755) and [\#1824](https://github.com/ably/ably-pubsub-cocoa/issues/1824)
+
+## [1.2.22](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.22)
+
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.21...1.2.22)
+
+**Fixed issues:**
+
+- Fixes an issue where certain errors will cause a Realtime connection to transition to `FAILED` when it should be transitioning to `DISCONNECTED` and retrying the connection attempt. [\#1817](https://github.com/ably/ably-pubsub-cocoa/issues/1817)
+
+## [1.2.21](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.21)
+
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.20...1.2.21)
+
+**Implemented features:**
+
+- Location pushes [\#1771](https://github.com/ably/ably-pubsub-cocoa/issues/1771)
+- Incremental backoff and jitter [\#1431](https://github.com/ably/ably-pubsub-cocoa/issues/1431)
+- Handle os connectivity event while CONNECTING [\#1626](https://github.com/ably/ably-pubsub-cocoa/issues/1626)
 
 **Closed issues:**
 
-- Compiler warning "Non-portable path to file..." [\#1757](https://github.com/ably/ably-cocoa/issues/1757)
-- App crash and dyld error message "AblyDeltaCodec cannot be loaded, image not found" [\#1183](https://github.com/ably/ably-cocoa/issues/1183)
-- Compatibility with Xcode 15 [\#1803](https://github.com/ably/ably-cocoa/issues/1803)
+- Compiler warning "Non-portable path to file..." [\#1757](https://github.com/ably/ably-pubsub-cocoa/issues/1757)
+- App crash and dyld error message "AblyDeltaCodec cannot be loaded, image not found" [\#1183](https://github.com/ably/ably-pubsub-cocoa/issues/1183)
+- Compatibility with Xcode 15 [\#1803](https://github.com/ably/ably-pubsub-cocoa/issues/1803)
 
-## [1.2.20](https://github.com/ably/ably-cocoa/tree/1.2.20)
+## [1.2.20](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.20)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.19...1.2.20)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.19...1.2.20)
 
 **Public API changes:**
 
@@ -488,139 +488,139 @@ Learn [about Ably LiveObjects.](https://ably.com/docs/liveobjects)
 
 **Fixed bugs:**
 
-- Fallback host is being discarded before `fallbackRetryTimeout` elapses [\#1683](https://github.com/ably/ably-cocoa/issues/1683)
-- Compilation error in SocketRocket in Xcode 14.3 [\#1591](https://github.com/ably/ably-cocoa/issues/1591)
-- Call to `_connect` in `ARTRealtimeInternal` constructor [\#1566](https://github.com/ably/ably-cocoa/issues/1566)
-- SCNetworkReachabilitySetCallback \(Crashed: io.ably.main\) [\#1380](https://github.com/ably/ably-cocoa/issues/1380)
-- Crash in ARTOSReachability [\#593](https://github.com/ably/ably-cocoa/issues/593)
+- Fallback host is being discarded before `fallbackRetryTimeout` elapses [\#1683](https://github.com/ably/ably-pubsub-cocoa/issues/1683)
+- Compilation error in SocketRocket in Xcode 14.3 [\#1591](https://github.com/ably/ably-pubsub-cocoa/issues/1591)
+- Call to `_connect` in `ARTRealtimeInternal` constructor [\#1566](https://github.com/ably/ably-pubsub-cocoa/issues/1566)
+- SCNetworkReachabilitySetCallback \(Crashed: io.ably.main\) [\#1380](https://github.com/ably/ably-pubsub-cocoa/issues/1380)
+- Crash in ARTOSReachability [\#593](https://github.com/ably/ably-pubsub-cocoa/issues/593)
 
 **Closed issues:**
 
-- Run tests in Ably-iOS and Ably-macOS using Xcode 14.3 [\#1653](https://github.com/ably/ably-cocoa/issues/1653)
-- Emit file name and line number with every logged message [\#1643](https://github.com/ably/ably-cocoa/issues/1643)
-- Thread running at QOS\_CLASS\_USER\_INTERACTIVE waiting on a lower QoS thread running at QOS\_CLASS\_DEFAULT. Investigate ways to avoid priority inversions [\#1569](https://github.com/ably/ably-cocoa/issues/1569)
-- App Store publication issues when using Carthage [\#1559](https://github.com/ably/ably-cocoa/issues/1559)
-- Remove extra callback with `setSuspended` [\#1550](https://github.com/ably/ably-cocoa/issues/1550)
-- Make sure we can build the library and run the tests using Xcode 14 [\#1523](https://github.com/ably/ably-cocoa/issues/1523)
+- Run tests in Ably-iOS and Ably-macOS using Xcode 14.3 [\#1653](https://github.com/ably/ably-pubsub-cocoa/issues/1653)
+- Emit file name and line number with every logged message [\#1643](https://github.com/ably/ably-pubsub-cocoa/issues/1643)
+- Thread running at QOS\_CLASS\_USER\_INTERACTIVE waiting on a lower QoS thread running at QOS\_CLASS\_DEFAULT. Investigate ways to avoid priority inversions [\#1569](https://github.com/ably/ably-pubsub-cocoa/issues/1569)
+- App Store publication issues when using Carthage [\#1559](https://github.com/ably/ably-pubsub-cocoa/issues/1559)
+- Remove extra callback with `setSuspended` [\#1550](https://github.com/ably/ably-pubsub-cocoa/issues/1550)
+- Make sure we can build the library and run the tests using Xcode 14 [\#1523](https://github.com/ably/ably-pubsub-cocoa/issues/1523)
 
-## [1.2.19](https://github.com/ably/ably-cocoa/tree/1.2.19)
+## [1.2.19](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.19)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.18...1.2.19)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.18...1.2.19)
 
 **Closed issues:**
 
-- Replace all calls to `NSLog` with calls to the `ARTLog` instance [\#1554](https://github.com/ably/ably-cocoa/issues/1554)
+- Replace all calls to `NSLog` with calls to the `ARTLog` instance [\#1554](https://github.com/ably/ably-pubsub-cocoa/issues/1554)
 
-## [1.2.18](https://github.com/ably/ably-cocoa/tree/1.2.18)
+## [1.2.18](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.18)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.17...1.2.18)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.17...1.2.18)
 
 **Fixed bugs:**
 
-- Xcode 14 Thread Performance Checker warns of a priority inversion from SocketRocket code [\#1516](https://github.com/ably/ably-cocoa/issues/1516)
+- Xcode 14 Thread Performance Checker warns of a priority inversion from SocketRocket code [\#1516](https://github.com/ably/ably-pubsub-cocoa/issues/1516)
 
-## [1.2.17](https://github.com/ably/ably-cocoa/tree/1.2.17)
+## [1.2.17](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.17)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.16...1.2.17)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.16...1.2.17)
 
 **Fixed bugs:**
 
-- Ably `agents` client option is implemented incorrectly [\#1525](https://github.com/ably/ably-cocoa/issues/1525)
+- Ably `agents` client option is implemented incorrectly [\#1525](https://github.com/ably/ably-pubsub-cocoa/issues/1525)
 
 **Closed issues:**
 
-- Implement API for fetching Agent identifier [\#1530](https://github.com/ably/ably-cocoa/issues/1530)
-- Fix error on trying to override `HTTPURLResponse._allHeaderFields` with Xcode 14 [\#1522](https://github.com/ably/ably-cocoa/issues/1522)
-- Replace usage of `SecKeychainItemDelete` to fix deprecation error in Xcode 14 [\#1521](https://github.com/ably/ably-cocoa/issues/1521)
+- Implement API for fetching Agent identifier [\#1530](https://github.com/ably/ably-pubsub-cocoa/issues/1530)
+- Fix error on trying to override `HTTPURLResponse._allHeaderFields` with Xcode 14 [\#1522](https://github.com/ably/ably-pubsub-cocoa/issues/1522)
+- Replace usage of `SecKeychainItemDelete` to fix deprecation error in Xcode 14 [\#1521](https://github.com/ably/ably-pubsub-cocoa/issues/1521)
 
-## [1.2.16](https://github.com/ably/ably-cocoa/tree/1.2.16)
+## [1.2.16](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.16)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.15...1.2.16)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.15...1.2.16)
 
 **Closed issues:**
 
-- SDK tests are not running on MacBook Pro M1 [\#1506](https://github.com/ably/ably-cocoa/issues/1506)
-- Create Feature Compliance Manifest for `ably-cocoa` [\#1443](https://github.com/ably/ably-cocoa/issues/1443)
+- SDK tests are not running on MacBook Pro M1 [\#1506](https://github.com/ably/ably-pubsub-cocoa/issues/1506)
+- Create Feature Compliance Manifest for `ably-cocoa` [\#1443](https://github.com/ably/ably-pubsub-cocoa/issues/1443)
 
 **Implemented features:**
 
-- Implement [RTP8j spec point](https://sdk.ably.com/builds/ably/specification/main/features/#RTP8j) [\#1517](https://github.com/ably/ably-cocoa/pull/1517)
+- Implement [RTP8j spec point](https://sdk.ably.com/builds/ably/specification/main/features/#RTP8j) [\#1517](https://github.com/ably/ably-pubsub-cocoa/pull/1517)
 
-## [1.2.15](https://github.com/ably/ably-cocoa/tree/1.2.15)
+## [1.2.15](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.15)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.14...1.2.15)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.14...1.2.15)
 
 **Closed issues:**
 
-- Make docs workflow run for all tags [\#1440](https://github.com/ably/ably-cocoa/issues/1440), in: [\#1501](https://github.com/ably/ably-cocoa/pull/1501) ([maratal](https://github.com/maratal))
-- Link to Ably error codes in ARTErrorInfo docstrings [\#1502](https://github.com/ably/ably-cocoa/issues/1502), in: [\#1503](https://github.com/ably/ably-cocoa/pull/1503) ([maratal](https://github.com/maratal))
+- Make docs workflow run for all tags [\#1440](https://github.com/ably/ably-pubsub-cocoa/issues/1440), in: [\#1501](https://github.com/ably/ably-pubsub-cocoa/pull/1501) ([maratal](https://github.com/maratal))
+- Link to Ably error codes in ARTErrorInfo docstrings [\#1502](https://github.com/ably/ably-pubsub-cocoa/issues/1502), in: [\#1503](https://github.com/ably/ably-pubsub-cocoa/pull/1503) ([maratal](https://github.com/maratal))
 
-## [1.2.14](https://github.com/ably/ably-cocoa/tree/1.2.14)
+## [1.2.14](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.14)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.13...1.2.14)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.13...1.2.14)
 
 **Documentation:**
 
-- Docstring comments added for documentation generation with Jazzy ([\#1491](https://github.com/ably/ably-cocoa/pull/1491))
+- Docstring comments added for documentation generation with Jazzy ([\#1491](https://github.com/ably/ably-pubsub-cocoa/pull/1491))
 
-## [1.2.13](https://github.com/ably/ably-cocoa/tree/1.2.13)
+## [1.2.13](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.13)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.12...1.2.13)
-
-**Fixed bugs:**
-
-- Warnings of the form `Umbrella header for module 'Ably' does not include header 'ARTPushActivationEvent.h'` (fixed by [\#1474](https://github.com/ably/ably-cocoa/pull/1474))
-
-## [1.2.12](https://github.com/ably/ably-cocoa/tree/1.2.12)
-
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.11...1.2.12)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.12...1.2.13)
 
 **Fixed bugs:**
 
-- SCNetworkReachabilitySetCallback (Crashed: io.ably.main) [\#1380](https://github.com/ably/ably-cocoa/issues/1380), fixed in: Fix of the crash in the `ARTOSReachability` [\#1453](https://github.com/ably/ably-cocoa/pull/1453) ([maratal](https://github.com/maratal))
-- Channel names are not properly url-encoded [\#1449](https://github.com/ably/ably-cocoa/issues/1449), fixed in: Fixed channel name url encoding [\#1451](https://github.com/ably/ably-cocoa/pull/1451) ([maratal](https://github.com/maratal))
+- Warnings of the form `Umbrella header for module 'Ably' does not include header 'ARTPushActivationEvent.h'` (fixed by [\#1474](https://github.com/ably/ably-pubsub-cocoa/pull/1474))
 
-## [1.2.11](https://github.com/ably/ably-cocoa/tree/1.2.11)
+## [1.2.12](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.12)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.10...1.2.11)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.11...1.2.12)
+
+**Fixed bugs:**
+
+- SCNetworkReachabilitySetCallback (Crashed: io.ably.main) [\#1380](https://github.com/ably/ably-pubsub-cocoa/issues/1380), fixed in: Fix of the crash in the `ARTOSReachability` [\#1453](https://github.com/ably/ably-pubsub-cocoa/pull/1453) ([maratal](https://github.com/maratal))
+- Channel names are not properly url-encoded [\#1449](https://github.com/ably/ably-pubsub-cocoa/issues/1449), fixed in: Fixed channel name url encoding [\#1451](https://github.com/ably/ably-pubsub-cocoa/pull/1451) ([maratal](https://github.com/maratal))
+
+## [1.2.11](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.11)
+
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.10...1.2.11)
 
 **Implemented enhancements:**
 
-- Add support to get channel lifecycle status [\#1415](https://github.com/ably/ably-cocoa/issues/1415), in: [\#1420](https://github.com/ably/ably-cocoa/pull/1420) ([maratal](https://github.com/maratal))
-- Missing properties in ARTErrorInfo [\#1261](https://github.com/ably/ably-cocoa/issues/1261), in: [\#1304](https://github.com/ably/ably-cocoa/pull/1304) ([maratal](https://github.com/maratal))
-- Missing properties in ARTClientOptions [\#1260](https://github.com/ably/ably-cocoa/issues/1260), in: fallback retry timeout option [\#1290](https://github.com/ably/ably-cocoa/pull/1290) ([maratal](https://github.com/maratal))
-- Feature/1305 symmetric decryption [\#1307](https://github.com/ably/ably-cocoa/pull/1307) ([maratal](https://github.com/maratal))
+- Add support to get channel lifecycle status [\#1415](https://github.com/ably/ably-pubsub-cocoa/issues/1415), in: [\#1420](https://github.com/ably/ably-pubsub-cocoa/pull/1420) ([maratal](https://github.com/maratal))
+- Missing properties in ARTErrorInfo [\#1261](https://github.com/ably/ably-pubsub-cocoa/issues/1261), in: [\#1304](https://github.com/ably/ably-pubsub-cocoa/pull/1304) ([maratal](https://github.com/maratal))
+- Missing properties in ARTClientOptions [\#1260](https://github.com/ably/ably-pubsub-cocoa/issues/1260), in: fallback retry timeout option [\#1290](https://github.com/ably/ably-pubsub-cocoa/pull/1290) ([maratal](https://github.com/maratal))
+- Feature/1305 symmetric decryption [\#1307](https://github.com/ably/ably-pubsub-cocoa/pull/1307) ([maratal](https://github.com/maratal))
 
 **Fixed bugs:**
 
-- Mutable `ARTDeviceDetails.metadata` [\#1435](https://github.com/ably/ably-cocoa/issues/1435), fixed in: Added missing `strong` property attributes [\#1434](https://github.com/ably/ably-cocoa/pull/1434) ([maratal](https://github.com/maratal))
-- According to spec, the SDK should be responsible for calling `-[UIApplication registerForRemoteNotifications]`, not the user [\#1271](https://github.com/ably/ably-cocoa/issues/1271), in: Call to the `registerForRemoteNotifications` [\#1293](https://github.com/ably/ably-cocoa/pull/1293) ([maratal](https://github.com/maratal))
+- Mutable `ARTDeviceDetails.metadata` [\#1435](https://github.com/ably/ably-pubsub-cocoa/issues/1435), fixed in: Added missing `strong` property attributes [\#1434](https://github.com/ably/ably-pubsub-cocoa/pull/1434) ([maratal](https://github.com/maratal))
+- According to spec, the SDK should be responsible for calling `-[UIApplication registerForRemoteNotifications]`, not the user [\#1271](https://github.com/ably/ably-pubsub-cocoa/issues/1271), in: Call to the `registerForRemoteNotifications` [\#1293](https://github.com/ably/ably-pubsub-cocoa/pull/1293) ([maratal](https://github.com/maratal))
 
 **Closed issues:**
 
-- Remove call to `registerForRemoteNotifications` from Basic APNS example [\#1359](https://github.com/ably/ably-cocoa/issues/1359), in: [\#1360](https://github.com/ably/ably-cocoa/pull/1360) ([maratal](https://github.com/maratal))
-- Create simplified ably-cocoa example project for demonstrating push notifications capability [\#1318](https://github.com/ably/ably-cocoa/issues/1318), in: Basic APNS example [\#1319](https://github.com/ably/ably-cocoa/pull/1319) ([maratal](https://github.com/maratal))
+- Remove call to `registerForRemoteNotifications` from Basic APNS example [\#1359](https://github.com/ably/ably-pubsub-cocoa/issues/1359), in: [\#1360](https://github.com/ably/ably-pubsub-cocoa/pull/1360) ([maratal](https://github.com/maratal))
+- Create simplified ably-cocoa example project for demonstrating push notifications capability [\#1318](https://github.com/ably/ably-pubsub-cocoa/issues/1318), in: Basic APNS example [\#1319](https://github.com/ably/ably-pubsub-cocoa/pull/1319) ([maratal](https://github.com/maratal))
 
 **Merged pull requests:**
 
-- Fix symlink command on contributing guide [\#1436](https://github.com/ably/ably-cocoa/pull/1436) ([ikbalkaya](https://github.com/ikbalkaya))
-- Jazzy docs generation workflow [\#1428](https://github.com/ably/ably-cocoa/pull/1428) ([maratal](https://github.com/maratal))
-- Fix nonexistent version number in readme SPM instructions [\#1324](https://github.com/ably/ably-cocoa/pull/1324) ([lawrence-forooghian](https://github.com/lawrence-forooghian))
+- Fix symlink command on contributing guide [\#1436](https://github.com/ably/ably-pubsub-cocoa/pull/1436) ([ikbalkaya](https://github.com/ikbalkaya))
+- Jazzy docs generation workflow [\#1428](https://github.com/ably/ably-pubsub-cocoa/pull/1428) ([maratal](https://github.com/maratal))
+- Fix nonexistent version number in readme SPM instructions [\#1324](https://github.com/ably/ably-pubsub-cocoa/pull/1324) ([lawrence-forooghian](https://github.com/lawrence-forooghian))
 
-## [1.2.10](https://github.com/ably/ably-cocoa/tree/1.2.10)
+## [1.2.10](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.10)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.9...1.2.10)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.9...1.2.10)
 
 **Revert Bug Fix:**
 
-We made a change, released in [version 1.2.8](https://github.com/ably/ably-cocoa/releases/tag/1.2.8), which we suspect has been causing issues for some customers.
+We made a change, released in [version 1.2.8](https://github.com/ably/ably-pubsub-cocoa/releases/tag/1.2.8), which we suspect has been causing issues for some customers.
 This release reverts that change.
 
-- Reverting Fix/1177 full reset rsh3g2a only [\#1272](https://github.com/ably/ably-cocoa/pull/1272) ([maratal](https://github.com/maratal))
+- Reverting Fix/1177 full reset rsh3g2a only [\#1272](https://github.com/ably/ably-pubsub-cocoa/pull/1272) ([maratal](https://github.com/maratal))
 
-## [1.2.9](https://github.com/ably/ably-cocoa/tree/1.2.9)
+## [1.2.9](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.9)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.8...1.2.9)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.8...1.2.9)
 
 **Bug Fix:**
 
@@ -632,584 +632,584 @@ for a single Ably client instance.
 History REST requests were incorrectly returning encrypted payloads,
 despite encryption having been enabled via the Realtime channel `setOptions` API.
 
-- **Bug**: Updating `ARTRealtimeChannel`'s options doesn't update the options of its `ARTRestChannelInternal` [\#1265](https://github.com/ably/ably-cocoa/issues/1265)
-- **Fix**: When setting realtime channel options, pass through to REST channel [\#1266](https://github.com/ably/ably-cocoa/pull/1266) ([lawrence-forooghian](https://github.com/lawrence-forooghian))
+- **Bug**: Updating `ARTRealtimeChannel`'s options doesn't update the options of its `ARTRestChannelInternal` [\#1265](https://github.com/ably/ably-pubsub-cocoa/issues/1265)
+- **Fix**: When setting realtime channel options, pass through to REST channel [\#1266](https://github.com/ably/ably-pubsub-cocoa/pull/1266) ([lawrence-forooghian](https://github.com/lawrence-forooghian))
 
-## [1.2.8](https://github.com/ably/ably-cocoa/tree/1.2.8)
+## [1.2.8](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.8)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.7...1.2.8)
-
-**Implemented enhancements:**
-
-- Rename `ARTDeviceTokenKey` to `ARTAPNSDeviceTokenKey` [\#1209](https://github.com/ably/ably-cocoa/issues/1209)
-- Deprecation: Replace usages of deprecated kCCAlgorithmAES128 with kCCAlgorithmAES [\#1199](https://github.com/ably/ably-cocoa/issues/1199)
-- Add support for remembered REST fallback host [\#815](https://github.com/ably/ably-cocoa/issues/815)
-- Ensure request method accepts UPDATE, PATCH & DELETE verbs [\#780](https://github.com/ably/ably-cocoa/issues/780)
-
-**Fixed bugs:**
-
-- Calling state's machine activation callback upon push device details failure [\#1236](https://github.com/ably/ably-cocoa/issues/1236)
-- Push device deregistration does not clear/ reset device details  [\#1177](https://github.com/ably/ably-cocoa/issues/1177)
-
-**Closed issues:**
-
-- Check ability of using `ably-cocoa` in SwiftUI projects [\#1254](https://github.com/ably/ably-cocoa/issues/1254)
-- Improve test file structure and naming [\#1203](https://github.com/ably/ably-cocoa/issues/1203)
-- Run static analysis for builds in CI [\#1202](https://github.com/ably/ably-cocoa/issues/1202)
-- Investigate how we might get rid of the Quick testing framework [\#1201](https://github.com/ably/ably-cocoa/issues/1201)
-
-**Merged pull requests:**
-
-- Fix/1177 full reset device details \(RSH3g2a only\) [\#1259](https://github.com/ably/ably-cocoa/pull/1259) ([maratal](https://github.com/maratal))
-- Improve test file structure and naming [\#1252](https://github.com/ably/ably-cocoa/pull/1252) ([lawrence-forooghian](https://github.com/lawrence-forooghian))
-- Treat warnings as errors across the codebase [\#1249](https://github.com/ably/ably-cocoa/pull/1249) ([lawrence-forooghian](https://github.com/lawrence-forooghian))
-- Remove the Quick testing framework [\#1240](https://github.com/ably/ably-cocoa/pull/1240) ([lawrence-forooghian](https://github.com/lawrence-forooghian))
-- Fix Carthage \#3019 workaround for Xcode 13 [\#1235](https://github.com/ably/ably-cocoa/pull/1235) ([lawrence-forooghian](https://github.com/lawrence-forooghian))
-- Feature/1209 device token key [\#1215](https://github.com/ably/ably-cocoa/pull/1215) ([maratal](https://github.com/maratal))
-- Replaced deprecated kCCAlgorithmAES128 with kCCAlgorithmAES [\#1214](https://github.com/ably/ably-cocoa/pull/1214) ([maratal](https://github.com/maratal))
-- Turned on static analyser after build [\#1213](https://github.com/ably/ably-cocoa/pull/1213) ([maratal](https://github.com/maratal))
-
-## [1.2.7](https://github.com/ably/ably-cocoa/tree/1.2.7)
-
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.6...1.2.7)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.7...1.2.8)
 
 **Implemented enhancements:**
 
-- Stop base64-encoding authorization headers unnecessarily [\#1185](https://github.com/ably/ably-cocoa/issues/1185)
-- Conflict with XAspect with `HAVE_CONFIG_H` macro [\#1161](https://github.com/ably/ably-cocoa/issues/1161)
-- Blocks supplied as properties or method arguments should have typedef [\#1032](https://github.com/ably/ably-cocoa/issues/1032)
-- Unused function warnings in xdelta3.x when Ably added via CocoaPods - Unused Entity Issue [\#1031](https://github.com/ably/ably-cocoa/issues/1031)
-- Reduce library dependencies [\#949](https://github.com/ably/ably-cocoa/issues/949)
-- Improve error message for invalid state operations [\#843](https://github.com/ably/ably-cocoa/issues/843)
-- Finish implementing TI3 [\#760](https://github.com/ably/ably-cocoa/issues/760)
-- Update Stats fields with latest MessageTraffic types [\#732](https://github.com/ably/ably-cocoa/issues/732)
-- Address issues raised by Xcode's static analyzer [\#694](https://github.com/ably/ably-cocoa/issues/694)
-- Quick Documentation: add headerdoc comments [\#298](https://github.com/ably/ably-cocoa/issues/298)
+- Rename `ARTDeviceTokenKey` to `ARTAPNSDeviceTokenKey` [\#1209](https://github.com/ably/ably-pubsub-cocoa/issues/1209)
+- Deprecation: Replace usages of deprecated kCCAlgorithmAES128 with kCCAlgorithmAES [\#1199](https://github.com/ably/ably-pubsub-cocoa/issues/1199)
+- Add support for remembered REST fallback host [\#815](https://github.com/ably/ably-pubsub-cocoa/issues/815)
+- Ensure request method accepts UPDATE, PATCH & DELETE verbs [\#780](https://github.com/ably/ably-pubsub-cocoa/issues/780)
 
 **Fixed bugs:**
 
-- Encrypt messages if a new ARTRealtimeChannelOptions or ARTChannelOptions containing cipher is set [\#1207](https://github.com/ably/ably-cocoa/issues/1207)
-- Prebuilt `Ably.framework` from `make carthage_package` doesn't work in Xcode projects [\#1168](https://github.com/ably/ably-cocoa/issues/1168)
-- Library version identifier invalid [\#900](https://github.com/ably/ably-cocoa/issues/900)
-- Check RTN15c3 implementation [\#847](https://github.com/ably/ably-cocoa/issues/847)
-- when using authUrl with authMethod=POST, authParams are sent JSON-encoded, not form-encoded [\#690](https://github.com/ably/ably-cocoa/issues/690)
+- Calling state's machine activation callback upon push device details failure [\#1236](https://github.com/ably/ably-pubsub-cocoa/issues/1236)
+- Push device deregistration does not clear/ reset device details  [\#1177](https://github.com/ably/ably-pubsub-cocoa/issues/1177)
 
 **Closed issues:**
 
-- Add Swift Package Manager badges to README.md [\#1204](https://github.com/ably/ably-cocoa/issues/1204)
-- NSSecureCoding NSObject bypasses security [\#1188](https://github.com/ably/ably-cocoa/issues/1188)
-- Add Ably-cocoa swift package to Swift Package Index [\#1141](https://github.com/ably/ably-cocoa/issues/1141)
-- App Store upload problem - non-public API use [\#1104](https://github.com/ably/ably-cocoa/issues/1104)
-- Memory leak\(s\) when using event emitters [\#1099](https://github.com/ably/ably-cocoa/issues/1099)
-- build warning - treating a forced downcast to 'ARTClientOptions' as optional will never produce 'nil' [\#1035](https://github.com/ably/ably-cocoa/issues/1035)
-- Warnings about deprecations when used in a Mac Catalyst app [\#1003](https://github.com/ably/ably-cocoa/issues/1003)
-- Possible race conditions in Test Suite [\#912](https://github.com/ably/ably-cocoa/issues/912)
+- Check ability of using `ably-cocoa` in SwiftUI projects [\#1254](https://github.com/ably/ably-pubsub-cocoa/issues/1254)
+- Improve test file structure and naming [\#1203](https://github.com/ably/ably-pubsub-cocoa/issues/1203)
+- Run static analysis for builds in CI [\#1202](https://github.com/ably/ably-pubsub-cocoa/issues/1202)
+- Investigate how we might get rid of the Quick testing framework [\#1201](https://github.com/ably/ably-pubsub-cocoa/issues/1201)
 
 **Merged pull requests:**
 
-- Fix `ARTChannel.setOptions` and `ARTRealtimeChannel.setOptions`: Recreate ARTDataEncoder on ARTChannel options update [\#1208](https://github.com/ably/ably-cocoa/pull/1208) ([lukasz-szyszkowski](https://github.com/lukasz-szyszkowski))
-- Add Swift Package Index badges [\#1205](https://github.com/ably/ably-cocoa/pull/1205) ([lukasz-szyszkowski](https://github.com/lukasz-szyszkowski))
-- Fix/694 static analyser issues [\#1198](https://github.com/ably/ably-cocoa/pull/1198) ([maratal](https://github.com/maratal))
-- Log message text fixed. [\#1197](https://github.com/ably/ably-cocoa/pull/1197) ([maratal](https://github.com/maratal))
-- Removed optional base64 auth header [\#1195](https://github.com/ably/ably-cocoa/pull/1195) ([maratal](https://github.com/maratal))
-- Fix/1188 Added allowed class for NSKeyedUnarchiver [\#1194](https://github.com/ably/ably-cocoa/pull/1194) ([maratal](https://github.com/maratal))
-- Added Xcodebuild Logs uploading step [\#1192](https://github.com/ably/ably-cocoa/pull/1192) ([maratal](https://github.com/maratal))
-- Make sure we all use the same version of Fastlane [\#1189](https://github.com/ably/ably-cocoa/pull/1189) ([lawrence-forooghian](https://github.com/lawrence-forooghian))
-- Assure new secret to be created only together with the deviceId [\#1187](https://github.com/ably/ably-cocoa/pull/1187) ([maratal](https://github.com/maratal))
-- Copied descriptions from ably.com/documentation/realtime/types [\#1176](https://github.com/ably/ably-cocoa/pull/1176) ([maratal](https://github.com/maratal))
-- New stats fields [\#1175](https://github.com/ably/ably-cocoa/pull/1175) ([maratal](https://github.com/maratal))
-- Reattaching channels in compliance with RTN15c3 [\#1172](https://github.com/ably/ably-cocoa/pull/1172) ([maratal](https://github.com/maratal))
-- 1003 mac catalyst warnings [\#1171](https://github.com/ably/ably-cocoa/pull/1171) ([maratal](https://github.com/maratal))
-- Documentation: Add link to example app, and clarify `ARTPushRegistererDelegate` usage [\#1170](https://github.com/ably/ably-cocoa/pull/1170) ([ben-xD](https://github.com/ben-xD))
-- Blocks typedef [\#1166](https://github.com/ably/ably-cocoa/pull/1166) ([maratal](https://github.com/maratal))
+- Fix/1177 full reset device details \(RSH3g2a only\) [\#1259](https://github.com/ably/ably-pubsub-cocoa/pull/1259) ([maratal](https://github.com/maratal))
+- Improve test file structure and naming [\#1252](https://github.com/ably/ably-pubsub-cocoa/pull/1252) ([lawrence-forooghian](https://github.com/lawrence-forooghian))
+- Treat warnings as errors across the codebase [\#1249](https://github.com/ably/ably-pubsub-cocoa/pull/1249) ([lawrence-forooghian](https://github.com/lawrence-forooghian))
+- Remove the Quick testing framework [\#1240](https://github.com/ably/ably-pubsub-cocoa/pull/1240) ([lawrence-forooghian](https://github.com/lawrence-forooghian))
+- Fix Carthage \#3019 workaround for Xcode 13 [\#1235](https://github.com/ably/ably-pubsub-cocoa/pull/1235) ([lawrence-forooghian](https://github.com/lawrence-forooghian))
+- Feature/1209 device token key [\#1215](https://github.com/ably/ably-pubsub-cocoa/pull/1215) ([maratal](https://github.com/maratal))
+- Replaced deprecated kCCAlgorithmAES128 with kCCAlgorithmAES [\#1214](https://github.com/ably/ably-pubsub-cocoa/pull/1214) ([maratal](https://github.com/maratal))
+- Turned on static analyser after build [\#1213](https://github.com/ably/ably-pubsub-cocoa/pull/1213) ([maratal](https://github.com/maratal))
 
-## [1.2.6](https://github.com/ably/ably-cocoa/tree/1.2.6)
+## [1.2.7](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.7)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.5...1.2.6)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.6...1.2.7)
+
+**Implemented enhancements:**
+
+- Stop base64-encoding authorization headers unnecessarily [\#1185](https://github.com/ably/ably-pubsub-cocoa/issues/1185)
+- Conflict with XAspect with `HAVE_CONFIG_H` macro [\#1161](https://github.com/ably/ably-pubsub-cocoa/issues/1161)
+- Blocks supplied as properties or method arguments should have typedef [\#1032](https://github.com/ably/ably-pubsub-cocoa/issues/1032)
+- Unused function warnings in xdelta3.x when Ably added via CocoaPods - Unused Entity Issue [\#1031](https://github.com/ably/ably-pubsub-cocoa/issues/1031)
+- Reduce library dependencies [\#949](https://github.com/ably/ably-pubsub-cocoa/issues/949)
+- Improve error message for invalid state operations [\#843](https://github.com/ably/ably-pubsub-cocoa/issues/843)
+- Finish implementing TI3 [\#760](https://github.com/ably/ably-pubsub-cocoa/issues/760)
+- Update Stats fields with latest MessageTraffic types [\#732](https://github.com/ably/ably-pubsub-cocoa/issues/732)
+- Address issues raised by Xcode's static analyzer [\#694](https://github.com/ably/ably-pubsub-cocoa/issues/694)
+- Quick Documentation: add headerdoc comments [\#298](https://github.com/ably/ably-pubsub-cocoa/issues/298)
+
+**Fixed bugs:**
+
+- Encrypt messages if a new ARTRealtimeChannelOptions or ARTChannelOptions containing cipher is set [\#1207](https://github.com/ably/ably-pubsub-cocoa/issues/1207)
+- Prebuilt `Ably.framework` from `make carthage_package` doesn't work in Xcode projects [\#1168](https://github.com/ably/ably-pubsub-cocoa/issues/1168)
+- Library version identifier invalid [\#900](https://github.com/ably/ably-pubsub-cocoa/issues/900)
+- Check RTN15c3 implementation [\#847](https://github.com/ably/ably-pubsub-cocoa/issues/847)
+- when using authUrl with authMethod=POST, authParams are sent JSON-encoded, not form-encoded [\#690](https://github.com/ably/ably-pubsub-cocoa/issues/690)
+
+**Closed issues:**
+
+- Add Swift Package Manager badges to README.md [\#1204](https://github.com/ably/ably-pubsub-cocoa/issues/1204)
+- NSSecureCoding NSObject bypasses security [\#1188](https://github.com/ably/ably-pubsub-cocoa/issues/1188)
+- Add Ably-cocoa swift package to Swift Package Index [\#1141](https://github.com/ably/ably-pubsub-cocoa/issues/1141)
+- App Store upload problem - non-public API use [\#1104](https://github.com/ably/ably-pubsub-cocoa/issues/1104)
+- Memory leak\(s\) when using event emitters [\#1099](https://github.com/ably/ably-pubsub-cocoa/issues/1099)
+- build warning - treating a forced downcast to 'ARTClientOptions' as optional will never produce 'nil' [\#1035](https://github.com/ably/ably-pubsub-cocoa/issues/1035)
+- Warnings about deprecations when used in a Mac Catalyst app [\#1003](https://github.com/ably/ably-pubsub-cocoa/issues/1003)
+- Possible race conditions in Test Suite [\#912](https://github.com/ably/ably-pubsub-cocoa/issues/912)
 
 **Merged pull requests:**
 
-- Update AblyDeltaCodec dependency to 1.3.1 [\#1165](https://github.com/ably/ably-cocoa/pull/1165) ([ben-xD](https://github.com/ben-xD))
+- Fix `ARTChannel.setOptions` and `ARTRealtimeChannel.setOptions`: Recreate ARTDataEncoder on ARTChannel options update [\#1208](https://github.com/ably/ably-pubsub-cocoa/pull/1208) ([lukasz-szyszkowski](https://github.com/lukasz-szyszkowski))
+- Add Swift Package Index badges [\#1205](https://github.com/ably/ably-pubsub-cocoa/pull/1205) ([lukasz-szyszkowski](https://github.com/lukasz-szyszkowski))
+- Fix/694 static analyser issues [\#1198](https://github.com/ably/ably-pubsub-cocoa/pull/1198) ([maratal](https://github.com/maratal))
+- Log message text fixed. [\#1197](https://github.com/ably/ably-pubsub-cocoa/pull/1197) ([maratal](https://github.com/maratal))
+- Removed optional base64 auth header [\#1195](https://github.com/ably/ably-pubsub-cocoa/pull/1195) ([maratal](https://github.com/maratal))
+- Fix/1188 Added allowed class for NSKeyedUnarchiver [\#1194](https://github.com/ably/ably-pubsub-cocoa/pull/1194) ([maratal](https://github.com/maratal))
+- Added Xcodebuild Logs uploading step [\#1192](https://github.com/ably/ably-pubsub-cocoa/pull/1192) ([maratal](https://github.com/maratal))
+- Make sure we all use the same version of Fastlane [\#1189](https://github.com/ably/ably-pubsub-cocoa/pull/1189) ([lawrence-forooghian](https://github.com/lawrence-forooghian))
+- Assure new secret to be created only together with the deviceId [\#1187](https://github.com/ably/ably-pubsub-cocoa/pull/1187) ([maratal](https://github.com/maratal))
+- Copied descriptions from ably.com/documentation/realtime/types [\#1176](https://github.com/ably/ably-pubsub-cocoa/pull/1176) ([maratal](https://github.com/maratal))
+- New stats fields [\#1175](https://github.com/ably/ably-pubsub-cocoa/pull/1175) ([maratal](https://github.com/maratal))
+- Reattaching channels in compliance with RTN15c3 [\#1172](https://github.com/ably/ably-pubsub-cocoa/pull/1172) ([maratal](https://github.com/maratal))
+- 1003 mac catalyst warnings [\#1171](https://github.com/ably/ably-pubsub-cocoa/pull/1171) ([maratal](https://github.com/maratal))
+- Documentation: Add link to example app, and clarify `ARTPushRegistererDelegate` usage [\#1170](https://github.com/ably/ably-pubsub-cocoa/pull/1170) ([ben-xD](https://github.com/ben-xD))
+- Blocks typedef [\#1166](https://github.com/ably/ably-pubsub-cocoa/pull/1166) ([maratal](https://github.com/maratal))
 
-## [1.2.5](https://github.com/ably/ably-cocoa/tree/1.2.5)
+## [1.2.6](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.6)
+
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.5...1.2.6)
+
+**Merged pull requests:**
+
+- Update AblyDeltaCodec dependency to 1.3.1 [\#1165](https://github.com/ably/ably-pubsub-cocoa/pull/1165) ([ben-xD](https://github.com/ben-xD))
+
+## [1.2.5](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.5)
 
 This release makes **breaking changes** to runtime device support requirements:
 
 - **iOS 10.0** or higher is now required (previously it was 9.0)
 - **macOS 10.11** or higher is now required (previously it was 10.10)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.4...1.2.5)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.4...1.2.5)
 
 **Implemented enhancements:**
 
-- Add transportParams to ClientOptions [\#1112](https://github.com/ably/ably-cocoa/issues/1112)
-- Implement RSC7d \(Ably-Agent header\) [\#1111](https://github.com/ably/ably-cocoa/issues/1111)
-- Defaults: Generate environment fallbacks [\#1066](https://github.com/ably/ably-cocoa/issues/1066)
-- Make `stateChange` nonnull? [\#1017](https://github.com/ably/ably-cocoa/issues/1017)
-- Compile SocketRocket with main library [\#805](https://github.com/ably/ably-cocoa/issues/805)
+- Add transportParams to ClientOptions [\#1112](https://github.com/ably/ably-pubsub-cocoa/issues/1112)
+- Implement RSC7d \(Ably-Agent header\) [\#1111](https://github.com/ably/ably-pubsub-cocoa/issues/1111)
+- Defaults: Generate environment fallbacks [\#1066](https://github.com/ably/ably-pubsub-cocoa/issues/1066)
+- Make `stateChange` nonnull? [\#1017](https://github.com/ably/ably-pubsub-cocoa/issues/1017)
+- Compile SocketRocket with main library [\#805](https://github.com/ably/ably-pubsub-cocoa/issues/805)
 
 **Fixed bugs:**
 
-- Memory leaks in the Realtime client [\#1129](https://github.com/ably/ably-cocoa/issues/1129)
-- Token based authentication always results in 40101 Request mac does not match [\#1093](https://github.com/ably/ably-cocoa/issues/1093)
-- Potentially insecure usage of the NSURLSession API [\#1079](https://github.com/ably/ably-cocoa/issues/1079)
-- Incorrect import reference? [\#1072](https://github.com/ably/ably-cocoa/issues/1072)
+- Memory leaks in the Realtime client [\#1129](https://github.com/ably/ably-pubsub-cocoa/issues/1129)
+- Token based authentication always results in 40101 Request mac does not match [\#1093](https://github.com/ably/ably-pubsub-cocoa/issues/1093)
+- Potentially insecure usage of the NSURLSession API [\#1079](https://github.com/ably/ably-pubsub-cocoa/issues/1079)
+- Incorrect import reference? [\#1072](https://github.com/ably/ably-pubsub-cocoa/issues/1072)
 
 **Closed issues:**
 
-- Expose `device` property in `ARTRealtime.h` [\#1154](https://github.com/ably/ably-cocoa/issues/1154)
-- Remove `ULID` dependency \(replace usage with `NSUUID`\) [\#1127](https://github.com/ably/ably-cocoa/issues/1127)
-- Implement ErrorInfo URLs to help debug issues [\#1125](https://github.com/ably/ably-cocoa/issues/1125)
-- Carthage build for Nimble framework with deprecated linker flag -lswiftXCTest [\#1123](https://github.com/ably/ably-cocoa/issues/1123)
-- Implement RSC15j \(fallback host header\) [\#1116](https://github.com/ably/ably-cocoa/issues/1116)
-- Implement RSC15f \(successful fallback host\) [\#1115](https://github.com/ably/ably-cocoa/issues/1115)
-- In last version, connecting to server takes too long time on old devices [\#1102](https://github.com/ably/ably-cocoa/issues/1102)
-- Fail connection immediately if authorize\(\) called and 403 returned [\#1078](https://github.com/ably/ably-cocoa/issues/1078)
+- Expose `device` property in `ARTRealtime.h` [\#1154](https://github.com/ably/ably-pubsub-cocoa/issues/1154)
+- Remove `ULID` dependency \(replace usage with `NSUUID`\) [\#1127](https://github.com/ably/ably-pubsub-cocoa/issues/1127)
+- Implement ErrorInfo URLs to help debug issues [\#1125](https://github.com/ably/ably-pubsub-cocoa/issues/1125)
+- Carthage build for Nimble framework with deprecated linker flag -lswiftXCTest [\#1123](https://github.com/ably/ably-pubsub-cocoa/issues/1123)
+- Implement RSC15j \(fallback host header\) [\#1116](https://github.com/ably/ably-pubsub-cocoa/issues/1116)
+- Implement RSC15f \(successful fallback host\) [\#1115](https://github.com/ably/ably-pubsub-cocoa/issues/1115)
+- In last version, connecting to server takes too long time on old devices [\#1102](https://github.com/ably/ably-pubsub-cocoa/issues/1102)
+- Fail connection immediately if authorize\(\) called and 403 returned [\#1078](https://github.com/ably/ably-pubsub-cocoa/issues/1078)
 
 **Merged pull requests:**
 
-- Fix for potentially insecure usage of the NSURLSession API [\#1158](https://github.com/ably/ably-cocoa/pull/1158) ([maratal](https://github.com/maratal))
-- 1017 state change nonnull [\#1156](https://github.com/ably/ably-cocoa/pull/1156) ([maratal](https://github.com/maratal))
-- xcbkptlist removed [\#1155](https://github.com/ably/ably-cocoa/pull/1155) ([maratal](https://github.com/maratal))
-- Move deviceSecret into ARTLocalDevice [\#1153](https://github.com/ably/ably-cocoa/pull/1153) ([ben-xD](https://github.com/ben-xD))
-- Remove references to ULID in xcodeproj [\#1152](https://github.com/ably/ably-cocoa/pull/1152) ([maratal](https://github.com/maratal))
-- Store succeed fallback host as default for 10 minutes \(RSC15f\) [\#1150](https://github.com/ably/ably-cocoa/pull/1150) ([lukasz-szyszkowski](https://github.com/lukasz-szyszkowski))
-- Fix/1078 fail immediately on 403 [\#1149](https://github.com/ably/ably-cocoa/pull/1149) ([maratal](https://github.com/maratal))
-- \(RSC15j\) Add `Host` header for fallback hosts. [\#1148](https://github.com/ably/ably-cocoa/pull/1148) ([lukasz-szyszkowski](https://github.com/lukasz-szyszkowski))
-- Extending ErrorInfo with `href` and `requestId` [\#1147](https://github.com/ably/ably-cocoa/pull/1147) ([lukasz-szyszkowski](https://github.com/lukasz-szyszkowski))
-- Add transport params to client options \(RTC1f\) [\#1142](https://github.com/ably/ably-cocoa/pull/1142) ([lukasz-szyszkowski](https://github.com/lukasz-szyszkowski))
-- Swift Package Manager support [\#1136](https://github.com/ably/ably-cocoa/pull/1136) ([lukasz-szyszkowski](https://github.com/lukasz-szyszkowski))
-- Real time client memory leaks fixes [\#1130](https://github.com/ably/ably-cocoa/pull/1130) ([lukasz-szyszkowski](https://github.com/lukasz-szyszkowski))
-- Remove ULID dependency and replace usage with NSUUID [\#1128](https://github.com/ably/ably-cocoa/pull/1128) ([ben-xD](https://github.com/ben-xD))
-- Fix for deprecated linker flag for Nimble framework  [\#1124](https://github.com/ably/ably-cocoa/pull/1124) ([lukasz-szyszkowski](https://github.com/lukasz-szyszkowski))
-- Ably-Agent Header [\#1119](https://github.com/ably/ably-cocoa/pull/1119) ([maratal](https://github.com/maratal))
-- Environment fallback hosts [\#1113](https://github.com/ably/ably-cocoa/pull/1113) ([ricardopereira](https://github.com/ricardopereira))
-- Accept authURL response with timestamp argument as string [\#1097](https://github.com/ably/ably-cocoa/pull/1097) ([ricardopereira](https://github.com/ricardopereira))
+- Fix for potentially insecure usage of the NSURLSession API [\#1158](https://github.com/ably/ably-pubsub-cocoa/pull/1158) ([maratal](https://github.com/maratal))
+- 1017 state change nonnull [\#1156](https://github.com/ably/ably-pubsub-cocoa/pull/1156) ([maratal](https://github.com/maratal))
+- xcbkptlist removed [\#1155](https://github.com/ably/ably-pubsub-cocoa/pull/1155) ([maratal](https://github.com/maratal))
+- Move deviceSecret into ARTLocalDevice [\#1153](https://github.com/ably/ably-pubsub-cocoa/pull/1153) ([ben-xD](https://github.com/ben-xD))
+- Remove references to ULID in xcodeproj [\#1152](https://github.com/ably/ably-pubsub-cocoa/pull/1152) ([maratal](https://github.com/maratal))
+- Store succeed fallback host as default for 10 minutes \(RSC15f\) [\#1150](https://github.com/ably/ably-pubsub-cocoa/pull/1150) ([lukasz-szyszkowski](https://github.com/lukasz-szyszkowski))
+- Fix/1078 fail immediately on 403 [\#1149](https://github.com/ably/ably-pubsub-cocoa/pull/1149) ([maratal](https://github.com/maratal))
+- \(RSC15j\) Add `Host` header for fallback hosts. [\#1148](https://github.com/ably/ably-pubsub-cocoa/pull/1148) ([lukasz-szyszkowski](https://github.com/lukasz-szyszkowski))
+- Extending ErrorInfo with `href` and `requestId` [\#1147](https://github.com/ably/ably-pubsub-cocoa/pull/1147) ([lukasz-szyszkowski](https://github.com/lukasz-szyszkowski))
+- Add transport params to client options \(RTC1f\) [\#1142](https://github.com/ably/ably-pubsub-cocoa/pull/1142) ([lukasz-szyszkowski](https://github.com/lukasz-szyszkowski))
+- Swift Package Manager support [\#1136](https://github.com/ably/ably-pubsub-cocoa/pull/1136) ([lukasz-szyszkowski](https://github.com/lukasz-szyszkowski))
+- Real time client memory leaks fixes [\#1130](https://github.com/ably/ably-pubsub-cocoa/pull/1130) ([lukasz-szyszkowski](https://github.com/lukasz-szyszkowski))
+- Remove ULID dependency and replace usage with NSUUID [\#1128](https://github.com/ably/ably-pubsub-cocoa/pull/1128) ([ben-xD](https://github.com/ben-xD))
+- Fix for deprecated linker flag for Nimble framework  [\#1124](https://github.com/ably/ably-pubsub-cocoa/pull/1124) ([lukasz-szyszkowski](https://github.com/lukasz-szyszkowski))
+- Ably-Agent Header [\#1119](https://github.com/ably/ably-pubsub-cocoa/pull/1119) ([maratal](https://github.com/maratal))
+- Environment fallback hosts [\#1113](https://github.com/ably/ably-pubsub-cocoa/pull/1113) ([ricardopereira](https://github.com/ricardopereira))
+- Accept authURL response with timestamp argument as string [\#1097](https://github.com/ably/ably-pubsub-cocoa/pull/1097) ([ricardopereira](https://github.com/ricardopereira))
 
-## [1.2.4](https://github.com/ably/ably-cocoa/tree/1.2.4)
+## [1.2.4](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.4)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.3...1.2.4)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.3...1.2.4)
 
 **Fixed bugs:**
 
-- Common crash related to websocket failing with error [\#1083](https://github.com/ably/ably-cocoa/issues/1083), fixed by adding a `nil`-pointer check in [\#1098](https://github.com/ably/ably-cocoa/pull/1098) ([mikepulaski](https://github.com/mikepulaski))
-- Fix of `RSH3a2a1` implementation when the clientId doesn't change [\#1107](https://github.com/ably/ably-cocoa/pull/1107) ([ricardopereira](https://github.com/ricardopereira))
-- [not conforming to `RTL2g`] `realtime#close` emits detached event on an already detached channel [\#1088](https://github.com/ably/ably-cocoa/issues/1088), fixed by [\#1091](https://github.com/ably/ably-cocoa/pull/1091) ([ricardopereira](https://github.com/ricardopereira))
+- Common crash related to websocket failing with error [\#1083](https://github.com/ably/ably-pubsub-cocoa/issues/1083), fixed by adding a `nil`-pointer check in [\#1098](https://github.com/ably/ably-pubsub-cocoa/pull/1098) ([mikepulaski](https://github.com/mikepulaski))
+- Fix of `RSH3a2a1` implementation when the clientId doesn't change [\#1107](https://github.com/ably/ably-pubsub-cocoa/pull/1107) ([ricardopereira](https://github.com/ricardopereira))
+- [not conforming to `RTL2g`] `realtime#close` emits detached event on an already detached channel [\#1088](https://github.com/ably/ably-pubsub-cocoa/issues/1088), fixed by [\#1091](https://github.com/ably/ably-pubsub-cocoa/pull/1091) ([ricardopereira](https://github.com/ricardopereira))
 
 **Enhancements:**
 
-- Compliance with `RSL1m1` spec - Message should fill `clientId`, if unavailable, from Rest/Realtime instance [\#1108](https://github.com/ably/ably-cocoa/issues/1108), implemented by adding `X-Ably-ClientId` header to REST requests in [\#1110](https://github.com/ably/ably-cocoa/pull/1110) ([ricardopereira](https://github.com/ricardopereira))
-- Update SocketRocket dependency to 0.5.2-ably-8 [\#1087](https://github.com/ably/ably-cocoa/pull/1087) ([lawrence-forooghian](https://github.com/lawrence-forooghian))
+- Compliance with `RSL1m1` spec - Message should fill `clientId`, if unavailable, from Rest/Realtime instance [\#1108](https://github.com/ably/ably-pubsub-cocoa/issues/1108), implemented by adding `X-Ably-ClientId` header to REST requests in [\#1110](https://github.com/ably/ably-pubsub-cocoa/pull/1110) ([ricardopereira](https://github.com/ricardopereira))
+- Update SocketRocket dependency to 0.5.2-ably-8 [\#1087](https://github.com/ably/ably-pubsub-cocoa/pull/1087) ([lawrence-forooghian](https://github.com/lawrence-forooghian))
 
-## [1.2.3](https://github.com/ably/ably-cocoa/tree/1.2.3)
+## [1.2.3](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.3)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.2...1.2.3)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.2...1.2.3)
 
-_Fixes issue:_ Publishing messages with `authCallback` is broken after upgrading from 1.1.16 to 1.2.1 [\#1074](https://github.com/ably/ably-cocoa/issues/1074).
+_Fixes issue:_ Publishing messages with `authCallback` is broken after upgrading from 1.1.16 to 1.2.1 [\#1074](https://github.com/ably/ably-pubsub-cocoa/issues/1074).
 
-_Fixed by pull request:_ Fixes 40012 "Malformed message; invalid clientId" when message has no clientId and credentials can assume any clientId [\#1082](https://github.com/ably/ably-cocoa/pull/1082) ([ricardopereira](https://github.com/ricardopereira))
+_Fixed by pull request:_ Fixes 40012 "Malformed message; invalid clientId" when message has no clientId and credentials can assume any clientId [\#1082](https://github.com/ably/ably-pubsub-cocoa/pull/1082) ([ricardopereira](https://github.com/ricardopereira))
 
-## [1.2.2](https://github.com/ably/ably-cocoa/tree/1.2.2)
+## [1.2.2](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.2)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.1...1.2.2)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.1...1.2.2)
 
 **Highlights**
 
 ***Supports Build with Xcode 12***
 
-Fixes the Carthage build. Increases the minimum deployment target for iOS, from 8 to 9 (conflated in [\#1075](https://github.com/ably/ably-cocoa/pull/1075)).
+Fixes the Carthage build. Increases the minimum deployment target for iOS, from 8 to 9 (conflated in [\#1075](https://github.com/ably/ably-pubsub-cocoa/pull/1075)).
 
 ***New Push Notification Registration API for apps using the SwiftUI App Lifecycle***
 
 For new Swift-based apps created with Xcode 12, the default lifecycle is SwiftUI App.
 This means that the previous approach we supported of conforming to `ARTPushRegistererDelegate` on your `UIApplicationDelegate` no longer works.
 
-Going forward apps should use the `pushRegistererDelegate` property on client options to supply this delegate ([\#1075](https://github.com/ably/ably-cocoa/pull/1075)).
+Going forward apps should use the `pushRegistererDelegate` property on client options to supply this delegate ([\#1075](https://github.com/ably/ably-pubsub-cocoa/pull/1075)).
 
 ***Reduced Dependencies***
 
-We've removed both KSCrash ([\#1073](https://github.com/ably/ably-cocoa/pull/1073)) and SAMKeychain ([\#1067](https://github.com/ably/ably-cocoa/pull/1067)).
+We've removed both KSCrash ([\#1073](https://github.com/ably/ably-pubsub-cocoa/pull/1073)) and SAMKeychain ([\#1067](https://github.com/ably/ably-pubsub-cocoa/pull/1067)).
 
 In Cocoa there is no effective way to catch selectively only those exceptions that occur within the library, and the attempt to do that using KCrash was interfering with app developers' own exception handling. Our advice is that app developers incorporate their own application-wide exception handling and crash reporting.
 
 **Fixed issues:**
 
-- Deadlock getting ARTRealtimeChannel between two dispatch\_sync \(ui queue vs ably main queue\) [\#1029](https://github.com/ably/ably-cocoa/issues/1029)
-- Push Notification Registration via `ARTPushRegistererDelegate` don't work in iOS 14 when instantiated via @UIApplicationDelegateAdaptor [\#1069](https://github.com/ably/ably-cocoa/issues/1069)
-- Conflict KSCrashAblyFork [\#1068](https://github.com/ably/ably-cocoa/issues/1068)
+- Deadlock getting ARTRealtimeChannel between two dispatch\_sync \(ui queue vs ably main queue\) [\#1029](https://github.com/ably/ably-pubsub-cocoa/issues/1029)
+- Push Notification Registration via `ARTPushRegistererDelegate` don't work in iOS 14 when instantiated via @UIApplicationDelegateAdaptor [\#1069](https://github.com/ably/ably-pubsub-cocoa/issues/1069)
+- Conflict KSCrashAblyFork [\#1068](https://github.com/ably/ably-pubsub-cocoa/issues/1068)
 
 **Merged pull requests:**
 
-- Support ARTPushRegistererDelegate on iOS 14 [\#1075](https://github.com/ably/ably-cocoa/pull/1075) ([QuintinWillison](https://github.com/QuintinWillison))
-- Remove KSCrash and unhandled exception handlers [\#1073](https://github.com/ably/ably-cocoa/pull/1073) ([QuintinWillison](https://github.com/QuintinWillison))
-- Remove SAMKeychain dependency and use internal solution [\#1067](https://github.com/ably/ably-cocoa/pull/1067) ([ricardopereira](https://github.com/ricardopereira))
-- Fix Push State Machine delegate syncing the main queue [\#1064](https://github.com/ably/ably-cocoa/pull/1064) ([ricardopereira](https://github.com/ricardopereira))
-- Add `use\_frameworks!` recommendation [\#1061](https://github.com/ably/ably-cocoa/pull/1061) ([kavalerov](https://github.com/kavalerov))
-- Correct CocoaPods instruction [\#1060](https://github.com/ably/ably-cocoa/pull/1060) ([kavalerov](https://github.com/kavalerov))
-- Bump protocol version to 1.2 [\#1058](https://github.com/ably/ably-cocoa/pull/1058) ([QuintinWillison](https://github.com/QuintinWillison))
-- Fix some `waitUntil` error "expects its completion closure to be only called once" [\#1028](https://github.com/ably/ably-cocoa/pull/1028) ([ricardopereira](https://github.com/ricardopereira))
+- Support ARTPushRegistererDelegate on iOS 14 [\#1075](https://github.com/ably/ably-pubsub-cocoa/pull/1075) ([QuintinWillison](https://github.com/QuintinWillison))
+- Remove KSCrash and unhandled exception handlers [\#1073](https://github.com/ably/ably-pubsub-cocoa/pull/1073) ([QuintinWillison](https://github.com/QuintinWillison))
+- Remove SAMKeychain dependency and use internal solution [\#1067](https://github.com/ably/ably-pubsub-cocoa/pull/1067) ([ricardopereira](https://github.com/ricardopereira))
+- Fix Push State Machine delegate syncing the main queue [\#1064](https://github.com/ably/ably-pubsub-cocoa/pull/1064) ([ricardopereira](https://github.com/ricardopereira))
+- Add `use\_frameworks!` recommendation [\#1061](https://github.com/ably/ably-pubsub-cocoa/pull/1061) ([kavalerov](https://github.com/kavalerov))
+- Correct CocoaPods instruction [\#1060](https://github.com/ably/ably-pubsub-cocoa/pull/1060) ([kavalerov](https://github.com/kavalerov))
+- Bump protocol version to 1.2 [\#1058](https://github.com/ably/ably-pubsub-cocoa/pull/1058) ([QuintinWillison](https://github.com/QuintinWillison))
+- Fix some `waitUntil` error "expects its completion closure to be only called once" [\#1028](https://github.com/ably/ably-pubsub-cocoa/pull/1028) ([ricardopereira](https://github.com/ricardopereira))
 
-## [1.2.1](https://github.com/ably/ably-cocoa/tree/1.2.1)
+## [1.2.1](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.1)
 
 Fixes issues in our uncaught exception handling code:
 
-- **Fix** Data race in ARTstartHandlingUncaughtExceptions [\#1030](https://github.com/ably/ably-cocoa/issues/1030)
-- **Merge** Improve unhandled exception handling code [\#1056](https://github.com/ably/ably-cocoa/pull/1056) ([QuintinWillison](https://github.com/QuintinWillison))
+- **Fix** Data race in ARTstartHandlingUncaughtExceptions [\#1030](https://github.com/ably/ably-pubsub-cocoa/issues/1030)
+- **Merge** Improve unhandled exception handling code [\#1056](https://github.com/ably/ably-pubsub-cocoa/pull/1056) ([QuintinWillison](https://github.com/QuintinWillison))
 
 Also some improvements to our test suite:
 
-- **Fix** Flaky test: message receiving order [\#977](https://github.com/ably/ably-cocoa/issues/977)
-- **Merge** Test suite: fix lib version [\#1026](https://github.com/ably/ably-cocoa/pull/1026) ([ricardopereira](https://github.com/ricardopereira))
-- **Merge** Should not wait for AblyTest.options in 'context' scope [\#1023](https://github.com/ably/ably-cocoa/pull/1023) ([ricardopereira](https://github.com/ricardopereira))
-- **Merge** Fix 977 [\#1022](https://github.com/ably/ably-cocoa/pull/1022) ([ricardopereira](https://github.com/ricardopereira))
+- **Fix** Flaky test: message receiving order [\#977](https://github.com/ably/ably-pubsub-cocoa/issues/977)
+- **Merge** Test suite: fix lib version [\#1026](https://github.com/ably/ably-pubsub-cocoa/pull/1026) ([ricardopereira](https://github.com/ricardopereira))
+- **Merge** Should not wait for AblyTest.options in 'context' scope [\#1023](https://github.com/ably/ably-pubsub-cocoa/pull/1023) ([ricardopereira](https://github.com/ricardopereira))
+- **Merge** Fix 977 [\#1022](https://github.com/ably/ably-pubsub-cocoa/pull/1022) ([ricardopereira](https://github.com/ricardopereira))
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.2.0...1.2.1)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.2.0...1.2.1)
 
-## [1.2.0](https://github.com/ably/ably-cocoa/tree/1.2.0)
+## [1.2.0](https://github.com/ably/ably-pubsub-cocoa/tree/1.2.0)
 
 Adds the capability to subscribe to a channel in delta mode.
 
 Subscribing to a channel in delta mode enables [delta compression](https://www.ably.io/documentation/realtime/channels/channel-parameters/deltas). This is a way for a client to subscribe to a channel so that message payloads sent contain only the difference (ie the delta) between the present message and the previous message on the channel.
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.1.23...1.2.0)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.1.23...1.2.0)
 
-## [1.1.23](https://github.com/ably/ably-cocoa/tree/1.1.23)
+## [1.1.23](https://github.com/ably/ably-pubsub-cocoa/tree/1.1.23)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.1.22...1.1.23)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.1.22...1.1.23)
 
 **Implemented enhancements:**
 
-- Remove queueing messages in a channel-level queue [\#894](https://github.com/ably/ably-cocoa/issues/894)
+- Remove queueing messages in a channel-level queue [\#894](https://github.com/ably/ably-pubsub-cocoa/issues/894)
 
 **Fixed bugs:**
 
-- lib fails all the user's channels on transition to connecting/disconnected if queueMessages is disabled? [\#1004](https://github.com/ably/ably-cocoa/issues/1004)
+- lib fails all the user's channels on transition to connecting/disconnected if queueMessages is disabled? [\#1004](https://github.com/ably/ably-pubsub-cocoa/issues/1004)
 
 **Closed issues:**
 
-- Implement push spec update https://github.com/ably/docs/pull/710 [\#876](https://github.com/ably/ably-cocoa/issues/876)
+- Implement push spec update https://github.com/ably/docs/pull/710 [\#876](https://github.com/ably/ably-pubsub-cocoa/issues/876)
 
 **Merged pull requests:**
 
-- Refine release procedure [\#1014](https://github.com/ably/ably-cocoa/pull/1014) ([QuintinWillison](https://github.com/QuintinWillison))
-- Fix 'queueMessages' expected behaviour [\#1005](https://github.com/ably/ably-cocoa/pull/1005) ([ricardopereira](https://github.com/ricardopereira))
+- Refine release procedure [\#1014](https://github.com/ably/ably-pubsub-cocoa/pull/1014) ([QuintinWillison](https://github.com/QuintinWillison))
+- Fix 'queueMessages' expected behaviour [\#1005](https://github.com/ably/ably-pubsub-cocoa/pull/1005) ([ricardopereira](https://github.com/ricardopereira))
 
-## [1.1.22](https://github.com/ably/ably-cocoa/tree/1.1.22)
+## [1.1.22](https://github.com/ably/ably-pubsub-cocoa/tree/1.1.22)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.1.21...1.1.22)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.1.21...1.1.22)
 
 **Fixed bugs:**
 
-- Custom logger not working? [\#1010](https://github.com/ably/ably-cocoa/issues/1010)
+- Custom logger not working? [\#1010](https://github.com/ably/ably-pubsub-cocoa/issues/1010)
 
 **Closed issues:**
 
-- request\_id in REST requests [\#1001](https://github.com/ably/ably-cocoa/issues/1001)
-- Memory leak issues preventing destroying client [\#997](https://github.com/ably/ably-cocoa/issues/997)
+- request\_id in REST requests [\#1001](https://github.com/ably/ably-pubsub-cocoa/issues/1001)
+- Memory leak issues preventing destroying client [\#997](https://github.com/ably/ably-pubsub-cocoa/issues/997)
 
 **Merged pull requests:**
 
-- Test suite: keep channel name prefix for current ClientOptions while calling 'setupOptions' and other improvements [\#1009](https://github.com/ably/ably-cocoa/pull/1009) ([ricardopereira](https://github.com/ricardopereira))
-- Avoid leak from user incorrectly holding to authCallback's callback. [\#1000](https://github.com/ably/ably-cocoa/pull/1000) ([tcard](https://github.com/tcard))
-- Allow customers to subclass ARTLog [\#1011](https://github.com/ably/ably-cocoa/pull/1011) ([QuintinWillison](https://github.com/QuintinWillison))
+- Test suite: keep channel name prefix for current ClientOptions while calling 'setupOptions' and other improvements [\#1009](https://github.com/ably/ably-pubsub-cocoa/pull/1009) ([ricardopereira](https://github.com/ricardopereira))
+- Avoid leak from user incorrectly holding to authCallback's callback. [\#1000](https://github.com/ably/ably-pubsub-cocoa/pull/1000) ([tcard](https://github.com/tcard))
+- Allow customers to subclass ARTLog [\#1011](https://github.com/ably/ably-pubsub-cocoa/pull/1011) ([QuintinWillison](https://github.com/QuintinWillison))
 
-## [1.1.21](https://github.com/ably/ably-cocoa/tree/1.1.21)
+## [1.1.21](https://github.com/ably/ably-pubsub-cocoa/tree/1.1.21)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.1.20...1.1.21)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.1.20...1.1.21)
 
 **Merged pull requests:**
 
-- Fix Objective-C namespace collisions [\#1006](https://github.com/ably/ably-cocoa/pull/1006) ([SlaunchaMan](https://github.com/SlaunchaMan))
-- Fix strong ref cycle: Rest.push and Rest.push.admin \<-\> Rest. [\#999](https://github.com/ably/ably-cocoa/pull/999) ([tcard](https://github.com/tcard))
+- Fix Objective-C namespace collisions [\#1006](https://github.com/ably/ably-pubsub-cocoa/pull/1006) ([SlaunchaMan](https://github.com/SlaunchaMan))
+- Fix strong ref cycle: Rest.push and Rest.push.admin \<-\> Rest. [\#999](https://github.com/ably/ably-pubsub-cocoa/pull/999) ([tcard](https://github.com/tcard))
 
-## [1.1.20](https://github.com/ably/ably-cocoa/tree/1.1.20)
+## [1.1.20](https://github.com/ably/ably-pubsub-cocoa/tree/1.1.20)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.1.19...1.1.20)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.1.19...1.1.20)
 
 **Changes:**
 
-- Support build with Xcode 10 ([23b235c](https://github.com/ably/ably-cocoa/commit/23b235cac8908ba69096dd95f4e47ae3cae8a484)) - brings in [SocketRocket #5](https://github.com/ably-forks/SocketRocket/pull/5)
+- Support build with Xcode 10 ([23b235c](https://github.com/ably/ably-pubsub-cocoa/commit/23b235cac8908ba69096dd95f4e47ae3cae8a484)) - brings in [SocketRocket #5](https://github.com/ably-forks/SocketRocket/pull/5)
 
-## [1.1.19](https://github.com/ably/ably-cocoa/tree/1.1.19)
+## [1.1.19](https://github.com/ably/ably-pubsub-cocoa/tree/1.1.19)
 
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.1.18...1.1.19)
-
-**Fixed bugs:**
-
-- Old push state AfterRegistrationUpdateFailed needs migration [\#993](https://github.com/ably/ably-cocoa/issues/993)
-
-**Closed issues:**
-
-- Auth token refresh misses when macOS is sleeping [\#984](https://github.com/ably/ably-cocoa/issues/984)
-
-**Merged pull requests:**
-
-- Push: Fix activate\(\) behavior while syncing device. [\#995](https://github.com/ably/ably-cocoa/pull/995) ([tcard](https://github.com/tcard))
-- Migrate persisted AfterRegistrationUpdateFailed to ...SyncFailed. [\#994](https://github.com/ably/ably-cocoa/pull/994) ([tcard](https://github.com/tcard))
-- Use tests dispatch queue, not main, to POST /apps. [\#991](https://github.com/ably/ably-cocoa/pull/991) ([tcard](https://github.com/tcard))
-- Update SocketRocket dependency [\#990](https://github.com/ably/ably-cocoa/pull/990) ([ricardopereira](https://github.com/ricardopereira))
-- Document development flow [\#989](https://github.com/ably/ably-cocoa/pull/989) ([QuintinWillison](https://github.com/QuintinWillison))
-- Second Attempt to Update KSCrash dependency [\#988](https://github.com/ably/ably-cocoa/pull/988) ([QuintinWillison](https://github.com/QuintinWillison))
-- Fix handling of token error when first connecting. [\#986](https://github.com/ably/ably-cocoa/pull/986) ([tcard](https://github.com/tcard))
-- Update KSCrash dependency [\#981](https://github.com/ably/ably-cocoa/pull/981) ([QuintinWillison](https://github.com/QuintinWillison))
-- Fix bad merge in README. [\#980](https://github.com/ably/ably-cocoa/pull/980) ([tcard](https://github.com/tcard))
-- Validate and sync when activating push for registered device [\#974](https://github.com/ably/ably-cocoa/pull/974) ([tcard](https://github.com/tcard))
-- Update ably-ios references to ably-cocoa [\#954](https://github.com/ably/ably-cocoa/pull/954) ([tcard](https://github.com/tcard))
-
-## [1.1.18](https://github.com/ably/ably-cocoa/tree/1.1.18)
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.1.17...1.1.18)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.1.18...1.1.19)
 
 **Fixed bugs:**
 
-- Result of internet-up.ably-realtime.com is ignored [\#952](https://github.com/ably/ably-cocoa/issues/952)
-- Realtime suspended connection retrial using wrong timeout [\#913](https://github.com/ably/ably-cocoa/issues/913)
+- Old push state AfterRegistrationUpdateFailed needs migration [\#993](https://github.com/ably/ably-pubsub-cocoa/issues/993)
 
 **Closed issues:**
 
-- Remove develop branch [\#969](https://github.com/ably/ably-cocoa/issues/969)
-- Flaky test: RTP2f \(incoming LEAVE while SYNCing\) [\#938](https://github.com/ably/ably-cocoa/issues/938)
-- Flaky test: RTN17\* \(fallback hosts\) [\#931](https://github.com/ably/ably-cocoa/issues/931)
+- Auth token refresh misses when macOS is sleeping [\#984](https://github.com/ably/ably-pubsub-cocoa/issues/984)
 
 **Merged pull requests:**
 
-- Remove redundant direct calls to push delegate callbacks [\#975](https://github.com/ably/ably-cocoa/pull/975) ([tcard](https://github.com/tcard))
-- Simplify hooks on RTP2f test [\#963](https://github.com/ably/ably-cocoa/pull/963) ([tcard](https://github.com/tcard))
-- Fix internet-up.ably-realtime.com checks [\#961](https://github.com/ably/ably-cocoa/pull/961) ([tcard](https://github.com/tcard))
-- Fix connection SUSPENDED timeout [\#917](https://github.com/ably/ably-cocoa/pull/917) ([ricardopereira](https://github.com/ricardopereira))
+- Push: Fix activate\(\) behavior while syncing device. [\#995](https://github.com/ably/ably-pubsub-cocoa/pull/995) ([tcard](https://github.com/tcard))
+- Migrate persisted AfterRegistrationUpdateFailed to ...SyncFailed. [\#994](https://github.com/ably/ably-pubsub-cocoa/pull/994) ([tcard](https://github.com/tcard))
+- Use tests dispatch queue, not main, to POST /apps. [\#991](https://github.com/ably/ably-pubsub-cocoa/pull/991) ([tcard](https://github.com/tcard))
+- Update SocketRocket dependency [\#990](https://github.com/ably/ably-pubsub-cocoa/pull/990) ([ricardopereira](https://github.com/ricardopereira))
+- Document development flow [\#989](https://github.com/ably/ably-pubsub-cocoa/pull/989) ([QuintinWillison](https://github.com/QuintinWillison))
+- Second Attempt to Update KSCrash dependency [\#988](https://github.com/ably/ably-pubsub-cocoa/pull/988) ([QuintinWillison](https://github.com/QuintinWillison))
+- Fix handling of token error when first connecting. [\#986](https://github.com/ably/ably-pubsub-cocoa/pull/986) ([tcard](https://github.com/tcard))
+- Update KSCrash dependency [\#981](https://github.com/ably/ably-pubsub-cocoa/pull/981) ([QuintinWillison](https://github.com/QuintinWillison))
+- Fix bad merge in README. [\#980](https://github.com/ably/ably-pubsub-cocoa/pull/980) ([tcard](https://github.com/tcard))
+- Validate and sync when activating push for registered device [\#974](https://github.com/ably/ably-pubsub-cocoa/pull/974) ([tcard](https://github.com/tcard))
+- Update ably-ios references to ably-cocoa [\#954](https://github.com/ably/ably-pubsub-cocoa/pull/954) ([tcard](https://github.com/tcard))
 
-## [1.1.17](https://github.com/ably/ably-cocoa/tree/1.1.17)
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.1.16...1.1.17)
-
-**Merged pull requests:**
-
-- Remove push state machine singleton [\#972](https://github.com/ably/ably-cocoa/pull/972) ([tcard](https://github.com/tcard))
-- Add clarification to release process: document --since-tag effects [\#971](https://github.com/ably/ably-cocoa/pull/971) ([tcard](https://github.com/tcard))
-
-## [1.1.16](https://github.com/ably/ably-cocoa/tree/1.1.16)
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.1.15...1.1.16)
+## [1.1.18](https://github.com/ably/ably-pubsub-cocoa/tree/1.1.18)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.1.17...1.1.18)
 
 **Fixed bugs:**
 
-- Cannot compile Objective-C++ file if Ably headers included [\#964](https://github.com/ably/ably-cocoa/issues/964)
-- Realtime Channel endless loop: suspended \> attached \> suspended [\#881](https://github.com/ably/ably-cocoa/issues/881)
+- Result of internet-up.ably-realtime.com is ignored [\#952](https://github.com/ably/ably-pubsub-cocoa/issues/952)
+- Realtime suspended connection retrial using wrong timeout [\#913](https://github.com/ably/ably-pubsub-cocoa/issues/913)
 
 **Closed issues:**
 
-- Flaky test: RTN5 \(basic operations should work simultaneously\) [\#934](https://github.com/ably/ably-cocoa/issues/934)
+- Remove develop branch [\#969](https://github.com/ably/ably-pubsub-cocoa/issues/969)
+- Flaky test: RTP2f \(incoming LEAVE while SYNCing\) [\#938](https://github.com/ably/ably-pubsub-cocoa/issues/938)
+- Flaky test: RTN17\* \(fallback hosts\) [\#931](https://github.com/ably/ably-pubsub-cocoa/issues/931)
 
 **Merged pull requests:**
 
-- If waiting for push device details and got them persisted, re-emit them. [\#967](https://github.com/ably/ably-cocoa/pull/967) ([tcard](https://github.com/tcard))
-- Update msgpack \(fix CocoaPod warnings\) [\#962](https://github.com/ably/ably-cocoa/pull/962) ([ricardopereira](https://github.com/ricardopereira))
-- Alleviate RTN5 flakiness [\#957](https://github.com/ably/ably-cocoa/pull/957) ([tcard](https://github.com/tcard))
-- Fix SUSPENDED channel reattach [\#909](https://github.com/ably/ably-cocoa/pull/909) ([ricardopereira](https://github.com/ricardopereira))
+- Remove redundant direct calls to push delegate callbacks [\#975](https://github.com/ably/ably-pubsub-cocoa/pull/975) ([tcard](https://github.com/tcard))
+- Simplify hooks on RTP2f test [\#963](https://github.com/ably/ably-pubsub-cocoa/pull/963) ([tcard](https://github.com/tcard))
+- Fix internet-up.ably-realtime.com checks [\#961](https://github.com/ably/ably-pubsub-cocoa/pull/961) ([tcard](https://github.com/tcard))
+- Fix connection SUSPENDED timeout [\#917](https://github.com/ably/ably-pubsub-cocoa/pull/917) ([ricardopereira](https://github.com/ricardopereira))
 
-## [1.1.15](https://github.com/ably/ably-cocoa/tree/1.1.15) (2019-12-23)
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.1.14...1.1.15)
+## [1.1.17](https://github.com/ably/ably-pubsub-cocoa/tree/1.1.17)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.1.16...1.1.17)
+
+**Merged pull requests:**
+
+- Remove push state machine singleton [\#972](https://github.com/ably/ably-pubsub-cocoa/pull/972) ([tcard](https://github.com/tcard))
+- Add clarification to release process: document --since-tag effects [\#971](https://github.com/ably/ably-pubsub-cocoa/pull/971) ([tcard](https://github.com/tcard))
+
+## [1.1.16](https://github.com/ably/ably-pubsub-cocoa/tree/1.1.16)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.1.15...1.1.16)
+
+**Fixed bugs:**
+
+- Cannot compile Objective-C++ file if Ably headers included [\#964](https://github.com/ably/ably-pubsub-cocoa/issues/964)
+- Realtime Channel endless loop: suspended \> attached \> suspended [\#881](https://github.com/ably/ably-pubsub-cocoa/issues/881)
+
+**Closed issues:**
+
+- Flaky test: RTN5 \(basic operations should work simultaneously\) [\#934](https://github.com/ably/ably-pubsub-cocoa/issues/934)
+
+**Merged pull requests:**
+
+- If waiting for push device details and got them persisted, re-emit them. [\#967](https://github.com/ably/ably-pubsub-cocoa/pull/967) ([tcard](https://github.com/tcard))
+- Update msgpack \(fix CocoaPod warnings\) [\#962](https://github.com/ably/ably-pubsub-cocoa/pull/962) ([ricardopereira](https://github.com/ricardopereira))
+- Alleviate RTN5 flakiness [\#957](https://github.com/ably/ably-pubsub-cocoa/pull/957) ([tcard](https://github.com/tcard))
+- Fix SUSPENDED channel reattach [\#909](https://github.com/ably/ably-pubsub-cocoa/pull/909) ([ricardopereira](https://github.com/ricardopereira))
+
+## [1.1.15](https://github.com/ably/ably-pubsub-cocoa/tree/1.1.15) (2019-12-23)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.1.14...1.1.15)
 
 **Merged pull requests:**
 
 - KSCrash fork has been renamed to KSCrashAblyFork 
- [\#955](https://github.com/ably/ably-cocoa/pull/955) ([ricardopereira](https://github.com/ricardopereira))
-- Update msgpack to v0.3 [\#951](https://github.com/ably/ably-cocoa/pull/951) ([ricardopereira](https://github.com/ricardopereira))
-- Simplify random fallback host selection [\#953](https://github.com/ably/ably-cocoa/pull/953) ([tcard](https://github.com/tcard))
+ [\#955](https://github.com/ably/ably-pubsub-cocoa/pull/955) ([ricardopereira](https://github.com/ricardopereira))
+- Update msgpack to v0.3 [\#951](https://github.com/ably/ably-pubsub-cocoa/pull/951) ([ricardopereira](https://github.com/ricardopereira))
+- Simplify random fallback host selection [\#953](https://github.com/ably/ably-pubsub-cocoa/pull/953) ([tcard](https://github.com/tcard))
 
-## [1.1.14](https://github.com/ably/ably-cocoa/tree/1.1.14) (2019-12-16)
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.1.13...1.1.14)
-
-**Fixed bugs:**
-
-- iOS Incompatible library version crash - DYLIB_COMPATIBILITY_VERSION vs DYLIB_CURRENT_VERSION [\#946](https://github.com/ably/ably-cocoa/issues/946)
-
-## [1.1.13](https://github.com/ably/ably-cocoa/tree/1.1.13) (2019-12-09)
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.1.12...1.1.13)
+## [1.1.14](https://github.com/ably/ably-pubsub-cocoa/tree/1.1.14) (2019-12-16)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.1.13...1.1.14)
 
 **Fixed bugs:**
 
-- OS Network Reachability sometimes doesn't detect network state changes [\#908](https://github.com/ably/ably-cocoa/issues/908)
-- Using a clientId should no longer be forcing token auth in the 1.1 spec [\#849](https://github.com/ably/ably-cocoa/issues/849)
-- Move channels to FAILED only after their iterator is done.  [\#920](https://github.com/ably/ably-cocoa/pull/920) ([tcard](https://github.com/tcard))
-- Copy channels for public iterate\(\) on internal queue. [\#919](https://github.com/ably/ably-cocoa/pull/919) ([tcard](https://github.com/tcard))
+- iOS Incompatible library version crash - DYLIB_COMPATIBILITY_VERSION vs DYLIB_CURRENT_VERSION [\#946](https://github.com/ably/ably-pubsub-cocoa/issues/946)
+
+## [1.1.13](https://github.com/ably/ably-pubsub-cocoa/tree/1.1.13) (2019-12-09)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.1.12...1.1.13)
+
+**Fixed bugs:**
+
+- OS Network Reachability sometimes doesn't detect network state changes [\#908](https://github.com/ably/ably-pubsub-cocoa/issues/908)
+- Using a clientId should no longer be forcing token auth in the 1.1 spec [\#849](https://github.com/ably/ably-pubsub-cocoa/issues/849)
+- Move channels to FAILED only after their iterator is done.  [\#920](https://github.com/ably/ably-pubsub-cocoa/pull/920) ([tcard](https://github.com/tcard))
+- Copy channels for public iterate\(\) on internal queue. [\#919](https://github.com/ably/ably-pubsub-cocoa/pull/919) ([tcard](https://github.com/tcard))
 
 **Closed issues:**
 
-- Queuing messages before attach can lead to out-of-order publishing [\#926](https://github.com/ably/ably-cocoa/issues/926)
-- Channels mutated-while-enumerated crash [\#918](https://github.com/ably/ably-cocoa/issues/918)
-- Xcode 11 warnings [\#905](https://github.com/ably/ably-cocoa/issues/905)
+- Queuing messages before attach can lead to out-of-order publishing [\#926](https://github.com/ably/ably-pubsub-cocoa/issues/926)
+- Channels mutated-while-enumerated crash [\#918](https://github.com/ably/ably-pubsub-cocoa/issues/918)
+- Xcode 11 warnings [\#905](https://github.com/ably/ably-pubsub-cocoa/issues/905)
 
 **Merged pull requests:**
 
-- Make ARTRealtimeChannel.publish thread-safe [\#929](https://github.com/ably/ably-cocoa/pull/929) ([tcard](https://github.com/tcard))
-- Extract duplicate code from ARTChannel.publish methods [\#928](https://github.com/ably/ably-cocoa/pull/928) ([tcard](https://github.com/tcard))
-- Set logLevel=verbose every time setupOptions is called with debug=true [\#927](https://github.com/ably/ably-cocoa/pull/927) ([tcard](https://github.com/tcard))
-- Don't assert on error messages. [\#925](https://github.com/ably/ably-cocoa/pull/925) ([tcard](https://github.com/tcard))
-- Prevent mutate-channels-while-iterating for suspend too. [\#922](https://github.com/ably/ably-cocoa/pull/922) ([tcard](https://github.com/tcard))
-- Soak test [\#916](https://github.com/ably/ably-cocoa/pull/916) ([tcard](https://github.com/tcard))
-- Fix Network Reachability: instance not found for target [\#910](https://github.com/ably/ably-cocoa/pull/910) ([ricardopereira](https://github.com/ricardopereira))
-- Fix Xcode 11 new warnings [\#907](https://github.com/ably/ably-cocoa/pull/907) ([ricardopereira](https://github.com/ricardopereira))
-- README: update the release process [\#906](https://github.com/ably/ably-cocoa/pull/906) ([ricardopereira](https://github.com/ricardopereira))
-- Carthage: fix public header imports [\#902](https://github.com/ably/ably-cocoa/pull/902) ([ricardopereira](https://github.com/ricardopereira))
-- Should not force token auth when clientId is set [\#898](https://github.com/ably/ably-cocoa/pull/898) ([ricardopereira](https://github.com/ricardopereira))
-- Improve error and debug messages [\#895](https://github.com/ably/ably-cocoa/pull/895) ([ricardopereira](https://github.com/ricardopereira))
+- Make ARTRealtimeChannel.publish thread-safe [\#929](https://github.com/ably/ably-pubsub-cocoa/pull/929) ([tcard](https://github.com/tcard))
+- Extract duplicate code from ARTChannel.publish methods [\#928](https://github.com/ably/ably-pubsub-cocoa/pull/928) ([tcard](https://github.com/tcard))
+- Set logLevel=verbose every time setupOptions is called with debug=true [\#927](https://github.com/ably/ably-pubsub-cocoa/pull/927) ([tcard](https://github.com/tcard))
+- Don't assert on error messages. [\#925](https://github.com/ably/ably-pubsub-cocoa/pull/925) ([tcard](https://github.com/tcard))
+- Prevent mutate-channels-while-iterating for suspend too. [\#922](https://github.com/ably/ably-pubsub-cocoa/pull/922) ([tcard](https://github.com/tcard))
+- Soak test [\#916](https://github.com/ably/ably-pubsub-cocoa/pull/916) ([tcard](https://github.com/tcard))
+- Fix Network Reachability: instance not found for target [\#910](https://github.com/ably/ably-pubsub-cocoa/pull/910) ([ricardopereira](https://github.com/ricardopereira))
+- Fix Xcode 11 new warnings [\#907](https://github.com/ably/ably-pubsub-cocoa/pull/907) ([ricardopereira](https://github.com/ricardopereira))
+- README: update the release process [\#906](https://github.com/ably/ably-pubsub-cocoa/pull/906) ([ricardopereira](https://github.com/ricardopereira))
+- Carthage: fix public header imports [\#902](https://github.com/ably/ably-pubsub-cocoa/pull/902) ([ricardopereira](https://github.com/ricardopereira))
+- Should not force token auth when clientId is set [\#898](https://github.com/ably/ably-pubsub-cocoa/pull/898) ([ricardopereira](https://github.com/ricardopereira))
+- Improve error and debug messages [\#895](https://github.com/ably/ably-pubsub-cocoa/pull/895) ([ricardopereira](https://github.com/ricardopereira))
 
-## [1.1.12](https://github.com/ably/ably-cocoa/tree/1.1.12) (2019-10-03)
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.1.10...1.1.12)
+## [1.1.12](https://github.com/ably/ably-pubsub-cocoa/tree/1.1.12) (2019-10-03)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.1.10...1.1.12)
 
 **Fixed bugs:**
 
- - Push token: replace `NSData.description` usage [\#889](https://github.com/ably/ably-cocoa/issues/889)
+ - Push token: replace `NSData.description` usage [\#889](https://github.com/ably/ably-pubsub-cocoa/issues/889)
 
 **Merged pull requests:**
 
- - Replace `NSData.description` to stringify device tokens correctly [\#893](https://github.com/ably/ably-cocoa/issues/893) ([ricardopereira](https://github.com/ricardopereira))
+ - Replace `NSData.description` to stringify device tokens correctly [\#893](https://github.com/ably/ably-pubsub-cocoa/issues/893) ([ricardopereira](https://github.com/ricardopereira))
 
-## [1.1.11-beta.1](https://github.com/ably/ably-cocoa/tree/1.1.11-beta.1) (2019-09-20)
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.1.10...1.1.11-beta.1)
+## [1.1.11-beta.1](https://github.com/ably/ably-pubsub-cocoa/tree/1.1.11-beta.1) (2019-09-20)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.1.10...1.1.11-beta.1)
 
 **Fixed bugs:**
 
- - Push token: replace `NSData.description` usage [\#889](https://github.com/ably/ably-cocoa/issues/889)
- - `PushChannel.subscribe` should not call the callback in the internal queue [\#862](https://github.com/ably/ably-cocoa/issues/862)
- - Crash in ARTPush: "dispatch_sync called on queue already owned by current thread" [\#888](https://github.com/ably/ably-cocoa/issues/888)
- - Push is using the system `NSLog` directly instead of the `ARTLogger` [\#896](https://github.com/ably/ably-cocoa/issues/896)
+ - Push token: replace `NSData.description` usage [\#889](https://github.com/ably/ably-pubsub-cocoa/issues/889)
+ - `PushChannel.subscribe` should not call the callback in the internal queue [\#862](https://github.com/ably/ably-pubsub-cocoa/issues/862)
+ - Crash in ARTPush: "dispatch_sync called on queue already owned by current thread" [\#888](https://github.com/ably/ably-pubsub-cocoa/issues/888)
+ - Push is using the system `NSLog` directly instead of the `ARTLogger` [\#896](https://github.com/ably/ably-pubsub-cocoa/issues/896)
 
-- **Tentative fix of:** Crash on creating weak ref to deallocating object [\#879](https://github.com/ably/ably-cocoa/issues/879)
+- **Tentative fix of:** Crash on creating weak ref to deallocating object [\#879](https://github.com/ably/ably-pubsub-cocoa/issues/879)
 
 **Merged pull requests:**
 
- - Push: replace system `NSLog` with internal `ARTLogger` [\#896](https://github.com/ably/ably-cocoa/issues/896) ([ricardopereira](https://github.com/ricardopereira))
- - Replace `NSData.description` to stringify device tokens correctly [\#893](https://github.com/ably/ably-cocoa/issues/893) ([ricardopereira](https://github.com/ricardopereira))
- - Push: fix crash "_dispatch_sync called on queue already owned by current thread_" [\#888](https://github.com/ably/ably-cocoa/issues/888) ([ricardopereira](https://github.com/ricardopereira))
- - Push: `PushChannel.subscribe` should not call the callback in the internal queue [\#862](https://github.com/ably/ably-cocoa/issues/862) ([ricardopereira](https://github.com/ricardopereira))
-- Split in public and internal objects [\#882](https://github.com/ably/ably-cocoa/pull/882) ([tcard](https://github.com/tcard ))
+ - Push: replace system `NSLog` with internal `ARTLogger` [\#896](https://github.com/ably/ably-pubsub-cocoa/issues/896) ([ricardopereira](https://github.com/ricardopereira))
+ - Replace `NSData.description` to stringify device tokens correctly [\#893](https://github.com/ably/ably-pubsub-cocoa/issues/893) ([ricardopereira](https://github.com/ricardopereira))
+ - Push: fix crash "_dispatch_sync called on queue already owned by current thread_" [\#888](https://github.com/ably/ably-pubsub-cocoa/issues/888) ([ricardopereira](https://github.com/ricardopereira))
+ - Push: `PushChannel.subscribe` should not call the callback in the internal queue [\#862](https://github.com/ably/ably-pubsub-cocoa/issues/862) ([ricardopereira](https://github.com/ricardopereira))
+- Split in public and internal objects [\#882](https://github.com/ably/ably-pubsub-cocoa/pull/882) ([tcard](https://github.com/tcard ))
 
-## [1.1.11-beta.0](https://github.com/ably/ably-cocoa/tree/1.1.11-beta.0) (2019-08-27)
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.1.10...1.1.11-beta.0)
+## [1.1.11-beta.0](https://github.com/ably/ably-pubsub-cocoa/tree/1.1.11-beta.0) (2019-08-27)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.1.10...1.1.11-beta.0)
 
 **Fixed bugs:**
 
-- **Tentative fix of:** Crash on creating weak ref to deallocating object [\#879](https://github.com/ably/ably-cocoa/issues/879)
+- **Tentative fix of:** Crash on creating weak ref to deallocating object [\#879](https://github.com/ably/ably-pubsub-cocoa/issues/879)
 
 **Merged pull requests:**
 
-- Split in public and internal objects [\#882](https://github.com/ably/ably-cocoa/pull/882) ([tcard](https://github.com/tcard ))
+- Split in public and internal objects [\#882](https://github.com/ably/ably-pubsub-cocoa/pull/882) ([tcard](https://github.com/tcard ))
 
-## [1.1.10](https://github.com/ably/ably-cocoa/tree/1.1.10) (2019-07-29)
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.1.9...1.1.10)
+## [1.1.10](https://github.com/ably/ably-pubsub-cocoa/tree/1.1.10) (2019-07-29)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.1.9...1.1.10)
 
 **Fixed bugs:**
 
-- Push device registration omits `clientId` [\#877](https://github.com/ably/ably-cocoa/issues/877)
+- Push device registration omits `clientId` [\#877](https://github.com/ably/ably-pubsub-cocoa/issues/877)
 
 **Merged pull requests:**
 
-- Update `LocalDevice.clientId` [\#874](https://github.com/ably/ably-cocoa/pull/874) ([ricardopereira](https://github.com/ricardopereira))
+- Update `LocalDevice.clientId` [\#874](https://github.com/ably/ably-pubsub-cocoa/pull/874) ([ricardopereira](https://github.com/ricardopereira))
 
-## [1.1.9](https://github.com/ably/ably-cocoa/tree/1.1.9) (2019-07-12)
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.1.8...1.1.9)
+## [1.1.9](https://github.com/ably/ably-pubsub-cocoa/tree/1.1.9) (2019-07-12)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.1.8...1.1.9)
 
 **Fixed bugs:**
 
-- Push deactivate on an app is failing with `push-subscribe` permissions [\#873](https://github.com/ably/ably-cocoa/issues/873)
+- Push deactivate on an app is failing with `push-subscribe` permissions [\#873](https://github.com/ably/ably-pubsub-cocoa/issues/873)
 
 **Merged pull requests:**
 
-- Delete device registration should not use the general-purpose endpoint [\#871](https://github.com/ably/ably-cocoa/pull/871) ([ricardopereira](https://github.com/ricardopereira))
+- Delete device registration should not use the general-purpose endpoint [\#871](https://github.com/ably/ably-pubsub-cocoa/pull/871) ([ricardopereira](https://github.com/ricardopereira))
 
-## [1.1.8](https://github.com/ably/ably-cocoa/tree/1.1.8) (2019-07-03)
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.1.7...1.1.8)
+## [1.1.8](https://github.com/ably/ably-pubsub-cocoa/tree/1.1.8) (2019-07-03)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.1.7...1.1.8)
 
 **Fixed bugs:**
 
-- Push deactivate/activate sequence results in stopped notifications [\#863](https://github.com/ably/ably-cocoa/issues/863)
-- Library apparently interpreting the `connectionStateTtl` with incorrect units [\#866](https://github.com/ably/ably-cocoa/issues/866)
+- Push deactivate/activate sequence results in stopped notifications [\#863](https://github.com/ably/ably-pubsub-cocoa/issues/863)
+- Library apparently interpreting the `connectionStateTtl` with incorrect units [\#866](https://github.com/ably/ably-pubsub-cocoa/issues/866)
 
 **Merged pull requests:**
 
-- Push Device Update Registration: fix request authentication [\#867](https://github.com/ably/ably-cocoa/pull/867) ([ricardopereira](https://github.com/ricardopereira))
-- Fix consecutive Authorizations [\#833](https://github.com/ably/ably-cocoa/pull/833) ([ricardopereira](https://github.com/ricardopereira))
-- Fix milliseconds conversions [\#869](https://github.com/ably/ably-cocoa/pull/869) ([ricardopereira](https://github.com/ricardopereira))
-- Tests using `echo.ably.io` were failing intermittently with "Request mac does not match" [\#868](https://github.com/ably/ably-cocoa/pull/868) ([ricardopereira](https://github.com/ricardopereira))
+- Push Device Update Registration: fix request authentication [\#867](https://github.com/ably/ably-pubsub-cocoa/pull/867) ([ricardopereira](https://github.com/ricardopereira))
+- Fix consecutive Authorizations [\#833](https://github.com/ably/ably-pubsub-cocoa/pull/833) ([ricardopereira](https://github.com/ricardopereira))
+- Fix milliseconds conversions [\#869](https://github.com/ably/ably-pubsub-cocoa/pull/869) ([ricardopereira](https://github.com/ricardopereira))
+- Tests using `echo.ably.io` were failing intermittently with "Request mac does not match" [\#868](https://github.com/ably/ably-pubsub-cocoa/pull/868) ([ricardopereira](https://github.com/ricardopereira))
 
-## [1.1.7](https://github.com/ably/ably-cocoa/tree/1.1.7) (2019-06-25)
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.1.6...1.1.7)
+## [1.1.7](https://github.com/ably/ably-pubsub-cocoa/tree/1.1.7) (2019-06-25)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.1.6...1.1.7)
 
 **Fixed bugs:**
 
-- Push deactivate/activate sequence results in stopped notifications [\#863](https://github.com/ably/ably-cocoa/issues/863)
+- Push deactivate/activate sequence results in stopped notifications [\#863](https://github.com/ably/ably-pubsub-cocoa/issues/863)
 
 **Merged pull requests:**
 
-- Fix Push Activation State Machine: WaitingForRegistrationUpdate bad state [\#864](https://github.com/ably/ably-cocoa/pull/858) ([ricardopereira](https://github.com/ricardopereira))
+- Fix Push Activation State Machine: WaitingForRegistrationUpdate bad state [\#864](https://github.com/ably/ably-pubsub-cocoa/pull/858) ([ricardopereira](https://github.com/ricardopereira))
 
-## [1.1.6](https://github.com/ably/ably-cocoa/tree/1.1.6) (2019-06-12)
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.1.5...1.1.6)
+## [1.1.6](https://github.com/ably/ably-pubsub-cocoa/tree/1.1.6) (2019-06-12)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.1.5...1.1.6)
 
 **Fixed bugs:**
 
-- Lexical or Preprocessor Issue: 'SRWebSocket.h' file not found [\#840](https://github.com/ably/ably-cocoa/issues/840)
-- KSCrashAblyFork ksthread_getQueueName [\#846](https://github.com/ably/ably-cocoa/issues/846)
+- Lexical or Preprocessor Issue: 'SRWebSocket.h' file not found [\#840](https://github.com/ably/ably-pubsub-cocoa/issues/840)
+- KSCrashAblyFork ksthread_getQueueName [\#846](https://github.com/ably/ably-pubsub-cocoa/issues/846)
 
 **Closed issues:**
 
-- Fix Travis CI (iOS 9 build is failing) [\#856](https://github.com/ably/ably-cocoa/issues/856)
+- Fix Travis CI (iOS 9 build is failing) [\#856](https://github.com/ably/ably-pubsub-cocoa/issues/856)
 
 **Merged pull requests:**
 
-- Update KSCrash and SocketRocket [\#858](https://github.com/ably/ably-cocoa/pull/858) ([ricardopereira](https://github.com/ricardopereira))
+- Update KSCrash and SocketRocket [\#858](https://github.com/ably/ably-pubsub-cocoa/pull/858) ([ricardopereira](https://github.com/ricardopereira))
 
-## [1.1.5](https://github.com/ably/ably-cocoa/tree/1.1.5) (2019-05-23)
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.1.4...1.1.5)
+## [1.1.5](https://github.com/ably/ably-pubsub-cocoa/tree/1.1.5) (2019-05-23)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.1.4...1.1.5)
 
 **Implemented enhancements:**
 
-- Swift 5 / Xcode 10.2 [\#838](https://github.com/ably/ably-cocoa/issues/838)
+- Swift 5 / Xcode 10.2 [\#838](https://github.com/ably/ably-pubsub-cocoa/issues/838)
 
 **Fixed bugs:**
 
-- Issue reported in iOS push tutorial [\#850](https://github.com/ably/ably-cocoa/issues/850)
+- Issue reported in iOS push tutorial [\#850](https://github.com/ably/ably-pubsub-cocoa/issues/850)
 
 **Closed issues:**
 
-- Expose `Auth.tokenDetails` [\#852](https://github.com/ably/ably-cocoa/issues/852)
-- Improve handling of clock skew [\#834](https://github.com/ably/ably-cocoa/issues/834)
-- `my-members` presenceMap requirement change for 1.1 [\#737](https://github.com/ably/ably-cocoa/issues/737)
+- Expose `Auth.tokenDetails` [\#852](https://github.com/ably/ably-pubsub-cocoa/issues/852)
+- Improve handling of clock skew [\#834](https://github.com/ably/ably-pubsub-cocoa/issues/834)
+- `my-members` presenceMap requirement change for 1.1 [\#737](https://github.com/ably/ably-pubsub-cocoa/issues/737)
 
 **Merged pull requests:**
 
-- Swift 5 (Xcode 10.2) [\#841](https://github.com/ably/ably-cocoa/pull/841) ([ricardopereira](https://github.com/ricardopereira))
-- RSA11 [\#853](https://github.com/ably/ably-cocoa/pull/853) ([ricardopereira](https://github.com/ricardopereira))
-- Push header docs [\#827](https://github.com/ably/ably-cocoa/pull/827) ([ricardopereira](https://github.com/ricardopereira))
-- Fix Push Update Device Registration [\#851](https://github.com/ably/ably-cocoa/pull/851) ([ricardopereira](https://github.com/ricardopereira))
-- RTP17b [\#835](https://github.com/ably/ably-cocoa/pull/835) ([ricardopereira](https://github.com/ricardopereira))
+- Swift 5 (Xcode 10.2) [\#841](https://github.com/ably/ably-pubsub-cocoa/pull/841) ([ricardopereira](https://github.com/ricardopereira))
+- RSA11 [\#853](https://github.com/ably/ably-pubsub-cocoa/pull/853) ([ricardopereira](https://github.com/ricardopereira))
+- Push header docs [\#827](https://github.com/ably/ably-pubsub-cocoa/pull/827) ([ricardopereira](https://github.com/ricardopereira))
+- Fix Push Update Device Registration [\#851](https://github.com/ably/ably-pubsub-cocoa/pull/851) ([ricardopereira](https://github.com/ricardopereira))
+- RTP17b [\#835](https://github.com/ably/ably-pubsub-cocoa/pull/835) ([ricardopereira](https://github.com/ricardopereira))
 
-## [1.1.4](https://github.com/ably/ably-cocoa/tree/1.1.4) (2019-05-07)
-[Full Changelog](https://github.com/ably/ably-cocoa/compare/1.1.3...1.1.4)
+## [1.1.4](https://github.com/ably/ably-pubsub-cocoa/tree/1.1.4) (2019-05-07)
+[Full Changelog](https://github.com/ably/ably-pubsub-cocoa/compare/1.1.3...1.1.4)
 
 **Implemented enhancements:**
 
-- Add idempotent REST publishing [\#749](https://github.com/ably/ably-cocoa/issues/749)
+- Add idempotent REST publishing [\#749](https://github.com/ably/ably-pubsub-cocoa/issues/749)
 
 **Fixed bugs:**
 
-- Default token params should not include a capabilities member [\#576](https://github.com/ably/ably-cocoa/issues/576)
-- Unsubscribe on channel enumeration causing crash [\#842](https://github.com/ably/ably-cocoa/issues/842)
+- Default token params should not include a capabilities member [\#576](https://github.com/ably/ably-pubsub-cocoa/issues/576)
+- Unsubscribe on channel enumeration causing crash [\#842](https://github.com/ably/ably-pubsub-cocoa/issues/842)
 
 **Closed issues:**
 
-- Address msgpack warnings [\#689](https://github.com/ably/ably-cocoa/issues/689)
+- Address msgpack warnings [\#689](https://github.com/ably/ably-pubsub-cocoa/issues/689)
 
 **Merged pull requests:**
 
-- Fix RTN16f [\#845](https://github.com/ably/ably-cocoa/pull/845) ([ricardopereira](https://github.com/ricardopereira))
-- Idempotent Rest Publishing [\#786](https://github.com/ably/ably-cocoa/pull/786) ([ricardopereira](https://github.com/ricardopereira))
-- RSL1j [\#784](https://github.com/ably/ably-cocoa/pull/784) ([ricardopereira](https://github.com/ricardopereira))
-- RSA4b1 [\#836](https://github.com/ably/ably-cocoa/pull/836) ([ricardopereira](https://github.com/ricardopereira))
-- Fix Channel.subscribe onAttachCallback [\#844](https://github.com/ably/ably-cocoa/pull/844) ([ricardopereira](https://github.com/ricardopereira))
-- Timestamp should not be generated in the client [\#831](https://github.com/ably/ably-cocoa/pull/831) ([ricardopereira](https://github.com/ricardopereira))
-- Fix URL query encoding of Capability and Timestamp fields [\#830](https://github.com/ably/ably-cocoa/pull/830) ([ricardopereira](https://github.com/ricardopereira))
-- Fix RSA6 [\#829](https://github.com/ably/ably-cocoa/pull/829) ([ricardopereira](https://github.com/ricardopereira))
-- Push State Machine: main thread sometimes gets stuck when accessing Local Device [\#826](https://github.com/ably/ably-cocoa/pull/826) ([ricardopereira](https://github.com/ricardopereira))
+- Fix RTN16f [\#845](https://github.com/ably/ably-pubsub-cocoa/pull/845) ([ricardopereira](https://github.com/ricardopereira))
+- Idempotent Rest Publishing [\#786](https://github.com/ably/ably-pubsub-cocoa/pull/786) ([ricardopereira](https://github.com/ricardopereira))
+- RSL1j [\#784](https://github.com/ably/ably-pubsub-cocoa/pull/784) ([ricardopereira](https://github.com/ricardopereira))
+- RSA4b1 [\#836](https://github.com/ably/ably-pubsub-cocoa/pull/836) ([ricardopereira](https://github.com/ricardopereira))
+- Fix Channel.subscribe onAttachCallback [\#844](https://github.com/ably/ably-pubsub-cocoa/pull/844) ([ricardopereira](https://github.com/ricardopereira))
+- Timestamp should not be generated in the client [\#831](https://github.com/ably/ably-pubsub-cocoa/pull/831) ([ricardopereira](https://github.com/ricardopereira))
+- Fix URL query encoding of Capability and Timestamp fields [\#830](https://github.com/ably/ably-pubsub-cocoa/pull/830) ([ricardopereira](https://github.com/ricardopereira))
+- Fix RSA6 [\#829](https://github.com/ably/ably-pubsub-cocoa/pull/829) ([ricardopereira](https://github.com/ricardopereira))
+- Push State Machine: main thread sometimes gets stuck when accessing Local Device [\#826](https://github.com/ably/ably-pubsub-cocoa/pull/826) ([ricardopereira](https://github.com/ricardopereira))
 - asd [\#784]() ([ricardopereira](https://github.com/ricardopereira))
 
 ## [1.1.3](https://github.com/ably/ably-ios/tree/1.1.3) (2019-01-10)

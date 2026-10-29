@@ -811,7 +811,7 @@ art_dispatch_sync(_queue, ^{
 }
 
 - (void)fetchServerTimeWithCompletion:(void (^)(NSDate * _Nullable, ARTErrorInfo * _Nullable))completion {
-    // TODO: I don't know why elsewhere we use hasTimeOffsetWithValue; it's causing us to ignore the offset in the case where the stored time offset indicates that the local clock is ahead of the server clock. See https://github.com/ably/ably-cocoa/issues/2148
+    // TODO: I don't know why elsewhere we use hasTimeOffsetWithValue; it's causing us to ignore the offset in the case where the stored time offset indicates that the local clock is ahead of the server clock. See https://github.com/ably/ably-pubsub-cocoa/issues/2148
 
     if ([self hasTimeOffset]) {
         NSDate *serverTime = [self currentDate];

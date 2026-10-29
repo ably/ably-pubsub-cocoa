@@ -1205,7 +1205,7 @@
                                     message:message ?: [NSString stringWithFormat:@"HTTP request failed with status code %ld", statusCode]];
     } else {
         // We expect `decodedError` as a dictionary from Ably REST API, but in case user sets custom authUrl in the auth options, it can be anything
-        // We'll address this in an upcoming proper fix for https://github.com/ably/ably-cocoa/issues/2135
+        // We'll address this in an upcoming proper fix for https://github.com/ably/ably-pubsub-cocoa/issues/2135
         return [ARTErrorInfo createWithCode:statusCode * 100
                                      status:statusCode
                                     message:[NSString stringWithFormat:@"HTTP request failed with status code %ld", statusCode]];

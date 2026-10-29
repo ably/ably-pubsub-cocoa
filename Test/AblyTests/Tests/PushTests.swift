@@ -123,7 +123,7 @@ class PushTests: XCTestCase {
         }
     }
 
-    // https://github.com/ably/ably-cocoa/issues/877
+    // https://github.com/ably/ably-pubsub-cocoa/issues/877
     func test__005__activation__should_update_LocalDevice_clientId_when_it_s_null_with_auth_clientId() throws {
         let test = Test()
         let expectedClientId = "foo"
@@ -200,7 +200,7 @@ class PushTests: XCTestCase {
         }
     }
 
-    // https://github.com/ably/ably-cocoa/issues/889
+    // https://github.com/ably/ably-pubsub-cocoa/issues/889
     func test__006__activation__should_store_the_device_token_data_as_string() {
         let expectedDeviceToken = TestDeviceToken.tokenString
         let expectedLocationDeviceToken = TestLocationDeviceToken.tokenString
@@ -224,7 +224,7 @@ class PushTests: XCTestCase {
         XCTAssertEqual(storage.keysWritten.at(expectedLocationDeviceTokenKey)?.value as? String, expectedLocationDeviceToken)
     }
 
-    // https://github.com/ably/ably-cocoa/issues/888
+    // https://github.com/ably/ably-pubsub-cocoa/issues/888
     func test__007__activation__should_not_sync_the_local_device_dispatched_in_internal_queue() {
         XCTAssertNil(tryInObjC {
             ARTPushInternal.didRegisterForRemoteNotifications(withDeviceToken: TestDeviceToken.tokenData, rest: rest)

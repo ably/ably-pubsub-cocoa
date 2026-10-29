@@ -81,7 +81,7 @@ NSString* ARTAPNSDeviceTokenKeyOfType(NSString *tokenType) {
 + (instancetype)deviceWithStorage:(id<ARTDeviceStorage>)storage logger:(nullable ARTInternalLog *)logger {
     ARTLocalDevice *device = [[ARTLocalDevice alloc] initWithStorage:storage logger:logger];
     device.platform = ARTDevicePlatform;
-    // TODO: Set this based on the UIDevice's userInterfaceIdiom (https://github.com/ably/ably-cocoa/issues/2132)
+    // TODO: Set this based on the UIDevice's userInterfaceIdiom (https://github.com/ably/ably-pubsub-cocoa/issues/2132)
     device.formFactor = ARTDeviceFormFactor;
     device.push.recipient[@"transportType"] = ARTDevicePushTransportType;
 

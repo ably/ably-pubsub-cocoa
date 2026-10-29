@@ -2409,7 +2409,7 @@ class RealtimeClientConnectionTests: XCTestCase {
         }
     }
 
-    // RTN14e - https://github.com/ably/ably-cocoa/issues/913
+    // RTN14e - https://github.com/ably/ably-pubsub-cocoa/issues/913
     func test__061__Connection__connection_request_fails__should_change_the_state_to_SUSPENDED_when_the_connection_state_has_been_in_the_DISCONNECTED_state_for_more_than_the_connectionStateTtl() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)
@@ -5434,7 +5434,7 @@ class RealtimeClientConnectionTests: XCTestCase {
         }
     }
 
-    // https://github.com/ably/ably-cocoa/issues/454
+    // https://github.com/ably/ably-pubsub-cocoa/issues/454
     func test__014__Connection__should_not_move_to_FAILED_if_received_DISCONNECT_with_an_error() throws {
         let test = Test()
         let options = try AblyTests.commonAppSetup(for: test)

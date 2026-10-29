@@ -8,10 +8,10 @@ name: LiveObjects
 on:
   workflow_dispatch:
   pull_request:
+  # Only main is listed. sdk-upload-action rejects a push to any other branch.
   push:
     branches:
       - main
-      - 'integration/**'
 
 permissions: {}
 

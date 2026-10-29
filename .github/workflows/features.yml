@@ -2,10 +2,10 @@ name: Features
 
 on:
   pull_request:
+  # Only main is listed. sdk-upload-action rejects a push to any other branch.
   push:
     branches:
       - main
-      - 'integration/**'
 
 permissions:
   contents: read

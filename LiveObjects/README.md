@@ -31,9 +31,9 @@ This plugin supports the following platforms:
 
 | Platform | Support |
 | -------- | ------- |
-| iOS      | >= 14.0 |
-| macOS    | >= 11.0 |
-| tvOS     | >= 14.0 |
+| iOS      | >= 15.0 |
+| macOS    | >= 12.0 |
+| tvOS     | >= 15.0 |
 
 > [!NOTE]
 > Xcode 26 or later is required.

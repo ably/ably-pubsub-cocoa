@@ -1,14 +1,11 @@
 ### Which version of the Ably SDK are you using? 
-E.g. `1.0.11`
+E.g. `2.0.0`
 
 ### On which platform does the issue happen? 
-E.g. `iOS11`
+E.g. `iOS 26`
 
-### Are you using Carthage? 
-If yes, specify the version (`carthage version`)
-
-### Are you using Cocoapods? 
-If yes, specify the version (`pod --version`)
+### How did you install the SDK? 
+E.g. Swift Package Manager. For a 1.x version, this may also be CocoaPods (`pod --version`) or Carthage (`carthage version`).
 
 ### Which version of Xcode are you using? 
 (`xcodebuild -version`)
@@ -29,7 +26,7 @@ Describe what happened instead.
 Add relevant console logs.
 ```
 
-**Tip:** set the log level to debug. E.g. `realtime.logger.logLevel = .debug` and take a look at our [troubleshooting guide](https://support.ably.io/solution/articles/3000063743-guide-information-we-need-to-help-you-diagnose-problems)
+**Tip:** set the log level to debug. E.g. `clientOptions.logLevel = .debug` and take a look at our [troubleshooting guide](https://support.ably.io/solution/articles/3000063743-guide-information-we-need-to-help-you-diagnose-problems)
 
 ### Link to sample project
 Feel free to link to a sample project that showcases the issue.

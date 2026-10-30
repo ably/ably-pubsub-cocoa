@@ -32,27 +32,22 @@ The following platforms are supported:
 
 | Platform | Support |
 |----------|---------|
-| iOS| >= 14 |
-| macOS| >= 11 |
-| tvOS | >= 14 |
+| iOS | >= 15 |
+| macOS | >= 12 |
+| tvOS | >= 15 |
 
 Building the SDK requires Xcode 26 or later.
-
-> [!IMPORTANT]
-> Ably Cocoa SDK versions below 1.2.23 will be [deprecated](https://ably.com/docs/platform/deprecate/protocol-v1) from November 1, 2025.
 
 ---
 
 ## Installation
 
-You can install Ably for iOS and macOS through [Swift package manager](#swift-package-manager). Upgrading from 1.x is covered by the [migration guide](Docs/migration-guides/v2.md).
+You can install Ably for iOS, macOS and tvOS through [Swift package manager](#swift-package-manager). Upgrading from 1.x is covered by the [migration guide](Docs/migration-guides/v2.md).
 
 > [!IMPORTANT]
 > **CocoaPods and Carthage are not supported from 2.0.** Their last releases — the `Ably` pod and the
 > Carthage `Ably.xcframework` — are on the 1.x line, which receives security and critical fixes only.
 > To take 2.0 or later, move to Swift Package Manager.
-
-
 
 To use the [Ably LiveObjects plugin](#liveobjects), see its installation notes below — it is
 available via Swift Package Manager only.
@@ -66,13 +61,13 @@ The Ably Pub/Sub SDK includes installation support for [Swift Package Manager](h
 
 To install the `ably-pubsub-cocoa` package in your Xcode project:
 
-* Paste `https://github.com/ably/ably-pubsub-cocoa` in the *Swift Packages* search box. (*Xcode project* &rarr; *Swift Packages…* &rarr; `+` button)
+* Choose *File* &rarr; *Add Package Dependencies…* and paste `https://github.com/ably/ably-pubsub-cocoa` in the search box.
 * Select the `AblyPubSubDevice` SDK for your target.
 
 To install the `ably-pubsub-cocoa` package in another Swift package, add the following to your `Package.Swift`:
 
 ```swift
- .package(url: "https://github.com/ably/ably-pubsub-cocoa", from: "2.0.0"),
+.package(url: "https://github.com/ably/ably-pubsub-cocoa", from: "2.0.0"),
 ```
 
 See Apple's [adding package dependencies to your app](https://developer.apple.com/documentation/swift_packages/adding_package_dependencies_to_your_app) guide for more detail.

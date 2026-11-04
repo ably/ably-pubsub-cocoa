@@ -9,7 +9,7 @@
 The Ably LiveObjects plugin enables real-time collaborative data synchronization for the [ably-pubsub-cocoa](https://github.com/ably/ably-pubsub-cocoa/) SDK. LiveObjects provides a simple way to build collaborative applications with synchronized state across multiple clients in real-time. Built on [Ably's](https://ably.com/) core service, it abstracts complex details to enable efficient collaborative architectures.
 
 > [!NOTE]
-> The plugin lives in the [ably-pubsub-cocoa](https://github.com/ably/ably-pubsub-cocoa/) repository and is versioned and released as part of ably-pubsub-cocoa: add the ably-pubsub-cocoa package to your project and select its `AblyLiveObjects` product. It was previously developed in the [ably-liveobjects-swift-plugin](https://github.com/ably/ably-liveobjects-swift-plugin) repository; if you are coming from that package, see the [migration guide](#migrating-from-the-standalone-plugin-package).
+> The plugin is the `AblyLiveObjects` product of the [ably-pubsub-cocoa](https://github.com/ably/ably-pubsub-cocoa/) package, and is released with it at the same version. See [Installation](#installation). It was previously the standalone [ably-liveobjects-swift-plugin](https://github.com/ably/ably-liveobjects-swift-plugin) package. If you are coming from that package, see the [migration guide](#migrating-from-the-standalone-plugin-package).
 
 ---
 
@@ -40,20 +40,49 @@ This plugin supports the following platforms:
 
 ---
 
+## Installation
+
+The plugin ships as the `AblyLiveObjects` product of the ably-pubsub-cocoa package. It has no separate package or version, and installs through Swift Package Manager only.
+
+In Xcode, choose **File > Add Package Dependencies…** and enter `https://github.com/ably/ably-pubsub-cocoa`. Then select both the `AblyPubSubDevice` and `AblyLiveObjects` products for your target.
+
+In a `Package.swift` manifest, add the package and both products:
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/ably/ably-pubsub-cocoa", from: "2.0.0"),
+],
+targets: [
+    .target(
+        name: "MyTarget",
+        dependencies: [
+            .product(name: "AblyPubSubDevice", package: "ably-pubsub-cocoa"),
+            .product(name: "AblyLiveObjects", package: "ably-pubsub-cocoa"),
+        ]
+    ),
+]
+```
+
+---
+
 ## Usage
 
 The examples below are a quick tour of the API. Check the [LiveObjects documentation](https://ably.com/docs/liveobjects) for a comprehensive guide — starting with the [Swift quickstart](https://ably.com/docs/liveobjects/quickstart/swift), it covers maps, counters, path objects, subscriptions, lifecycle events and more.
 
-After [installing the plugin](../README.md#liveobjects), pass it to the client via
+Devices authenticate with tokens from your own server: the samples set `authUrl` to its `/ably-auth` endpoint.
+
+After [installing the plugin](#installation), pass it to the client via
 `ClientOptions`, and fetch channels with the LiveObjects channel modes:
 
 ```swift
-import AblyPubSubDevice
+import AblyPubSubDeviceSwift
 import AblyLiveObjects
 
-let clientOptions = ClientOptions(key: "your-ably-api-key")
-clientOptions.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]
-let realtime = PubSubDevice.createClient(options: clientOptions)
+let options = ClientOptions()
+options.authUrl = URL(string: "https://your-server.example.com/ably-auth")
+options.clientId = "me"
+options.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]
+let realtime = PubSubDevice.createClient(options: options)
 
 // Fetch a channel, specifying the LiveObjects channel modes
 let channelOptions = RealtimeChannelOptions()
@@ -120,40 +149,39 @@ subscription.unsubscribe()
 
 ## Migrating from the standalone plugin package
 
-As of ably-cocoa 1.3.0, the plugin is developed, versioned and released from the ably-cocoa repository as the `AblyLiveObjects` product of the ably-cocoa package. The standalone [ably-liveobjects-swift-plugin](https://github.com/ably/ably-liveobjects-swift-plugin) package is deprecated: no further releases will be published from it, and its final release is 0.4.1. Migrating takes two steps.
+Since ably-cocoa 1.3.0, the plugin is developed and released in this repository as the `AblyLiveObjects` product. In 2.0, the repository and package are renamed ably-pubsub-cocoa. The standalone [ably-liveobjects-swift-plugin](https://github.com/ably/ably-liveobjects-swift-plugin) package is deprecated: no further releases will be published from it, and its final release is 0.4.1. Migrating takes two steps.
 
 ### Step 1: Swap the package dependency
 
 1. Remove the `ably-liveobjects-swift-plugin` package dependency from your project.
-2. Add (or update) the `ably-cocoa` package at version 1.3.0 or later, and select its `AblyLiveObjects` product for your target — see the [installation instructions](../README.md#liveobjects).
+2. Replace the `ably-cocoa` package with the `ably-pubsub-cocoa` package at version 2.0.0 or later, and select its `AblyPubSubDevice` and `AblyLiveObjects` products for your target. See [Installation](#installation).
 
-Your imports and plugin registration are unchanged:
+The `AblyLiveObjects` import and the plugin registration are unchanged. In 2.0, `import Ably` becomes `import AblyPubSubDeviceSwift`, and `ARTClientOptions` is `ClientOptions` in Swift:
 
 ```swift
-import AblyPubSubDevice
+import AblyPubSubDeviceSwift
 import AblyLiveObjects
 
-let clientOptions = ClientOptions(key: "your-ably-api-key")
-clientOptions.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]
+let options = ClientOptions()
+options.authUrl = URL(string: "https://your-server.example.com/ably-auth")
+options.clientId = "me"
+options.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]
 ```
 
+For the other changes from ably-cocoa 1.x, such as creating the client with `PubSubDevice.createClient`, see the [v2 migration guide](https://github.com/ably/ably-pubsub-cocoa/blob/main/Docs/migration-guides/v2.md).
+
 > [!IMPORTANT]
-> If you update ably-cocoa to 1.3.0 or later while the standalone package is still in your dependency graph, package resolution fails immediately with:
->
-> ```text
-> error: multiple packages ('ably-cocoa', 'ably-cocoa-plugin-support') declare targets with a conflicting name: '_AblyPluginSupportPrivate'; target names need to be unique across the package graph
-> error: multiple packages ('ably-cocoa', 'ably-liveobjects-swift-plugin') declare targets with a conflicting name: 'AblyLiveObjects'; target names need to be unique across the package graph
-> ```
+> If the standalone package is still in your dependency graph, package resolution fails with `declare targets with a conflicting name` errors for the `AblyLiveObjects` and `_AblyPluginSupportPrivate` targets.
 >
 > The fix is to remove the standalone package dependency, as described above.
 
 ### Step 2: Adopt the path-based API
 
-ably-cocoa 1.3.0 replaces the instance-based API of the standalone plugin (last published in its 0.4.1 release) with the path-based API: instead of obtaining and operating on explicit `LiveMap`/`LiveCounter` instances, data is accessed and mutated through `PathObject`s — stable references to locations within the channel object that resolve to values dynamically at runtime. See the [PathObject documentation](https://ably.com/docs/liveobjects/concepts/path-object).
+ably-cocoa 1.3.0 replaced the instance-based API of the standalone plugin (last published in its 0.4.1 release) with the path-based API, which ably-pubsub-cocoa 2.0 keeps: instead of obtaining and operating on explicit `LiveMap`/`LiveCounter` instances, data is accessed and mutated through `PathObject`s — stable references to locations within the channel object that resolve to values dynamically at runtime. See the [PathObject documentation](https://ably.com/docs/liveobjects/concepts/path-object).
 
 The headline API changes:
 
-| Standalone plugin (≤ 0.4.1)                                    | ably-cocoa 1.3.0+                                                                                                       |
+| Standalone plugin (≤ 0.4.1)                                    | ably-pubsub-cocoa 2.0                                                                                                   |
 | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | `channel.objects`, returning `RealtimeObjects`                 | `channel.object`, returning `RealtimeObject`                                                                            |
 | `try await channel.objects.getRoot()`, returning `any LiveMap` | `try await channel.object.get()`, returning `any LiveMapPathObject`                                                     |
@@ -167,7 +195,7 @@ let rootObject = try await channel.objects.getRoot()
 try await rootObject.set(key: "myKey", value: "myValue")
 let value = try rootObject.get(key: "myKey")?.stringValue
 
-// ably-cocoa 1.3.0+ — path-based
+// ably-pubsub-cocoa 2.0 — path-based
 let rootObject = try await channel.object.get()
 try await rootObject.set(key: "myKey", value: "myValue")
 let value = try rootObject.get(key: "myKey").asPrimitive().stringValue()
@@ -197,7 +225,7 @@ To run the app:
 
 ## Releases
 
-The plugin is released as part of ably-cocoa; see the [ably-cocoa CHANGELOG](../CHANGELOG.md) for details of releases (and [CHANGELOG.md](./CHANGELOG.md) for the historical releases of the standalone plugin package). You can also view all Ably releases on [changelog.ably.com](https://changelog.ably.com).
+The plugin is released as part of ably-pubsub-cocoa. See the [ably-pubsub-cocoa CHANGELOG](../CHANGELOG.md) for its releases, and [CHANGELOG.md](./CHANGELOG.md) for the historical releases of the standalone plugin package. You can also view all Ably releases on [changelog.ably.com](https://changelog.ably.com).
 
 ---
 

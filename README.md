@@ -1,179 +1,219 @@
-![Ably Pub/Sub Cocoa Header](images/CocoaSDK-github.png)
-[![Latest Version](https://img.shields.io/github/v/release/ably/ably-pubsub-cocoa)](https://swiftpackageindex.com/ably/ably-pubsub-cocoa)
+![Ably Pub/Sub Cocoa Header](https://raw.githubusercontent.com/ably/ably-pubsub-cocoa/main/images/CocoaSDK-github.png)
+
+[![AblyPubSubDevice](https://img.shields.io/github/v/release/ably/ably-pubsub-cocoa?label=AblyPubSubDevice)](https://github.com/ably/ably-pubsub-cocoa/releases)
 [![License](https://badgen.net/github/license/ably/ably-pubsub-cocoa)](https://github.com/ably/ably-pubsub-cocoa/blob/main/LICENSE)
 
 # Ably Pub/Sub Cocoa SDK
 
-Build any realtime experience using Ably's Pub/Sub Cocoa SDK. Supported on all popular platforms and frameworks, including Swift and Objective-C.
+The Swift and Objective-C SDK for [Ably Pub/Sub](https://ably.com/docs/basics): publish and
+subscribe to channels, and use message history, presence, push notifications and LiveObjects, from
+iOS, macOS and tvOS apps.
 
-Ably Pub/Sub provides flexible APIs that deliver features such as pub-sub messaging, message history, presence, and push notifications. Utilizing Ably's realtime messaging platform, applications benefit from its highly performant, reliable, and scalable infrastructure.
+## Overview
 
-Find out more:
+This SDK provides the device package only, for end-user apps. There is no server package; for
+backends, use a server SDK such as [JavaScript](https://github.com/ably/ably-pubsub-js),
+[Java](https://github.com/ably/ably-pubsub-java), [Go](https://github.com/ably/ably-pubsub-go),
+[.NET](https://github.com/ably/ably-pubsub-dotnet), [Python](https://github.com/ably/ably-pubsub-python),
+[PHP](https://github.com/ably/ably-pubsub-php) or [Ruby](https://github.com/ably/ably-pubsub-ruby).
 
-* [Ably Pub/Sub docs.](https://ably.com/docs/basics)
-* [Ably Pub/Sub examples.](https://ably.com/examples?product=pubsub)
+| Package | Use it for | Entry point |
+|---------|------------|-------------|
+| `AblyPubSubDevice` | Applications on end-user devices | `PubSubDevice.createClient` |
 
----
+## Requirements
 
-## Getting started
-
-Everything you need to get started with Ably:
-
-* [Getting started in Pub/Sub using Swift.](https://ably.com/docs/getting-started/swift?lang=swift)
-* [SDK Setup for Swift.](https://ably.com/docs/getting-started/setup?lang=swift)
-
----
-
-## Supported platforms
-
-Ably aims to support a wide range of platforms. If you experience any compatibility issues, open an issue in the repository or contact [Ably support](https://ably.com/support).
-
-The following platforms are supported:
-
-| Platform | Support |
-|----------|---------|
-| iOS | >= 15 |
-| macOS | >= 12 |
-| tvOS | >= 15 |
-
-Building the SDK requires Xcode 26 or later.
-
----
+iOS 15 or later, macOS 12 or later, or tvOS 15 or later (building needs Xcode 26 or later, with
+Swift 6.2).
 
 ## Installation
 
-You can install Ably for iOS, macOS and tvOS through [Swift package manager](#swift-package-manager). Upgrading from 1.x is covered by the [migration guide](Docs/migration-guides/v2.md).
+Install the SDK with Swift Package Manager. Version 2.0 is not published to CocoaPods or Carthage.
 
-> [!IMPORTANT]
-> **CocoaPods and Carthage are not supported from 2.0.** Their last releases — the `Ably` pod and the
-> Carthage `Ably.xcframework` — are on the 1.x line, which receives security and critical fixes only.
-> To take 2.0 or later, move to Swift Package Manager.
+In Xcode:
 
-To use the [Ably LiveObjects plugin](#liveobjects), see its installation notes below — it is
-available via Swift Package Manager only.
+1. Choose **File > Add Package Dependencies…** and enter `https://github.com/ably/ably-pubsub-cocoa`.
+2. Add the `AblyPubSubDevice` product to your target.
 
-### Swift Package Manager
+In a `Package.swift` manifest, add the same package URL from version `2.0.0` and depend on its
+`AblyPubSubDevice` product.
 
-The Ably Pub/Sub SDK includes installation support for [Swift Package Manager](https://swift.org/package-manager/).
+In Objective-C, import the SDK with `@import AblyPubSubDevice;`. Swift drops the `ART` prefix from
+type names: `ARTClientOptions` is `ClientOptions`.
 
-<details>
-<summary>Swift Package Manager installation details.</summary>
+## Quick start
 
-To install the `ably-pubsub-cocoa` package in your Xcode project:
-
-* Choose *File* &rarr; *Add Package Dependencies…* and paste `https://github.com/ably/ably-pubsub-cocoa` in the search box.
-* Select the `AblyPubSubDevice` SDK for your target.
-
-To install the `ably-pubsub-cocoa` package in another Swift package, add the following to your `Package.Swift`:
-
-```swift
-.package(url: "https://github.com/ably/ably-pubsub-cocoa", from: "2.0.0"),
-```
-
-See Apple's [adding package dependencies to your app](https://developer.apple.com/documentation/swift_packages/adding_package_dependencies_to_your_app) guide for more detail.
-</details>
-
-### Privacy manifest
-
-The SDK ships a privacy manifest (`PrivacyInfo.xcprivacy`), which Xcode merges into your app's privacy report. It declares the Device ID data type, which is collected only if your app uses push notifications: the SDK generates a random device ID and sends it to Ably when it registers the device for push, or subscribes it to push channels. If your app doesn't use push notifications, the SDK doesn't send the device ID off the device, and you can leave Device ID off your App Store privacy label. The device ID is not used for tracking.
-
----
-
-## Usage
-
-```swift
-// Initialize Ably Realtime client
-let clientOptions = ClientOptions(key: "your-ably-api-key")
-clientOptions.clientId = "me"
-let realtime = PubSubDevice.createClient(options: clientOptions)
-
-// Wait for connection to be established
-realtime.connection.on { stateChange in
-    if stateChange.current == .connected {
-        print("Connected to Ably")
-        
-        // Get a reference to the 'test-channel' channel
-        let channel = realtime.channels.get("test-channel")
-        
-        // Subscribe to all messages published to this channel
-        channel.subscribe { message in
-            print("Received message: \(message.data ?? "")")
-        }
-        
-        // Publish a test message to the channel
-        channel.publish("test-event", data: "hello world!") { error in
-            guard error == nil else {
-                print("Error publishing message: \(error!.message)")
-                return
-            }
-            print("Message successfully published")
-        }
-    }
-}
-```
-
-In Swift, import `AblyPubSubDeviceSwift` to await operations such as attaching, publishing and entering presence instead of passing callbacks. Failures throw an `ErrorInfo`:
+Authenticate a device with tokens issued by your own server, through `authUrl` or `authCallback`.
+Never embed an API key in an app that runs on an end-user device.
 
 ```swift
 import AblyPubSubDeviceSwift
 
-let channel = realtime.channels.get("test-channel")
-try await channel.attach()
-try await channel.publish("test-event", data: "hello world!")
-try await channel.presence.enter("present")
+let options = ClientOptions()
+options.authUrl = URL(string: "https://your-server.example.com/ably-auth")
+options.clientId = "me"
+let client = PubSubDevice.createClient(options: options)
+
+// The client connects automatically. Subscribing attaches the channel.
+let channel = client.channels.get("test-channel")
+channel.subscribe { message in
+    print("Received: \(message.data ?? "")")
+}
+
+channel.publish("test-event", data: "hello world") { error in
+    if let error {
+        print("Publish failed: \(error.message)")
+    }
+}
 ```
+
+To get tokens from your own code instead of a URL, set `authCallback`. Pass its callback a token
+string, a `TokenDetails` or a `TokenRequest`.
+
+In Swift, you can `await` channel, presence and connection operations instead of passing callbacks,
+for example `try await channel.publish("test-event", data: "hello world")`. They throw an
+`ErrorInfo`.
 
 > [!IMPORTANT]
-> The `async` functions in `AblyPubSubDeviceSwift` are experimental. Their names, signatures and the set of operations they cover may change in a minor release.
+> The `async` functions in `AblyPubSubDeviceSwift` are experimental. Their names, signatures and
+> the set of operations they cover may change in a minor release.
 
----
+## Migrating from 1.x
 
-## LiveObjects
+Version 2.0 installs through Swift Package Manager only and creates clients with `PubSubDevice`.
 
-[Ably LiveObjects](https://ably.com/docs/liveobjects) provides realtime, collaborative data
-structures that automatically synchronize state across all connected clients. This repository
-contains the Ably LiveObjects plugin, which enables LiveObjects on top of the core Pub/Sub SDK.
+| | 1.x | 2.0 |
+|---|---|---|
+| Package | `Ably` product of `ably-cocoa` | `AblyPubSubDevice` product of `ably-pubsub-cocoa` |
+| Import | `import Ably` / `@import Ably;` | `import AblyPubSubDeviceSwift` / `@import AblyPubSubDevice;` |
+| Realtime client | `ARTRealtime(options: options)` | `PubSubDevice.createClient(options: options)` |
+| REST client | `ARTRest(options: options)` | Removed |
 
-### Install LiveObjects
+See the [migration guide](https://github.com/ably/ably-pubsub-cocoa/blob/main/Docs/migration-guides/v2.md) for all other changes.
 
-The plugin is available via **Swift Package Manager**. There is no separate package or version to install: the plugin ships as a product
-of this package and is versioned and released as part of ably-pubsub-cocoa.
+## Common configuration
 
-To install it in your Xcode project, add the `ably-pubsub-cocoa` package [as above](#swift-package-manager)
-and additionally select the `AblyLiveObjects` product for your target.
+Set options on a `ClientOptions` object and pass it to `PubSubDevice.createClient(options:)`.
 
-To install it in another Swift package, add the product to your target's dependencies:
+### Endpoint
+
+`endpoint` selects the Ably host for HTTP requests and the realtime connection. It replaces the
+1.x `environment`, `restHost` and `realtimeHost` options.
 
 ```swift
-.target(
-    name: "MyTarget",
-    dependencies: [
-        .product(name: "AblyPubSubDevice", package: "ably-pubsub-cocoa"),
-        .product(name: "AblyLiveObjects", package: "ably-pubsub-cocoa"),
-    ]
-)
+let options = ClientOptions()
+options.authUrl = URL(string: "https://your-server.example.com/ably-auth")
+options.clientId = "me"
+options.endpoint = "nonprod:sandbox"
+let client = PubSubDevice.createClient(options: options)
 ```
 
-For usage, platform requirements, the example app and the
-[migration guide](LiveObjects/README.md#migrating-from-the-standalone-plugin-package) for users
-of the standalone plugin package, see the [LiveObjects README](LiveObjects/README.md). For a
-comprehensive guide, check the [LiveObjects documentation](https://ably.com/docs/liveobjects),
-starting with the [Swift quickstart](https://ably.com/docs/liveobjects/quickstart/swift).
+- Never put a port in `endpoint`: `localhost:8080` is not a hostname and does not resolve.
+- Set the port with `tlsPort`, or with `port` when TLS is off.
+- With TLS off (`tls = false`), use token authentication.
 
----
+See the [migration guide](https://github.com/ably/ably-pubsub-cocoa/blob/main/Docs/migration-guides/v2.md#endpoint) for how the old options map to
+`endpoint`.
 
-## Contribute
+### Logging
 
-Read the [CONTRIBUTING.md](./CONTRIBUTING.md) guidelines to contribute to Ably.
+Set `logLevel` to a `LogLevel` value: `.verbose`, `.debug`, `.info`, `.warn` or `.error`. The
+default is `.warn`. The SDK writes log lines with `NSLog`.
 
----
+```swift
+options.logLevel = .debug
+```
 
-## Releases
+To send log lines elsewhere, set `logHandler` to a subclass of `Log` that overrides `log(_:with:)`.
 
-The [CHANGELOG.md](./CHANGELOG.md) contains details of the latest releases for this SDK. You can also view all Ably releases on [changelog.ably.com](https://changelog.ably.com).
+<a id="liveobjects"></a>
 
----
+## Live Objects
 
-## Support, feedback, and troubleshooting
+[LiveObjects](https://ably.com/docs/liveobjects) adds realtime data structures, such as maps and
+counters, that stay in sync across clients.
 
-For help or technical support, visit Ably's [support page](https://ably.com/support) or [GitHub Issues](https://github.com/ably/ably-pubsub-cocoa/issues) for community-reported bugs and discussions.
+### Installation
+
+The plugin ships as the `AblyLiveObjects` product of this package. It has no separate package or
+version, and installs through Swift Package Manager only.
+
+In Xcode, add the package as described in [Installation](#installation). Then select both the
+`AblyPubSubDevice` and `AblyLiveObjects` products for your target.
+
+In a `Package.swift` manifest, add the package and both products:
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/ably/ably-pubsub-cocoa", from: "2.0.0"),
+],
+targets: [
+    .target(
+        name: "MyTarget",
+        dependencies: [
+            .product(name: "AblyPubSubDevice", package: "ably-pubsub-cocoa"),
+            .product(name: "AblyLiveObjects", package: "ably-pubsub-cocoa"),
+        ]
+    ),
+]
+```
+
+### Usage
+
+Register the plugin, then get a channel with the object channel modes:
+
+```swift
+import AblyPubSubDeviceSwift
+import AblyLiveObjects
+
+let options = ClientOptions()
+options.authUrl = URL(string: "https://your-server.example.com/ably-auth")
+options.clientId = "me"
+options.plugins = [.liveObjects: AblyLiveObjects.Plugin.self]
+let client = PubSubDevice.createClient(options: options)
+
+let channelOptions = RealtimeChannelOptions()
+channelOptions.modes = [.objectPublish, .objectSubscribe]
+let channel = client.channels.get("test-channel", options: channelOptions)
+let root = try await channel.object.get()
+```
+
+To learn more, follow the [Swift quickstart](https://ably.com/docs/liveobjects/quickstart/swift).
+The [LiveObjects README](https://github.com/ably/ably-pubsub-cocoa/blob/main/LiveObjects/README.md)
+has more examples and an example app.
+
+## Platform notes
+
+### Push notifications
+
+On iOS, the SDK can activate a device for push notifications and subscribe it to channels. See
+[Push notifications](https://ably.com/docs/push) for setup, and [Examples/AblyPush](https://github.com/ably/ably-pubsub-cocoa/tree/main/Examples/AblyPush)
+for an example app.
+
+### Privacy manifest
+
+The SDK's privacy manifest declares the Device ID data type, which is not used for tracking. The
+SDK sends the device ID to Ably only when your app uses push notifications. If your app doesn't, you
+can leave Device ID off your App Store privacy label.
+
+## Further reading
+
+- [Getting started with Pub/Sub using Swift](https://ably.com/docs/getting-started/swift)
+- [Ably Pub/Sub documentation](https://ably.com/docs/basics) and [examples](https://ably.com/examples?product=pubsub)
+- [Token authentication](https://ably.com/docs/auth/token)
+- [Migration guide](https://github.com/ably/ably-pubsub-cocoa/blob/main/Docs/migration-guides/v2.md): migrating from 1.x
+- [CHANGELOG.md](https://github.com/ably/ably-pubsub-cocoa/blob/main/CHANGELOG.md): release notes; all Ably releases are listed on [changelog.ably.com](https://changelog.ably.com)
+
+## Contributing
+
+Read [CONTRIBUTING.md](https://github.com/ably/ably-pubsub-cocoa/blob/main/CONTRIBUTING.md) before contributing; it also describes the release
+process.
+
+## Support, feedback and troubleshooting
+
+For help, visit Ably's [support page](https://ably.com/support). Report bugs and compatibility
+problems on [GitHub Issues](https://github.com/ably/ably-pubsub-cocoa/issues).
+
+## License
+
+Licensed under the Apache License, Version 2.0. See [LICENSE](https://github.com/ably/ably-pubsub-cocoa/blob/main/LICENSE).
